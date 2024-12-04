@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: dev
+    include: auth, oauth2
+  application:
+    name: myteam-server

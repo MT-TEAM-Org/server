@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+    <title>Payment Page</title>
+
+    <script>
+        function createOrder(amount) {
+            fetch('/api/pay/cart/purchase/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([{ cartCode: 6 }])  // 예시 데이터로 설정한 cartCode
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.code === 1) {
+                    requestPay(data.data.payCode, amount);
+                } else {
+                    alert('Order creation failed!');
+                }
+            })
+            .catch(error => console.error('Error creating order:', error.message));
+        }
+
+        //frontend에서 구현해야하는 부분 -> requestPay
+        function requestPay(payCode, amount) {
+            IMP.init('imp26375181');  // IAMPORT ID
+
+            IMP.request_pay({
+                channelKey: 'channel-key-eaa7a116-1cff-416f-899a-af3292888850',  // IAMPORT 채널 키
+                pay_method: 'card',
+                merchant_uid: payCode,
+                name: 'Product Purchase',
+                amount: amount,
+            }, function(response) {
+                if (response.success) {
+                    completePayment(response.imp_uid, payCode);
+                } else {
+                    alert('Payment failed: ' + response.error_msg);
+                }
+            });
+        }
+
+
+        function completePayment(impUid, payCode) {
+            fetch('/api/pay/payment/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ impUid: impUid, payCode: payCode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 1) {
+                    alert('Payment was successful!');
+                } else {
+                    alert('Payment verification failed!');
+                }
+            })
+            .catch(error => {
+                console.error('Payment verification failed:', error);
+                alert('Payment verification failed!');
+            });
+        }
+
+        // 여기까지
+
+        function requestPayButtonClick() {
+            const amount = 10;  // 예시 금액
+            createOrder(amount);
+        }
+    </script>
+</head>
+<body>
+<h1>Payment Page</h1>
+<button onclick="requestPayButtonClick()">결제하기</button>
+</body>
+</html>
