@@ -28,6 +28,10 @@ public class CertifyMailSender implements MailSender {
 
     @Value("${SENDER_EMAIL}")
     private String senderEmail;
+    @Value("${EMAIL_USERNAME}")
+    private String emailUserName;
+    @Value("${EMAIL_PASSWORD}")
+    private String emailPassword;
     private final JavaMailSender javaMailSender;
     private static final int EXPIRATION_MINUTES = 5; // 유효 시간 (5분)
     private final Map<String, CertificationCode> codeStorage = new ConcurrentHashMap<>();
@@ -36,6 +40,9 @@ public class CertifyMailSender implements MailSender {
     @Override
     public void send(String email) {
         log.info("Sending email to {}", email);
+        log.info("senderEmail {}", senderEmail);
+        log.info("emailUserName {}", emailUserName);
+        log.info("emailPassword {}", emailPassword);
 
         // 인증 코드 생성
         CertificationCode certificationCode = createNumber();
