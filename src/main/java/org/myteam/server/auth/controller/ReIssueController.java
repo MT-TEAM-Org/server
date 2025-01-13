@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import static org.myteam.server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
 import static org.myteam.server.global.security.jwt.JwtProvider.*;
 import static org.myteam.server.global.util.cookie.CookieUtil.createCookie;
+import static org.myteam.server.global.util.domain.DomainUtil.extractDomain;
 
 /**
  * TODO_ : 리프레시 토큰에 대한 블랙 리스트 작성
@@ -50,7 +51,8 @@ public class ReIssueController {
                     URLEncoder.encode(TOKEN_PREFIX + tokens.getRefreshToken(), StandardCharsets.UTF_8),
                     TOKEN_REISSUE_PATH,
                     24 * 60 * 60,
-                    true
+                    true,
+                    extractDomain(request.getServerName())
             ));
 
             response.addCookie(createCookie(
@@ -58,7 +60,8 @@ public class ReIssueController {
                     URLEncoder.encode(TOKEN_PREFIX + tokens.getRefreshToken(), StandardCharsets.UTF_8),
                     LOGOUT_PATH,
                     24 * 60 * 60,
-                    true
+                    true,
+                    extractDomain(request.getServerName())
             ));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (PlayHiveException e) {

@@ -11,6 +11,7 @@ import org.myteam.server.auth.repository.RefreshJpaRepository;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ import static org.myteam.server.global.util.cookie.CookieUtil.getCookie;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReIssueService {
     private final JwtProvider jwtProvider;
     private final RefreshJpaRepository refreshJpaRepository;
@@ -88,11 +90,11 @@ public class ReIssueService {
         return jwtProvider.getAccessToken(refresh);
     }
 
+    @Transactional
     public Tokens reissueTokens(HttpServletRequest request) {
         try {
             // Refresh Token 추출 및 디코딩
             String refresh = extractRefreshToken(request);
-            ;
 
             log.info("Extracted refresh token: {}", refresh);
 
@@ -111,8 +113,11 @@ public class ReIssueService {
             // X-Refresh-Token
             String newRefresh = jwtProvider.generateToken(TOKEN_CATEGORY_REFRESH, Duration.ofHours(24), publicId, role, status);
 
+            log.info("쿠키 확인용 refresh: {}, publicId: {}", refresh, publicId);
+            log.info("쿠키 확인용 refresh: {}, publicId: {}", refresh, publicId);
+
             // 기존 리프레시 토큰 삭제
-            deleteByRefreshAndPublicId(refresh, publicId);
+            deleteByPublicId(publicId);
             // 새로운 리프레시 토큰 등록
             addRefreshEntity(publicId, newRefresh, Duration.ofHours(24));
 
@@ -140,7 +145,7 @@ public class ReIssueService {
         refreshJpaRepository.save(refreshEntity);
     }
 
-    public void deleteByRefreshAndPublicId(String refresh, UUID publicId) {
-        refreshJpaRepository.deleteByRefreshAndPublicId(refresh, publicId);
+    public void deleteByPublicId(UUID publicId) {
+        refreshJpaRepository.deleteByPublicId(publicId);
     }
 }
