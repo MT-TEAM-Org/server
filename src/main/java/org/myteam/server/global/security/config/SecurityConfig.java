@@ -1,5 +1,6 @@
 package org.myteam.server.global.security.config;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.repository.RefreshJpaRepository;
@@ -71,6 +72,12 @@ public class SecurityConfig {
     private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final RefreshJpaRepository refreshJpaRepository;
+
+    @PostConstruct
+    public void init() {
+        log.debug("init security config");
+        log.debug("frontUrl = {}", frontUrl);
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -153,7 +160,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
                                 .requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
 
-                                .requestMatchers(TOKEN_REISSUE_PATH).permitAll()          // 토큰 재발급
+                                .requestMatchers(HttpMethod.POST, TOKEN_REISSUE_PATH).permitAll()          // 토큰 재발급
                                 .requestMatchers("/api/members/role").permitAll()       // 유저 권한 변경 허용
 
                                 .anyRequest().authenticated()                   // 나머지 요청은 모두 허용
@@ -192,7 +199,6 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedOriginPattern(frontUrl); // TODO_ 추후 변경 해야함 배포시
-        configuration.addAllowedOriginPattern("http://playhive.com:3000"); // TODO_ 추후 변경 해야함 배포시
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader(HEADER_AUTHORIZATION);
         configuration.addExposedHeader(REFRESH_TOKEN_KEY);

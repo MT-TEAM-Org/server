@@ -7,9 +7,7 @@ import org.myteam.server.global.security.util.PasswordUtil;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.entity.Oauth2Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.repository.Oauth2MemberJpaRepository;
 import org.myteam.server.oauth2.dto.CustomOAuth2User;
 import org.myteam.server.oauth2.response.*;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -30,11 +28,9 @@ import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberJpaRepository memberJpaRepository;
-    private final Oauth2MemberJpaRepository oauth2MemberJpaRepository;
 
-    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository, Oauth2MemberJpaRepository oauth2MemberJpaRepository) {
+    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository) {
         this.memberJpaRepository = memberJpaRepository;
-        this.oauth2MemberJpaRepository = oauth2MemberJpaRepository;
     }
 
     @Override
@@ -107,21 +103,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         log.debug("Creating new member for providerId: {}", providerId);
 
         UUID publicId = UUID.randomUUID();
-        Oauth2Member newMember = Oauth2Member.builder()
+        Member newMember = Member.builder()
                 .email(oAuth2Response.getEmail())
                 .password(PasswordUtil.generateRandomPassword())
-                .name(oAuth2Response.getName())
                 .role(USER)
                 .tel(oAuth2Response.getTel())
                 .nickname(oAuth2Response.getNickname())
-                .gender(oAuth2Response.getGender())
-                .birthdate(oAuth2Response.getBirthdate())
                 .publicId(publicId)
+                .status(MemberStatus.PENDING)
                 .type(MemberType.fromOAuth2Provider(oAuth2Response.getProvider()))
                 .build();
 
-        oauth2MemberJpaRepository.save(newMember); // OAuth2 사용자 테이블에 보관. 추후 사용자가 추가 항목 기입 후 회원가입 완료하면 일반 사용자 테이블에 저장
-        return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId, MemberStatus.PENDING);
+        memberJpaRepository.save(newMember);
+        return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId, newMember.getStatus());
     }
 
     /**
