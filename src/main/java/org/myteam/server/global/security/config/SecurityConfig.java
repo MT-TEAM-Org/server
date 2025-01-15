@@ -65,8 +65,6 @@ public class SecurityConfig {
 
     @Value("${FRONT_URL:http://localhost:3000}")
     private String frontUrl;
-    @Value("${BACKEND_URL:http://localhost:8080}")
-    private String backendUrl;
     private final JwtProvider jwtProvider;
     private final WebConfig webConfig;
     private final CustomUserDetailsService customUserDetailsService;
@@ -201,7 +199,6 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedOriginPattern(frontUrl); // TODO_ 추후 변경 해야함 배포시
-        configuration.addAllowedOriginPattern(backendUrl); // TODO_ 추후 변경 해야함 배포시
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader(HEADER_AUTHORIZATION);
         configuration.addExposedHeader(REFRESH_TOKEN_KEY);
