@@ -9,7 +9,7 @@ import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberType;
-import org.myteam.server.member.dto.ExistMemberRequest;
+import org.myteam.server.member.dto.ExistMemberNicknameRequest;
 import org.myteam.server.member.dto.MemberRoleUpdateRequest;
 import org.myteam.server.member.dto.MemberStatusUpdateRequest;
 import org.myteam.server.member.service.MemberService;
@@ -34,21 +34,35 @@ public class MemberController {
     /**
      * 이메일로 사용자 존재 여부 확인
      */
+    @Deprecated
     @GetMapping("/exists/email")
-    public ResponseEntity<?> existsByEmail(@Valid ExistMemberRequest existMemberRequest, BindingResult bindingResult) {
-        log.info("MemberController existsByEmail 메서드 실행 : {}", existMemberRequest.getEmail());
-        boolean exists = memberService.existsByEmail(existMemberRequest.getEmail());
-        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "이메일 존재 여부 확인", exists));
+    public ResponseEntity<?> existsByEmail(@Valid ExistMemberNicknameRequest existMemberNicknameRequest, BindingResult bindingResult) {
+//        log.info("MemberController existsByEmail 메서드 실행 : {}", existMemberNicknameRequest.getEmail());
+//        boolean exists = memberService.existsByEmail(existMemberNicknameRequest.getEmail());
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "이메일 존재 여부 확인", null));
     }
 
     /**
      * 닉네임으로 사용자 존재 여부 확인
      */
     @GetMapping("/exists/nickname")
-    public ResponseEntity<?> existsByNickname(@Valid ExistMemberRequest existMemberRequest, BindingResult bindingResult) {
-        log.info("MemberController existsByNickname 메서드 실행 : {}", existMemberRequest.getNickname());
-        boolean exists = memberService.existsByNickname(existMemberRequest.getNickname());
+    public ResponseEntity<?> existsByNickname(@Valid ExistMemberNicknameRequest existMemberNicknameRequest, BindingResult bindingResult) {
+        log.info("MemberController existsByNickname 메서드 실행 : {}", existMemberNicknameRequest.getNickname());
+        boolean exists = memberService.existsByNickname(existMemberNicknameRequest.getNickname());
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "닉네임 존재 여부 확인", exists));
+    }
+
+    /**
+     * 이메일을 통해 사용자의 가입 유형을 확인합니다.
+     *
+     * @param email 사용자의 이메일
+     * @return null: 가입되지 않은 사용자, "LOCAL": 로컬 회원가입 사용자, 그 외: 소셜 로그인 사용자
+     */
+    @GetMapping("/{email}/type")
+    public ResponseEntity<?> getMemberType(@PathVariable String email) {
+        log.info("MemberController getMemberType 메서드 실행: {}", email);
+        MemberType memberType = memberService.getMemberTypeByEmail(email);
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "회원 타입 조회 성공", memberType));
     }
 
     // TODO_ : 헤더에 publicId 를 넣어달라고 하고 받아서... 끄내고 아이디 조회해서 그걸로 다시 own 검토하면 될 것으로 보임
@@ -86,12 +100,5 @@ public class MemberController {
         MemberResponse response = memberService.getByEmail(email);
         String encode = TOKEN_PREFIX + jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofSeconds(second), response.getPublicId(), response.getRole().name(), response.getStatus().name());
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "토큰 조회 성공", encode), HttpStatus.OK);
-    }
-
-    @GetMapping("/type/{email}")
-    public ResponseEntity<?> getMemberType(@PathVariable String email) {
-        log.info("MemberController getMemberType 메서드 실행: {}", email);
-        MemberType memberType = memberService.getMemberTypeByEmail(email);
-        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "회원 타입 조회 성공", memberType));
     }
 }
