@@ -26,7 +26,7 @@ public class WebConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        final String[] ALLOWED_ORIGIN = {frontUrl};
+        final String[] ALLOWED_ORIGIN = {frontUrl, "http://localhost:3000"};
 
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList(ALLOWED_ORIGIN));
