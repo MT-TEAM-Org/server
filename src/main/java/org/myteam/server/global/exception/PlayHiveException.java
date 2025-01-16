@@ -29,10 +29,11 @@ public class PlayHiveException extends RuntimeException {
     }
 
     /**
+     * @param errorCode ErrorCode에 정의된 메시지 반환
      * @param message 정의되지 않은 예외 처리
      */
-    public PlayHiveException(String message) {
+    public PlayHiveException(ErrorCode errorCode, String message) {
         super(message);
-        this.errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        this.errorCode = errorCode;
     }
 }

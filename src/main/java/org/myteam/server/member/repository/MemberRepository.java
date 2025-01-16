@@ -11,5 +11,5 @@ public interface MemberRepository {
     Optional<Member> findByPublicId(UUID publicId);
     Member getByNickname(String nickname);
     Member getByEmail(String email);
-    Member getByByPublicId(UUID publicId);
+    Member getByPublicId(UUID publicId);
 }

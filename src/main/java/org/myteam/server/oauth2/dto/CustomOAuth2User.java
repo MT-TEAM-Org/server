@@ -1,6 +1,7 @@
 package org.myteam.server.oauth2.dto;
 
 import lombok.Getter;
+import org.myteam.server.member.domain.MemberStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -15,10 +16,12 @@ public class CustomOAuth2User implements OAuth2User {
     private String username;
     private String role;
     private UUID publicId;
-    public CustomOAuth2User(String username, String role, UUID publicId) {
+    private MemberStatus status;
+    public CustomOAuth2User(String username, String role, UUID publicId, MemberStatus status) {
         this.username = username;
         this.role = role;
         this.publicId = publicId;
+        this.status = status;
     }
     @Override
     public <A> A getAttribute(String name) {
@@ -47,4 +50,5 @@ public class CustomOAuth2User implements OAuth2User {
     }
 
     public UUID getPublicId() { return publicId; }
+    public MemberStatus getStatus() { return status; }
 }

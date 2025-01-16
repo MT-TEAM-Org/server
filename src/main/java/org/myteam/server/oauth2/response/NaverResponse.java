@@ -3,6 +3,7 @@ package org.myteam.server.oauth2.response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.myteam.server.member.domain.GenderType;
+import org.myteam.server.member.domain.validator.MemberValidator;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -47,7 +48,8 @@ public class NaverResponse implements OAuth2Response{
 
     @Override
     public String getTel() {
-        return StringUtils.defaultString((String) attribute.get("mobile"), "").replace("-", "");
+        String phoneNumber = StringUtils.defaultString((String) attribute.get("mobile"), "").replace("-", "");
+        return MemberValidator.validateTel(phoneNumber);
     }
 
     @Override

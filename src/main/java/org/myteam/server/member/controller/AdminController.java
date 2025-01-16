@@ -23,7 +23,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @RestController
 @RequestMapping("/api/admin/members")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole(T(org.myteam.server.member.domain.MemberRole).ADMIN.name())")
+@PreAuthorize("hasAuthority(T(org.myteam.server.member.domain.MemberRole).ADMIN.name())")
 public class AdminController {
     private final MemberService memberService;
 
@@ -52,7 +52,7 @@ public class AdminController {
     @Deprecated
     @DeleteMapping("/delete")
     public ResponseEntity<?> delete(@RequestBody MemberDeleteRequest memberDeleteRequest, BindingResult bindingResult) {
-        log.info("MemberController delete( 메서드 실행 : {}", memberDeleteRequest);
+        log.info("MemberController delete 메서드 실행 : {}", memberDeleteRequest);
         String email = memberDeleteRequest.getEmail();
         memberService.delete(email);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "회원 삭제 성공", null), HttpStatus.OK);

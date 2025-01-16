@@ -5,6 +5,8 @@ import lombok.Getter;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.oauth2.constant.OAuth2ServiceProvider;
 
+import static org.myteam.server.global.exception.ErrorCode.UNSUPPORTED_OAUTH_PROVIDER;
+
 @AllArgsConstructor
 @Getter
 public enum MemberType {
@@ -23,6 +25,6 @@ public enum MemberType {
                 return type;
             }
         }
-        throw new PlayHiveException(provider);
+        throw new PlayHiveException(UNSUPPORTED_OAUTH_PROVIDER, provider);
     }
 }

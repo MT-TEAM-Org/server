@@ -1,4 +1,4 @@
-package org.myteam.server.oauth2.logout.util;
+package org.myteam.server.oauth2.unlink.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
@@ -13,11 +13,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.myteam.server.global.exception.ErrorCode.UNSUPPORTED_OAUTH_PROVIDER;
 import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 
 @Slf4j
 @Component
-public class OAuth2LogoutHelper {
+public class OAuth2UnlinkHelper {
 
     private static final Map<String, String> LOGOUT_URLS = new HashMap<>();
 
@@ -39,7 +40,7 @@ public class OAuth2LogoutHelper {
 
         String logoutUrl = LOGOUT_URLS.get(provider);
         if (logoutUrl == null) {
-            throw new PlayHiveException(provider);
+            throw new PlayHiveException(UNSUPPORTED_OAUTH_PROVIDER, provider);
         }
 
         Map<String, String> uriVariables = new HashMap<>();

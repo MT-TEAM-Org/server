@@ -1,13 +1,13 @@
 package org.myteam.server.oauth2.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.ExistingUserAuthenticationException;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.util.PasswordUtil;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.oauth2.constant.OAuth2ServiceProvider;
 import org.myteam.server.oauth2.dto.CustomOAuth2User;
 import org.myteam.server.oauth2.response.*;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import static org.myteam.server.global.exception.ErrorCode.UNSUPPORTED_OAUTH_PROVIDER;
 import static org.myteam.server.member.domain.MemberRole.USER;
-import static org.myteam.server.member.domain.MemberStatus.PENDING;
 import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 
 @Slf4j
@@ -66,7 +65,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             log.debug("Provider() : {}", oAuth2Response.getProvider());
             log.debug("registrationId : {}", registrationId);
 
-            return createNewMember(oAuth2Response, providerId);
+            return createNewMember(oAuth2Response, providerId); // 우선 Oauth2 사용자 테이블에 저장;
         }
     }
 
@@ -87,12 +86,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             log.debug("name : {}", oAuth2Response.getName());
             log.debug("provider : {}", oAuth2Response.getProvider());
             log.debug("provider.name : {}", MemberType.fromOAuth2Provider(oAuth2Response.getProvider()).name());
+            log.debug("provider.status : {}", member.getStatus().name());
 
             member.updateEmail(oAuth2Response.getEmail());
 
-            return new CustomOAuth2User(member.getEmail(), member.getRole().name(), member.getPublicId());
+            return new CustomOAuth2User(member.getEmail(), member.getRole().name(), member.getPublicId(), member.getStatus());
         } else {
-            throw new PlayHiveException(ErrorCode.USER_ALREADY_EXISTS);
+            // 로컬 이메일 계정으로 존재하는 유저
+            throw new ExistingUserAuthenticationException(
+                    "로컬 이메일 계정으로 이미 가입된 이메일입니다: " + maskEmail(oAuth2Response.getEmail())
+            );
         }
     }
 
@@ -103,19 +106,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member newMember = Member.builder()
                 .email(oAuth2Response.getEmail())
                 .password(PasswordUtil.generateRandomPassword())
-                .name(oAuth2Response.getName())
                 .role(USER)
                 .tel(oAuth2Response.getTel())
                 .nickname(oAuth2Response.getNickname())
-                .gender(oAuth2Response.getGender())
-                .birthdate(oAuth2Response.getBirthdate())
                 .publicId(publicId)
-                .status(PENDING)
+                .status(MemberStatus.PENDING)
                 .type(MemberType.fromOAuth2Provider(oAuth2Response.getProvider()))
                 .build();
 
         memberJpaRepository.save(newMember);
-        return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId);
+        return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId, newMember.getStatus());
     }
 
     /**
@@ -141,5 +141,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default:
                 return null;
         }
+    }
+
+    public static String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            throw new IllegalArgumentException("Invalid email address");
+        }
+
+        // 이메일 분리 (아이디와 도메인 부분)
+        int atIndex = email.indexOf("@");
+        String localPart = email.substring(0, atIndex); // 아이디 부분
+        String domainPart = email.substring(atIndex);  // 도메인 부분
+
+        // 아이디의 앞 3글자는 유지, 나머지는 '*'로 마스킹
+        if (localPart.length() <= 3) {
+            return localPart + domainPart;
+        }
+
+        String visiblePart = localPart.substring(0, 3); // 앞 3글자
+        String maskedPart = "*".repeat(localPart.length() - 3); // 나머지는 '*'
+        return visiblePart + maskedPart + domainPart;
     }
 }

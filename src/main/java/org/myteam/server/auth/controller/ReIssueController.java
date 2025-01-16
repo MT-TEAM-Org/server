@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import static org.myteam.server.util.CookieUtil.createCookie;
+import static org.myteam.server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
+import static org.myteam.server.global.security.jwt.JwtProvider.*;
+import static org.myteam.server.global.util.cookie.CookieUtil.createCookie;
+import static org.myteam.server.global.util.domain.DomainUtil.extractDomain;
 
 /**
  * TODO_ : 리프레시 토큰에 대한 블랙 리스트 작성
@@ -23,9 +26,6 @@ import static org.myteam.server.util.CookieUtil.createCookie;
 @RestController
 public class ReIssueController {
     private final ReIssueService reIssueService;
-    private static final String ACCESS_TOKEN_KEY = "Authorization";
-    private static final String REFRESH_TOKEN_KEY = "X-Refresh-Token";
-    public final static String TOKEN_PREFIX = "Bearer ";
     public final static String TOKEN_REISSUE_PATH = "/reissue";
     public final static String LOGOUT_PATH = "/logout";
 
@@ -43,7 +43,7 @@ public class ReIssueController {
             Tokens tokens = reIssueService.reissueTokens(request);
 
             // Access Token 응답 헤더 추가
-            response.addHeader(ACCESS_TOKEN_KEY, TOKEN_PREFIX + tokens.getAccessToken());
+            response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + tokens.getAccessToken());
 
             // Refresh Token 쿠키 추가
             response.addCookie(createCookie(
@@ -51,7 +51,8 @@ public class ReIssueController {
                     URLEncoder.encode(TOKEN_PREFIX + tokens.getRefreshToken(), StandardCharsets.UTF_8),
                     TOKEN_REISSUE_PATH,
                     24 * 60 * 60,
-                    true
+                    true,
+                    extractDomain(request.getServerName())
             ));
 
             response.addCookie(createCookie(
@@ -59,7 +60,8 @@ public class ReIssueController {
                     URLEncoder.encode(TOKEN_PREFIX + tokens.getRefreshToken(), StandardCharsets.UTF_8),
                     LOGOUT_PATH,
                     24 * 60 * 60,
-                    true
+                    true,
+                    extractDomain(request.getServerName())
             ));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (PlayHiveException e) {
@@ -70,7 +72,7 @@ public class ReIssueController {
         } catch (Exception e) {
             // 일반 예외는 PlayHiveException 으로 에러를 던짐
             log.error("Unexpected error during token reissue :" + e.getMessage());
-            throw new PlayHiveException(e.getMessage());
+            throw new PlayHiveException(INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }

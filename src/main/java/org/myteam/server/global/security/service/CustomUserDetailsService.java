@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static org.myteam.server.member.domain.MemberType.LOCAL;
+
 @Service
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
@@ -27,11 +29,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         Optional<Member> memberOP = userRepository.findByEmail(username);
 
         if (memberOP.isPresent()) {
+            // 로컬 회원인지 소셜 회원인지 확인
+            if (memberOP.get().getType() != LOCAL) {
+                log.warn("소셜 회원이 로컬 로그인 시도 중 - 거부됨");
+                return null;
+            }
+
             log.info("유저가 존재합니다. 인증 처리 로직을 실행합니다.");
             return new CustomUserDetails(memberOP.get());
         }
 
-        log.info("사용자를 찾을수 없습니다.");
-        return null;
+        log.warn("사용자를 찾을수 없습니다.");
+        throw new UsernameNotFoundException(username);
     }
 }

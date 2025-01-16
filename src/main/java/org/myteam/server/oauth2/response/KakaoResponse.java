@@ -2,6 +2,7 @@ package org.myteam.server.oauth2.response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.myteam.server.member.domain.GenderType;
+import org.myteam.server.member.domain.validator.MemberValidator;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -79,10 +80,12 @@ public class KakaoResponse implements OAuth2Response {
     @Override
     public String getTel() {
         // given
-        return StringUtils.defaultString("+82 010-1234-5678", "")
+        String phoneNumber = StringUtils.defaultString((String) attribute.get("phone_number"), "")
                 .replaceAll("^\\+\\d{1,3}\\s{1,}", "") // 국가 코드 제거 (예: +82, +1 등)
                 .replace("-", "")                  // 하이픈 제거
                 .replace(" ", "");                 // 공백 제거
+
+        return MemberValidator.validateTel(phoneNumber);
     }
 
     /**
