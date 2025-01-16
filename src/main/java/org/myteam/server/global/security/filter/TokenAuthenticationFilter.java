@@ -6,9 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.security.dto.CustomUserDetails;
@@ -22,6 +19,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
+import java.util.UUID;
+
+import static org.myteam.server.global.exception.ErrorCode.*;
 import static org.myteam.server.global.security.jwt.JwtProvider.HEADER_AUTHORIZATION;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_ACCESS;
 
@@ -42,14 +43,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             try {
                 if (!jwtProvider.validToken(accessToken)) {
                     log.warn("인증되지 않은 토큰입니다");
-                    filterChain.doFilter(request, response);
+                    sendErrorResponse(response, HttpStatus.UNAUTHORIZED, INVALID_ACCESS_TOKEN.name());
+                    return;
+                }
+
+                Boolean expired = jwtProvider.isExpired(accessToken);
+                if (expired) {
+                    log.warn("토큰이 만료되었습니다.");
+                    sendErrorResponse(response, HttpStatus.UNAUTHORIZED, ACCESS_TOKEN_EXPIRED.name());
                     return;
                 }
 
                 String accessCategory = jwtProvider.getCategory(accessToken);
                 if (!TOKEN_CATEGORY_ACCESS.equals(accessCategory)) {
-                    log.warn("잘못된 토큰 유형입니다");
-                    filterChain.doFilter(request, response);
+                    sendErrorResponse(response, HttpStatus.BAD_REQUEST, INVALID_TOKEN_TYPE.name());
                     return;
                 }
 
@@ -79,5 +86,21 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+
+    /**
+     * 공통 에러 응답 처리 메서드
+     *
+     * @param response   HttpServletResponse
+     * @param httpStatus HTTP 상태 오브젝트
+     * @param message    메시지
+     * @throws IOException
+     */
+    private void sendErrorResponse(HttpServletResponse response, HttpStatus httpStatus, String message) throws IOException {
+        response.setStatus(httpStatus.value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(String.format("{\"message\":\"%s\",\"status\":\"%s\"}", message, httpStatus.name()));
     }
 }

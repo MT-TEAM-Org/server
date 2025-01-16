@@ -53,6 +53,7 @@ public class SecurityConfig {
             /** @brief Swagger Docs */"/v3/api-docs/**", "/swagger-ui/**",
             /** @brief database url */"/h2-console",
             /** @brief about login */"/auth/**",
+            /** @brief test login, create */"/api/test/**",
     };
     /* Admin 접근 권한 */
     private static final String[] permitAdminUrl = new String[]{
