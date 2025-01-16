@@ -40,6 +40,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         log.warn("사용자를 찾을수 없습니다.");
-        return null;
+        throw new UsernameNotFoundException(username);
     }
 }

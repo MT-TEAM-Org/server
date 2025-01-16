@@ -79,11 +79,12 @@ public class MemberController {
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "권한 변경 성공", response), HttpStatus.OK);
     }
 
-    @GetMapping("/get-token/user/{email}")
-    public ResponseEntity<?> getToken(@PathVariable String email) {
+    @Deprecated
+    @GetMapping("/get-token/user/{email}/second/{second}")
+    public ResponseEntity<?> getToken(@PathVariable String email, @PathVariable Integer second) {
         log.info("getToken 메서드가 실행되었습니다.");
         MemberResponse response = memberService.getByEmail(email);
-        String encode = TOKEN_PREFIX + jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1), response.getPublicId(), response.getRole().name(), response.getStatus().name());
+        String encode = TOKEN_PREFIX + jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofSeconds(second), response.getPublicId(), response.getRole().name(), response.getStatus().name());
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "토큰 조회 성공", encode), HttpStatus.OK);
     }
 
