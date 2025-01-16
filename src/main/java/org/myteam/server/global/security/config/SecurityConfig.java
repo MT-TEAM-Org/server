@@ -63,7 +63,7 @@ public class SecurityConfig {
             "/test/user-access-test/**",
     };
 
-    @Value("${FRONT_URL:http://playhive.shop:3000}")
+    @Value("${FRONT_URL:http://localhost:3000}")
     private String frontUrl;
     private final JwtProvider jwtProvider;
     private final WebConfig webConfig;
