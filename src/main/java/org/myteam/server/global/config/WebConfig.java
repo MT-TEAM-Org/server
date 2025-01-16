@@ -15,7 +15,7 @@ import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KE
 @Configuration
 public class WebConfig {
 
-    @Value("${FRONT_URL:http://localhost:3000}")
+    @Value("${FRONT_URL:http://playhive.shop:3000}")
     private String frontUrl;
 
     protected WebConfig() {
