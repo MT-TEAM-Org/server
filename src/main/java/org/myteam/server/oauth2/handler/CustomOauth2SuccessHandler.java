@@ -61,6 +61,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         log.info("onAuthenticationSuccess email: {}", email);
         log.info("onAuthenticationSuccess role: {}", role);
+        log.info("onAuthenticationSuccess frontUrl: {}", frontUrl);
         //유저확인
         Member member = memberJpaRepository.findByEmail(email).orElse(null);
 
