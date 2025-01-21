@@ -27,4 +27,5 @@ services:
       FRONT_URL: ${FRONT_URL}
       DB_NAME: ${DB_NAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
     restart: always  # 컨테이너가 중단되었을 때 재시작 설정

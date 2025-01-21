@@ -38,3 +38,7 @@ logging:
     spring.thymeleaf.check-template-location: false
     org.hibernate.type: INFO
 
+slack:
+  webhook:
+    url: ${SLACK_WEBHOOK_URL}
+

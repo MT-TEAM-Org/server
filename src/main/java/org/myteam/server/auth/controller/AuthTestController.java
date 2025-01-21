@@ -34,7 +34,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @RestController
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
-public class TestController {
+public class AuthTestController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
