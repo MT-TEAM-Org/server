@@ -13,12 +13,15 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class SlackService {
 
-    @Value("${slack.webhook.url}")
     private final String webhookUrl;
     private final RestTemplate restTemplate;
+
+    public SlackService(RestTemplate restTemplate, @Value("${slack.webhook.url}") String webhookUrl) {
+        this.restTemplate = restTemplate;
+        this.webhookUrl = webhookUrl;
+    }
 
     public void sendSlackNotification(String message) {
         String payload = String.format("{\"text\":\"%s\"}", message);
