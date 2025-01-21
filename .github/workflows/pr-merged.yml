@@ -23,16 +23,9 @@ jobs:
               "text": "🚀 Pull Request *#${{ github.event.pull_request.number }}* has been merged into *dev* branch!",
               "attachments": [
                 {
-                   "fallback":"pr url: ${{ github.event.pull_request.html_url }}",
-                   "pretext":"pr url: ${{ github.event.pull_request.html_url }}",
-                   "color":"#D00000",
-                   "fields":[
-                      {
-                         "title":"PR",
-                         "value":"${{ toJson(github.event.pull_request.body) }}",
-                         "short":false
-                      }
-                   ]
+                    "title": "PR Details",
+                    "title_link": "${{ github.event.pull_request.html_url }}",
+                    "text": ${{ toJson(github.event.pull_request.body) }}
                 }
               ]
             }
