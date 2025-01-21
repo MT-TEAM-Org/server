@@ -10,6 +10,11 @@ jobs:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'dev'
     runs-on: ubuntu-latest
     steps:
+      - name: Debug PR URL and Body
+        run: |
+          echo "PR URL: ${{ github.event.pull_request.html_url }}"
+          echo "PR Body: ${{ github.event.pull_request.body }}"
+
       - name: Send notification to Slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
