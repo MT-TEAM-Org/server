@@ -29,7 +29,7 @@ jobs:
                    "fields":[
                       {
                          "title":"PR",
-                         "value":"${{ github.event.pull_request.body }}",
+                         "value":"${{ toJson(github.event.pull_request.body) }}",
                          "short":false
                       }
                    ]
