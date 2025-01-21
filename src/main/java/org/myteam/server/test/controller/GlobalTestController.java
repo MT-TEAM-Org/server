@@ -29,11 +29,13 @@ public class GlobalTestController {
 
     @GetMapping("/cert")
     public ResponseEntity<?> certifiedOne() {
+        log.info("certified user");
         return ResponseEntity.ok("you are authenticated one");
     }
 
     @GetMapping("/admin")
     public ResponseEntity<?> certifiedAdmin() {
+        log.info("certified admin");
         return ResponseEntity.ok("you are authenticated admin");
     }
 
