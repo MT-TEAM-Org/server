@@ -20,7 +20,10 @@ jobs:
         with:
           payload: |
             {
-              "text": "🚀 Pull Request *#${{ github.event.pull_request.number }}* has been merged into *dev* branch!",
+              "text": "🚀 Pull Request *#${{ github.event.pull_request.number }}* has been merged into *dev* branch! \n\n
+                        <${{ github.event.pull_request.html_url }}|pr로 이동> \n
+                        ${{ github.event.pull_request.body }}
+                      ",
               "attachments": [
                 {
                   "title": "PR Details",
