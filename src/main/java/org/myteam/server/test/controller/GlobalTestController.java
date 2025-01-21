@@ -41,7 +41,7 @@ public class GlobalTestController {
 
     @GetMapping("/exception-test")
     public String exceptionTest() {
-        log.info("exception test ");
+        log.info("exception test");
         throw new PlayHiveException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
