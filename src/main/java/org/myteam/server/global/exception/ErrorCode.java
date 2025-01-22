@@ -31,10 +31,14 @@ public enum ErrorCode {
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "Account disabled"),
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "Account locked"),
     NO_PERMISSION(HttpStatus.FORBIDDEN, "This account has no permission"),
+    POST_AUTHOR_MISMATCH(HttpStatus.FORBIDDEN,
+            "You are not the author of this post. Only the author can modify or delete it."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Category not found"),
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Board not found"),
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),

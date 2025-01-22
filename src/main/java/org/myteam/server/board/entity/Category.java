@@ -1,15 +1,23 @@
 package org.myteam.server.board.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.board.dto.CategorySaveRequest;
 import org.myteam.server.global.domain.Base;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Entity
@@ -45,6 +53,7 @@ public class Category extends Base {
 
     /**
      * 카테고리의 부모를 변경
+     *
      * @param parent 부모 카테고리
      */
     public void setParent(Category parent) {
@@ -54,6 +63,7 @@ public class Category extends Base {
 
     /**
      * 카테고리의 이름을 변경
+     *
      * @param name 카테고리 명
      */
     public void updateName(String name) {
@@ -62,6 +72,7 @@ public class Category extends Base {
 
     /**
      * 카테고리 순번을 변경
+     *
      * @param orderIndex 순번
      */
     public void updateOrderIndex(int orderIndex) {
@@ -70,6 +81,7 @@ public class Category extends Base {
 
     /**
      * 카테고리 링크를 변경
+     *
      * @param link 링크
      */
     public void updateLink(String link) {
@@ -82,12 +94,20 @@ public class Category extends Base {
     }
 
     /**
-     * 부모 카테고리의 ID 를 반환
-     * 부모가 없으면 null 을 반환
+     * 부모 카테고리의 ID 를 반환 부모가 없으면 null 을 반환
      *
      * @return 부모 카테고리 ID 또는 null
      */
     public Long getCategoryParentId() {
         return this.parent != null ? this.parent.getId() : null;
+    }
+
+    /**
+     * 부모 카테고리의 이름을 반환 부모가 없으면 null 을 반환
+     *
+     * @return 부모 카테고리 이름 또는 null
+     */
+    public String getParentCategoryName() {
+        return this.parent != null ? this.parent.getName() : null;
     }
 }
