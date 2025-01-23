@@ -36,6 +36,12 @@ spring:
             scope:
               - name
               - email
+              - name
+              - nickname
+              - gender
+              - birthday
+              - birthyear
+              - mobile
           google:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
@@ -51,8 +57,12 @@ spring:
             authorization-grant-type: authorization_code
             scope: # https://developers.kakao.com/docs/latest/ko/kakaologin/common#user-info
               - profile_nickname
-              - profile_image
               - account_email
+              - name
+              - gender
+              - birthday
+              - birthyear
+              - phone_number
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
         provider:
           naver:
@@ -100,6 +110,12 @@ spring:
             scope:
               - name
               - email
+              - name
+              - nickname
+              - gender
+              - birthday
+              - birthyear
+              - mobile
           google:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
@@ -115,8 +131,12 @@ spring:
             authorization-grant-type: authorization_code
             scope: # https://developers.kakao.com/docs/latest/ko/kakaologin/common#user-info
               - profile_nickname
-              - profile_image
               - account_email
+              - name
+              - gender
+              - birthday
+              - birthyear
+              - phone_number
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
         provider:
           naver:

@@ -1,15 +1,15 @@
 package org.myteam.server.member.repository;
 
-import java.util.Optional;
 import org.myteam.server.member.entity.Member;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
-    Optional<Member> findByUsername(String username);
+import java.util.Optional;
+import java.util.UUID;
 
+public interface MemberRepository {
+    Optional<Member> findByNickname(String nickname);
     Optional<Member> findByEmail(String email);
-
-    boolean existsMemberByUsername(String username);
+    Optional<Member> findByPublicId(UUID publicId);
+    Member getByNickname(String nickname);
+    Member getByEmail(String email);
+    Member getByPublicId(UUID publicId);
 }

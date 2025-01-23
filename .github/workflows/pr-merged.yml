@@ -1,0 +1,32 @@
+name: Notify Slack on PR Closed for Dev Branch
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  notify-slack:
+    if: github.event.pull_request.base.ref == 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug PR URL and Body
+        run: |
+          echo "PR URL: ${{ github.event.pull_request.html_url }}"
+          echo "PR Body: ${{ github.event.pull_request.body }}"
+
+      - name: Send notification to Slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "🚀 Pull Request *#${{ github.event.pull_request.number }}* has been merged into *dev* branch!",
+              "attachments": [
+                {
+                    "title": "PR Details",
+                    "title_link": "${{ github.event.pull_request.html_url }}",
+                    "text": ${{ toJson(github.event.pull_request.body) }}
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

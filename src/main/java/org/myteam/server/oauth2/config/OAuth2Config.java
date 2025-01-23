@@ -1,11 +1,11 @@
 package org.myteam.server.oauth2.config;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.oauth2.properties.OAuth2ClientProperties;
 import org.springframework.context.annotation.Configuration;
 
+import static org.myteam.server.global.exception.ErrorCode.UNSUPPORTED_OAUTH_PROVIDER;
 import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 
 @Configuration
@@ -25,7 +25,7 @@ public class OAuth2Config {
             case GOOGLE:
                 return properties.getGoogle().getClientId();
             default:
-                throw new PlayHiveException(provider);
+                throw new PlayHiveException(UNSUPPORTED_OAUTH_PROVIDER, provider);
         }
     }
 
@@ -40,7 +40,7 @@ public class OAuth2Config {
             case GOOGLE:
                 return properties.getGoogle().getClientSecret();
             default:
-                throw new PlayHiveException(provider);
+                throw new PlayHiveException(UNSUPPORTED_OAUTH_PROVIDER, provider);
         }
     }
 }

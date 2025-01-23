@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  app:
+    image: ${DOCKER_USERNAME}/play-hive:latest # 사용할 이미지 이름
+    build:
+      context: .            # Dockerfile이 위치한 디렉토리
+      dockerfile: Dockerfile # 빌드에 사용할 Dockerfile
+    ports:
+      - "8080:8080"          # 호스트와 컨테이너의 포트 매핑
+    environment:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      DISCORD_APPLICATION_ID: ${DISCORD_APPLICATION_ID}
+      DISCORD_PUBLIC_KEY: ${DISCORD_PUBLIC_KEY}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET}
+      KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      SENDER_EMAIL: ${SENDER_EMAIL}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      DOCKER_USERNAME: ${DOCKER_USERNAME}
+      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+      DB_ENDPOINT: ${DB_ENDPOINT}
+      FRONT_URL: ${FRONT_URL}
+      DB_NAME: ${DB_NAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
+    restart: always  # 컨테이너가 중단되었을 때 재시작 설정
