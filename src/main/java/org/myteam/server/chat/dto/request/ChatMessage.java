@@ -1,4 +1,4 @@
-package org.myteam.server.chat.dto;
+package org.myteam.server.chat.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatMessage {
 
-    private Long roomId;
     private String sender;
     private String senderEmail;
     private String message;

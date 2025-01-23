@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.ChatRoom;
 import org.myteam.server.chat.repository.ChatRoomRepository;
-import org.myteam.server.filter.domain.FilterData;
-import org.myteam.server.filter.repository.FilterDataRepository;
+import org.myteam.server.chat.domain.FilterData;
+import org.myteam.server.chat.repository.FilterDataRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

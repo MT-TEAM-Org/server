@@ -1,6 +1,6 @@
-package org.myteam.server.ban.repository;
+package org.myteam.server.chat.repository;
 
-import org.myteam.server.ban.domain.Ban;
+import org.myteam.server.chat.domain.Ban;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

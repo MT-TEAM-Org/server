@@ -1,6 +1,6 @@
-package org.myteam.server.filter.repository;
+package org.myteam.server.chat.repository;
 
-import org.myteam.server.filter.domain.FilterData;
+import org.myteam.server.chat.domain.FilterData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

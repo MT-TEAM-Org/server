@@ -1,4 +1,4 @@
-package org.myteam.server.filter.domain;
+package org.myteam.server.chat.domain;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

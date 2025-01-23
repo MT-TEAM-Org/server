@@ -1,4 +1,4 @@
-package org.myteam.server.filter.dto;
+package org.myteam.server.chat.dto.request;
 
 
 import lombok.Getter;

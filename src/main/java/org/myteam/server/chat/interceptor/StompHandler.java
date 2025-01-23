@@ -2,7 +2,7 @@ package org.myteam.server.chat.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.ban.service.BanService;
+import org.myteam.server.chat.service.BanService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.jwt.JwtProvider;
@@ -36,9 +36,9 @@ public class StompHandler implements ChannelInterceptor {
         if (command == StompCommand.CONNECT) {
             String authorizationHeader = getAuthorizationHeader(accessor);
 
-            if (authorizationHeader == null || authorizationHeader.isEmpty()) {
-                log.info("No Authorization header. Treat as anonymous user.");
-                return message;
+            if (authorizationHeader == null || authorizationHeader.isEmpty() || !authorizationHeader.startsWith("[Bearer ")) {
+                log.warn("Authorization header missing or not Bearer type: {}", authorizationHeader);
+                throw new PlayHiveException(ErrorCode.MISSING_AUTH_HEADER);
             }
 
             handleConnect(accessor, authorizationHeader);
@@ -55,12 +55,6 @@ public class StompHandler implements ChannelInterceptor {
      * STOMP CONNECT 프레임 처리 로직
      */
     private void handleConnect(StompHeaderAccessor accessor, String authorizationHeader) {
-
-        if (!authorizationHeader.startsWith("[Bearer ")) {
-            log.warn("Authorization header missing or not Bearer type: {}", authorizationHeader);
-            throw new PlayHiveException(ErrorCode.MISSING_AUTH_HEADER);
-        }
-
         String token = extractToken(authorizationHeader);
 
         if (!jwtProvider.validToken(token)) {

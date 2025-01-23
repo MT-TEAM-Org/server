@@ -1,10 +1,10 @@
-package org.myteam.server.ban.service;
+package org.myteam.server.chat.service;
 
 import lombok.AllArgsConstructor;
-import org.myteam.server.ban.domain.Ban;
-import org.myteam.server.ban.dto.request.BanRequest;
-import org.myteam.server.ban.dto.response.BanResponse;
-import org.myteam.server.ban.repository.BanRepository;
+import org.myteam.server.chat.domain.Ban;
+import org.myteam.server.chat.dto.request.BanRequest;
+import org.myteam.server.chat.dto.response.BanResponse;
+import org.myteam.server.chat.repository.BanRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,7 @@ public class BanService {
     private final BanRepository banRepository;
 
     /**
+     * TODO: 슬랙 알람 서비스 적용해야함.
      * 유저 밴 적용
      */
     public BanResponse banUser(BanRequest request) {
@@ -26,7 +27,7 @@ public class BanService {
             throw new PlayHiveException(ErrorCode.BAN_ALREADY_EXISTS);
         }
 
-        Ban ban = Ban.createBan(request.getUsername(), request.getReasons());
+        Ban ban = Ban.createBan(request.getUsername(), request.getReasons(), request.getMessage());
         Ban savedBan = banRepository.save(ban);
 
         return toBanResponse(savedBan);

@@ -1,8 +1,8 @@
-package org.myteam.server.ban.dto.request;
+package org.myteam.server.chat.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.ban.domain.BanReason;
+import org.myteam.server.chat.domain.BanReason;
 
 import java.util.List;
 
@@ -15,4 +15,5 @@ public class BanRequest {
 
     private String username; // 밴할 사용자명
     private List<BanReason> reasons;   // 밴 사유
+    private String message; // 그때의 채팅
 }

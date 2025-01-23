@@ -1,4 +1,4 @@
-package org.myteam.server.filter.domain;
+package org.myteam.server.chat.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

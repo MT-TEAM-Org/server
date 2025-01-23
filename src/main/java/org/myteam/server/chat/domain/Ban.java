@@ -1,4 +1,4 @@
-package org.myteam.server.ban.domain;
+package org.myteam.server.chat.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -29,12 +29,15 @@ public class Ban {
     @Enumerated(EnumType.STRING)
     private List<BanReason> reasons = new ArrayList<>(); // 밴 사유
 
-    private LocalDateTime bannedAt; // 밴된 시점
+    private String message;
 
+    private LocalDateTime bannedAt; // 밴된 시점팅
+
+    // TODO: active로 관리할지.. tuple을 delete하는 로직으로 갈지..
     private boolean active; // 밴 활성화 플래그
 
     @Builder
-    public Ban(String username, List<BanReason> reasons, LocalDateTime bannedAt, boolean active) {
+    public Ban(String username, List<BanReason> reasons, LocalDateTime bannedAt, String message, boolean active) {
         this.username = username;
         this.bannedAt = bannedAt;
         if (reasons != null) {
@@ -46,10 +49,11 @@ public class Ban {
     /**
      * 밴 엔티티 생성
      */
-    public static Ban createBan(String username, List<BanReason> reasons) {
+    public static Ban createBan(String username, List<BanReason> reasons, String message) {
         return Ban.builder()
                 .username(username)
                 .reasons(reasons)
+                .message(message)
                 .bannedAt(LocalDateTime.now())
                 .active(true)
                 .build();

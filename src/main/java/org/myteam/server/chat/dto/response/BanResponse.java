@@ -1,11 +1,9 @@
-package org.myteam.server.ban.dto.response;
+package org.myteam.server.chat.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.myteam.server.ban.domain.Ban;
-import org.myteam.server.ban.domain.BanReason;
+import org.myteam.server.chat.domain.BanReason;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**

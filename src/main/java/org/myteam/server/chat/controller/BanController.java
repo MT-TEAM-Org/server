@@ -1,9 +1,9 @@
-package org.myteam.server.ban.controller;
+package org.myteam.server.chat.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.ban.dto.request.BanRequest;
-import org.myteam.server.ban.dto.response.BanResponse;
-import org.myteam.server.ban.service.BanService;
+import org.myteam.server.chat.dto.request.BanRequest;
+import org.myteam.server.chat.dto.response.BanResponse;
+import org.myteam.server.chat.service.BanService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

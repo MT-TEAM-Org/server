@@ -1,12 +1,16 @@
 package org.myteam.server.chat.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.myteam.server.chat.domain.Chat;
 import org.myteam.server.chat.domain.ChatRoom;
-import org.myteam.server.chat.dto.ChatMessage;
+import org.myteam.server.chat.dto.request.ChatMessage;
 import org.myteam.server.chat.service.ChatService;
-import org.myteam.server.filter.dto.FilterDataRequest;
+import org.myteam.server.chat.dto.request.FilterDataRequest;
+import org.myteam.server.chat.service.KafkaProducerService;
+import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,55 +22,108 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
-@Controller
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/chat")
 public class ChatController {
-
     private final ChatService chatService;
 
-    @MessageMapping("/{roomId}")
-    @SendTo("/room/{roomId}")
-    public ChatMessage chat(@DestinationVariable Long roomId, ChatMessage message) {
-        log.info("chat: {}: {}{}", LocalDateTime.now(), roomId, message);
+    /**
+     * Kafka를 통해 메시지 전송
+     */
+    @PostMapping("/send/{roomId}")
+    public ResponseEntity<ResponseDto<String>> sendMessageToRoom(@PathVariable Long roomId,
+                                               @RequestBody ChatMessage message) {
+        log.info("Sending message to room {}: {}", roomId, message);
 
-        //채팅 저장
         Chat chat = chatService.createChat(roomId, message.getSender(), message.getSenderEmail(), message.getMessage());
-        return ChatMessage.builder()
-                .roomId(roomId)
-                .sender(chat.getSender())
-                .senderEmail(chat.getSenderEmail())
-                .message(chat.getMessage())
-                .build();
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                "SUCCESS",
+                "Message sent to Kafka topic: room-" + roomId,
+                null));
     }
 
-    @PostMapping("/chat/room")
-    @ResponseBody
-    public ResponseEntity<ChatRoom> createChatRoom(@RequestBody String roomName) {
+    /**
+     * TODO: 필요없지 않을까? 왜냐면 경기 일정은 데이터 내려주는게 다르다보니..
+     * 채팅방 생성
+     */
+    @PostMapping("/room")
+    public ResponseEntity<ResponseDto<ChatRoom>> createChatRoom(@RequestBody String roomName) {
         log.info("createChatRoom: {}", roomName);
 
-        // 채팅 룸 생성
         ChatRoom newRoom = chatService.createChatRoom(roomName);
 
-        return ResponseEntity.ok(newRoom);
+        return ResponseEntity.ok(new ResponseDto<>(
+                "SUCCESS",
+                "Successfully create room",
+                newRoom
+        ));
     }
 
-    @GetMapping("/chat/room")
-    @ResponseBody
-    public ResponseEntity<List<ChatRoom>> getChatRoom() {
+    /**
+     * TODO: 필요없지 않을까? 삭제는 비즈니스 로직에만 필요. 이거는 테스트를 위해 남겨둠
+     * 채팅방 삭제
+     */
+    @DeleteMapping("/room/{roomId}")
+    public ResponseEntity<ResponseDto<String>> deleteChatRoom(@PathVariable Long roomId) {
+        log.info("deleteChatRoom: {}", roomId);
+
+        String deleteChatRoomName = chatService.deleteChatRoom(roomId);
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                "SUCCESS",
+                "Successfully delete room",
+                deleteChatRoomName
+        ));
+    }
+
+    /**
+     * TODO: 필요없지 않을까? 왜냐면 경기 일정은 데이터 내려주는게 다르다보니..
+     * 모든 채팅방 조회
+     */
+    @GetMapping("/room")
+    public ResponseEntity<ResponseDto<List<ChatRoom>>> getChatRoom() {
         log.info("get Room");
 
         List<ChatRoom> chatRooms = chatService.findAllRoom();
 
-        return ResponseEntity.ok(chatRooms);
+        return ResponseEntity.ok(new ResponseDto<>(
+                "SUCCESS",
+                "Successfully find rooms",
+                chatRooms
+        ));
     }
 
-    @PostMapping("/chat/filter")
-    @ResponseBody
-    public ResponseEntity<?> addFilterData(@RequestBody FilterDataRequest filterData) {
+    /**
+     * 필터 데이터 추가
+     */
+    @PostMapping("/filter")
+    public ResponseEntity<ResponseDto<String>> addFilterData(@RequestBody FilterDataRequest filterData) {
         log.info("addFilterData: {}", filterData);
 
         chatService.addFilteredWord(filterData.getFilterData());
 
-        return ResponseEntity.ok("add filter Data");
+        return ResponseEntity.ok(new ResponseDto<>(
+                "SUCCESS",
+                "Successfully Filter data added",
+                filterData.getFilterData()
+        ));
+    }
+
+    /**
+     * 필터 데이터 삭제
+     */
+    @DeleteMapping("/filter")
+    public ResponseEntity<ResponseDto<String>> deleteFilterData(@RequestBody FilterDataRequest filterData) {
+        log.info("deleteFilterData: {}", filterData);
+
+        chatService.removeFilteredWord(filterData.getFilterData());
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                "SUCCESS",
+                "Successfully Filter data deleted",
+                filterData.getFilterData()
+        ));
     }
 }
