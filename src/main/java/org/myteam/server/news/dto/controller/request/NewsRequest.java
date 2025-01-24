@@ -1,0 +1,37 @@
+package org.myteam.server.news.dto.controller.request;
+
+import org.myteam.server.news.entity.NewsCategory;
+import org.myteam.server.news.repository.OrderType;
+import org.myteam.server.news.dto.service.request.NewsServiceRequest;
+import org.myteam.server.global.page.request.PageInfoRequest;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+public class NewsRequest extends PageInfoRequest {
+
+	@NotNull(message = "뉴스 카테고리는 필수입니다.")
+	private NewsCategory category;
+	@NotNull(message = "뉴스 정렬 타입은 필수입니다.")
+	private OrderType orderType;
+
+	@Builder
+	public NewsRequest(NewsCategory category, OrderType orderType, int page, int size) {
+		super(page, size);
+		this.category = category;
+		this.orderType = orderType;
+	}
+
+	public NewsServiceRequest toServiceRequest() {
+		return NewsServiceRequest.builder()
+			.category(category)
+			.orderType(orderType)
+			.size(getSize())
+			.page(getPage())
+			.build();
+	}
+}
