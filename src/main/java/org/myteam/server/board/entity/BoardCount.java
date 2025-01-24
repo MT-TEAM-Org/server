@@ -47,11 +47,13 @@ public class BoardCount {
     }
 
     public static BoardCount createBoardCount(Board board) {
+        final int COUNT_SETTING_NUMBER = 0;
+        
         return BoardCount.builder()
                 .board(board)
-                .likeCount(0)
-                .commentCount(0)
-                .viewCount(0)
+                .likeCount(COUNT_SETTING_NUMBER)
+                .commentCount(COUNT_SETTING_NUMBER)
+                .viewCount(COUNT_SETTING_NUMBER)
                 .build();
     }
 }
