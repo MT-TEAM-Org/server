@@ -38,7 +38,7 @@ public class PlayHiveExceptionController {
 			.body(
 				new ErrorResponse(
 					HttpStatus.BAD_REQUEST,
-					"데이터 제약 조건으로 인해 작업에 실패했습니다.",
+					e.getBindingResult().getAllErrors().get(0).getDefaultMessage(),
 					null
 				)
 			);
