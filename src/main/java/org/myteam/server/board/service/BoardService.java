@@ -110,7 +110,7 @@ public class BoardService {
     }
 
     /**
-     * 작성자와 일치 하는지 검사 (어드민 수정/삭제 허용)
+     * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
      */
     private void verifyBoardAuthor(final Board board, final Member member) {
         if (!board.getMember().getId().equals(member.getId())) {
