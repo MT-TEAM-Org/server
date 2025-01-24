@@ -38,8 +38,9 @@ public class BoardService {
         Category category = categoryReadService.findById(request.getCategoryId());
 
         Board board = makeBoard(category, member, clientIP, request);
+        BoardCount boardCount = boardReadService.BoardCountFindById(board.getId());
 
-        return new BoardResponse(board);
+        return new BoardResponse(board, boardCount);
     }
 
     /**
@@ -70,9 +71,10 @@ public class BoardService {
     @Transactional(readOnly = true)
     public BoardResponse getBoard(final Long boardId) {
 
-        Board board = boardReadService.findById(boardId);
+        Board board = boardReadService.BoardFindById(boardId);
+        BoardCount boardCount = boardReadService.BoardCountFindById(board.getId());
 
-        return new BoardResponse(board);
+        return new BoardResponse(board, boardCount);
     }
 
     /**
@@ -82,7 +84,7 @@ public class BoardService {
     public void deleteBoard(final Long boardId, final CustomUserDetails userDetails) {
 
         Member member = memberReadService.findById(userDetails.getPublicId());
-        Board board = boardReadService.findById(boardId);
+        Board board = boardReadService.BoardFindById(boardId);
 
         verifyBoardAuthor(board, member);
 
@@ -96,7 +98,7 @@ public class BoardService {
     public BoardResponse updateBoard(final BoardSaveRequest request, final CustomUserDetails userDetails,
                                      final Long boardId) {
 
-        Board board = boardReadService.findById(boardId);
+        Board board = boardReadService.BoardFindById(boardId);
         Member member = memberReadService.findById(userDetails.getPublicId());
 
         verifyBoardAuthor(board, member);
@@ -106,7 +108,8 @@ public class BoardService {
         board.updateBoard(request, category);
         boardRepository.save(board);
 
-        return new BoardResponse(board);
+        BoardCount boardCount = boardReadService.BoardCountFindById(board.getId());
+        return new BoardResponse(board, boardCount);
     }
 
     /**

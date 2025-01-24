@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.myteam.server.board.entity.Board;
+import org.myteam.server.board.entity.BoardCount;
 
 @Getter
 @Setter
@@ -69,7 +70,7 @@ public class BoardResponse {
      */
     private LocalDateTime updatedAt;
 
-    public BoardResponse(Board board) {
+    public BoardResponse(Board board, BoardCount boardCount) {
         this.boardId = board.getId();
         this.categoryParentId = board.getCategory().getCategoryParentId();
         this.categoryParentName = board.getCategory().getParentCategoryName();
@@ -80,9 +81,9 @@ public class BoardResponse {
         this.title = board.getTitle();
         this.content = board.getContent();
         this.link = board.getLink();
-        this.likeCount = board.getBoardCount().getLikeCount();
-        this.commentCount = board.getBoardCount().getCommentCount();
-        this.viewCount = board.getBoardCount().getViewCount();
+        this.likeCount = boardCount.getLikeCount();
+        this.commentCount = boardCount.getCommentCount();
+        this.viewCount = boardCount.getViewCount();
         this.createdAt = board.getCreatedAt();
         this.updatedAt = board.getUpdatedAt();
     }

@@ -52,7 +52,8 @@ public class Board {
     private BoardCount boardCount;
 
     @Builder
-    public Board(Member member, Category category, String title, String content, String link, String createdIp) {
+    public Board(Member member, Category category, String title, String content, String link, String createdIp,
+                 BoardCount boardCount) {
         this.member = member;
         this.category = category;
         this.title = title;
@@ -61,6 +62,7 @@ public class Board {
         this.createdIp = createdIp;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.boardCount = boardCount;
     }
 
     public void updateBoard(BoardSaveRequest request, Category category) {
