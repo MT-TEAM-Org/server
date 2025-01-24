@@ -30,13 +30,13 @@ public class BoardCount {
     private Board board;
 
     @Column(name = "like_count", nullable = false)
-    private Integer likeCount = 0;
+    private int likeCount;
 
     @Column(name = "view_count", nullable = false)
-    private Integer viewCount = 0;
+    private int viewCount;
 
     @Column(name = "comment_count", nullable = false)
-    private Integer commentCount = 0;
+    private int commentCount;
 
     @Builder
     public BoardCount(Board board, int likeCount, int commentCount, int viewCount) {
@@ -48,7 +48,7 @@ public class BoardCount {
 
     public static BoardCount createBoardCount(Board board) {
         final int COUNT_SETTING_NUMBER = 0;
-        
+
         return BoardCount.builder()
                 .board(board)
                 .likeCount(COUNT_SETTING_NUMBER)
