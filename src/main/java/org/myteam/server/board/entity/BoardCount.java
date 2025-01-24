@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_board_count")
@@ -38,4 +37,21 @@ public class BoardCount {
 
     @Column(name = "comment_count", nullable = false)
     private Integer commentCount = 0;
+
+    @Builder
+    public BoardCount(Board board, int likeCount, int commentCount, int viewCount) {
+        this.board = board;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
+        this.viewCount = viewCount;
+    }
+
+    public static BoardCount createBoardCount(Board board) {
+        return BoardCount.builder()
+                .board(board)
+                .likeCount(0)
+                .commentCount(0)
+                .viewCount(0)
+                .build();
+    }
 }

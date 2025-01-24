@@ -70,9 +70,4 @@ public class Board {
         this.link = request.getLink();
         this.updatedAt = LocalDateTime.now();
     }
-
-    public BoardCount createBoardCount(Board board) {
-        this.boardCount = BoardCount.builder().board(board).likeCount(0).commentCount(0).viewCount(0).build();
-        return boardCount;
-    }
 }

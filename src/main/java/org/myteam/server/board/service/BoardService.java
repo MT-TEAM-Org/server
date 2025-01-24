@@ -61,7 +61,7 @@ public class BoardService {
                 .build();
         boardRepository.save(board);
 
-        final BoardCount boardCount = board.createBoardCount(board);
+        final BoardCount boardCount = BoardCount.createBoardCount(board);
         boardCountRepository.save(boardCount);
 
         return board;
