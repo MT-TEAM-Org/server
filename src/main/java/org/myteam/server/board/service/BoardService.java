@@ -8,12 +8,11 @@ import org.myteam.server.board.entity.BoardCount;
 import org.myteam.server.board.entity.Category;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRepository;
-import org.myteam.server.board.repository.CategoryRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.member.service.MemberReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +22,10 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardCountRepository boardCountRepository;
-    private final CategoryRepository categoryRepository;
-    private final MemberRepository memberRepository;
+
+    private final BoardReadService boardReadService;
+    private final MemberReadService memberReadService;
+    private final CategoryReadService categoryReadService;
 
     /**
      * 게시글 작성
@@ -33,15 +34,10 @@ public class BoardService {
     public BoardResponse saveBoard(final BoardSaveRequest request, final CustomUserDetails userDetails,
                                    final String clientIP) {
 
-        // 회원 조회
-        final Member member = memberRepository.findByPublicId(userDetails.getPublicId())
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
+        Member member = memberReadService.findById(userDetails.getPublicId());
+        Category category = categoryReadService.findById(request.getCategoryId());
 
-        // 카테고리 조회
-        final Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.CATEGORY_NOT_FOUND));
-
-        final Board board = makeBoard(category, member, clientIP, request);
+        Board board = makeBoard(category, member, clientIP, request);
 
         return new BoardResponse(board);
     }
@@ -51,6 +47,7 @@ public class BoardService {
      */
     private Board makeBoard(final Category category, final Member member, final String clientIP,
                             final BoardSaveRequest request) {
+
         final Board board = Board.builder()
                 .category(category)
                 .member(member)
@@ -61,7 +58,7 @@ public class BoardService {
                 .build();
         boardRepository.save(board);
 
-        final BoardCount boardCount = BoardCount.createBoardCount(board);
+        BoardCount boardCount = BoardCount.createBoardCount(board);
         boardCountRepository.save(boardCount);
 
         return board;
@@ -73,8 +70,7 @@ public class BoardService {
     @Transactional(readOnly = true)
     public BoardResponse getBoard(final Long boardId) {
 
-        final Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = boardReadService.findById(boardId);
 
         return new BoardResponse(board);
     }
@@ -84,11 +80,9 @@ public class BoardService {
      */
     @Transactional
     public void deleteBoard(final Long boardId, final CustomUserDetails userDetails) {
-        final Member member = memberRepository.findByPublicId(userDetails.getPublicId())
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
 
-        final Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
+        Member member = memberReadService.findById(userDetails.getPublicId());
+        Board board = boardReadService.findById(boardId);
 
         verifyBoardAuthor(board, member);
 
@@ -102,17 +96,12 @@ public class BoardService {
     public BoardResponse updateBoard(final BoardSaveRequest request, final CustomUserDetails userDetails,
                                      final Long boardId) {
 
-        final Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
-
-        final Member member = memberRepository.findByPublicId(userDetails.getPublicId())
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
+        Board board = boardReadService.findById(boardId);
+        Member member = memberReadService.findById(userDetails.getPublicId());
 
         verifyBoardAuthor(board, member);
 
-        // 카테고리 조회
-        final Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.CATEGORY_NOT_FOUND));
+        Category category = categoryReadService.findById(request.getCategoryId());
 
         board.updateBoard(request, category);
         boardRepository.save(board);
