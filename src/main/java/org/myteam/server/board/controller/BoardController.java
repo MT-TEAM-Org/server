@@ -71,6 +71,6 @@ public class BoardController {
     public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable final Long boardId,
                                                          @AuthenticationPrincipal final CustomUserDetails userDetails) {
         boardService.deleteBoard(boardId, userDetails);
-        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "카테고리 삭제 성공", null));
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 삭제 성공", null));
     }
 }
