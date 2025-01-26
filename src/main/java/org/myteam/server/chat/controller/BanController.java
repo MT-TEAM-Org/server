@@ -8,6 +8,8 @@ import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
+
 /**
  * Ban 도메인에 대한 HTTP 요청 처리
  */
@@ -25,7 +27,7 @@ public class BanController {
     public ResponseEntity<ResponseDto<BanResponse>> banUser(@RequestBody BanRequest request) {
         BanResponse response = banService.banUser(request);
         return ResponseEntity.ok(new ResponseDto(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Ban Success",
                 response
         ));
@@ -38,7 +40,7 @@ public class BanController {
     public ResponseEntity<ResponseDto<String>> unbanUser(@PathVariable String username) {
         String deleteName = banService.unbanUser(username);
         return ResponseEntity.ok(new ResponseDto(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Delete Ban Successfully",
                 deleteName
         ));
@@ -51,7 +53,7 @@ public class BanController {
     public ResponseEntity<ResponseDto<BanResponse>> getBanByUsername(@PathVariable String username) {
         BanResponse response = banService.findBanByUsername(username);
         return ResponseEntity.ok(new ResponseDto(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Find Ban Reason Successfully",
                 response
         ));

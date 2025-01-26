@@ -2,9 +2,7 @@ package org.myteam.server.chat.config;
 
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.chat.interceptor.StompHandler;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -15,8 +13,6 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @Configuration
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-    private final StompHandler stompHandler;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -31,11 +27,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
         registry.addEndpoint("/ws-stomp")
                 .setAllowedOrigins("http://localhost:3000");
-    }
-
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(stompHandler);
     }
 
     // STOMP에서 64KB 이상의 데이터 전송을 못하는 문제 해결

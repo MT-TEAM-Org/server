@@ -1,25 +1,19 @@
 package org.myteam.server.chat.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.myteam.server.chat.domain.Chat;
 import org.myteam.server.chat.domain.ChatRoom;
 import org.myteam.server.chat.dto.request.ChatMessage;
 import org.myteam.server.chat.service.ChatService;
 import org.myteam.server.chat.dto.request.FilterDataRequest;
-import org.myteam.server.chat.service.KafkaProducerService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
 @Slf4j
 @RestController
@@ -39,7 +33,7 @@ public class ChatController {
         Chat chat = chatService.createChat(roomId, message.getSender(), message.getSenderEmail(), message.getMessage());
 
         return ResponseEntity.ok(new ResponseDto<>(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Message sent to Kafka topic: room-" + roomId,
                 null));
     }
@@ -55,7 +49,7 @@ public class ChatController {
         ChatRoom newRoom = chatService.createChatRoom(roomName);
 
         return ResponseEntity.ok(new ResponseDto<>(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Successfully create room",
                 newRoom
         ));
@@ -72,7 +66,7 @@ public class ChatController {
         String deleteChatRoomName = chatService.deleteChatRoom(roomId);
 
         return ResponseEntity.ok(new ResponseDto<>(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Successfully delete room",
                 deleteChatRoomName
         ));
@@ -89,7 +83,7 @@ public class ChatController {
         List<ChatRoom> chatRooms = chatService.findAllRoom();
 
         return ResponseEntity.ok(new ResponseDto<>(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Successfully find rooms",
                 chatRooms
         ));
@@ -105,7 +99,7 @@ public class ChatController {
         chatService.addFilteredWord(filterData.getFilterData());
 
         return ResponseEntity.ok(new ResponseDto<>(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Successfully Filter data added",
                 filterData.getFilterData()
         ));
@@ -121,7 +115,7 @@ public class ChatController {
         chatService.removeFilteredWord(filterData.getFilterData());
 
         return ResponseEntity.ok(new ResponseDto<>(
-                "SUCCESS",
+                SUCCESS.name(),
                 "Successfully Filter data deleted",
                 filterData.getFilterData()
         ));

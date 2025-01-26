@@ -1,6 +1,7 @@
 package org.myteam.server.chat.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.Ban;
 import org.myteam.server.chat.dto.request.BanRequest;
 import org.myteam.server.chat.dto.response.BanResponse;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class BanService {
@@ -22,6 +24,7 @@ public class BanService {
      * 유저 밴 적용
      */
     public BanResponse banUser(BanRequest request) {
+        log.info("This user: {} has received a blocking request.", request.getUsername());
         // 이미 밴된 유저인지 확인
         if (banRepository.existsByUsername(request.getUsername())) {
             throw new PlayHiveException(ErrorCode.BAN_ALREADY_EXISTS);
@@ -37,6 +40,8 @@ public class BanService {
      * 유저 밴 해제 (삭제)
      */
     public String unbanUser(String username) {
+        log.info("This user: {} has received a unblocking request.", username);
+
         Ban ban = banRepository.findByUsername(username)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BAN_NOT_FOUND));
 
@@ -49,6 +54,8 @@ public class BanService {
      * 특정 유저 밴 정보 조회
      */
     public BanResponse findBanByUsername(String username) {
+        log.info("find ban user: {}", username);
+
         Ban ban = banRepository.findByUsername(username)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BAN_NOT_FOUND));
 

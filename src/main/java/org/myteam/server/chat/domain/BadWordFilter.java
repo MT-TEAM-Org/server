@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 @Component
 public class BadWordFilter {
 
-    private List<String> filteredWords = new ArrayList<>();
+    private List<String> filteredWords;
     private final Map<String, Pattern> filterPatterns = new HashMap<>();
     private final String[] delimiters = {" ", ",", ".", "!", "?", "@", "1"}; // 구분자 리스트
     private final String substituteValue = "*"; // 치환할 문자

@@ -45,6 +45,7 @@ public class ChatService {
     // 채팅방 관련 메서드
     // ==========================
     /**
+     * TODO: 필요가 없을 듯. 경기 일정 보내주는 것은 다르기때문에 현재는 테스트 때문에 남겨둠.
      * 모든 채팅방 조회
      */
     public List<ChatRoom> findAllRoom() {
@@ -67,7 +68,7 @@ public class ChatService {
                 .name(roomName)
                 .build();
 
-        roomRepository.save(newRoom); // DB에 저장
+        roomRepository.save(newRoom);
         log.info("Chat room '{}' created.", roomName);
 
         // Kafka 토픽 생성
