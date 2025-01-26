@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.Chat;
 import org.myteam.server.chat.domain.ChatRoom;
 import org.myteam.server.chat.dto.request.ChatMessage;
+import org.myteam.server.chat.dto.request.RoomRequest;
 import org.myteam.server.chat.service.ChatService;
 import org.myteam.server.chat.dto.request.FilterDataRequest;
 import org.myteam.server.global.web.response.ResponseDto;
@@ -43,10 +44,10 @@ public class ChatController {
      * 채팅방 생성
      */
     @PostMapping("/room")
-    public ResponseEntity<ResponseDto<ChatRoom>> createChatRoom(@RequestBody String roomName) {
-        log.info("createChatRoom: {}", roomName);
+    public ResponseEntity<ResponseDto<ChatRoom>> createChatRoom(@RequestBody RoomRequest requestDto) {
+        log.info("createChatRoom: {}", requestDto.getRoomName());
 
-        ChatRoom newRoom = chatService.createChatRoom(roomName);
+        ChatRoom newRoom = chatService.createChatRoom(requestDto.getRoomName());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
