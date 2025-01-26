@@ -17,8 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Iterator;
@@ -70,18 +68,16 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
             // X-Refresh-Token
             String refreshToken = jwtProvider.generateToken(TOKEN_CATEGORY_REFRESH, Duration.ofMinutes(5), member.getPublicId(), member.getRole().name(), member.getStatus().name());
-            String cookieValue = URLEncoder.encode(TOKEN_PREFIX + refreshToken, StandardCharsets.UTF_8);
 
             reIssueService.deleteByPublicId(member.getPublicId());
             reIssueService.addRefreshEntity(member.getPublicId(), refreshToken, Duration.ofMinutes(5));
 
             log.warn("cookieValue refreshToken 확인용: {}", refreshToken);
-            log.warn("cookieValue 쿠키 확인용: {}", cookieValue);
             log.warn("cookieValue PublicId 확인용: {}", member.getPublicId());
 
             // 24 시간 유효한 리프레시 토큰을 생성
-            response.addCookie(createCookie(REFRESH_TOKEN_KEY, cookieValue, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
-            response.addCookie(createCookie(REFRESH_TOKEN_KEY, cookieValue, LOGOUT_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
+            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
+            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
             String redirectUrl = String.format("%s%s?status=%s&email=%s",
                     frontUrl, frontSignUpPath, PENDING.name(), email);
             log.info("redirectUrl: {}", redirectUrl);
