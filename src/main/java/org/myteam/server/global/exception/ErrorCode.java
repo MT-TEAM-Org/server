@@ -51,8 +51,7 @@ public enum ErrorCode {
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
-    BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
-    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found");
+    BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists");
 
     private final HttpStatus status;
     private final String msg;
