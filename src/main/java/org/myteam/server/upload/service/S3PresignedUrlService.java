@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.upload.controller.response.S3FileUploadResponse;
 import org.myteam.server.upload.domain.ContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,8 @@ public class S3PresignedUrlService {
      *
      * @param fileName    업로드할 파일의 이름
      * @param contentType 파일의 MIME 타입
-     * @return 생성된 presigned URL
      */
-    public String generatePresignedUrl(String fileName, String contentType) {
+    public S3FileUploadResponse generatePresignedUrl(String fileName, String contentType) {
 
         // 미디어 타입 & 파일명 검사
         verifyMimeType(contentType, fileName);
@@ -56,7 +56,11 @@ public class S3PresignedUrlService {
         );
 
         // URL 반환
-        return presignedPutObjectRequest.url().toString();
+        S3FileUploadResponse response = new S3FileUploadResponse();
+        response.setPresignedUrl(presignedPutObjectRequest.url().toString());
+        // S3 파일 path
+        response.setDownloadPath(bucket + "/" + uniqueFileName);
+        return response;
     }
 
     /**
