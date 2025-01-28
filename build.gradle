@@ -81,6 +81,14 @@ dependencies {
 
     // Swagger
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
+
+    // Minio
+    implementation 'io.minio:minio:8.5.11'
+
+    // S3
+    implementation(platform("software.amazon.awssdk:bom:2.21.1"))
+    implementation("software.amazon.awssdk:s3")
+
 }
 
 tasks.named('test') {
