@@ -56,6 +56,8 @@ public class SecurityConfig {
             /** @brief Test Slack Integration */ "/test/slack",
             "/api/members/get-token/**", "/api/attachments/**", "/api/posts/**",
 
+            // Chat
+            "/ws-stomp/**",
 
             // Health Check
             /** @brief health check */ "/status",
