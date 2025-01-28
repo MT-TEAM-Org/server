@@ -8,20 +8,20 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class PageableCustom {
+public class PageableCustomResponse {
     private int currentPage;
     private int totalPage;
     private long totalElement;
 
     @Builder
-    private PageableCustom(int currentPage, int totalPage, long totalElement) {
+    private PageableCustomResponse(int currentPage, int totalPage, long totalElement) {
         this.currentPage = currentPage;
         this.totalPage = totalPage;
         this.totalElement = totalElement;
     }
 
-    public static <T> PageableCustom of(Page<T> page) {
-        return PageableCustom.builder()
+    public static <T> PageableCustomResponse of(Page<T> page) {
+        return PageableCustomResponse.builder()
             .currentPage(page.getNumber() + 1)
             .totalPage(page.getTotalPages())
             .totalElement(page.getTotalElements())

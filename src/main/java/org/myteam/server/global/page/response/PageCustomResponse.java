@@ -11,20 +11,20 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class PageCustom<T> implements Serializable {
+public class PageCustomResponse<T> implements Serializable {
     private List<T> content;
-    private PageableCustom pageInfo;
+    private PageableCustomResponse pageInfo;
 
     @Builder
-    private PageCustom(List<T> content, PageableCustom pageInfo) {
+    private PageCustomResponse(List<T> content, PageableCustomResponse pageInfo) {
         this.content = content;
         this.pageInfo = pageInfo;
     }
 
-    public static <T> PageCustom<T> of(Page<T> page) {
-        return PageCustom.<T>builder()
+    public static <T> PageCustomResponse<T> of(Page<T> page) {
+        return PageCustomResponse.<T>builder()
             .content(page.getContent())
-            .pageInfo(PageableCustom.of(page))
+            .pageInfo(PageableCustomResponse.of(page))
             .build();
     }
 }
