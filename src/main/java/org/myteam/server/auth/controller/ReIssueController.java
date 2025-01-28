@@ -11,9 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import static org.myteam.server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
 import static org.myteam.server.global.security.jwt.JwtProvider.*;
 import static org.myteam.server.global.util.cookie.CookieUtil.createCookie;
@@ -48,7 +45,7 @@ public class ReIssueController {
             // Refresh Token 쿠키 추가
             response.addCookie(createCookie(
                     REFRESH_TOKEN_KEY,
-                    URLEncoder.encode(TOKEN_PREFIX + tokens.getRefreshToken(), StandardCharsets.UTF_8),
+                    tokens.getRefreshToken(),
                     TOKEN_REISSUE_PATH,
                     24 * 60 * 60,
                     true,
@@ -57,7 +54,7 @@ public class ReIssueController {
 
             response.addCookie(createCookie(
                     REFRESH_TOKEN_KEY,
-                    URLEncoder.encode(TOKEN_PREFIX + tokens.getRefreshToken(), StandardCharsets.UTF_8),
+                    tokens.getRefreshToken(),
                     LOGOUT_PATH,
                     24 * 60 * 60,
                     true,
