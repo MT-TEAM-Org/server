@@ -3,6 +3,8 @@ package org.myteam.server.chat.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.ChatRoom;
+import org.myteam.server.chat.dto.response.ChatRoomResponse;
+import org.myteam.server.chat.mapper.ChatRoomMapper;
 import org.myteam.server.chat.repository.ChatRoomRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -23,8 +25,9 @@ public class ChatReadService {
      * TODO: 필요가 없을 듯. 경기 일정 보내주는 것은 다르기때문에 현재는 테스트 때문에 남겨둠.
      * 모든 채팅방 조회
      */
-    public List<ChatRoom> findAllRooms() {
-        return roomRepository.findAll();
+    public List<ChatRoomResponse> findAllRooms() {
+        List<ChatRoom> chatRooms = roomRepository.findAll();
+        return ChatRoomMapper.toDtoList(chatRooms);
     }
 
     /**

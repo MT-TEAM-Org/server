@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.chat.domain.Chat;
 import org.myteam.server.chat.domain.ChatRoom;
+import org.myteam.server.chat.dto.response.ChatRoomResponse;
+import org.myteam.server.chat.mapper.ChatRoomMapper;
 import org.myteam.server.chat.repository.ChatRoomRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -25,7 +27,7 @@ public class ChatWriteService {
     /**
      * 채팅방 생성
      */
-    public ChatRoom createChatRoom(String roomName) {
+    public ChatRoomResponse createChatRoom(String roomName) {
         ChatRoom newRoom = ChatRoom.builder()
                 .name(roomName)
                 .build();
@@ -38,7 +40,7 @@ public class ChatWriteService {
         topicManagementService.createTopic(topicName, 3, (short) 1);
         log.info("Kafka topic '{}' created for chat room '{}'.", topicName, roomName);
 
-        return newRoom;
+        return ChatRoomMapper.toDto(newRoom);
     }
 
     /**

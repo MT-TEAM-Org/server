@@ -3,9 +3,9 @@ package org.myteam.server.chat.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.Chat;
-import org.myteam.server.chat.domain.ChatRoom;
 import org.myteam.server.chat.dto.request.ChatMessage;
 import org.myteam.server.chat.dto.request.RoomRequest;
+import org.myteam.server.chat.dto.response.ChatRoomResponse;
 import org.myteam.server.chat.service.ChatReadService;
 import org.myteam.server.chat.dto.request.FilterDataRequest;
 import org.myteam.server.chat.service.ChatWriteService;
@@ -49,15 +49,15 @@ public class ChatController {
      * 채팅방 생성
      */
     @PostMapping("/room")
-    public ResponseEntity<ResponseDto<ChatRoom>> createChatRoom(@RequestBody RoomRequest requestDto) {
+    public ResponseEntity<ResponseDto<ChatRoomResponse>> createChatRoom(@RequestBody RoomRequest requestDto) {
         log.info("createChatRoom: {}", requestDto.getRoomName());
 
-        ChatRoom newRoom = chatWriteService.createChatRoom(requestDto.getRoomName());
+        ChatRoomResponse newRoomResponse = chatWriteService.createChatRoom(requestDto.getRoomName());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "Successfully create room",
-                newRoom
+                newRoomResponse
         ));
     }
 
@@ -83,10 +83,10 @@ public class ChatController {
      * 모든 채팅방 조회
      */
     @GetMapping("/room")
-    public ResponseEntity<ResponseDto<List<ChatRoom>>> getChatRoom() {
+    public ResponseEntity<ResponseDto<List<ChatRoomResponse>>> getChatRoom() {
         log.info("get Room");
 
-        List<ChatRoom> chatRooms = chatReadService.findAllRooms();
+        List<ChatRoomResponse> chatRooms = chatReadService.findAllRooms();
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
