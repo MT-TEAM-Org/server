@@ -128,7 +128,7 @@ public class CategoryService {
         // 2. 하위 카테고리 존재 여부 확인
         if (categoryJpaRepository.existsByParentId(id)) {
             log.debug("하위 카테고리 존재하여 삭제가 불가능 합니다. id : {}", id);
-            throw new PlayHiveException(RESOURCE_CONFLICT);
+//            throw new PlayHiveException(RESOURCE_CONFLICT);
         }
 
         // 3. DTO 생성 (삭제된 정보 반환)

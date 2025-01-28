@@ -1,6 +1,5 @@
 package org.myteam.server.global.security.handler;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +7,6 @@ import org.myteam.server.auth.repository.RefreshJpaRepository;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -17,7 +15,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static org.myteam.server.global.exception.ErrorCode.*;
 import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KEY;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_REFRESH;
 import static org.springframework.http.HttpMethod.POST;
@@ -38,90 +35,75 @@ public class LogoutSuccessHandler implements org.springframework.security.web.au
 
         String method = request.getMethod();
         if (!method.equals(POST.name())) {
+            response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
 
-        //get refresh token
+        // get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
 
-        if (cookies == null || cookies.length == 0) {
-            sendErrorResponse(response, EMPTY_COOKIE.getStatus(), "쿠키가 비어있습니다.");
-            return;
-        }
-
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(REFRESH_TOKEN_KEY)) {
-                refresh = cookie.getValue();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(REFRESH_TOKEN_KEY)) {
+                    refresh = cookie.getValue();
+                }
             }
         }
 
-        //refresh null check
-        if (refresh == null) {
-            sendErrorResponse(response, INVALID_REFRESH_TOKEN.getStatus(), "인증되지 않은 토큰");
-            return;
-        }
+        if (refresh != null) {
+            try {
+                refresh = jwtProvider.getAccessToken(URLDecoder.decode(refresh, StandardCharsets.UTF_8));
 
-        refresh = jwtProvider.getAccessToken(URLDecoder.decode(refresh, StandardCharsets.UTF_8));
+                // expired check
+                logger.debug("===========================");
+                logger.debug(refresh);
+                logger.debug("===========================");
 
-        //expired check
-        logger.debug("===========================");
-        logger.debug(refresh);
-        logger.debug("===========================");
-        try {
-            Boolean expired = jwtProvider.isExpired(refresh);
-            if (expired) {
-                sendErrorResponse(response, REFRESH_TOKEN_EXPIRED.getStatus(), "만료된 토큰");
+                jwtProvider.isExpired(refresh);
+
+                // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
+                String category = jwtProvider.getCategory(refresh);
+                if (!category.equals(TOKEN_CATEGORY_REFRESH)) {
+                    logger.warn("잘못된 JWT 토큰 형식");
+                    clearContextAndAddCookie(response);
+                    return;
+                }
+
+                UUID publicId = jwtProvider.getPublicId(refresh);
+
+                // DB에 저장되어 있는지 확인
+                Boolean isExist = refreshJpaRepository.existsByRefreshAndPublicId(refresh, publicId);
+                if (!isExist) {
+                    logger.warn("인증되지 않은 토큰");
+                    clearContextAndAddCookie(response);
+                    return;
+                }
+
+                // 로그아웃 진행
+                // Refresh 토큰 DB 에서 제거
+                refreshJpaRepository.deleteByPublicId(publicId);
+            } catch (Exception e) {
+                logger.error("리프레시 토큰 처리 중 예외 발생", e);
             }
-        } catch (ExpiredJwtException e) {
-            sendErrorResponse(response, INVALID_TOKEN_TYPE.getStatus(), "잘못된 JWT 토큰 형식");
-            return;
         }
 
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtProvider.getCategory(refresh);
-        if (!category.equals(TOKEN_CATEGORY_REFRESH)) {
-            sendErrorResponse(response, INVALID_TOKEN_TYPE.getStatus(), "잘못된 JWT 토큰 형식");
-            return;
-        }
+        // 1. Security Context 해제 및 빈 쿠키 추가
+        clearContextAndAddCookie(response);
+    }
 
-        UUID publicId = jwtProvider.getPublicId(refresh);
-
-        //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshJpaRepository.existsByRefreshAndPublicId(refresh, publicId);
-        if (!isExist) {
-            sendErrorResponse(response, INVALID_REFRESH_TOKEN.getStatus(), "인증되지 않은 토큰");
-            return;
-        }
-
-        //로그아웃 진행
-        //Refresh 토큰 DB 에서 제거
-        refreshJpaRepository.deleteByRefreshAndPublicId(refresh, publicId);
-
-        // 1. Security Context 해제
+    /**
+     * SecurityContext 초기화 및 빈 쿠키 추가 메서드
+     *
+     * @param response HttpServletResponse
+     */
+    private void clearContextAndAddCookie(HttpServletResponse response) {
         SecurityContextHolder.clearContext();
-
-        //Refresh 토큰 Cookie 값 0
         Cookie cookie = new Cookie(REFRESH_TOKEN_KEY, null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
 
         response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
-    }
-
-    /**
-     * 공통 에러 응답 처리 메서드
-     *
-     * @param response HttpServletResponse
-     * @param httpStatus HTTP 상태 오브젝트
-     * @param message 메시지
-     * @throws IOException
-     */
-    private void sendErrorResponse(HttpServletResponse response, HttpStatus httpStatus, String message) throws IOException {
-        response.setStatus(httpStatus.value());
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(String.format("{\"message\":\"%s\",\"status\":\"%s\"}", message, httpStatus.name()));
     }
 }

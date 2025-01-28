@@ -24,11 +24,41 @@ services:
       DOCKER_USERNAME: ${DOCKER_USERNAME}
       DOCKER_PASSWORD: ${DOCKER_PASSWORD}
       DB_ENDPOINT: ${DB_ENDPOINT}
+      FRONT_URL: ${FRONT_URL}
       DB_NAME: ${DB_NAME}
       DB_PASSWORD: ${DB_PASSWORD}
-    restart: always  # 컨테이너가 중단되었을 때 재시작 설정
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
+    depends_on:
+      - kafka
+    restart: on-failure
 
-  minio:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    restart: always
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M" # JVM 힙 메모리 최소/최대 설정
+    depends_on:
+      - zookeeper
+    restart: always
+    
+   minio:
     image: minio/minio
     container_name: minio
     environment:

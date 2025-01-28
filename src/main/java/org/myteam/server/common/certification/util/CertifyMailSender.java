@@ -8,6 +8,7 @@ import org.myteam.server.common.certification.domain.CertificationCode;
 import org.myteam.server.common.mail.MailSender;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.myteam.server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
+import static org.myteam.server.global.exception.ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT;
 
 
 @Slf4j
@@ -37,14 +39,19 @@ public class CertifyMailSender implements MailSender {
     public void send(String email) {
         log.info("Sending email to {}", email);
 
-        // 인증 코드 생성
-        CertificationCode certificationCode = createNumber();
-        codeStorage.put(email, certificationCode); // 이메일별로 인증 코드 저장
+        try {
+            // 인증 코드 생성
+            CertificationCode certificationCode = createNumber();
+            codeStorage.put(email, certificationCode); // 이메일별로 인증 코드 저장
 
-        // 이메일 생성 및 발송
-        MimeMessage message = createMail(email, certificationCode.getCode());
-        javaMailSender.send(message);
-        log.info("certificationCode ExpirationTime : {}", certificationCode.getExpirationTime());
+            // 이메일 생성 및 발송
+            MimeMessage message = createMail(email, certificationCode.getCode());
+            javaMailSender.send(message);
+            log.info("certificationCode ExpirationTime : {}", certificationCode.getExpirationTime());
+        } catch (MailException e) {
+            log.error("이메일 전송 중 에러가 발생하였습니다." + e.getMessage());
+            throw new PlayHiveException(UNAUTHORIZED_EMAIL_ACCOUNT, e.getMessage());
+        }
     }
 
     // 인증번호를 생성한다.

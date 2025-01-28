@@ -1,5 +1,6 @@
 package org.myteam.server.global.security.config;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.repository.RefreshJpaRepository;
@@ -47,19 +48,48 @@ import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KE
 public class SecurityConfig {
 
     /* 권한 제외 대상 */
-    private static final String[] permitAllUrl = new String[]{
-            /** @brief test */"/test/exception-test",
-            /** @brief Swagger Docs */"/v3/api-docs/**", "/swagger-ui/**",
-            /** @brief database url */"/h2-console",
-            /** @brief about login */"/auth/**",
+    private static final String[] PERMIT_ALL_URLS = new String[]{
+            // Test Endpoints
+            /** @brief Exception Test */ "/test/exception-test",
+            /** @brief Can Access All */ "/test/all/**",
+            /** @brief Test login, create */ "/api/test/**",
+            /** @brief Test Slack Integration */ "/test/slack",
+            "/api/members/get-token/**", "/api/attachments/**", "/api/posts/**",
+
+            // Chat
+            "/ws-stomp/**",
+
+            // Health Check
+            /** @brief health check */ "/status",
+
+            // Swagger Documents
+            /** @brief Swagger Docs */ "/v3/api-docs/**", "/swagger-ui/**",
+
+            // Database console
+            /** @brief database url */ "/h2-console",
+
+            // Business Logic
+            /** @brief about login */ "/auth/**",
+            /** @brief Allow static resource access */ "/upload/**",
+            /** @brief Allow user permission to change */ "/api/members/role",
+            "/api/certification/send",
+            "/api/certification/certify-code",
+            "/api/oauth2/members/email/**",
+            "/api/members/type/**",
+            "/api/me/create",
+            TOKEN_REISSUE_PATH
     };
     /* Admin 접근 권한 */
-    private static final String[] permitAdminUrl = new String[]{
-            /** @brief Check Access Admin */"/test/manager-access-test/**",
+    private static final String[] PERMIT_ADMIN_URLS = new String[]{
+            // Test Endpoints
+            /** @brief Check Access Admin */ "/test/admin/**",
+
+            "/api/admin/**",
     };
     /* member 접근 권한 */
-    private static final String[] permitMemberUrl = new String[]{
-            "/test/user-access-test/**",
+    private static final String[] PERMIT_MEMBER_URLS = new String[]{
+            // Test Endpoints
+            /** @brief Check Access Member */ "/test/cert",
     };
 
     @Value("${FRONT_URL:http://localhost:3000}")
@@ -72,6 +102,12 @@ public class SecurityConfig {
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final RefreshJpaRepository refreshJpaRepository;
 
+    @PostConstruct
+    public void init() {
+        log.debug("init security config");
+        log.debug("frontUrl = {}", frontUrl);
+    }
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         log.debug("BCryptPasswordEncoder 빈 등록됨");
@@ -80,99 +116,67 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // HTTP 헤더 설정
-                .headers(headers ->
-                        headers
-                                .httpStrictTransportSecurity(HstsConfig::disable) // HSTS 비활성화
-                                .frameOptions(FrameOptionsConfig::disable)        // FrameOptions 비활성화
-                );
+        // HTTP 헤더 설정
+        http.headers(headers -> headers
+                .httpStrictTransportSecurity(HstsConfig::disable) // HSTS 비활성화
+                .frameOptions(FrameOptionsConfig::disable)        // FrameOptions 비활성화
+        );
 
-        // 로그아웃 비활성화
-        http
-                .logout((auth) -> auth.disable());
+        // 기본 보안 설정 비활성화
+        http.logout((auth) -> auth.disable()) // 로그아웃 비활성화
+                .csrf((auth) -> auth.disable()) // csrf disable
+                .formLogin((auth) -> auth.disable()) // From 로그인 방식 disable
+                .httpBasic((auth) -> auth.disable()); // HTTP Basic 인증 방식 disable
 
-        // csrf disable
-        http
-                .csrf((auth) -> auth.disable());
+        // 세션 관리: Stateless
+        http.sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
-        // From 로그인 방식 disable
-        http
-                .formLogin((auth) -> auth.disable());
+        // OAuth2 로그인 설정
+        http.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(customOauth2SuccessHandler)
+                .failureHandler(oAuth2LoginFailureHandler)
+        );
 
-        //HTTP Basic 인증 방식 disable
-        http
-                .httpBasic((auth) -> auth.disable());
-
-        //세션 설정 : STATELESS
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        http
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService))
-                        .successHandler(customOauth2SuccessHandler)
-                        .failureHandler(oAuth2LoginFailureHandler)
-                );
-
-        http
-                .addFilterAt(
+        // JWT 인증 및 토큰 검증 필터 추가
+        http.addFilterAt(
                         new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository),
                         UsernamePasswordAuthenticationFilter.class
-                ) // 로그인 인증 필터
+                )
                 .addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class)
-                .addFilter(webConfig.corsFilter()); // JWT 토큰 검증 필터
+                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 
-        // cors 설정
-        http
-                .cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
+//        // cors 설정
+//        http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
+
+        // 예외 처리 핸들러 설정
+        http.exceptionHandling(exceptionHandling -> exceptionHandling
+                .authenticationEntryPoint(new AuthenticationEntryPointHandler())
+                .accessDeniedHandler(new CustomAccessDeniedHandler())
+        );
+
+        // 로그아웃 설정
+        http.logout(logout -> logout
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider, refreshJpaRepository))
+                .permitAll()
+        );
 
         // 경로별 인가 작업
-        http
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/upload/**").permitAll()       // 정적 자원 접근 허용
-                                .requestMatchers(permitAllUrl).permitAll()
-                                .requestMatchers(permitAdminUrl).hasRole("ADMIN")
-
-                                .requestMatchers("/h2-console").permitAll()       // H2 콘솔 접근 허용
-                                .requestMatchers("/api/members/get-token/**").permitAll()       // 테스트용 토큰 발급용
-                                .requestMatchers("/api/attachments/**").permitAll()       // 테스트용
-                                .requestMatchers("/api/posts/**").permitAll()       // 테스트용
-
-                                .requestMatchers("/api/admin/**").hasAnyAuthority(MemberRole.ADMIN.name())
-                                .requestMatchers(HttpMethod.POST, "/api/certification/send").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/certification/certify-code").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/oauth2/members/email/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/members/type/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/me/create").permitAll()
+        http.authorizeHttpRequests(authorizeRequests ->
+                    authorizeRequests
+                                .requestMatchers(PERMIT_ALL_URLS).permitAll()
+                                .requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
                                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                                 .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
                                 .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
                                 .requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
 
-                                .requestMatchers(TOKEN_REISSUE_PATH).permitAll()          // 토큰 재발급
-                                .requestMatchers("/api/members/role").permitAll()       // 유저 권한 변경 허용
-
                                 .anyRequest().authenticated()                   // 나머지 요청은 모두 허용
                 );
-
-        http
-                .exceptionHandling(errorHandling ->
-                        errorHandling
-                                .authenticationEntryPoint(new AuthenticationEntryPointHandler())
-                                .accessDeniedHandler(new CustomAccessDeniedHandler())
-                );
-
-        // 로그아웃 처리
-        http
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .invalidateHttpSession(true)
-                        .logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider, refreshJpaRepository))
-                        .permitAll());
 
         return http.build();
     }
@@ -192,7 +196,7 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedOriginPattern(frontUrl); // TODO_ 추후 변경 해야함 배포시
-        configuration.addAllowedOriginPattern("http://playhive.com:3000"); // TODO_ 추후 변경 해야함 배포시
+        configuration.addAllowedOriginPattern("http://localhost:3000"); // TODO_ 추후 변경 해야함 배포시
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader(HEADER_AUTHORIZATION);
         configuration.addExposedHeader(REFRESH_TOKEN_KEY);
