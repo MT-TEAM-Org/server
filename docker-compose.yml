@@ -57,8 +57,8 @@ services:
     depends_on:
       - zookeeper
     restart: always
-    
-   minio:
+
+  minio:
     image: minio/minio
     container_name: minio
     environment:
