@@ -11,7 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.ControllerTestSupport;
 import org.myteam.server.news.dto.controller.request.NewsRequest;
-import org.myteam.server.news.entity.NewsCategory;
+import org.myteam.server.news.domain.NewsCategory;
 import org.myteam.server.news.repository.OrderType;
 import org.springframework.security.test.context.support.WithMockUser;
 

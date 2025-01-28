@@ -4,7 +4,7 @@ import org.myteam.server.news.dto.controller.response.NewsListResponse;
 import org.myteam.server.news.repository.NewsQueryRepository;
 import org.myteam.server.news.dto.service.response.NewsDto;
 import org.myteam.server.news.dto.service.request.NewsServiceRequest;
-import org.myteam.server.global.page.response.PageCustom;
+import org.myteam.server.global.page.response.PageCustomResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +25,7 @@ public class NewsReadService {
 				newsServiceRequest.toPageable()
 			);
 
-		return NewsListResponse.of(PageCustom.of(newsPagingList));
+		return NewsListResponse.of(PageCustomResponse.of(newsPagingList));
 	}
 
 }

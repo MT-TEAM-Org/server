@@ -1,4 +1,4 @@
-package org.myteam.server.news.entity;
+package org.myteam.server.news.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

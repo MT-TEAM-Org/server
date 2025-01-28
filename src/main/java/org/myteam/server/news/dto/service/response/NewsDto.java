@@ -1,6 +1,6 @@
 package org.myteam.server.news.dto.service.response;
 
-import org.myteam.server.news.entity.NewsCategory;
+import org.myteam.server.news.domain.NewsCategory;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

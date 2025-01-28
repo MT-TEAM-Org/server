@@ -1,12 +1,12 @@
 package org.myteam.server.news.repository;
 
 import static java.util.Optional.*;
-import static org.myteam.server.news.entity.QNews.*;
-import static org.myteam.server.news.entity.QNewsCount.*;
+import static org.myteam.server.news.domain.QNews.*;
+import static org.myteam.server.news.domain.QNewsCount.*;
 
 import java.util.List;
 
-import org.myteam.server.news.entity.NewsCategory;
+import org.myteam.server.news.domain.NewsCategory;
 import org.myteam.server.news.dto.service.response.NewsDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

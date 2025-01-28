@@ -1,4 +1,4 @@
-package org.myteam.server.news.entity;
+package org.myteam.server.news.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

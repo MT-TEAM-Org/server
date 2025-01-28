@@ -1,4 +1,4 @@
-package org.myteam.server.news.entity;
+package org.myteam.server.news.domain;
 
 import org.myteam.server.global.domain.Base;
 

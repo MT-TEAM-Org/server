@@ -2,7 +2,7 @@ package org.myteam.server.news.dto.controller.response;
 
 import java.time.LocalDateTime;
 
-import org.myteam.server.news.entity.News;
+import org.myteam.server.news.domain.News;
 
 import lombok.Builder;
 import lombok.Getter;
