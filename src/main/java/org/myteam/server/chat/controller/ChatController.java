@@ -6,8 +6,10 @@ import org.myteam.server.chat.domain.Chat;
 import org.myteam.server.chat.domain.ChatRoom;
 import org.myteam.server.chat.dto.request.ChatMessage;
 import org.myteam.server.chat.dto.request.RoomRequest;
-import org.myteam.server.chat.service.ChatService;
+import org.myteam.server.chat.service.ChatReadService;
 import org.myteam.server.chat.dto.request.FilterDataRequest;
+import org.myteam.server.chat.service.ChatWriteService;
+import org.myteam.server.chat.service.FilterWriteService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,10 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @RequiredArgsConstructor
 @RequestMapping("/api/chat")
 public class ChatController {
-    private final ChatService chatService;
+
+    private final ChatReadService chatReadService;
+    private final ChatWriteService chatWriteService;
+    private final FilterWriteService filterWriteService;
 
     /**
      * Kafka를 통해 메시지 전송
@@ -31,7 +36,7 @@ public class ChatController {
                                                @RequestBody ChatMessage message) {
         log.info("Sending message to room {}: {}", roomId, message);
 
-        Chat chat = chatService.createChat(roomId, message.getSender(), message.getSenderEmail(), message.getMessage());
+        Chat chat = chatWriteService.createChat(roomId, message.getSender(), message.getSenderEmail(), message.getMessage());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -47,7 +52,7 @@ public class ChatController {
     public ResponseEntity<ResponseDto<ChatRoom>> createChatRoom(@RequestBody RoomRequest requestDto) {
         log.info("createChatRoom: {}", requestDto.getRoomName());
 
-        ChatRoom newRoom = chatService.createChatRoom(requestDto.getRoomName());
+        ChatRoom newRoom = chatWriteService.createChatRoom(requestDto.getRoomName());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -64,7 +69,7 @@ public class ChatController {
     public ResponseEntity<ResponseDto<String>> deleteChatRoom(@PathVariable Long roomId) {
         log.info("deleteChatRoom: {}", roomId);
 
-        String deleteChatRoomName = chatService.deleteChatRoom(roomId);
+        String deleteChatRoomName = chatWriteService.deleteChatRoom(roomId);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -81,7 +86,7 @@ public class ChatController {
     public ResponseEntity<ResponseDto<List<ChatRoom>>> getChatRoom() {
         log.info("get Room");
 
-        List<ChatRoom> chatRooms = chatService.findAllRoom();
+        List<ChatRoom> chatRooms = chatReadService.findAllRooms();
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -97,7 +102,7 @@ public class ChatController {
     public ResponseEntity<ResponseDto<String>> addFilterData(@RequestBody FilterDataRequest filterData) {
         log.info("addFilterData: {}", filterData);
 
-        chatService.addFilteredWord(filterData.getFilterData());
+        filterWriteService.addFilteredWord(filterData.getFilterData());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -113,7 +118,7 @@ public class ChatController {
     public ResponseEntity<ResponseDto<String>> deleteFilterData(@RequestBody FilterDataRequest filterData) {
         log.info("deleteFilterData: {}", filterData);
 
-        chatService.removeFilteredWord(filterData.getFilterData());
+        filterWriteService.removeFilteredWord(filterData.getFilterData());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),

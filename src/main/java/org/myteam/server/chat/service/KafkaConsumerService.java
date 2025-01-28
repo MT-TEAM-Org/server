@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaConsumerService {
     private final SimpMessagingTemplate messagingTemplate;
-    private final ChatService chatService; // 필요시 DB 저장을 위한 서비스
 
     @KafkaListener(topicPattern = "room-.*", groupId = "chat-group", containerFactory = "kafkaListenerContainerFactory")
     public void consumeMessage(ConsumerRecord<String, Chat> record) {
