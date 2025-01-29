@@ -36,7 +36,7 @@ dependencies {
     implementation 'org.webjars:sockjs-client:1.5.1'
     implementation 'org.webjars:stomp-websocket:2.3.4'
     // kafka
-    implementation 'org.springframework.kafka:spring-kafka'
+//    implementation 'org.springframework.kafka:spring-kafka'
 
     compileOnly 'org.projectlombok:lombok'
 

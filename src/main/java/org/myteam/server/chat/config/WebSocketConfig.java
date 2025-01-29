@@ -2,7 +2,9 @@ package org.myteam.server.chat.config;
 
 
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.chat.interceptor.StompHandler;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -13,6 +15,8 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @Configuration
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final StompHandler stompHandler;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -35,5 +39,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setMessageSizeLimit(160 * 64 * 1024);
         registry.setSendTimeLimit(100 * 10000);
         registry.setSendBufferSizeLimit(3 * 512 * 1024);
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompHandler);
     }
 }

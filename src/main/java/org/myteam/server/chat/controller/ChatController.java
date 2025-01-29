@@ -12,6 +12,9 @@ import org.myteam.server.chat.service.ChatWriteService;
 import org.myteam.server.chat.service.FilterWriteService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,22 +29,24 @@ public class ChatController {
 
     private final ChatReadService chatReadService;
     private final ChatWriteService chatWriteService;
-    private final FilterWriteService filterWriteService;
 
     /**
-     * Kafka를 통해 메시지 전송
+     * TODO: Kafka를 통해 메시지 전송
+     * 원인: EC2 프리티어 램 메모리 이슈로 인한 인스턴스 정지로 Kafka 현재 사용 불가능
      */
-    @PostMapping("/send/{roomId}")
-    public ResponseEntity<ResponseDto<String>> sendMessageToRoom(@PathVariable Long roomId,
-                                               @RequestBody ChatMessage message) {
+    @MessageMapping("/{roomId}")
+    @SendTo("/room/{roomId}")
+    public ChatMessage chat(@DestinationVariable Long roomId, ChatMessage message) {
         log.info("Sending message to room {}: {}", roomId, message);
 
         Chat chat = chatWriteService.createChat(roomId, message.getSender(), message.getSenderEmail(), message.getMessage());
 
-        return ResponseEntity.ok(new ResponseDto<>(
-                SUCCESS.name(),
-                "Message sent to Kafka topic: room-" + roomId,
-                null));
+        return ChatMessage.builder()
+                .roomId(roomId)
+                .sender(chat.getSender())
+                .senderEmail(chat.getSenderEmail())
+                .message(chat.getMessage())
+                .build();
     }
 
     /**
@@ -92,38 +97,6 @@ public class ChatController {
                 SUCCESS.name(),
                 "Successfully find rooms",
                 chatRooms
-        ));
-    }
-
-    /**
-     * 필터 데이터 추가
-     */
-    @PostMapping("/filter")
-    public ResponseEntity<ResponseDto<String>> addFilterData(@RequestBody FilterDataRequest filterData) {
-        log.info("addFilterData: {}", filterData);
-
-        filterWriteService.addFilteredWord(filterData.getFilterData());
-
-        return ResponseEntity.ok(new ResponseDto<>(
-                SUCCESS.name(),
-                "Successfully Filter data added",
-                filterData.getFilterData()
-        ));
-    }
-
-    /**
-     * 필터 데이터 삭제
-     */
-    @DeleteMapping("/filter")
-    public ResponseEntity<ResponseDto<String>> deleteFilterData(@RequestBody FilterDataRequest filterData) {
-        log.info("deleteFilterData: {}", filterData);
-
-        filterWriteService.removeFilteredWord(filterData.getFilterData());
-
-        return ResponseEntity.ok(new ResponseDto<>(
-                SUCCESS.name(),
-                "Successfully Filter data deleted",
-                filterData.getFilterData()
         ));
     }
 }
