@@ -9,26 +9,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.news.dto.controller.response.NewsListResponse;
-import org.myteam.server.news.domain.News;
-import org.myteam.server.news.domain.NewsCategory;
-import org.myteam.server.news.domain.NewsCount;
-import org.myteam.server.news.repository.NewsCountRepository;
-import org.myteam.server.news.repository.NewsRepository;
-import org.myteam.server.news.repository.OrderType;
-import org.myteam.server.news.dto.service.response.NewsDto;
-import org.myteam.server.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.global.page.response.PageableCustomResponse;
+import org.myteam.server.news.domain.NewsCategory;
+import org.myteam.server.news.dto.service.request.NewsServiceRequest;
+import org.myteam.server.news.dto.repository.NewsDto;
+import org.myteam.server.news.dto.service.response.NewsListResponse;
+import org.myteam.server.news.repository.OrderType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class NewsReadServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private NewsReadService newsReadService;
-	@Autowired
-	private NewsRepository newsRepository;
-	@Autowired
-	private NewsCountRepository newsCountRepository;
 
 	@AfterEach
 	void tearDown() {
@@ -53,8 +45,8 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
 
-		List<NewsDto> newsList = newsListResponse.getNewsList().getContent();
-		PageableCustomResponse pageInfo = newsListResponse.getNewsList().getPageInfo();
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
 
 		assertThat(pageInfo)
 			.extracting("currentPage", "totalPage", "totalElement")
@@ -98,8 +90,8 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
 
-		List<NewsDto> newsList = newsListResponse.getNewsList().getContent();
-		PageableCustomResponse pageInfo = newsListResponse.getNewsList().getPageInfo();
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
 
 		assertThat(pageInfo)
 			.extracting("currentPage", "totalPage", "totalElement")
@@ -148,8 +140,8 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
 
-		List<NewsDto> newsList = newsListResponse.getNewsList().getContent();
-		PageableCustomResponse pageInfo = newsListResponse.getNewsList().getPageInfo();
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
 
 		assertThat(pageInfo)
 			.extracting("currentPage", "totalPage", "totalElement")
@@ -190,14 +182,8 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
 
-		List<NewsDto> newsList = newsListResponse.getNewsList().getContent();
-		PageableCustomResponse pageInfo = newsListResponse.getNewsList().getPageInfo();
-
-		assertThat(pageInfo)
-			.extracting("currentPage", "totalPage", "totalElement")
-			.containsExactlyInAnyOrder(
-				1, 1, 4L
-			);
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
 
 		assertAll(
 			() -> assertThat(pageInfo)
@@ -216,20 +202,5 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		);
 	}
 
-	private void createNews(int index, NewsCategory category, int count) {
-		News savedNews = newsRepository.save(News.builder()
-			.title("기사타이틀" + index)
-			.category(category)
-			.thumbImg("www.test.com")
-			.build());
 
-		NewsCount newsCount = NewsCount.builder()
-			.news(savedNews)
-			.likeCount(count)
-			.commentCount(count)
-			.viewCount(count)
-			.build();
-
-		newsCountRepository.save(newsCount);
-	}
 }
