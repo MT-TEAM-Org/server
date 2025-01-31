@@ -68,7 +68,7 @@ class NewsControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.message").value("뉴스 정렬 타입은 필수입니다."));
 	}
 
-	@DisplayName("뉴스목록을 조회한다.")
+	@DisplayName("뉴스목록을 조회시 뉴스 카테고리는 필수입니다.")
 	@Test
 	@WithMockUser
 	void findAllWithoutCategoryTest() throws Exception {
