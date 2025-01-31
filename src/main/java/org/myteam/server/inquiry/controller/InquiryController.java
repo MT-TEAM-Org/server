@@ -1,7 +1,10 @@
 package org.myteam.server.inquiry.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+<<<<<<< HEAD
 import jakarta.validation.Valid;
+=======
+>>>>>>> 624ff52 (feat: 문의하기 기능 추가)
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.page.request.PageInfoRequest;
@@ -9,7 +12,10 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.dto.request.InquiryRequest;
+<<<<<<< HEAD
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
+=======
+>>>>>>> 624ff52 (feat: 문의하기 기능 추가)
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryWriteService;
 import org.myteam.server.util.ClientUtils;

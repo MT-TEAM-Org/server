@@ -3,6 +3,7 @@ package org.myteam.server.inquiry.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+<<<<<<< HEAD
 import org.junit.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,16 @@ import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
+=======
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.myteam.server.global.page.request.PageInfoRequest;
+import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.member.dto.MemberSaveRequest;
+import org.myteam.server.member.entity.Member;
+>>>>>>> 624ff52 (feat: 문의하기 기능 추가)
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
