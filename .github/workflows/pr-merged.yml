@@ -2,9 +2,7 @@ name: Notify Slack on PR Closed for Dev Branch
 
 on:
   pull_request_target:
-    types:
-      - opened
-      - reopened
+    types: [closed]
 
 jobs:
   notify-slack:
