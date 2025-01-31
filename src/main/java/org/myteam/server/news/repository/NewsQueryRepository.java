@@ -7,7 +7,7 @@ import static org.myteam.server.news.domain.QNewsCount.*;
 import java.util.List;
 
 import org.myteam.server.news.domain.NewsCategory;
-import org.myteam.server.news.dto.service.response.NewsDto;
+import org.myteam.server.news.dto.repository.NewsDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
