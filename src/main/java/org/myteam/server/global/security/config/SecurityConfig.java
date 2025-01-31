@@ -77,7 +77,10 @@ public class SecurityConfig {
             "/api/oauth2/members/email/**",
             "/api/members/type/**",
             "/api/me/create",
-            TOKEN_REISSUE_PATH
+            TOKEN_REISSUE_PATH,
+
+            // 문의하기
+            "/api/inquiries/create",
     };
     /* Admin 접근 권한 */
     private static final String[] PERMIT_ADMIN_URLS = new String[]{
