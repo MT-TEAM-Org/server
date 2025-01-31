@@ -4,7 +4,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.*;
 
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.news.dto.controller.request.NewsRequest;
-import org.myteam.server.news.dto.controller.response.NewsListResponse;
+import org.myteam.server.news.dto.service.response.NewsListResponse;
 import org.myteam.server.news.service.NewsReadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
