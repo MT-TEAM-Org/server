@@ -79,12 +79,12 @@ public class S3PresignedUrlService {
 
     private boolean isValidMimeType(String contentType, String fileExtension) {
         for (ContentType type : ContentType.values()) {
-            if (type.getValue().equalsIgnoreCase(contentType)) {
+            if (type.getValue().equals(contentType)) {
                 // MIME 타입에서 / 뒤에 있는 확장자 부분을 추출
                 String mimeExtension = contentType.split("/")[1].toLowerCase();
 
                 // 파일 확장자와 비교
-                if (mimeExtension.equalsIgnoreCase(fileExtension)) {
+                if (mimeExtension.equals(fileExtension)) {
                     return true;
                 }
             }
