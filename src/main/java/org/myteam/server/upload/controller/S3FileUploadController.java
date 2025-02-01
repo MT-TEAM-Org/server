@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/upload")
 @Slf4j
 public class S3FileUploadController {
 
@@ -26,7 +26,7 @@ public class S3FileUploadController {
      * @param fileName    업로드할 파일의 이름
      * @param contentType 파일의 MIME 타입 (예: image/png)
      */
-    @GetMapping("/upload")
+    @GetMapping
     public ResponseEntity<ResponseDto<S3FileUploadResponse>> generatePresignedUrl(
             @RequestParam("contentType") String contentType,
             @RequestParam("fileName") String fileName) {
