@@ -98,3 +98,8 @@ spring:
 
 
 SENDER_EMAIL: test@test.com
+
+slack:
+  webhook:
+    url: test
+

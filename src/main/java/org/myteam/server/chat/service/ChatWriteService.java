@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatWriteService {
 
     private final ChatRoomRepository roomRepository;
-    private final KafkaProducerService kafkaProducerService;
-    private final TopicManagementService topicManagementService;
+//    private final KafkaProducerService kafkaProducerService;
+//    private final TopicManagementService topicManagementService;
     private final BadWordFilter badWordFilter;
 
     /**
@@ -37,7 +37,7 @@ public class ChatWriteService {
 
         // Kafka 토픽 생성
         String topicName = "room-" + newRoom.getId();
-        topicManagementService.createTopic(topicName, 3, (short) 1);
+//        topicManagementService.createTopic(topicName, 3, (short) 1);
         log.info("Kafka topic '{}' created for chat room '{}'.", topicName, roomName);
 
         return ChatRoomMapper.toDto(newRoom);
@@ -51,13 +51,13 @@ public class ChatWriteService {
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.ROOM_NOT_FOUND));
 
         // Kafka 토픽 삭제
-        try {
-            topicManagementService.deleteTopic("room-" + roomId);
-            log.info("Deleted Kafka topic: room-{}", roomId);
-        } catch (Exception e) {
-            log.error("Failed to delete Kafka topic for room ID: {}. Error: {}", roomId, e.getMessage());
-            throw new PlayHiveException(ErrorCode.KAFKA_TOPIC_DELETE_FAILED);
-        }
+//        try {
+//            topicManagementService.deleteTopic("room-" + roomId);
+//            log.info("Deleted Kafka topic: room-{}", roomId);
+//        } catch (Exception e) {
+//            log.error("Failed to delete Kafka topic for room ID: {}. Error: {}", roomId, e.getMessage());
+//            throw new PlayHiveException(ErrorCode.KAFKA_TOPIC_DELETE_FAILED);
+//        }
 
         // 채팅방 삭제
         roomRepository.delete(chatRoom);
@@ -79,7 +79,7 @@ public class ChatWriteService {
         Chat chat = Chat.createChat(room, sender, senderEmail, filteredMessage);
 
         // Kafka에 메시지 전송
-        kafkaProducerService.sendMessage("room-" + roomId, chat);
+//        kafkaProducerService.sendMessage("room-" + roomId, chat);
 
         return chat;
     }

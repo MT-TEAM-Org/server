@@ -2,12 +2,12 @@ version: '3.9'
 
 services:
   app:
-    image: ${DOCKER_USERNAME}/play-hive:latest # 사용할 이미지 이름
+    image: ${DOCKER_USERNAME}/play-hive:latest
     build:
-      context: .            # Dockerfile이 위치한 디렉토리
-      dockerfile: Dockerfile # 빌드에 사용할 Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8080:8080"          # 호스트와 컨테이너의 포트 매핑
+      - "8080:8080"
     environment:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
@@ -28,9 +28,7 @@ services:
       DB_NAME: ${DB_NAME}
       DB_PASSWORD: ${DB_PASSWORD}
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
-    depends_on:
-      - kafka
-    restart: on-failure
+    restart: always
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -53,7 +51,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M" # JVM 힙 메모리 최소/최대 설정
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
     depends_on:
       - zookeeper
     restart: always
@@ -65,9 +63,9 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     ports:
-      - "9000:9000"  # 로컬에서 9000 포트로 접근 가능
+      - "9000:9000"
     volumes:
-      - minio_data:/data  # 데이터 저장소
+      - minio_data:/data
     command: server /data
 
 volumes:
