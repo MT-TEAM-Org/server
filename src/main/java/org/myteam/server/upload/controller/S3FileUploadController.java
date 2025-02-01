@@ -9,11 +9,13 @@ import org.myteam.server.upload.controller.response.S3FileUploadResponse;
 import org.myteam.server.upload.service.S3PresignedUrlService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 @Slf4j
 public class S3FileUploadController {
 
