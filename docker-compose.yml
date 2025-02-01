@@ -70,6 +70,7 @@ services:
     volumes:
       - minio_data:/data
     command: server /data
+    restart: always
 
 volumes:
   minio_data:
