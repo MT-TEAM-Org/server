@@ -1,8 +1,8 @@
 package org.myteam.server.board.service;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.entity.Board;
-import org.myteam.server.board.entity.BoardCount;
+import org.myteam.server.board.domain.Board;
+import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
