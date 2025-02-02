@@ -31,14 +31,18 @@ public class S3ConfigLocal {
 
     @Bean
     public S3Client minioClient() {
-        return S3Client.builder()
-                .endpointOverride(URI.create(minioUrl))
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider
-                        .create(AwsBasicCredentials
-                                .create(minioAccessKey, minioSecretKey)))
-                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
-                .build();
+        try {
+            return S3Client.builder()
+                    .endpointOverride(URI.create(minioUrl))
+                    .region(Region.of(region))
+                    .credentialsProvider(StaticCredentialsProvider
+                            .create(AwsBasicCredentials
+                                    .create(minioAccessKey, minioSecretKey)))
+                    .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("MinIO 클라이언트 오류 발생", e);
+        }
     }
 
     @Bean
