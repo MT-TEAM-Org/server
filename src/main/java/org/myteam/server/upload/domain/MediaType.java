@@ -1,6 +1,6 @@
 package org.myteam.server.upload.domain;
 
-public enum ContentType {
+public enum MediaType {
     IMAGE_PNG("image/png"),
     IMAGE_JPEG("image/jpeg"),
     IMAGE_GIF("image/gif"),
@@ -12,7 +12,7 @@ public enum ContentType {
 
     private final String value;
 
-    ContentType(String value) {
+    MediaType(String value) {
         this.value = value;
     }
 

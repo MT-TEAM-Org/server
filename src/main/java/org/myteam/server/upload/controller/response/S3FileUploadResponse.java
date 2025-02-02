@@ -9,5 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class S3FileUploadResponse {
     private String presignedUrl;
-    private String downloadPath;
+    private String downloadUrl;
 }

@@ -29,6 +29,10 @@ public class S3ConfigLocal {
     @Value("${MINIO_REGION}")
     private String region;
 
+    public String getMinioUrl() {
+        return minioUrl;
+    }
+    
     @Bean
     public S3Client minioClient() {
         try {
