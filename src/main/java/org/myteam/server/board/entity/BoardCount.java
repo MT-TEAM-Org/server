@@ -1,4 +1,4 @@
-package org.myteam.server.board.domain;
+package org.myteam.server.board.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

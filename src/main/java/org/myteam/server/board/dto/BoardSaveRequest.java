@@ -5,23 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.myteam.server.board.domain.BoardType;
-import org.myteam.server.board.domain.CategoryType;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class BoardSaveRequest {
     /**
-     * 게시판 타입
-     */
-    @NotNull(message = "게시판 타입을 선택해주세요")
-    private BoardType boardType;
-    /**
-     * 카테고리 타입
+     * 카테고리 id
      */
     @NotNull(message = "카테고리를 선택해주세요")
-    private CategoryType categoryType;
+    private Long categoryId;
     /**
      * 제목
      */

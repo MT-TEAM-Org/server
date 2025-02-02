@@ -3,22 +3,28 @@ package org.myteam.server.board.controller.reponse;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
-import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.domain.BoardCount;
-import org.myteam.server.board.domain.BoardType;
-import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.board.entity.Board;
+import org.myteam.server.board.entity.BoardCount;
 
 @Getter
 @Setter
 public class BoardResponse {
     /**
-     * 게시판 타입
+     * 카테고리 부모 id
      */
-    private BoardType boardType;
+    private Long categoryParentId;
     /**
-     * 카테고리 타입
+     * 카테고리 부모 명
      */
-    private CategoryType categoryType;
+    private String categoryParentName;
+    /**
+     * 카테고리 id
+     */
+    private Long categoryId;
+    /**
+     * 카테고리명
+     */
+    private String categoryName;
     /**
      * 게시글 id
      */
@@ -65,9 +71,11 @@ public class BoardResponse {
     private LocalDateTime updatedAt;
 
     public BoardResponse(Board board, BoardCount boardCount) {
-        this.boardType = board.getBoardType();
-        this.categoryType = board.getCategoryType();
         this.boardId = board.getId();
+        this.categoryParentId = board.getCategory().getCategoryParentId();
+        this.categoryParentName = board.getCategory().getParentCategoryName();
+        this.categoryId = board.getCategory().getId();
+        this.categoryName = board.getCategory().getName();
         this.authorId = board.getMember().getId();
         this.clientIp = board.getCreatedIp();
         this.title = board.getTitle();
