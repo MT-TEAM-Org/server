@@ -1,4 +1,4 @@
-package org.myteam.server.board.entity;
+package org.myteam.server.board.domain;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -32,9 +32,9 @@ public class Board {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    private BoardType boardType;
+
+    private CategoryType categoryType;
 
     private String title;
 
@@ -52,10 +52,12 @@ public class Board {
     private BoardCount boardCount;
 
     @Builder
-    public Board(Member member, Category category, String title, String content, String link, String createdIp,
+    public Board(Member member, BoardType boardType, CategoryType categoryType, String title, String content,
+                 String link, String createdIp,
                  BoardCount boardCount) {
         this.member = member;
-        this.category = category;
+        this.boardType = boardType;
+        this.categoryType = categoryType;
         this.title = title;
         this.content = content;
         this.link = link;
@@ -65,8 +67,9 @@ public class Board {
         this.boardCount = boardCount;
     }
 
-    public void updateBoard(BoardSaveRequest request, Category category) {
-        this.category = category;
+    public void updateBoard(BoardSaveRequest request) {
+        this.boardType = request.getBoardType();
+        this.categoryType = request.getCategoryType();
         this.title = request.getTitle();
         this.content = request.getContent();
         this.link = request.getLink();

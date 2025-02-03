@@ -1,7 +1,7 @@
 package org.myteam.server.board.service;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.entity.Category;
+import org.myteam.server.board.domain.Category;
 import org.myteam.server.board.repository.CategoryRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
