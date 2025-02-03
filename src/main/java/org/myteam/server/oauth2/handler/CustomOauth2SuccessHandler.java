@@ -23,7 +23,8 @@ import java.util.Iterator;
 
 import static org.myteam.server.auth.controller.ReIssueController.LOGOUT_PATH;
 import static org.myteam.server.auth.controller.ReIssueController.TOKEN_REISSUE_PATH;
-import static org.myteam.server.global.security.jwt.JwtProvider.*;
+import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KEY;
+import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_REFRESH;
 import static org.myteam.server.global.util.cookie.CookieUtil.createCookie;
 import static org.myteam.server.global.util.domain.DomainUtil.extractDomain;
 import static org.myteam.server.member.domain.MemberStatus.*;
@@ -67,10 +68,10 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             log.warn("PENDING 상태인 경우 로그인이 불가능합니다");
 
             // X-Refresh-Token
-            String refreshToken = jwtProvider.generateToken(TOKEN_CATEGORY_REFRESH, Duration.ofMinutes(5), member.getPublicId(), member.getRole().name(), member.getStatus().name());
+            String refreshToken = jwtProvider.generateToken(TOKEN_CATEGORY_REFRESH, Duration.ofDays(1), member.getPublicId(), member.getRole().name(), member.getStatus().name());
 
             reIssueService.deleteByPublicId(member.getPublicId());
-            reIssueService.addRefreshEntity(member.getPublicId(), refreshToken, Duration.ofMinutes(5));
+            reIssueService.addRefreshEntity(member.getPublicId(), refreshToken, Duration.ofDays(1));
 
             log.warn("cookieValue refreshToken 확인용: {}", refreshToken);
             log.warn("cookieValue PublicId 확인용: {}", member.getPublicId());
@@ -78,8 +79,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             // 24 시간 유효한 리프레시 토큰을 생성
             response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
             response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
-            String redirectUrl = String.format("%s%s?status=%s&email=%s",
-                    frontUrl, frontSignUpPath, PENDING.name(), email);
+            String redirectUrl = String.format("%s%s?status=%s&email=%s", frontUrl, frontSignUpPath, PENDING.name(), email);
             log.info("redirectUrl: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
             return;
@@ -99,10 +99,12 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         log.info("onAuthenticationSuccess role: {}", member.getRole());
 
         // Authorization
-        String accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1), member.getPublicId(), member.getRole().name(), member.getStatus().name());
+        String refreshToken = jwtProvider.generateToken(TOKEN_CATEGORY_REFRESH, Duration.ofDays(1), member.getPublicId(), member.getRole().name(), member.getStatus().name());
 
-        log.debug("print accessToken: {}", accessToken);
-        // log.debug("print refreshToken: {}", refreshToken);
+        response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
+        response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
+
+        log.debug("print refreshToken: {}", refreshToken);
         log.debug("print frontUrl: {}", frontUrl);
         response.sendRedirect(frontUrl);
         log.debug("Oauth 로그인에 성공하였습니다.");
