@@ -27,7 +27,7 @@ public class InquiryController {
     private final InquiryReadService inquiryReadService;
     private final InquiryWriteService inquiryWriteService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public ResponseEntity<ResponseDto<String>> createInquiry(@Valid @RequestBody InquiryRequest inquiryRequest,
                                                      HttpServletRequest request) {
         String clientIp = ClientUtils.getRemoteIP(request);
