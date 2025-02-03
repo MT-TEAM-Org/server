@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.domain.Base;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -15,6 +17,7 @@ import org.myteam.server.member.dto.MemberUpdateRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.myteam.server.member.domain.MemberRole.ADMIN;
@@ -119,5 +122,11 @@ public class Member extends Base {
         log.info("Stored password: {}", this.password);
         log.info("Is valid: {}", isValid);
         return isValid;
+    }
+
+    public void confirmMemberEquals(Member member) {
+        if(!Objects.equals(this.id, member.getId())) {
+            throw new PlayHiveException(ErrorCode.MEMBER_NOT_EQUALS);
+        }
     }
 }

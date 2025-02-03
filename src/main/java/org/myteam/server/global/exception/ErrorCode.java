@@ -21,6 +21,7 @@ public enum ErrorCode {
     EMPTY_COOKIE(HttpStatus.BAD_REQUEST, "Cookie value is empty"),
     INVALID_TYPE(HttpStatus.BAD_REQUEST, "Invalid type provided"),
     INVALID_MIME_TYPE(HttpStatus.BAD_REQUEST, "Invalid mime type provided"),
+    MEMBER_NOT_EQUALS(HttpStatus.BAD_REQUEST, "Member Not Equals"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -49,6 +50,8 @@ public enum ErrorCode {
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Board not found"),
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "Room not found"),
     BAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Ban not found"),
+    NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
+    NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "New Comment not found"),
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),

@@ -1,4 +1,4 @@
-package org.myteam.server.news.dto.controller.response;
+package org.myteam.server.news.dto.service.response;
 
 import java.time.LocalDateTime;
 

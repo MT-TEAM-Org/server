@@ -1,7 +1,7 @@
-package org.myteam.server.news.dto.controller.response;
+package org.myteam.server.news.dto.service.response;
 
 import org.myteam.server.news.domain.NewsCategory;
-import org.myteam.server.news.dto.service.response.NewsDto;
+import org.myteam.server.news.dto.repository.NewsDto;
 
 import lombok.Builder;
 import lombok.Getter;
