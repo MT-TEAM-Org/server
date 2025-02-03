@@ -19,7 +19,7 @@ public class S3ConfigLocal {
 
     @Value("${minio.url}")
     private String minioUrl;
-
+  
     @Value("${minio.access-key}")
     private String minioAccessKey;
 
