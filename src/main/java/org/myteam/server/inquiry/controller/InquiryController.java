@@ -9,6 +9,7 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.dto.request.InquiryRequest;
+import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryWriteService;
 import org.myteam.server.util.ClientUtils;
@@ -41,8 +42,8 @@ public class InquiryController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<ResponseDto<PageCustomResponse<Inquiry>>> getMyInquiries(@RequestParam UUID memberPublicId, PageInfoRequest pageInfoRequest) {
-        PageCustomResponse<Inquiry> content = inquiryReadService.getInquiriesByMember(memberPublicId, pageInfoRequest);
+    public ResponseEntity<ResponseDto<PageCustomResponse<InquiryResponse>>> getMyInquiries(@RequestParam UUID memberPublicId, PageInfoRequest pageInfoRequest) {
+        PageCustomResponse<InquiryResponse> content = inquiryReadService.getInquiriesByMember(memberPublicId, pageInfoRequest);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
