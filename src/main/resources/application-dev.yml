@@ -44,7 +44,7 @@ slack:
 
 minio:
   url: ${MINIO_URL}
-  root-user: ${MINIO_ROOT_USER}
-  root-password: ${MINIO_ROOT_PASSWORD}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
   region: ${MINIO_REGION}
   bucket: ${MINIO_BUCKET}
