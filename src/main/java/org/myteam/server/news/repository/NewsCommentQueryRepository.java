@@ -34,7 +34,8 @@ public class NewsCommentQueryRepository {
 					newsComment.member.nickname
 				),
 				newsComment.comment,
-				newsComment.ip
+				newsComment.ip,
+				newsComment.createDate
 			))
 			.from(newsComment)
 			.where(
