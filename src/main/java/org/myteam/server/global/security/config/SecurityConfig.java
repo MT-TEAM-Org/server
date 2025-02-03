@@ -50,28 +50,28 @@ public class SecurityConfig {
     /* 권한 제외 대상 */
     private static final String[] PERMIT_ALL_URLS = new String[]{
             // Test Endpoints
-            /** @brief Exception Test */ "/test/exception-test",
-            /** @brief Can Access All */ "/test/all/**",
-            /** @brief Test login, create */ "/api/test/**",
-            /** @brief Test Slack Integration */ "/test/slack",
+            /** @brief Exception Test */"/test/exception-test",
+            /** @brief Can Access All */"/test/all/**",
+            /** @brief Test login, create */"/api/test/**",
+            /** @brief Test Slack Integration */"/test/slack",
             "/api/members/get-token/**", "/api/attachments/**", "/api/posts/**",
 
             // Chat
             "/ws-stomp/**",
 
             // Health Check
-            /** @brief health check */ "/status",
+            /** @brief health check */"/status",
 
             // Swagger Documents
-            /** @brief Swagger Docs */ "/v3/api-docs/**", "/swagger-ui/**",
+            /** @brief Swagger Docs */"/v3/api-docs/**", "/swagger-ui/**",
 
             // Database console
-            /** @brief database url */ "/h2-console",
+            /** @brief database url */"/h2-console",
 
             // Business Logic
-            /** @brief about login */ "/auth/**",
-            /** @brief Allow static resource access */ "/upload/**",
-            /** @brief Allow user permission to change */ "/api/members/role",
+            /** @brief about login */"/auth/**",
+            /** @brief Allow static resource access */"/upload/**",
+            /** @brief Allow user permission to change */"/api/members/role",
             "/api/certification/send",
             "/api/certification/certify-code",
             "/api/oauth2/members/email/**",
@@ -82,14 +82,14 @@ public class SecurityConfig {
     /* Admin 접근 권한 */
     private static final String[] PERMIT_ADMIN_URLS = new String[]{
             // Test Endpoints
-            /** @brief Check Access Admin */ "/test/admin/**",
+            /** @brief Check Access Admin */"/test/admin/**",
 
             "/api/admin/**",
     };
     /* member 접근 권한 */
     private static final String[] PERMIT_MEMBER_URLS = new String[]{
             // Test Endpoints
-            /** @brief Check Access Member */ "/test/cert",
+            /** @brief Check Access Member */"/test/cert",
     };
 
     @Value("${FRONT_URL:http://localhost:3000}")
@@ -149,7 +149,7 @@ public class SecurityConfig {
                 .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 
 //        // cors 설정
-//        http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
+        http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
 
         // 예외 처리 핸들러 설정
         http.exceptionHandling(exceptionHandling -> exceptionHandling
@@ -167,16 +167,16 @@ public class SecurityConfig {
 
         // 경로별 인가 작업
         http.authorizeHttpRequests(authorizeRequests ->
-                    authorizeRequests
-                                .requestMatchers(PERMIT_ALL_URLS).permitAll()
-                                .requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
-                                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
-                                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
-                                .requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
+                authorizeRequests
+                        .requestMatchers(PERMIT_ALL_URLS).permitAll()
+                        .requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
 
-                                .anyRequest().authenticated()                   // 나머지 요청은 모두 허용
-                );
+                        .anyRequest().authenticated()                   // 나머지 요청은 모두 허용
+        );
 
         return http.build();
     }
