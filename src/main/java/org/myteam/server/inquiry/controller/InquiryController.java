@@ -1,6 +1,7 @@
 package org.myteam.server.inquiry.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.page.request.PageInfoRequest;
@@ -27,7 +28,7 @@ public class InquiryController {
     private final InquiryWriteService inquiryWriteService;
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseDto<String>> createInquiry(@RequestBody InquiryRequest inquiryRequest,
+    public ResponseEntity<ResponseDto<String>> createInquiry(@Valid @RequestBody InquiryRequest inquiryRequest,
                                                      HttpServletRequest request) {
         String clientIp = ClientUtils.getRemoteIP(request);
         String content = inquiryWriteService.createInquiry(inquiryRequest.getContent(), inquiryRequest.getMemberPublicId(), clientIp);
