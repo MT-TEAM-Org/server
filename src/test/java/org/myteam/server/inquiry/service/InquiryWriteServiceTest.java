@@ -2,6 +2,7 @@ package org.myteam.server.inquiry.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,11 @@ class InquiryWriteServiceTest {
                 .nickname("testUser")
                 .password("teamPlayHive12#")
                 .build()).getPublicId();
-        System.out.println("memberPublicId = " + memberPublicId);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        inquiryRepository.deleteAllInBatch();
     }
 
     @Test
