@@ -10,6 +10,7 @@ import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.member.service.MemberReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,12 +24,11 @@ import java.util.UUID;
 @Service
 @Transactional(readOnly = true)
 public class InquiryReadService {
-    private final MemberRepository memberRepository;
+    private final MemberReadService memberReadService;
     private final InquiryRepository inquiryRepository;
 
     public PageCustomResponse<Inquiry> getInquiriesByMember(UUID memberPublicId, PageInfoRequest pageInfoRequest) {
-        Member member = memberRepository.findByPublicId(memberPublicId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
+        Member member = memberReadService.findById(memberPublicId);
         Pageable pageable = PageRequest.of(pageInfoRequest.getPage() - 1, pageInfoRequest.getSize());
         Page<Inquiry> inquiries = inquiryRepository.findByMember(member, pageable);
         return PageCustomResponse.of(inquiries);
