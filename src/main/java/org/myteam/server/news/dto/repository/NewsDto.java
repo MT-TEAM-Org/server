@@ -1,4 +1,4 @@
-package org.myteam.server.news.dto.service.response;
+package org.myteam.server.news.dto.repository;
 
 import org.myteam.server.news.domain.NewsCategory;
 

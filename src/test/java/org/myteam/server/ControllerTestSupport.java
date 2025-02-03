@@ -1,6 +1,9 @@
 package org.myteam.server;
 
+import org.myteam.server.news.controller.NewsCommentController;
 import org.myteam.server.news.controller.NewsController;
+import org.myteam.server.news.service.NewsCommentReadService;
+import org.myteam.server.news.service.NewsCommentService;
 import org.myteam.server.news.service.NewsReadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ActiveProfiles("test")
 @WebMvcTest(controllers = {
 	NewsController.class,
+	NewsCommentController.class
 })
 @MockBean(JpaMetamodelMappingContext.class)
 public abstract class ControllerTestSupport {
@@ -26,6 +30,12 @@ public abstract class ControllerTestSupport {
 
 	@MockBean
 	protected NewsReadService newsReadService;
+
+	@MockBean
+	protected NewsCommentService newsCommentService;
+
+	@MockBean
+	protected NewsCommentReadService newsCommentReadService;
 
 }
 
