@@ -87,7 +87,7 @@ public class ReIssueService {
         }
 
         // 리프레시 토큰에서 액세스 토큰 추출
-        return jwtProvider.getAccessToken(refresh);
+        return refresh;
     }
 
     @Transactional
