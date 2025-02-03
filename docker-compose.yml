@@ -4,10 +4,10 @@ services:
   app:
     image: ${DOCKER_USERNAME}/play-hive:latest # 사용할 이미지 이름
     build:
-      context: .            # Dockerfile이 위치한 디렉토리
+      context: . # Dockerfile이 위치한 디렉토리
       dockerfile: Dockerfile # 빌드에 사용할 Dockerfile
     ports:
-      - "8080:8080"          # 호스트와 컨테이너의 포트 매핑
+      - "8080:8080" # 호스트와 컨테이너의 포트 매핑
     environment:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
@@ -51,7 +51,27 @@ services:
 #      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
 #      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
 #      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M" # JVM 힙 메모리 최소/최대 설정
+#      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
 #    depends_on:
 #      - zookeeper
 #    restart: always
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_URL: ${MINIO_URL}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_REGION: ${MINIO_REGION}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio_data:/data
+    command: server /data
+    restart: always
+
+volumes:
+  minio_data:
+    driver: local

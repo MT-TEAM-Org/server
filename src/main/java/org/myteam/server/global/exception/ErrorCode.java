@@ -20,6 +20,7 @@ public enum ErrorCode {
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "Invalid parameter value"),
     EMPTY_COOKIE(HttpStatus.BAD_REQUEST, "Cookie value is empty"),
     INVALID_TYPE(HttpStatus.BAD_REQUEST, "Invalid type provided"),
+    INVALID_MIME_TYPE(HttpStatus.BAD_REQUEST, "Invalid mime type provided"),
     MEMBER_NOT_EQUALS(HttpStatus.BAD_REQUEST, "Member Not Equals"),
 
     // 401 Unauthorized,
