@@ -1,0 +1,31 @@
+package org.myteam.server.inquiry.domain;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.myteam.server.member.entity.Member;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Inquiry {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String content;
+
+    @ManyToOne(optional = true, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    private String clientIp;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+}
