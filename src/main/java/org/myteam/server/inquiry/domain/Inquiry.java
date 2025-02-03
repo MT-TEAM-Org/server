@@ -18,10 +18,7 @@ public class Inquiry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-<<<<<<< HEAD
-=======
     @NotNull(message = "문의 내용이 없으면 안됩니다.")
->>>>>>> 624ff52 (feat: 문의하기 기능 추가)
     private String content;
 
     @ManyToOne(optional = true, cascade = CascadeType.REMOVE)

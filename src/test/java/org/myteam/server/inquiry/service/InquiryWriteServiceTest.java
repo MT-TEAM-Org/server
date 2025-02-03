@@ -2,27 +2,16 @@ package org.myteam.server.inquiry.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-<<<<<<< HEAD
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.ControllerTestSupport;
 import org.myteam.server.IntegrationTestSupport;
-=======
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
->>>>>>> 624ff52 (feat: 문의하기 기능 추가)
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
-<<<<<<< HEAD
 import org.myteam.server.member.repository.MemberJpaRepository;
-=======
->>>>>>> 624ff52 (feat: 문의하기 기능 추가)
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
