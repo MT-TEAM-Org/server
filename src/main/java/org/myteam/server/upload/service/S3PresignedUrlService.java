@@ -58,11 +58,10 @@ public class S3PresignedUrlService {
                             .signatureDuration(expiration)
             );
 
-            // URL 반환
-            S3FileUploadResponse response = new S3FileUploadResponse();
-            response.setPresignedUrl(presignedPutObjectRequest.url().toString());
-            // S3 파일 경로
-            response.setDownloadUrl(s3ConfigLocal.getMinioUrl() + "/" + bucket + "/" + uniqueFileName);
+            S3FileUploadResponse response = S3FileUploadResponse.createResponse(
+                    presignedPutObjectRequest.url().toString(),
+                    s3ConfigLocal.getMinioUrl() + "/" + bucket + "/" + uniqueFileName
+            );
 
             return response;
         } catch (Exception e) {
