@@ -13,11 +13,14 @@ import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
+<<<<<<< HEAD
 =======
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 >>>>>>> 624ff52 (feat: 문의하기 기능 추가)
+=======
+>>>>>>> bec3cfb (chore: 중복코드 수정(memberReadService 재활용))
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +35,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class InquiryReadService {
 <<<<<<< HEAD
+<<<<<<< HEAD
     private final MemberReadService memberReadService;
     private final InquiryRepository inquiryRepository;
 
@@ -45,11 +49,13 @@ public class InquiryReadService {
         return PageCustomResponse.of(inquiryResponses);
 =======
     private final MemberRepository memberRepository;
+=======
+    private final MemberReadService memberReadService;
+>>>>>>> bec3cfb (chore: 중복코드 수정(memberReadService 재활용))
     private final InquiryRepository inquiryRepository;
 
     public PageCustomResponse<Inquiry> getInquiriesByMember(UUID memberPublicId, PageInfoRequest pageInfoRequest) {
-        Member member = memberRepository.findByPublicId(memberPublicId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
+        Member member = memberReadService.findById(memberPublicId);
         Pageable pageable = PageRequest.of(pageInfoRequest.getPage() - 1, pageInfoRequest.getSize());
         Page<Inquiry> inquiries = inquiryRepository.findByMember(member, pageable);
         return PageCustomResponse.of(inquiries);
