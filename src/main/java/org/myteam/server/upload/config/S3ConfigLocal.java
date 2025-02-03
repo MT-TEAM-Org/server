@@ -20,11 +20,11 @@ public class S3ConfigLocal {
     @Value("${MINIO_URL}")
     private String minioUrl;
 
-    @Value("${MINIO_ACCESS_KEY}")
-    private String minioAccessKey;
+    @Value("${MINIO_ROOT_USER}")
+    private String minioRootUser;
 
-    @Value("${MINIO_SECRET_KEY}")
-    private String minioSecretKey;
+    @Value("${MINIO_ROOT_PASSWORD}")
+    private String minioRootPassword;
 
     @Value("${MINIO_REGION}")
     private String region;
@@ -32,7 +32,7 @@ public class S3ConfigLocal {
     public String getMinioUrl() {
         return minioUrl;
     }
-    
+
     @Bean
     public S3Client minioClient() {
         try {
@@ -41,7 +41,7 @@ public class S3ConfigLocal {
                     .region(Region.of(region))
                     .credentialsProvider(StaticCredentialsProvider
                             .create(AwsBasicCredentials
-                                    .create(minioAccessKey, minioSecretKey)))
+                                    .create(minioRootUser, minioRootPassword)))
                     .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                     .build();
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class S3ConfigLocal {
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider
                         .create(AwsBasicCredentials
-                                .create(minioAccessKey, minioSecretKey)))
+                                .create(minioRootUser, minioRootPassword)))
                 .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
     }

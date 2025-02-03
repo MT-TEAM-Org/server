@@ -29,7 +29,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
     restart: always
-
+    
 #  zookeeper:
 #    image: confluentinc/cp-zookeeper:latest
 #    container_name: zookeeper
@@ -61,8 +61,8 @@ services:
     container_name: minio
     environment:
       MINIO_URL: ${MINIO_URL}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_REGION: ${MINIO_REGION}
       MINIO_BUCKET: ${MINIO_BUCKET}
     ports:
