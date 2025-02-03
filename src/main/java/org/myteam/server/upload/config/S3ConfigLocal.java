@@ -17,16 +17,16 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Configuration
 public class S3ConfigLocal {
 
-    @Value("${MINIO_URL}")
+    @Value("${minio.url}")
     private String minioUrl;
 
-    @Value("${MINIO_ROOT_USER}")
+    @Value("${minio.root-user}")
     private String minioRootUser;
 
-    @Value("${MINIO_ROOT_PASSWORD}")
+    @Value("${minio.root-password}")
     private String minioRootPassword;
 
-    @Value("${MINIO_REGION}")
+    @Value("${minio.bucket}")
     private String region;
 
     public String getMinioUrl() {

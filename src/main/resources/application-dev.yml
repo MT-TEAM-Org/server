@@ -42,3 +42,9 @@ slack:
   webhook:
     url: ${SLACK_WEBHOOK_URL}
 
+minio:
+  url: ${MINIO_URL}
+  root-user: ${MINIO_ROOT_USER}
+  root-password: ${MINIO_ROOT_PASSWORD}
+  region: ${MINIO_REGION}
+  bucket: ${MINIO_BUCKET}

@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 @RequiredArgsConstructor
 public class S3PresignedUrlService {
 
-    @Value("${MINIO_BUCKET}")
+    @Value("${minio.bucket}")
     private String bucket;
     private final S3Presigner s3Presigner;
     private final S3ConfigLocal s3ConfigLocal;
