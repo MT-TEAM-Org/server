@@ -1,8 +1,8 @@
 package org.myteam.server.news.newsComment.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
@@ -22,14 +22,6 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 	@Autowired
 	private NewsCommentService newsCommentService;
 
-	@AfterEach
-	void tearDown() {
-		newsCommentRepository.deleteAllInBatch();
-		newsCountRepository.deleteAllInBatch();
-		newsRepository.deleteAllInBatch();
-		memberJpaRepository.deleteAllInBatch();
-	}
-
 	@DisplayName("뉴스댓글을 저장한다.")
 	@Test
 	void saveTest() {
@@ -44,9 +36,12 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 
 		NewsCommentResponse newsCommentResponse = newsCommentService.save(newsCommentSaveServiceRequest);
 
-		assertThat(newsCommentRepository.findById(newsCommentResponse.getNewsCommentId()).get())
-			.extracting("id", "news.id", "member.id", "comment", "ip")
-			.contains(newsCommentResponse.getNewsCommentId(), news.getId(), member.getId(), "댓글 테스트", "1.1.1.1");
+		assertAll(
+			() -> assertThat(newsCommentRepository.findById(newsCommentResponse.getNewsCommentId()).get())
+				.extracting("id", "news.id", "member.id", "comment", "ip")
+				.contains(newsCommentResponse.getNewsCommentId(), news.getId(), member.getId(), "댓글 테스트", "1.1.1.1"),
+			() -> assertThat(newsCountRepository.findById(news.getId()).get().getCommentCount()).isEqualTo(11)
+		);
 	}
 
 	@DisplayName("뉴스댓글을 수정한다.")
@@ -78,9 +73,11 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		NewsComment newsComment = craeteNewsComment(news, member, "뉴스 댓글 테스트");
 		Long deletedCommentId = newsCommentService.delete(newsComment.getId());
 
-		assertThatThrownBy(() -> newsCommentService.delete(deletedCommentId))
-			.isInstanceOf(PlayHiveException.class)
-			.hasMessage(ErrorCode.NEWS_COMMENT_NOT_FOUND.getMsg());
+		assertAll(
+			() -> assertThatThrownBy(() -> newsCommentService.delete(deletedCommentId))
+				.isInstanceOf(PlayHiveException.class)
+				.hasMessage(ErrorCode.NEWS_COMMENT_NOT_FOUND.getMsg()),
+			() -> assertThat(newsCountRepository.findById(news.getId()).get().getCommentCount()).isEqualTo(9)
+		);
 	}
-
 }
