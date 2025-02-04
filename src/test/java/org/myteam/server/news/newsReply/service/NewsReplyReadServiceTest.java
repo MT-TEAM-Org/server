@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
@@ -27,15 +26,6 @@ public class NewsReplyReadServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private NewsReplyReadService newsReplyReadService;
-
-	@AfterEach
-	void tearDown() {
-		newsReplyRepository.deleteAllInBatch();
-		newsCommentRepository.deleteAllInBatch();
-		newsCountRepository.deleteAllInBatch();
-		newsRepository.deleteAllInBatch();
-		memberJpaRepository.deleteAllInBatch();
-	}
 
 	@DisplayName("뉴스 대댓글 ID로 뉴스 대댓글을 조회한다.")
 	@Test
