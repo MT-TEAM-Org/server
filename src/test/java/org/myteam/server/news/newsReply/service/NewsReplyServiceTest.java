@@ -1,8 +1,9 @@
 package org.myteam.server.news.newsReply.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
@@ -23,16 +24,7 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 	@Autowired
 	private NewsReplyService newsReplyService;
 
-	@AfterEach
-	void tearDown() {
-		newsReplyRepository.deleteAllInBatch();
-		newsCommentRepository.deleteAllInBatch();
-		newsCountRepository.deleteAllInBatch();
-		newsRepository.deleteAllInBatch();
-		memberJpaRepository.deleteAllInBatch();
-	}
-
-	@DisplayName("뉴스댓글을 저장한다.")
+	@DisplayName("뉴스 대댓글을 저장한다.")
 	@Test
 	void saveTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
@@ -47,7 +39,7 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 
 		NewsReplyResponse newsReplyResponse = newsReplyService.save(newsReplySaveServiceRequest);
 
-		assertThat(newsReplyRepository.findById(newsReplyResponse.getNewsCommentId()).get())
+		assertThat(newsReplyRepository.findById(newsReplyResponse.getNewsReplyId()).get())
 			.extracting("id", "newsComment.id", "member.id", "comment", "ip")
 			.contains(newsReplyResponse.getNewsReplyId(), newsComment.getId(), member.getId(), "대댓글 테스트", "1.1.1.1");
 	}
