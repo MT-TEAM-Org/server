@@ -34,7 +34,7 @@ public class NewsCommentController {
 	private final NewsCommentReadService newsCommentReadService;
 
 	@PostMapping
-	private ResponseEntity<ResponseDto<NewsCommentResponse>> save(@RequestBody @Valid NewsCommentSaveRequest newsSaveRequest, HttpServletRequest request) {
+	public ResponseEntity<ResponseDto<NewsCommentResponse>> save(@RequestBody @Valid NewsCommentSaveRequest newsSaveRequest, HttpServletRequest request) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 댓글 저장 성공",
@@ -42,7 +42,7 @@ public class NewsCommentController {
 	}
 
 	@GetMapping
-	private ResponseEntity<ResponseDto<NewsCommentListResponse>> findByNewsId(
+	public ResponseEntity<ResponseDto<NewsCommentListResponse>> findByNewsId(
 		@RequestBody @Valid NewsCommentRequest newsCommentRequest) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
@@ -51,7 +51,7 @@ public class NewsCommentController {
 	}
 
 	@PatchMapping
-	private ResponseEntity<ResponseDto<Long>> update(
+	public ResponseEntity<ResponseDto<Long>> update(
 		@RequestBody @Valid NewsCommentUpdateRequest newsCommentUpdateRequest) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
@@ -60,7 +60,7 @@ public class NewsCommentController {
 	}
 
 	@DeleteMapping("/{newsCommentId}")
-	private ResponseEntity<ResponseDto<Long>> delete(@PathVariable Long newsCommentId) {
+	public ResponseEntity<ResponseDto<Long>> delete(@PathVariable Long newsCommentId) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 댓글 삭제 성공",

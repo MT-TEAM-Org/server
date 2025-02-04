@@ -35,7 +35,7 @@ public class NewsReplyController {
 	private final NewsReplyReadService newsReplyReadService;
 
 	@PostMapping
-	private ResponseEntity<ResponseDto<NewsReplyResponse>> save(
+	public ResponseEntity<ResponseDto<NewsReplyResponse>> save(
 		@RequestBody @Valid NewsReplySaveRequest newsSaveRequest, HttpServletRequest request) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
@@ -44,7 +44,7 @@ public class NewsReplyController {
 	}
 
 	@GetMapping
-	private ResponseEntity<ResponseDto<NewsReplyListResponse>> findByNewsId(
+	public ResponseEntity<ResponseDto<NewsReplyListResponse>> findByNewsId(
 		@RequestBody @Valid NewsReplyRequest newsReplyRequest) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
@@ -53,7 +53,7 @@ public class NewsReplyController {
 	}
 
 	@PatchMapping
-	private ResponseEntity<ResponseDto<Long>> update(
+	public ResponseEntity<ResponseDto<Long>> update(
 		@RequestBody @Valid NewsReplyUpdateRequest newsReplyUpdateRequest) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
@@ -62,7 +62,7 @@ public class NewsReplyController {
 	}
 
 	@DeleteMapping("/{newsReplyId}")
-	private ResponseEntity<ResponseDto<Long>> delete(@PathVariable Long newsReplyId) {
+	public ResponseEntity<ResponseDto<Long>> delete(@PathVariable Long newsReplyId) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 대댓글 삭제 성공",

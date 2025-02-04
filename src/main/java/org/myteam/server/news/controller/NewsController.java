@@ -8,6 +8,7 @@ import org.myteam.server.news.dto.service.response.NewsListResponse;
 import org.myteam.server.news.service.NewsReadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,11 +24,14 @@ public class NewsController {
 	private final NewsReadService newsReadService;
 
 	@GetMapping
-	private ResponseEntity<ResponseDto<NewsListResponse>> findAll(@RequestBody @Valid NewsRequest request) {
+	public ResponseEntity<ResponseDto<NewsListResponse>> findAll(@RequestBody @Valid NewsRequest request) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 목록 조회 성공",
 			newsReadService.findAll(request.toServiceRequest())));
 	}
+
+	// @PatchMapping("/like")
+
 
 }
