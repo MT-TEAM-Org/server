@@ -5,6 +5,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.*;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.news.news.dto.controller.request.NewsRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
+import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.news.newsCount.dto.service.response.NewsRecommendResponse;
 import org.myteam.server.news.newsCount.service.NewsCountService;
@@ -32,6 +33,14 @@ public class NewsController {
 			SUCCESS.name(),
 			"뉴스 목록 조회 성공",
 			newsReadService.findAll(request.toServiceRequest())));
+	}
+
+	@GetMapping("/{newsId}")
+	public ResponseEntity<ResponseDto<NewsResponse>> findOne(@PathVariable Long newsId) {
+		return ResponseEntity.ok(new ResponseDto<>(
+			SUCCESS.name(),
+			"뉴스 상세 조회 성공",
+			newsReadService.findOne(newsId)));
 	}
 
 }
