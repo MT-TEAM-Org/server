@@ -11,4 +11,6 @@ public interface NewsCountMemberRepository extends JpaRepository<NewsCountMember
 
 	Optional<NewsCountMember> findByNewsIdAndMemberId(Long newsId, Long memberId);
 
+	void deleteByNewsIdAndMemberId(Long newsId, Long memberId);
+
 }

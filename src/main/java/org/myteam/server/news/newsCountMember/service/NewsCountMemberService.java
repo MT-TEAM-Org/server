@@ -1,8 +1,11 @@
 package org.myteam.server.news.newsCountMember.service;
 
+import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.service.NewsReadService;
-import org.myteam.server.news.newsCountMember.dto.service.request.NewsCountMemberSaveServiceRequest;
+import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
+import org.myteam.server.news.newsCountMember.dto.service.response.NewsCountMemberDeleteResponse;
 import org.myteam.server.news.newsCountMember.dto.service.response.NewsCountMemberResponse;
 import org.myteam.server.news.newsCountMember.repository.NewsCountMemberRepository;
 import org.springframework.stereotype.Service;
@@ -19,15 +22,20 @@ public class NewsCountMemberService {
 	private final SecurityReadService securityReadService;
 	private final NewsReadService newsReadService;
 
-	public NewsCountMemberResponse save(NewsCountMemberSaveServiceRequest newsCountMemberSaveServiceRequest) {
+	public NewsCountMemberResponse save(Long newsId) {
+		Member member = securityReadService.getMember();
+		News news = newsReadService.findById(newsId);
 		return NewsCountMemberResponse.createResponse(
-			newsCountMemberRepository.save(
-				newsCountMemberSaveServiceRequest.toEntity(
-					newsReadService.findById(newsCountMemberSaveServiceRequest.getNewsId()),
-					securityReadService.getMember()
-				)
-			)
+			newsCountMemberRepository.save(NewsCountMember.createEntity(news, member))
 		);
+	}
+
+	public NewsCountMemberDeleteResponse deleteByNewsIdMemberId(Long newsId) {
+		Member member = securityReadService.getMember();
+		News news = newsReadService.findById(newsId);
+
+		newsCountMemberRepository.deleteByNewsIdAndMemberId(news.getId(), member.getId());
+		return NewsCountMemberDeleteResponse.createResponse(news.getId(), member.getId());
 	}
 
 }

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class NewsCountMemberReadService {
 
 	private final NewsCountMemberRepository newsCountMemberRepository;

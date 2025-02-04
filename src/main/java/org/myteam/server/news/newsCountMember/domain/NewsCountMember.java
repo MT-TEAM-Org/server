@@ -37,7 +37,7 @@ public class NewsCountMember extends Base {
 		this.member = member;
 	}
 
-	public NewsCountMember createEntity(News news, Member member) {
+	public static NewsCountMember createEntity(News news, Member member) {
 		return NewsCountMember.builder()
 			.news(news)
 			.member(member)

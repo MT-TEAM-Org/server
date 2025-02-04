@@ -39,8 +39,31 @@ public class NewsCount {
 		this.viewCount = viewCount;
 	}
 
-	public NewsCount addRecommendCount() {
-		this.recommendCount++;
-		return this;
+	public void addRecommendCount() {
+		this.recommendCount += 1;
+	}
+
+	public void minusRecommendCount() {
+		this.recommendCount -= 1;
+	}
+
+	public void addCommentCount() {
+		this.commentCount += 1;
+	}
+
+	public void minusCommentCount() {
+		this.commentCount -= 1;
+	}
+
+	public void addViewCount() {
+		this.viewCount += 1;
+	}
+
+	public void minusViewCount() {
+		this.viewCount -= 1;
+	}
+
+	public void updateNews(News news) {
+		this.news = news;
 	}
 }
