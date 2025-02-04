@@ -116,10 +116,8 @@ public class BoardService {
      * 게시판에 맞는 카테고리를 선택했는지 검사 ex) 전적 인증, 플레이팁은 e-sport 게시판에서만 사용
      */
     private void verifyBoardTypeAndCategoryType(BoardType boardType, CategoryType categoryType) {
-        if (!boardType.equals(BoardType.E_SPORTS)) {
-            if (categoryType.equals(CategoryType.PLAY_TIP) || categoryType.equals(CategoryType.RECORD_VERIFICATION)) {
-                throw new PlayHiveException(ErrorCode.INVALID_TYPE);
-            }
+        if (!boardType.isEsports()) {
+            categoryType.confirmEsports();
         }
     }
 
@@ -127,7 +125,7 @@ public class BoardService {
      * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
      */
     private void verifyBoardAuthor(Board board, Member member) {
-        if (!board.getMember().getId().equals(member.getId())) {
+        if (!board.isAuthor(member)) {
             if (!member.isAdmin()) {
                 throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
             }

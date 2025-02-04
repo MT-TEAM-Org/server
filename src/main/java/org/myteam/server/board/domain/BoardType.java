@@ -12,5 +12,9 @@ public enum BoardType {
     /**
      * 축구
      */
-    FOOTBALL
+    FOOTBALL;
+
+    public boolean isEsports() {
+        return this.equals(E_SPORTS);
+    }
 }

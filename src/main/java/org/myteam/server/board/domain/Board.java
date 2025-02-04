@@ -2,6 +2,8 @@ package org.myteam.server.board.domain;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,8 +34,10 @@ public class Board {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
+    @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
 
     private String title;
@@ -74,5 +78,9 @@ public class Board {
         this.content = request.getContent();
         this.link = request.getLink();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isAuthor(Member member) {
+        return this.member.equals(member);
     }
 }

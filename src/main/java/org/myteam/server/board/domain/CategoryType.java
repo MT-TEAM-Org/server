@@ -1,5 +1,8 @@
 package org.myteam.server.board.domain;
 
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
+
 public enum CategoryType {
     /**
      * 자유
@@ -24,5 +27,11 @@ public enum CategoryType {
     /**
      * 플레이 팁 (e-sports)
      */
-    PLAY_TIP
+    PLAY_TIP;
+
+    public void confirmEsports() {
+        if (this.equals(PLAY_TIP) || this.equals(RECORD_VERIFICATION)) {
+            throw new PlayHiveException(ErrorCode.INVALID_TYPE);
+        }
+    }
 }
