@@ -9,6 +9,7 @@ import org.myteam.server.news.newsComment.dto.service.request.NewsCommentSaveSer
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentUpdateServiceRequest;
 import org.myteam.server.news.newsComment.dto.service.response.NewsCommentResponse;
 import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
+import org.myteam.server.news.newsCount.service.NewsCountService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,16 +24,19 @@ public class NewsCommentService {
 	private final NewsCommentReadService newsCommentReadService;
 	private final NewsReadService newsReadService;
 	private final SecurityReadService securityReadService;
+	private final NewsCountService newsCountService;
 
 	public NewsCommentResponse save(NewsCommentSaveServiceRequest newsCommentSaveServiceRequest) {
 		News news = newsReadService.findById(newsCommentSaveServiceRequest.getNewsId());
 		Member member = securityReadService.getMember();
 
-		return NewsCommentResponse.createResponse(
-			newsCommentRepository.save(
-				NewsComment.createNewsComment(news, member, newsCommentSaveServiceRequest.getComment(),
-					newsCommentSaveServiceRequest.getIp())), member
-		);
+		NewsComment newsComment = newsCommentRepository.save(
+			NewsComment.createNewsComment(news, member, newsCommentSaveServiceRequest.getComment(),
+				newsCommentSaveServiceRequest.getIp()));
+
+		newsCountService.addCommendCount(news.getId());
+
+		return NewsCommentResponse.createResponse(newsComment, member);
 	}
 
 	public Long update(NewsCommentUpdateServiceRequest newsCommentUpdateServiceRequest) {
@@ -52,6 +56,9 @@ public class NewsCommentService {
 		newsComment.confirmMember(member);
 
 		newsCommentRepository.deleteById(newsCommentId);
+
+		newsCountService.minusCommendCount(newsComment.getNews().getId());
+
 		return newsComment.getId();
 	}
 }
