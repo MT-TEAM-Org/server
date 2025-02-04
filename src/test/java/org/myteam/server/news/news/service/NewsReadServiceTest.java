@@ -5,15 +5,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.page.response.PageableCustomResponse;
+import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
+import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.repository.OrderType;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,12 +22,6 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private NewsReadService newsReadService;
-
-	@AfterEach
-	void tearDown() {
-		newsCountRepository.deleteAllInBatch();
-		newsRepository.deleteAllInBatch();
-	}
 
 	@DisplayName("야구기사의 목록을 조회한다.")
 	@Test
@@ -200,6 +195,55 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
 				)
 		);
+	}
+
+	@DisplayName("제목으로 목록을 조회한다.")
+	@Test
+	void findAllWithContentTest() {
+		createNews(1, NewsCategory.BASEBALL, 10);
+		createNews(2, NewsCategory.BASEBALL, 14);
+		createNews(3, NewsCategory.ESPORTS, 15);
+		createNews(4, NewsCategory.BASEBALL, 12);
+
+		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
+			.orderType(OrderType.RECOMMEND)
+			.content("타이틀1")
+			.page(1)
+			.size(10)
+			.build();
+
+		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
+
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 1L
+				),
+			() -> assertThat(newsList)
+				.extracting("title", "category", "thumbImg")
+				.containsExactly(
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
+				)
+		);
+	}
+
+	@DisplayName("뉴스 상세 조회를 한다.")
+	@Test
+	void findOneTest() {
+		News news = createNews(1, NewsCategory.BASEBALL, 10);
+		createNews(2, NewsCategory.BASEBALL, 14);
+		createNews(3, NewsCategory.ESPORTS, 15);
+		createNews(4, NewsCategory.BASEBALL, 12);
+
+		NewsResponse newsResponse = newsReadService.findOne(news.getId());
+
+		assertThat(newsResponse)
+			.extracting("title", "category", "thumbImg", "recommendCount", "commentCount", "viewCount")
+			.contains("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", 10, 10, 10);
 	}
 
 }
