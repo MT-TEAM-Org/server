@@ -1,10 +1,9 @@
 package org.myteam.server.board.controller.reponse;
 
-import lombok.Getter;
-import org.myteam.server.board.entity.Category;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import org.myteam.server.board.domain.Category;
 
 @Getter
 public class CategoryResponse {
@@ -16,7 +15,8 @@ public class CategoryResponse {
     private List<CategoryResponse> children;
     private String link;
 
-    public CategoryResponse(Long id, String name, Integer orderIndex, Integer depth, Long parentId, List<CategoryResponse> children, String link) {
+    public CategoryResponse(Long id, String name, Integer orderIndex, Integer depth, Long parentId,
+                            List<CategoryResponse> children, String link) {
         this.id = id;
         this.name = name;
         this.orderIndex = orderIndex;
@@ -37,7 +37,9 @@ public class CategoryResponse {
     }
 
     public static CategoryResponse fromWithoutChildren(Category entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
 
         return new CategoryResponse(
                 entity.getId(),
