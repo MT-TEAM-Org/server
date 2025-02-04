@@ -22,18 +22,23 @@ public class NewsCount {
 	@OneToOne
 	private News news;
 
-	private int likeCount;
+	private int recommendCount;
 
 	private int commentCount;
 
 	private int viewCount;
 
 	@Builder
-	public NewsCount(Long id, News news, int likeCount, int commentCount, int viewCount) {
+	public NewsCount(Long id, News news, int recommendCount, int commentCount, int viewCount) {
 		this.id = id;
 		this.news = news;
-		this.likeCount = likeCount;
+		this.recommendCount = recommendCount;
 		this.commentCount = commentCount;
 		this.viewCount = viewCount;
+	}
+
+	public NewsCount addRecommendCount() {
+		this.recommendCount++;
+		return this;
 	}
 }
