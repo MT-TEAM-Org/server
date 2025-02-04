@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
@@ -21,8 +22,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.UUID;
 
-@SpringBootTest
-class InquiryReadServiceTest {
+class InquiryReadServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private MemberService memberService;
