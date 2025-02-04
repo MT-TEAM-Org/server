@@ -3,9 +3,12 @@ package org.myteam.server;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.news.controller.NewsCommentController;
 import org.myteam.server.news.controller.NewsController;
+import org.myteam.server.news.controller.NewsReplyController;
 import org.myteam.server.news.service.NewsCommentReadService;
 import org.myteam.server.news.service.NewsCommentService;
 import org.myteam.server.news.service.NewsReadService;
+import org.myteam.server.news.service.NewsReplyReadService;
+import org.myteam.server.news.service.NewsReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 //@ActiveProfiles("test")
 @WebMvcTest(controllers = {
 	NewsController.class,
-	NewsCommentController.class
+	NewsCommentController.class,
+	NewsReplyController.class
 })
 @MockBean(JpaMetamodelMappingContext.class)
 public abstract class ControllerTestSupport {
@@ -39,8 +43,13 @@ public abstract class ControllerTestSupport {
 	@MockBean
 	protected NewsCommentReadService newsCommentReadService;
 
-	@Test
-	void contextLoads() {}
+	@MockBean
+	protected NewsReplyService newsReplyService;
 
+	@MockBean
+	protected NewsReplyReadService newsReplyReadService;
+
+  @Test
+	void contextLoads() {}
 }
 

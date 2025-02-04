@@ -17,16 +17,16 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Configuration
 public class S3ConfigLocal {
 
-    @Value("${MINIO_URL}")
+    @Value("${minio.url}")
     private String minioUrl;
+  
+    @Value("${minio.access-key}")
+    private String minioAccessKey;
 
-    @Value("${MINIO_ROOT_USER}")
-    private String minioRootUser;
+    @Value("${minio.secret-key}")
+    private String minioSecretKey;
 
-    @Value("${MINIO_ROOT_PASSWORD}")
-    private String minioRootPassword;
-
-    @Value("${MINIO_REGION}")
+    @Value("${minio.bucket}")
     private String region;
 
     public String getMinioUrl() {
@@ -41,7 +41,7 @@ public class S3ConfigLocal {
                     .region(Region.of(region))
                     .credentialsProvider(StaticCredentialsProvider
                             .create(AwsBasicCredentials
-                                    .create(minioRootUser, minioRootPassword)))
+                                    .create(minioAccessKey, minioSecretKey)))
                     .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                     .build();
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class S3ConfigLocal {
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider
                         .create(AwsBasicCredentials
-                                .create(minioRootUser, minioRootPassword)))
+                                .create(minioAccessKey, minioSecretKey)))
                 .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
     }

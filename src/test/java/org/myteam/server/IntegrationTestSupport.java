@@ -14,8 +14,10 @@ import org.myteam.server.news.domain.News;
 import org.myteam.server.news.domain.NewsCategory;
 import org.myteam.server.news.domain.NewsComment;
 import org.myteam.server.news.domain.NewsCount;
+import org.myteam.server.news.domain.NewsReply;
 import org.myteam.server.news.repository.NewsCommentRepository;
 import org.myteam.server.news.repository.NewsCountRepository;
+import org.myteam.server.news.repository.NewsReplyRepository;
 import org.myteam.server.news.repository.NewsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -109,6 +111,8 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected NewsCommentRepository newsCommentRepository;
 	@Autowired
+	protected NewsReplyRepository newsReplyRepository;
+	@Autowired
 	protected MemberJpaRepository memberJpaRepository;
 	@MockBean
 	protected SecurityReadService securityReadService;
@@ -156,6 +160,17 @@ public abstract class IntegrationTestSupport {
 		return newsCommentRepository.save(
 			NewsComment.builder()
 				.news(news)
+				.member(member)
+				.comment(comment)
+				.ip("1.1.1.1")
+				.build()
+		);
+	}
+
+	protected NewsReply createNewsReply(NewsComment newsComment, Member member, String comment) {
+		return newsReplyRepository.save(
+			NewsReply.builder()
+				.newsComment(newsComment)
 				.member(member)
 				.comment(comment)
 				.ip("1.1.1.1")

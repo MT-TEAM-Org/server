@@ -1,15 +1,14 @@
 package org.myteam.server.board.repository.querydsl;
 
+import static org.myteam.server.global.exception.ErrorCode.RESOURCE_NOT_FOUND;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.entity.Category;
-import org.myteam.server.board.entity.QCategory;
+import org.myteam.server.board.domain.Category;
+import org.myteam.server.board.domain.QCategory;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
-import static org.myteam.server.global.exception.ErrorCode.RESOURCE_NOT_FOUND;
 
 @Repository
 @RequiredArgsConstructor

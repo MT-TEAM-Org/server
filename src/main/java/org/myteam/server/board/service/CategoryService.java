@@ -1,22 +1,22 @@
 package org.myteam.server.board.service;
 
+import static org.myteam.server.global.exception.ErrorCode.INVALID_PARAMETER;
+import static org.myteam.server.global.exception.ErrorCode.RESOURCE_NOT_FOUND;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.controller.reponse.CategoryResponse;
+import org.myteam.server.board.domain.Category;
 import org.myteam.server.board.dto.CategorySaveRequest;
 import org.myteam.server.board.dto.CategoryUpdateRequest;
-import org.myteam.server.board.entity.Category;
 import org.myteam.server.board.repository.CategoryJpaRepository;
 import org.myteam.server.board.repository.CategoryRepository;
 import org.myteam.server.board.repository.querydsl.CategoryQuerydslRepository;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.myteam.server.global.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -34,7 +34,8 @@ public class CategoryService {
         Category categoryEntity = new Category(categorySaveRequest);
 
         if (categorySaveRequest.getParentId() != null) {
-            Category parentCategory = categoryRepository.getById(categorySaveRequest.getParentId()); // 부모 카테고리 Entity 조회
+            Category parentCategory = categoryRepository.getById(
+                    categorySaveRequest.getParentId()); // 부모 카테고리 Entity 조회
             Integer depth = categorySaveRequest.getDepth();
             Integer parentDepth = parentCategory.getDepth();
 
@@ -182,11 +183,12 @@ public class CategoryService {
     /**
      * 최상단 카테고리가 아닌 그 외 카테고리 변경에 대한 유효성 검증
      *
-     * @param parent 부모 카테고리
+     * @param parent                부모 카테고리
      * @param categoryUpdateRequest 카테고리 변경 정보
      * @throws PlayHiveException
      */
-    public void validateSubForReOrderIndex(Category parent, CategoryUpdateRequest categoryUpdateRequest) throws PlayHiveException {
+    public void validateSubForReOrderIndex(Category parent, CategoryUpdateRequest categoryUpdateRequest)
+            throws PlayHiveException {
         // 그 외
         List<Category> siblings = parent.getChildren(); // 부모의 자식 리스트
         int siblingsCount = siblings.size(); // 형제 카테고리(자식)의 개수
@@ -212,6 +214,7 @@ public class CategoryService {
 
     /**
      * 카테고리 순번을 설정
+     *
      * @param parent 부모 카테고리
      */
     public int allocateNextOrderIndex(Category parent) {
