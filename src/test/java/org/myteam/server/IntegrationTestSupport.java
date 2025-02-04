@@ -4,6 +4,8 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
+import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -17,6 +19,8 @@ import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
+import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
+import org.myteam.server.news.newsCountMember.repository.NewsCountMemberRepository;
 import org.myteam.server.news.newsReply.domain.NewsReply;
 import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
@@ -41,12 +45,27 @@ public abstract class IntegrationTestSupport {
 	protected NewsReplyRepository newsReplyRepository;
 	@Autowired
 	protected MemberJpaRepository memberJpaRepository;
+	@Autowired
+	protected NewsCountMemberRepository newsCountMemberRepository;
+	@Autowired
+	protected InquiryRepository inquiryRepository;
 	@MockBean
 	protected SecurityReadService securityReadService;
 	@MockBean
 	protected S3ConfigLocal s3ConfigLocal;
 	@MockBean
 	protected S3Presigner s3Presigner;
+
+	@AfterEach
+	void tearDown() {
+		inquiryRepository.deleteAllInBatch();
+		newsReplyRepository.deleteAllInBatch();
+		newsCommentRepository.deleteAllInBatch();
+		newsCountMemberRepository.deleteAllInBatch();
+		newsCountRepository.deleteAllInBatch();
+		newsRepository.deleteAllInBatch();
+		memberJpaRepository.deleteAllInBatch();
+	}
 
 	protected Member createMember(int index) {
 		Member member = Member.builder()
@@ -76,11 +95,12 @@ public abstract class IntegrationTestSupport {
 			.build());
 
 		NewsCount newsCount = NewsCount.builder()
-			.news(savedNews)
 			.recommendCount(count)
 			.commentCount(count)
 			.viewCount(count)
 			.build();
+
+		newsCount.updateNews(savedNews);
 
 		newsCountRepository.save(newsCount);
 
@@ -94,6 +114,15 @@ public abstract class IntegrationTestSupport {
 				.member(member)
 				.comment(comment)
 				.ip("1.1.1.1")
+				.build()
+		);
+	}
+
+	protected NewsCountMember createNewsCountMember(Member member, News news) {
+		return newsCountMemberRepository.save(
+			NewsCountMember.builder()
+				.member(member)
+				.news(news)
 				.build()
 		);
 	}
