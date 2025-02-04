@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
@@ -19,7 +20,7 @@ import java.util.*;
 import java.util.UUID;
 
 @SpringBootTest
-class InquiryWriteServiceTest {
+class InquiryWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private MemberService memberService;
