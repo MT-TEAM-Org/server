@@ -13,12 +13,14 @@ import lombok.NoArgsConstructor;
 public class NewsServiceRequest extends PageInfoServiceRequest {
 	private NewsCategory category;
 	private OrderType orderType;
+	private String content;
 
 	@Builder
-	public NewsServiceRequest(NewsCategory category, OrderType orderType, int size, int page) {
+	public NewsServiceRequest(NewsCategory category, OrderType orderType, String content, int size, int page) {
 		super(page, size);
 		this.category = category;
 		this.orderType = orderType;
+		this.content = content;
 	}
 
 }

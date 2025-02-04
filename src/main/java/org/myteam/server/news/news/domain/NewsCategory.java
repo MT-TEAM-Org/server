@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum NewsCategory {
     BASEBALL("야구"),
     ESPORTS("E스포츠"),
-    FOOTBALL("건강");
+    FOOTBALL("축구");
 
     private final String text;
 }

@@ -18,18 +18,21 @@ public class NewsRequest extends PageInfoRequest {
 	private NewsCategory category;
 	@NotNull(message = "뉴스 정렬 타입은 필수입니다.")
 	private OrderType orderType;
+	private String content;
 
 	@Builder
-	public NewsRequest(NewsCategory category, OrderType orderType, int page, int size) {
+	public NewsRequest(NewsCategory category, OrderType orderType, String content, int page, int size) {
 		super(page, size);
 		this.category = category;
 		this.orderType = orderType;
+		this.content = content;
 	}
 
 	public NewsServiceRequest toServiceRequest() {
 		return NewsServiceRequest.builder()
 			.category(category)
 			.orderType(orderType)
+			.content(content)
 			.size(getSize())
 			.page(getPage())
 			.build();
