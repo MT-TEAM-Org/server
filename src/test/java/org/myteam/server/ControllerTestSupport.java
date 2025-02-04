@@ -1,13 +1,13 @@
 package org.myteam.server;
 
-import org.myteam.server.news.controller.NewsCommentController;
-import org.myteam.server.news.controller.NewsController;
-import org.myteam.server.news.controller.NewsReplyController;
-import org.myteam.server.news.service.NewsCommentReadService;
-import org.myteam.server.news.service.NewsCommentService;
-import org.myteam.server.news.service.NewsReadService;
-import org.myteam.server.news.service.NewsReplyReadService;
-import org.myteam.server.news.service.NewsReplyService;
+import org.myteam.server.news.news.controller.NewsController;
+import org.myteam.server.news.news.service.NewsReadService;
+import org.myteam.server.news.newsComment.controller.NewsCommentController;
+import org.myteam.server.news.newsComment.service.NewsCommentReadService;
+import org.myteam.server.news.newsComment.service.NewsCommentService;
+import org.myteam.server.news.newsReply.controller.NewsReplyController;
+import org.myteam.server.news.newsReply.service.NewsReplyReadService;
+import org.myteam.server.news.newsReply.service.NewsReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;

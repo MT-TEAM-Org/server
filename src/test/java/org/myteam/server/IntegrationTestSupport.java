@@ -10,19 +10,22 @@ import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.news.domain.News;
-import org.myteam.server.news.domain.NewsCategory;
-import org.myteam.server.news.domain.NewsComment;
-import org.myteam.server.news.domain.NewsCount;
-import org.myteam.server.news.domain.NewsReply;
-import org.myteam.server.news.repository.NewsCommentRepository;
-import org.myteam.server.news.repository.NewsCountRepository;
-import org.myteam.server.news.repository.NewsReplyRepository;
-import org.myteam.server.news.repository.NewsRepository;
+import org.myteam.server.news.news.domain.News;
+import org.myteam.server.news.news.domain.NewsCategory;
+import org.myteam.server.news.news.repository.NewsRepository;
+import org.myteam.server.news.newsComment.domain.NewsComment;
+import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
+import org.myteam.server.news.newsCount.domain.NewsCount;
+import org.myteam.server.news.newsCount.repository.NewsCountRepository;
+import org.myteam.server.news.newsReply.domain.NewsReply;
+import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
+import org.myteam.server.upload.config.S3ConfigLocal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -40,6 +43,10 @@ public abstract class IntegrationTestSupport {
 	protected MemberJpaRepository memberJpaRepository;
 	@MockBean
 	protected SecurityReadService securityReadService;
+	@MockBean
+	protected S3ConfigLocal s3ConfigLocal;
+	@MockBean
+	protected S3Presigner s3Presigner;
 
 	protected Member createMember(int index) {
 		Member member = Member.builder()
@@ -70,7 +77,7 @@ public abstract class IntegrationTestSupport {
 
 		NewsCount newsCount = NewsCount.builder()
 			.news(savedNews)
-			.likeCount(count)
+			.recommendCount(count)
 			.commentCount(count)
 			.viewCount(count)
 			.build();
