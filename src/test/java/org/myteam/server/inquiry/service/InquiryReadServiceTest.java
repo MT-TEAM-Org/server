@@ -3,6 +3,8 @@ package org.myteam.server.inquiry.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,8 +13,10 @@ import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
+import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +31,9 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
     @Autowired
     private MemberService memberService;
     @Autowired
-    private MemberRepository memberRepository;
+    private MemberJpaRepository memberRepository;
+    @Autowired
+    private InquiryRepository inquiryRepository;
 
     @Autowired
     private InquiryWriteService inquiryWriteService;
@@ -54,9 +60,12 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
                 .nickname("otherUser")
                 .password("otherMember!@#")
                 .build()).getPublicId();
+    }
 
-        System.out.println("testMemberPublicId = " + testMemberPublicId);
-        System.out.println("otherMemberPublicId = " + otherMemberPublicId);
+    @AfterEach
+    void cleanUp() {
+        inquiryRepository.deleteAllInBatch();
+        memberJpaRepository.deleteAll();
     }
 
     @Test

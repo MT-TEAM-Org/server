@@ -28,6 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.containers.MySQLContainer;
 
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 

@@ -1,15 +1,14 @@
 package org.myteam.server.board.repository;
 
-import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.entity.Category;
-import org.myteam.server.global.exception.PlayHiveException;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Repository;
+import static org.myteam.server.global.exception.ErrorCode.RESOURCE_NOT_FOUND;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.myteam.server.global.exception.ErrorCode.RESOURCE_NOT_FOUND;
+import lombok.RequiredArgsConstructor;
+import org.myteam.server.board.domain.Category;
+import org.myteam.server.global.exception.PlayHiveException;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,10 +27,9 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     /**
-     * 부모 Id 파라미터 와 순번 항목 파라미터으로 존재하는 카테고리가 있는지 조회한다.
-     * 부모 Id 가 Null 인 경우 최상단 카테고리 조회
+     * 부모 Id 파라미터 와 순번 항목 파라미터으로 존재하는 카테고리가 있는지 조회한다. 부모 Id 가 Null 인 경우 최상단 카테고리 조회
      *
-     * @param parentId 부모 Id
+     * @param parentId   부모 Id
      * @param orderIndex 카테고리 순번
      * @return
      */
@@ -41,17 +39,17 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     /**
-     * 부모 Id 파라미터 와 순번 항목 파라미터으로 존재하는 카테고리가 있는지 조회한다.
-     * 부모 Id 가 Null 인 경우 최상단 카테고리 조회
+     * 부모 Id 파라미터 와 순번 항목 파라미터으로 존재하는 카테고리가 있는지 조회한다. 부모 Id 가 Null 인 경우 최상단 카테고리 조회
      *
-     * @param parentId 부모 Id
+     * @param parentId   부모 Id
      * @param orderIndex 카테고리 순번
      * @return
      */
     @Override
     public Category getByParentIdAndOrderIndex(Long parentId, int orderIndex) {
         return categoryJpaRepository.findByParentIdAndOrderIndex(parentId, orderIndex)
-                .orElseThrow(() -> new PlayHiveException(RESOURCE_NOT_FOUND, "parentId -> " + parentId + ", orderIndex -> " + orderIndex + " 는 존재하지 않는 카테고리 입니다"));
+                .orElseThrow(() -> new PlayHiveException(RESOURCE_NOT_FOUND,
+                        "parentId -> " + parentId + ", orderIndex -> " + orderIndex + " 는 존재하지 않는 카테고리 입니다"));
     }
 
     @Override
