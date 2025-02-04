@@ -96,6 +96,7 @@ public class BoardService {
     /**
      * 게시글 수정
      */
+    @Transactional
     public BoardResponse updateBoard(final BoardSaveRequest request, final CustomUserDetails userDetails,
                                      final Long boardId) {
 
