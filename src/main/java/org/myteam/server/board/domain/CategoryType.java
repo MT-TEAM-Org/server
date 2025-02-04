@@ -23,14 +23,14 @@ public enum CategoryType {
     /**
      * 전적 인증 (e-sports)
      */
-    RECORD_VERIFICATION,
+    VERIFICATION,
     /**
      * 플레이 팁 (e-sports)
      */
-    PLAY_TIP;
+    TIP;
 
     public void confirmEsports() {
-        if (this.equals(PLAY_TIP) || this.equals(RECORD_VERIFICATION)) {
+        if (this.equals(TIP) || this.equals(VERIFICATION)) {
             throw new PlayHiveException(ErrorCode.INVALID_TYPE);
         }
     }
