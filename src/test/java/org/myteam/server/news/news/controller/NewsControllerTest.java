@@ -25,6 +25,7 @@ class NewsControllerTest extends ControllerTestSupport {
 		NewsRequest newsRequest = NewsRequest.builder()
 			.page(1)
 			.size(10)
+			.content("테스트")
 			.orderType(OrderType.RECOMMEND)
 			.category(NewsCategory.FOOTBALL)
 			.build();
@@ -51,6 +52,7 @@ class NewsControllerTest extends ControllerTestSupport {
 		NewsRequest newsRequest = NewsRequest.builder()
 			.page(1)
 			.size(10)
+			.content("테스트")
 			.category(NewsCategory.FOOTBALL)
 			.build();
 
@@ -76,6 +78,7 @@ class NewsControllerTest extends ControllerTestSupport {
 		NewsRequest newsRequest = NewsRequest.builder()
 			.page(1)
 			.size(10)
+			.content("테스트")
 			.orderType(OrderType.RECOMMEND)
 			.build();
 
@@ -91,5 +94,21 @@ class NewsControllerTest extends ControllerTestSupport {
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
 			.andExpect(jsonPath("$.message").value("뉴스 카테고리는 필수입니다."));
+	}
+
+	@DisplayName("뉴스상세 조회를 한다.")
+	@Test
+	@WithMockUser
+	void findOnetest() throws Exception {
+		// given
+		// when // then
+		mockMvc.perform(
+				get("/api/news/{newsId}", 1L)
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("뉴스 상세 조회 성공"));
 	}
 }
