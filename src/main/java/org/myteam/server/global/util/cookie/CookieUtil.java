@@ -23,14 +23,12 @@ public class CookieUtil {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(maxAge);
         // cookie.setSecure(isSecure); // Secure 설정 여부 (HTTPS에서만 사용)
-        cookie.setSecure(false);
-        cookie.setPath("/");
+        cookie.setPath(path);
         cookie.setHttpOnly(isHttpOnly);
-        cookie.setDomain("52.79.222.87");
-//        if (domain != null) {
-//            // ex) playhive.shop
-//            cookie.setDomain(domain);
-//        }
+        if (domain != null) {
+            // ex) playhive.shop
+            cookie.setDomain(domain);
+        }
         return cookie;
     }
 
