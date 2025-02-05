@@ -49,7 +49,7 @@ public class ReIssueController {
                     TOKEN_REISSUE_PATH,
                     24 * 60 * 60,
                     true,
-                    extractDomain(request.getServerName())
+                    ""
             ));
 
             response.addCookie(createCookie(
@@ -58,7 +58,7 @@ public class ReIssueController {
                     LOGOUT_PATH,
                     24 * 60 * 60,
                     true,
-                    extractDomain(request.getServerName())
+                    ""
             ));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (PlayHiveException e) {

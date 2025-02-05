@@ -23,7 +23,8 @@ public class CookieUtil {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(maxAge);
         // cookie.setSecure(isSecure); // Secure 설정 여부 (HTTPS에서만 사용)
-        cookie.setPath(path);
+        cookie.setSecure(false);
+        cookie.setPath("/");
         cookie.setHttpOnly(isHttpOnly);
         if (domain != null) {
             // ex) playhive.shop
