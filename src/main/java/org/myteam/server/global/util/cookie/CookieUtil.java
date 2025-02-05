@@ -26,10 +26,11 @@ public class CookieUtil {
         cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setHttpOnly(isHttpOnly);
-        if (domain != null) {
-            // ex) playhive.shop
-            cookie.setDomain(domain);
-        }
+        cookie.setDomain("52.79.222.87");
+//        if (domain != null) {
+//            // ex) playhive.shop
+//            cookie.setDomain(domain);
+//        }
         return cookie;
     }
 
