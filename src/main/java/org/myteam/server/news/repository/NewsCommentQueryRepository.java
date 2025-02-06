@@ -30,7 +30,7 @@ public class NewsCommentQueryRepository {
 				newsComment.id,
 				newsComment.news.id,
 				Projections.constructor(NewsCommentMemberDto.class,
-					newsComment.member.id,
+					newsComment.member.publicId,
 					newsComment.member.nickname
 				),
 				newsComment.comment,

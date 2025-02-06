@@ -31,7 +31,7 @@ public class NewsReplyQueryRepository {
 				newsReply.id,
 				newsReply.newsComment.id,
 				Projections.constructor(NewsReplyMemberDto.class,
-					newsReply.member.id,
+					newsReply.member.publicId,
 					newsReply.member.nickname
 				),
 				newsReply.comment,

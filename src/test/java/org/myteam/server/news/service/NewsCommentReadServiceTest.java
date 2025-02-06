@@ -47,7 +47,7 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 
 		assertThat(findNewsComment)
 			.extracting("id", "news.id", "member.id", "comment")
-			.contains(newsComment.getId(), news.getId(), member.getId(), "뉴스 댓글 테스트");
+			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 테스트");
 	}
 
 	@DisplayName("뉴스 댓글 ID로 조회시 조회하지 않으면 예외가 발생한다.")
@@ -89,10 +89,10 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 			() -> assertThat(newsCommentList)
 				.extracting("newsCommentId", "newsId", "memberDto.id", "memberDto.nickName", "comment")
 				.contains(
-					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getId(),
+					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getPublicId(),
 						"test",
 						"뉴스 댓글 테스트1"),
-					Tuple.tuple(newsComment2.getId(), newsComment2.getNews().getId(), newsComment2.getMember().getId(),
+					Tuple.tuple(newsComment2.getId(), newsComment2.getNews().getId(), newsComment2.getMember().getPublicId(),
 						"test",
 						"뉴스 댓글 테스트2")
 				)

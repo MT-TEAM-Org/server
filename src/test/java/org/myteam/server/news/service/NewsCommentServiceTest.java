@@ -46,7 +46,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 
 		assertThat(newsCommentRepository.findById(newsCommentResponse.getNewsCommentId()).get())
 			.extracting("id", "news.id", "member.id", "comment", "ip")
-			.contains(newsCommentResponse.getNewsCommentId(), news.getId(), member.getId(), "댓글 테스트", "1.1.1.1");
+			.contains(newsCommentResponse.getNewsCommentId(), news.getId(), member.getPublicId(), "댓글 테스트", "1.1.1.1");
 	}
 
 	@DisplayName("뉴스댓글을 수정한다.")
@@ -66,7 +66,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 
 		assertThat(newsCommentRepository.findById(updatedCommentId).get())
 			.extracting("id", "news.id", "member.id", "comment", "ip")
-			.contains(newsComment.getId(), news.getId(), member.getId(), "뉴스 댓글 수정 테스트", "1.1.1.1");
+			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 수정 테스트", "1.1.1.1");
 	}
 
 	@DisplayName("뉴스댓글을 삭제한다.")

@@ -3,14 +3,16 @@ package org.myteam.server.news.dto.repository;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor
 public class NewsReplyMemberDto {
-	private Long id;
+	private UUID memberPublicId;
 	private String nickName;
 
-	public NewsReplyMemberDto(Long id, String nickName) {
-		this.id = id;
+	public NewsReplyMemberDto(UUID memberPublicId, String nickName) {
+		this.memberPublicId = memberPublicId;
 		this.nickName = nickName;
 	}
 }
