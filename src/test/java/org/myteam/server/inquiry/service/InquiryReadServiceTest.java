@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.inquiry.domain.InquiryOrderType;
+import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
@@ -80,7 +82,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
         }
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(testMember.getPublicId(), new PageInfoRequest(2, 5));
+        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(new InquiryFindRequest(testMember.getPublicId(), InquiryOrderType.RECENT, 2, 5));
 
         // Then
         System.out.println(response);
