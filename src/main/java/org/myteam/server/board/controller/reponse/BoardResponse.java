@@ -44,6 +44,10 @@ public class BoardResponse {
      */
     private String link;
     /**
+     * 썸네일 이미지
+     */
+    private String thumbnail;
+    /**
      * 좋아요 수
      */
     private Integer likeCount;
@@ -73,6 +77,7 @@ public class BoardResponse {
         this.title = board.getTitle();
         this.content = board.getContent();
         this.link = board.getLink();
+        this.thumbnail = board.getThumbnail();
         this.likeCount = boardCount.getLikeCount();
         this.commentCount = boardCount.getCommentCount();
         this.viewCount = boardCount.getViewCount();

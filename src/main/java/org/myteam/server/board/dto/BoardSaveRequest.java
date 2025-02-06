@@ -34,4 +34,8 @@ public class BoardSaveRequest {
      * 출처 링크
      */
     private String link;
+    /**
+     * 썸네일 이미지
+     */
+    private String thumbnail;
 }

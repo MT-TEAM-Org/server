@@ -57,6 +57,7 @@ public class BoardService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .link(request.getLink())
+                .thumbnail(request.getThumbnail())
                 .build();
         boardRepository.save(board);
 
