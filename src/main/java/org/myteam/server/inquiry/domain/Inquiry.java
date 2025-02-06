@@ -29,4 +29,11 @@ public class Inquiry {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private InquiryAnswer inquiryAnswer;
+
+    public void addAnswer(InquiryAnswer inquiryAnswer) {
+        this.inquiryAnswer = inquiryAnswer;
+    }
 }

@@ -88,6 +88,7 @@ public class SecurityConfig {
             /** @brief Check Access Admin */"/test/admin/**",
 
             "/api/admin/**",
+            "/api/inquiries/answers/**",
     };
     /* member 접근 권한 */
     private static final String[] PERMIT_MEMBER_URLS = new String[]{
