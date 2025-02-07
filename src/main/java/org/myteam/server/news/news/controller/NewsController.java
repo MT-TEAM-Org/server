@@ -11,6 +11,7 @@ import org.myteam.server.news.newsCount.dto.service.response.NewsRecommendRespon
 import org.myteam.server.news.newsCount.service.NewsCountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +29,7 @@ public class NewsController {
 	private final NewsReadService newsReadService;
 
 	@GetMapping
-	public ResponseEntity<ResponseDto<NewsListResponse>> findAll(@RequestBody @Valid NewsRequest request) {
+	public ResponseEntity<ResponseDto<NewsListResponse>> findAll(@ModelAttribute @Valid NewsRequest request) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 목록 조회 성공",
