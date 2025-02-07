@@ -89,7 +89,7 @@ public class BoardController {
     }
 
     /**
-     * 내가 쓴 게시글 목록 조회 TODO :: 테스트용입니다. 코드 삭제 예정
+     * 내가 쓴 게시글 목록 조회 (테스트용입니다)
      */
     @GetMapping("/my")
     public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
