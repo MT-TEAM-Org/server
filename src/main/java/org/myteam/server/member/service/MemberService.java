@@ -72,7 +72,7 @@ public class MemberService {
     public MemberResponse updateMemberProfile(MemberUpdateRequest memberUpdateRequest) {
         Member member = securityReadService.getMember();
 
-        if (!member.getEmail().equals(memberUpdateRequest.getEmail())) {
+        if (member.getEmail().equals(memberUpdateRequest.getEmail())) {
             throw new PlayHiveException(NO_PERMISSION);
         }
 
