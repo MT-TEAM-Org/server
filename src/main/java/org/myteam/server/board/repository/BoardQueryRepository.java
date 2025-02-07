@@ -72,19 +72,14 @@ public class BoardQueryRepository {
             return null;
         }
 
-        switch (searchType) {
-            case TITLE:
-                return board.title.like("%" + search + "%");
-            case CONTENT:
-                return board.content.like("%" + search + "%");
-            case TITLE_CONTENT:
-                return board.title.like("%" + search + "%")
-                        .or(board.content.like("%" + search + "%"));
-            case NICKNAME:
-                return board.member.nickname.like("%" + search + "%");
-            default:
-                return null;
-        }
+        return switch (searchType) {
+            case TITLE -> board.title.like("%" + search + "%");
+            case CONTENT -> board.content.like("%" + search + "%");
+            case TITLE_CONTENT -> board.title.like("%" + search + "%")
+                    .or(board.content.like("%" + search + "%"));
+            case NICKNAME -> board.member.nickname.like("%" + search + "%");
+            default -> null;
+        };
     }
 
     private long getTotalBoardCount(BoardType boardType, CategoryType categoryType, BoardSearchType searchType,
