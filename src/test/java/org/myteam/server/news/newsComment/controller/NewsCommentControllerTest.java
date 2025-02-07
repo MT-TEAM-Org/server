@@ -101,9 +101,9 @@ class NewsCommentControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				get("/api/news/comment")
-					.content(objectMapper.writeValueAsString(newsCommentRequest))
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
+					.param("page", String.valueOf(newsCommentRequest.getPage()))
+					.param("size", String.valueOf(newsCommentRequest.getSize()))
+					.param("newsId", String.valueOf(newsCommentRequest.getNewsId()))
 					.with(csrf())
 			)
 			.andDo(print())
@@ -125,9 +125,8 @@ class NewsCommentControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				get("/api/news/comment")
-					.content(objectMapper.writeValueAsString(newsRequest))
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
+					.param("page", String.valueOf(newsRequest.getPage()))
+					.param("size", String.valueOf(newsRequest.getSize()))
 					.with(csrf())
 			)
 			.andDo(print())
