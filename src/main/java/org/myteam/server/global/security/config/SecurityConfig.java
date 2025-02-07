@@ -148,11 +148,11 @@ public class SecurityConfig {
                         new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository),
                         UsernamePasswordAuthenticationFilter.class
                 )
-                .addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class)
-                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
+                .addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);
+//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 
 //        // cors 설정
-//        http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
+        http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
 
         // 예외 처리 핸들러 설정
         http.exceptionHandling(exceptionHandling -> exceptionHandling

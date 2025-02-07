@@ -77,9 +77,10 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             log.warn("cookieValue PublicId 확인용: {}", member.getPublicId());
 
             // 24 시간 유효한 리프레시 토큰을 생성
-            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
-            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, extractDomain(request.getServerName())));
-            String redirectUrl = String.format("%s%s?status=%s&email=%s", frontUrl, frontSignUpPath, PENDING.name(), email);
+            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, request.getServerName()));
+            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, request.getServerName()));
+//            String redirectUrl = String.format("%s?status=%s&email=%s", frontUrl, PENDING.name(), email);
+            String redirectUrl = String.format("%s?refreshToken=%s", frontUrl, refreshToken);
             log.info("redirectUrl: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
             return;

@@ -17,6 +17,10 @@ public enum CategoryType {
      */
     ISSUE,
     /**
+     * 개선 요청
+     */
+    SUGGESTION,
+    /**
      * 전적 인증 (e-sports)
      */
     VERIFICATION,

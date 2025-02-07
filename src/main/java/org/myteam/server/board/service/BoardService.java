@@ -1,12 +1,12 @@
 package org.myteam.server.board.service;
 
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.board.controller.reponse.BoardResponse;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.board.dto.reponse.BoardResponse;
-import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.BoardSaveRequest;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
@@ -38,7 +38,7 @@ public class BoardService {
         verifyBoardTypeAndCategoryType(request.getBoardType(), request.getCategoryType());
 
         Board board = makeBoard(member, clientIP, request);
-        BoardCount boardCount = boardReadService.boardCountFindById(board.getId());
+        BoardCount boardCount = boardReadService.BoardCountFindById(board.getId());
 
         return new BoardResponse(board, boardCount);
     }
@@ -57,7 +57,6 @@ public class BoardService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .link(request.getLink())
-                .thumbnail(request.getThumbnail())
                 .build();
         boardRepository.save(board);
 
@@ -73,8 +72,8 @@ public class BoardService {
     @Transactional(readOnly = true)
     public BoardResponse getBoard(final Long boardId) {
 
-        Board board = boardReadService.boardFindById(boardId);
-        BoardCount boardCount = boardReadService.boardCountFindById(board.getId());
+        Board board = boardReadService.BoardFindById(boardId);
+        BoardCount boardCount = boardReadService.BoardCountFindById(board.getId());
 
         return new BoardResponse(board, boardCount);
     }
@@ -86,7 +85,7 @@ public class BoardService {
     public void deleteBoard(final Long boardId, final CustomUserDetails userDetails) {
 
         Member member = memberReadService.findById(userDetails.getPublicId());
-        Board board = boardReadService.boardFindById(boardId);
+        Board board = boardReadService.BoardFindById(boardId);
 
         verifyBoardAuthor(board, member);
 
@@ -101,7 +100,7 @@ public class BoardService {
     public BoardResponse updateBoard(final BoardSaveRequest request, final CustomUserDetails userDetails,
                                      final Long boardId) {
 
-        Board board = boardReadService.boardFindById(boardId);
+        Board board = boardReadService.BoardFindById(boardId);
         Member member = memberReadService.findById(userDetails.getPublicId());
 
         verifyBoardAuthor(board, member);
@@ -110,7 +109,7 @@ public class BoardService {
         board.updateBoard(request);
         boardRepository.save(board);
 
-        BoardCount boardCount = boardReadService.boardCountFindById(board.getId());
+        BoardCount boardCount = boardReadService.BoardCountFindById(board.getId());
         return new BoardResponse(board, boardCount);
     }
 
