@@ -1,4 +1,4 @@
-package org.myteam.server.board.dto;
+package org.myteam.server.board.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,4 +34,8 @@ public class BoardSaveRequest {
      * 출처 링크
      */
     private String link;
+    /**
+     * 썸네일 이미지
+     */
+    private String thumbnail;
 }
