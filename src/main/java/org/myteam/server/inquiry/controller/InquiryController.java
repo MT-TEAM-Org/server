@@ -42,7 +42,7 @@ public class InquiryController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<ResponseDto<PageCustomResponse<InquiryResponse>>> getMyInquiries(@RequestBody @Valid InquiryFindRequest request) {
+    public ResponseEntity<ResponseDto<PageCustomResponse<InquiryResponse>>> getMyInquiries(@ModelAttribute @Valid InquiryFindRequest request) {
         PageCustomResponse<InquiryResponse> content = inquiryReadService.getInquiriesByMember(request);
 
         return ResponseEntity.ok(new ResponseDto<>(
