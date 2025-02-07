@@ -11,6 +11,7 @@ import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
+import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;

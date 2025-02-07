@@ -99,7 +99,7 @@ public class BoardQueryRepository {
         BoardOrderType boardOrderType = Optional.ofNullable(orderType).orElse(BoardOrderType.CREATE);
         return switch (boardOrderType) {
             case CREATE -> board.createdAt.desc();
-            case LIKE -> boardCount.likeCount.desc();
+            case RECOMMEND -> boardCount.recommendCount.desc();
             case COMMENT -> boardCount.commentCount.desc();
         };
     }
