@@ -47,7 +47,7 @@ public class NewsQueryRepository {
 				isCategoryEqualTo(category),
 				isTitleLikeTo(content)
 			)
-			.orderBy(isOrderByEqualToCategory(orderType))
+			.orderBy(isOrderByEqualToOrderType(orderType))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -70,11 +70,11 @@ public class NewsQueryRepository {
 		).orElse(0L);
 	}
 
-	private OrderSpecifier<?> isOrderByEqualToCategory(OrderType orderType) {
+	private OrderSpecifier<?> isOrderByEqualToOrderType(OrderType orderType) {
 		return switch (orderType) {
-			case RECOMMEND -> newsCount.recommendCount.desc();
-			case COMMENT -> newsCount.commentCount.desc();
+			case DATE -> news.createDate.desc();
 			case VIEW -> newsCount.viewCount.desc();
+			case COMMENT -> newsCount.commentCount.desc();
 		};
 	}
 
