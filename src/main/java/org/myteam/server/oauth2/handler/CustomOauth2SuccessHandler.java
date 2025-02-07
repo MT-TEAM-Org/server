@@ -5,11 +5,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.service.ReIssueService;
+import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.dto.CustomOAuth2User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -38,11 +40,16 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     private final JwtProvider jwtProvider;
     private final MemberJpaRepository memberJpaRepository;
     private final ReIssueService reIssueService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public CustomOauth2SuccessHandler(JwtProvider jwtProvider, MemberJpaRepository memberJpaRepository, ReIssueService reIssueService) {
+    public CustomOauth2SuccessHandler(JwtProvider jwtProvider,
+                                      MemberJpaRepository memberJpaRepository,
+                                      ReIssueService reIssueService,
+                                      ApplicationEventPublisher eventPublisher) {
         this.jwtProvider = jwtProvider;
         this.memberJpaRepository = memberJpaRepository;
         this.reIssueService = reIssueService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -107,6 +114,9 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         log.debug("print refreshToken: {}", refreshToken);
         log.debug("print frontUrl: {}", frontUrl);
+
+        eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
+
         response.sendRedirect(frontUrl);
         log.debug("Oauth 로그인에 성공하였습니다.");
     }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.ControllerTestSupport;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.repository.InquiryRepository;
@@ -21,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.*;
 import java.util.UUID;
 
-@SpringBootTest
 class InquiryWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
@@ -45,12 +43,6 @@ class InquiryWriteServiceTest extends IntegrationTestSupport {
                 .nickname("testUser")
                 .password("teamPlayHive12#")
                 .build()).getPublicId();
-    }
-
-    @AfterEach
-    void cleanUp() {
-        inquiryRepository.deleteAllInBatch();
-        memberJpaRepository.deleteAll();
     }
 
     @Test

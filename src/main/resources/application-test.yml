@@ -103,3 +103,9 @@ slack:
   webhook:
     url: test
 
+minio:
+  url: test
+  access-key: test
+  secret-key: test
+  region: test
+  bucket: test
