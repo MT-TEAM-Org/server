@@ -40,7 +40,7 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 		NewsReplyResponse newsReplyResponse = newsReplyService.save(newsReplySaveServiceRequest);
 
 		assertThat(newsReplyRepository.findById(newsReplyResponse.getNewsReplyId()).get())
-			.extracting("id", "newsComment.id", "member.id", "comment", "ip")
+			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip")
 			.contains(newsReplyResponse.getNewsReplyId(), newsComment.getId(), member.getPublicId(), "대댓글 테스트", "1.1.1.1");
 	}
 
@@ -60,7 +60,7 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 		Long updatedReplyId = newsReplyService.update(newsReplyUpdateServiceRequest);
 
 		assertThat(newsReplyRepository.findById(updatedReplyId).get())
-			.extracting("id", "newsComment.id", "member.id", "comment", "ip")
+			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip")
 			.contains(newsReply.getId(), newsComment.getId(), member.getPublicId(), "뉴스 대댓글 수정 테스트", "1.1.1.1");
 	}
 

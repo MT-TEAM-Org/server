@@ -26,7 +26,7 @@ public class NewsCountMemberReadServiceTest extends IntegrationTestSupport {
 
 		createNewsCountMember(member, news);
 
-		assertThatThrownBy(() -> newsCountMemberReadService.confirmExistMember(news.getId(), member.getId()))
+		assertThatThrownBy(() -> newsCountMemberReadService.confirmExistMember(news.getId(), member.getPublicId()))
 			.isInstanceOf(PlayHiveException.class)
 			.hasMessage(ErrorCode.ALREADY_MEMBER_RECOMMEND_NEWS.getMsg());
 

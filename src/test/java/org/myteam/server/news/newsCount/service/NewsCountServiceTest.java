@@ -43,9 +43,9 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 		// then
 		assertAll(
 			() -> assertThat(newsCountRepository.findById(news.getId()).get().getRecommendCount()).isEqualTo(11),
-			() -> assertThat(newsCountMemberRepository.findByNewsIdAndMemberId(news.getId(), member.getId()).get())
-				.extracting("news.id", "member.id")
-				.contains(news.getId(), member.getId())
+			() -> assertThat(newsCountMemberRepository.findByNewsIdAndMemberPublicId(news.getId(), member.getPublicId()).get())
+				.extracting("news.id", "member.publicId")
+				.contains(news.getId(), member.getPublicId())
 		);
 	}
 

@@ -11,16 +11,16 @@ public class NewsReplyDto {
 
 	private Long newsReplyId;
 	private Long newsCommentId;
-	private NewsReplyMemberDto memberDto;
+	private NewsReplyMemberDto member;
 	private String comment;
 	private String ip;
 	private LocalDateTime createTime;
 
-	public NewsReplyDto(Long newsReplyId, Long newsCommentId, NewsReplyMemberDto memberDto, String comment,
+	public NewsReplyDto(Long newsReplyId, Long newsCommentId, NewsReplyMemberDto member, String comment,
 		String ip, LocalDateTime createTime) {
 		this.newsReplyId = newsReplyId;
 		this.newsCommentId = newsCommentId;
-		this.memberDto = memberDto;
+		this.member = member;
 		this.comment = comment;
 		this.ip = ip;
 		this.createTime = createTime;
