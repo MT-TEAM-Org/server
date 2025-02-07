@@ -17,7 +17,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.BoardSaveRequest;
 import org.myteam.server.member.entity.Member;
 
 @Getter
@@ -48,8 +48,6 @@ public class Board {
 
     private String createdIp;
 
-    private String thumbnail;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -59,7 +57,7 @@ public class Board {
 
     @Builder
     public Board(Member member, BoardType boardType, CategoryType categoryType, String title, String content,
-                 String link, String createdIp, String thumbnail,
+                 String link, String createdIp,
                  BoardCount boardCount) {
         this.member = member;
         this.boardType = boardType;
@@ -68,7 +66,6 @@ public class Board {
         this.content = content;
         this.link = link;
         this.createdIp = createdIp;
-        this.thumbnail = thumbnail;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.boardCount = boardCount;
@@ -80,7 +77,6 @@ public class Board {
         this.title = request.getTitle();
         this.content = request.getContent();
         this.link = request.getLink();
-        this.thumbnail = request.getThumbnail();
         this.updatedAt = LocalDateTime.now();
     }
 

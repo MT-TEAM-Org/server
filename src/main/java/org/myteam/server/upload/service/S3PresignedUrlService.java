@@ -11,20 +11,16 @@ import org.myteam.server.upload.controller.response.S3FileUploadResponse;
 import org.myteam.server.upload.domain.MediaType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 @Service
 @RequiredArgsConstructor
-public class S3Service {
+public class S3PresignedUrlService {
 
     @Value("${minio.bucket}")
     private String bucket;
-    private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final S3ConfigLocal s3ConfigLocal;
 
@@ -70,23 +66,6 @@ public class S3Service {
             return response;
         } catch (Exception e) {
             throw new RuntimeException("S3 URL 생성 실패");
-        }
-    }
-
-    /**
-     * 파일 삭제
-     */
-    public boolean deleteFile(String fileName) {
-        try {
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(fileName)
-                    .build();
-
-            s3Client.deleteObject(deleteObjectRequest);
-            return true;
-        } catch (S3Exception e) {
-            throw new RuntimeException("S3 URL 삭제 실패");
         }
     }
 
