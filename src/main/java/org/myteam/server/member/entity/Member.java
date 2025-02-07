@@ -31,9 +31,11 @@ import static org.myteam.server.member.domain.MemberType.LOCAL;
 @Table(name = "p_members")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends Base {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @Column(name = "public_id", nullable = false, updatable = false, unique = true, columnDefinition = "BINARY(16)")
+    private UUID publicId = UUID.randomUUID();
 
     @Column(nullable = false)
     private String email; // 계정
@@ -55,16 +57,12 @@ public class Member extends Base {
     @Column(name = "type", nullable = false)
     private MemberType type = LOCAL;
 
-    @Column(name = "public_id", nullable = false, updatable = false, unique = true, columnDefinition = "BINARY(16)")
-    private UUID publicId = UUID.randomUUID();
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private MemberStatus status = PENDING;
 
     @Builder
-    public Member(Long id, String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
-        this.id = id;
+    public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
         this.email = email;
         this.password = password;
         this.tel = tel;
@@ -125,7 +123,7 @@ public class Member extends Base {
     }
 
     public void confirmMemberEquals(Member member) {
-        if(!Objects.equals(this.id, member.getId())) {
+        if(!Objects.equals(this.publicId, member.getPublicId())) {
             throw new PlayHiveException(ErrorCode.MEMBER_NOT_EQUALS);
         }
     }

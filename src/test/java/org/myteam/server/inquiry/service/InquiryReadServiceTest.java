@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.UUID;
 
-@SpringBootTest
 class InquiryReadServiceTest extends IntegrationTestSupport {
 
     @Autowired

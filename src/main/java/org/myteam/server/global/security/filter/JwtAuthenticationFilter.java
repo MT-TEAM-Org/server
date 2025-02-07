@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.entity.Refresh;
 import org.myteam.server.auth.repository.RefreshJpaRepository;
 import org.myteam.server.global.security.dto.CustomUserDetails;
+import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -31,12 +33,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final RefreshJpaRepository refreshJpaRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtProvider jwtProvider, RefreshJpaRepository refreshJpaRepository) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
+                                   JwtProvider jwtProvider,
+                                   RefreshJpaRepository refreshJpaRepository,
+                                   ApplicationEventPublisher eventPublisher) {
         setFilterProcessesUrl("/login");
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
         this.refreshJpaRepository = refreshJpaRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -104,6 +111,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
             response.setStatus(HttpStatus.OK.value());
+
+            eventPublisher.publishEvent(new UserLoginEvent(this, publicId));
 
             log.info("자체 서비스 로그인에 성공하였습니다.");
         } catch (InternalAuthenticationServiceException e) {

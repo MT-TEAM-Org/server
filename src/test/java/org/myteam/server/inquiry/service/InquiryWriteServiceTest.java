@@ -19,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.*;
 import java.util.UUID;
 
-@SpringBootTest
 class InquiryWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
@@ -43,12 +42,6 @@ class InquiryWriteServiceTest extends IntegrationTestSupport {
                 .nickname("testUser")
                 .password("teamPlayHive12#")
                 .build()).getPublicId();
-    }
-
-    @AfterEach
-    void cleanUp() {
-        inquiryRepository.deleteAllInBatch();
-        memberJpaRepository.deleteAll();
     }
 
     @Test
