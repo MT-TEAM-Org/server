@@ -22,7 +22,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 	@WithMockUser
 	void saveTest() throws Exception {
 		// given
-		NewsReplySaveRequest newsCommentSaveRequest = NewsReplySaveRequest.builder()
+		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.newsCommentId(1L)
 			.comment("대댓글 테스트")
 			.build();
@@ -30,7 +30,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				post("/api/news/reply")
-					.content(objectMapper.writeValueAsString(newsCommentSaveRequest))
+					.content(objectMapper.writeValueAsString(newsReplySaveRequest))
 					.contentType(APPLICATION_JSON)
 					.accept(APPLICATION_JSON)
 					.with(csrf())
@@ -46,14 +46,14 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 	@WithMockUser
 	void saveWithoutNewsIdTest() throws Exception {
 		// given
-		NewsReplySaveRequest newsCommentSaveRequest = NewsReplySaveRequest.builder()
+		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.comment("대댓글 테스트")
 			.build();
 
 		// when // then
 		mockMvc.perform(
 				post("/api/news/reply")
-					.content(objectMapper.writeValueAsString(newsCommentSaveRequest))
+					.content(objectMapper.writeValueAsString(newsReplySaveRequest))
 					.contentType(APPLICATION_JSON)
 					.accept(APPLICATION_JSON)
 					.with(csrf())
@@ -69,14 +69,14 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 	@WithMockUser
 	void saveWithoutCommentTest() throws Exception {
 		// given
-		NewsReplySaveRequest newsCommentSaveRequest = NewsReplySaveRequest.builder()
+		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.newsCommentId(1L)
 			.build();
 
 		// when // then
 		mockMvc.perform(
 				post("/api/news/reply")
-					.content(objectMapper.writeValueAsString(newsCommentSaveRequest))
+					.content(objectMapper.writeValueAsString(newsReplySaveRequest))
 					.contentType(APPLICATION_JSON)
 					.accept(APPLICATION_JSON)
 					.with(csrf())
@@ -92,7 +92,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 	@WithMockUser
 	void findAllTest() throws Exception {
 		// given
-		NewsReplyRequest newsCommentRequest = NewsReplyRequest.builder()
+		NewsReplyRequest newsReplyRequest = NewsReplyRequest.builder()
 			.page(1)
 			.size(10)
 			.newsCommentId(1L)
@@ -101,9 +101,9 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				get("/api/news/reply")
-					.content(objectMapper.writeValueAsString(newsCommentRequest))
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
+					.param("page", String.valueOf(newsReplyRequest.getPage()))
+					.param("size", String.valueOf(newsReplyRequest.getSize()))
+					.param("newsCommentId", String.valueOf(newsReplyRequest.getNewsCommentId()))
 					.with(csrf())
 			)
 			.andDo(print())
@@ -112,7 +112,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.msg").value("뉴스 대댓글 조회 성공"));
 	}
 
-	@DisplayName("뉴스목록을 조회시 뉴스ID는 필수이다.")
+	@DisplayName("대댓글 조회시 뉴스 대댓글 ID는 필수이다.")
 	@Test
 	@WithMockUser
 	void findAllWithoutOrderTypeTest() throws Exception {
@@ -125,9 +125,8 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				get("/api/news/reply")
-					.content(objectMapper.writeValueAsString(newsRequest))
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
+					.param("page", String.valueOf(newsRequest.getPage()))
+					.param("size", String.valueOf(newsRequest.getSize()))
 					.with(csrf())
 			)
 			.andDo(print())

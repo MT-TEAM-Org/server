@@ -33,9 +33,11 @@ class NewsControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				get("/api/news")
-					.content(objectMapper.writeValueAsString(newsRequest))
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
+					.param("content", "테스트")
+					.param("orderType", newsRequest.getOrderType().name())
+					.param("category", newsRequest.getCategory().name())
+					.param("page", String.valueOf(newsRequest.getPage()))
+					.param("size", String.valueOf(newsRequest.getSize()))
 					.with(csrf())
 			)
 			.andDo(print())
@@ -59,9 +61,10 @@ class NewsControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				get("/api/news")
-					.content(objectMapper.writeValueAsString(newsRequest))
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
+					.param("page", String.valueOf(newsRequest.getPage()))
+					.param("size", String.valueOf(newsRequest.getSize()))
+					.param("content", newsRequest.getContent())
+					.param("category", newsRequest.getCategory().name())
 					.with(csrf())
 			)
 			.andDo(print())
@@ -85,9 +88,10 @@ class NewsControllerTest extends ControllerTestSupport {
 		// when // then
 		mockMvc.perform(
 				get("/api/news")
-					.content(objectMapper.writeValueAsString(newsRequest))
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
+					.param("page", String.valueOf(newsRequest.getPage()))
+					.param("size", String.valueOf(newsRequest.getSize()))
+					.param("content", newsRequest.getContent())
+					.param("orderType", newsRequest.getOrderType().name())
 					.with(csrf())
 			)
 			.andDo(print())
