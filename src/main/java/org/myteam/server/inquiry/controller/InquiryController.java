@@ -4,19 +4,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
 import org.myteam.server.inquiry.dto.request.InquiryRequest;
+import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryWriteService;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
@@ -41,9 +38,12 @@ public class InquiryController {
         ));
     }
 
+    /**
+     * TODO: 차후 API로 사용하지 않고 마이 페이지에서 InquiryReadService를 호출하는 식으로 진행
+     */
     @GetMapping("/my")
-    public ResponseEntity<ResponseDto<PageCustomResponse<InquiryResponse>>> getMyInquiries(@ModelAttribute @Valid InquiryFindRequest request) {
-        PageCustomResponse<InquiryResponse> content = inquiryReadService.getInquiriesByMember(request);
+    public ResponseEntity<ResponseDto<PageCustomResponse<InquiryResponse>>> getMyInquiries(@ModelAttribute @Valid InquirySearchRequest inquirySearchRequest) {
+        PageCustomResponse<InquiryResponse> content = inquiryReadService.getInquiriesByMember(inquirySearchRequest);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),

@@ -2,22 +2,13 @@ package org.myteam.server.inquiry.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.inquiry.domain.Inquiry;
-import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
+import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
-import org.myteam.server.inquiry.repository.InquiryRepository;
-import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.service.MemberReadService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,11 +17,18 @@ import java.util.UUID;
 public class InquiryReadService {
     private final InquiryQueryRepository inquiryQueryRepository;
 
-    public PageCustomResponse<InquiryResponse> getInquiriesByMember(InquiryFindRequest inquiryFindRequest) {
+    /**
+     * 검색 + 정렬 기능
+     * @param inquirySearchRequest
+     * @return
+     */
+    public PageCustomResponse<InquiryResponse> getInquiriesByMember(InquirySearchRequest inquirySearchRequest) {
         Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
-                inquiryFindRequest.getMemberPublicId(),
-                inquiryFindRequest.getOrderType(),
-                inquiryFindRequest.toPageable()
+                inquirySearchRequest.getMemberPublicId(),
+                inquirySearchRequest.getOrderType(),
+                inquirySearchRequest.getSearchType(),
+                inquirySearchRequest.getKeyword(),
+                inquirySearchRequest.toPageable()
         );
 
         return PageCustomResponse.of(inquiryResponses);

@@ -8,10 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
-import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
+import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
@@ -21,8 +20,6 @@ import org.myteam.server.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
-import java.util.*;
 import java.util.UUID;
 
 class InquiryReadServiceTest extends IntegrationTestSupport {
@@ -81,7 +78,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
         }
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(new InquiryFindRequest(testMember.getPublicId(), InquiryOrderType.RECENT, 2, 5));
+        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(new InquirySearchRequest(testMember.getPublicId(), InquiryOrderType.RECENT, null, null, 2, 5));
 
         // Then
         System.out.println(response);
