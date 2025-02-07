@@ -12,7 +12,6 @@ import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -18,6 +18,7 @@ public class Inquiry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "문의 내용이 없으면 안됩니다.")
     private String content;
 
     @ManyToOne(optional = true, cascade = CascadeType.REMOVE)
@@ -28,4 +29,11 @@ public class Inquiry {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private InquiryAnswer inquiryAnswer;
+
+    public void addAnswer(InquiryAnswer inquiryAnswer) {
+        this.inquiryAnswer = inquiryAnswer;
+    }
 }
