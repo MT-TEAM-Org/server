@@ -4,16 +4,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor
 public class NewsReplyMemberResponse {
 
-	private Long memberId;
+	private UUID memberPublicId;
 	private String nickName;
 
 	@Builder
-	public NewsReplyMemberResponse(Long memberId, String nickName) {
-		this.memberId = memberId;
+	public NewsReplyMemberResponse(UUID memberPublicId, String nickName) {
+		this.memberPublicId = memberPublicId;
 		this.nickName = nickName;
 	}
 }

@@ -35,7 +35,7 @@ public class NewsReplyResponse {
 			.newsCommentId(newsReply.getNewsComment().getId())
 			.member(
 				NewsReplyMemberResponse.builder()
-					.memberId(member.getId())
+					.memberPublicId(member.getPublicId())
 					.nickName(member.getNickname())
 					.build()
 			)

@@ -1,6 +1,8 @@
 package org.myteam.server.board.controller.reponse;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.myteam.server.board.domain.Board;
@@ -26,7 +28,7 @@ public class BoardResponse {
     /**
      * 작성자 id
      */
-    private Long authorId;
+    private UUID authorId;
     /**
      * 작성자 IP
      */
@@ -68,7 +70,7 @@ public class BoardResponse {
         this.boardType = board.getBoardType();
         this.categoryType = board.getCategoryType();
         this.boardId = board.getId();
-        this.authorId = board.getMember().getId();
+        this.authorId = board.getMember().getPublicId();
         this.clientIp = board.getCreatedIp();
         this.title = board.getTitle();
         this.content = board.getContent();

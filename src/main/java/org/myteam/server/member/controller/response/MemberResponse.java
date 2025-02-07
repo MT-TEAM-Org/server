@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Getter
 public class MemberResponse {
-    private Long id;
 
     private String email; // 계정
 
@@ -34,7 +33,6 @@ public class MemberResponse {
 
     @Builder
     public MemberResponse(final Member member) {
-        this.id = member.getId();
         this.email = member.getEmail();
         this.tel = member.getTel();
         this.nickname = member.getNickname();
