@@ -1,5 +1,6 @@
 package org.myteam.server.board.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
@@ -40,8 +41,22 @@ public class BoardReadService {
                 boardServiceRequest.getBoardType(),
                 boardServiceRequest.getCategoryType(),
                 boardServiceRequest.getOrderType(),
+                boardServiceRequest.getSearchType(),
+                boardServiceRequest.getSearch(),
                 boardServiceRequest.toPageable()
         );
         return BoardListResponse.createResponse(PageCustomResponse.of(boardPagingList));
+    }
+
+    public BoardListResponse getMyBoardList(BoardServiceRequest boardServiceRequest, UUID publicId) {
+
+        Page<BoardDto> myBoardList = boardQueryRepository.getMyBoardList(
+                boardServiceRequest.getOrderType(),
+                boardServiceRequest.getSearchType(),
+                boardServiceRequest.getSearch(),
+                boardServiceRequest.toPageable(),
+                publicId
+        );
+        return BoardListResponse.createResponse(PageCustomResponse.of(myBoardList));
     }
 }

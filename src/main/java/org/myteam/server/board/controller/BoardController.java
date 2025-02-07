@@ -87,4 +87,16 @@ public class BoardController {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 목록 조회",
                 boardReadService.getBoardList(request.toServiceRequest())));
     }
+
+    /**
+     * 내가 쓴 게시글 목록 조회 TODO :: 테스트용입니다. 코드 삭제 예정
+     */
+    @GetMapping("/my")
+    public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
+            @ModelAttribute @Valid BoardRequest request,
+            @AuthenticationPrincipal final CustomUserDetails userDetails) {
+
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "내가 쓴 게시글 목록 조회",
+                boardReadService.getMyBoardList(request.toServiceRequest(), userDetails.getPublicId())));
+    }
 }

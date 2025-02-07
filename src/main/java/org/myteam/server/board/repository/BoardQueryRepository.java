@@ -1,19 +1,20 @@
 package org.myteam.server.board.repository;
 
+import static java.util.Optional.ofNullable;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.member.entity.QMember.member;
 
-import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.BoardOrderType;
+import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardDto;
@@ -28,11 +29,15 @@ public class BoardQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    /**
+     * 게시글 목록 조회
+     * TODO :: 검색에서 댓글 검색 댓글 작업 후 추가 예정
+     */
     public Page<BoardDto> getBoardList(BoardType boardType, CategoryType categoryType,
                                        BoardOrderType orderType,
-                                       Pageable pageable) {
+                                       BoardSearchType searchType, String search, Pageable pageable) {
 
-        JPAQuery<BoardDto> query = queryFactory
+        List<BoardDto> content = queryFactory
                 .select(Projections.constructor(BoardDto.class,
                         board.boardType,
                         board.categoryType,
@@ -48,21 +53,50 @@ public class BoardQueryRepository {
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.boardId.eq(board.id))
-                .join(member).on(member.eq(board.member)).fetchJoin()
-                .where(isBoardTypeEqualTo(boardType), isCategoryEqualTo(categoryType))
-                .orderBy(isOrderByEqualToOrderCategory(orderType));
-
-        // 페이징 처리
-        QueryResults<BoardDto> queryResults = query
+                .join(member).on(member.eq(board.member))
+                .fetchJoin()
+                .where(isBoardTypeEqualTo(boardType), isCategoryEqualTo(categoryType),
+                        isSearchTypeLikeTo(searchType, search))
+                .orderBy(isOrderByEqualToOrderCategory(orderType))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetchResults();
+                .fetch();
 
-        long total = queryResults.getTotal();  // 총 데이터 개수
-
-        List<BoardDto> content = queryResults.getResults();
+        long total = getTotalBoardCount(boardType, categoryType, searchType, search);
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search) {
+        if (search == null || search.isEmpty()) {
+            return null;
+        }
+
+        switch (searchType) {
+            case TITLE:
+                return board.title.like("%" + search + "%");
+            case CONTENT:
+                return board.content.like("%" + search + "%");
+            case TITLE_CONTENT:
+                return board.title.like("%" + search + "%")
+                        .or(board.content.like("%" + search + "%"));
+            case NICKNAME:
+                return board.member.nickname.like("%" + search + "%");
+            default:
+                return null;
+        }
+    }
+
+    private long getTotalBoardCount(BoardType boardType, CategoryType categoryType, BoardSearchType searchType,
+                                    String search) {
+        return ofNullable(
+                queryFactory
+                        .select(board.count())
+                        .from(board)
+                        .where(isBoardTypeEqualTo(boardType), isCategoryEqualTo(categoryType),
+                                isSearchTypeLikeTo(searchType, search))
+                        .fetchOne()
+        ).orElse(0L);
     }
 
     private OrderSpecifier<?> isOrderByEqualToOrderCategory(BoardOrderType orderType) {
@@ -81,5 +115,55 @@ public class BoardQueryRepository {
 
     private BooleanExpression isBoardTypeEqualTo(BoardType boardType) {
         return boardType != null ? board.boardType.eq(boardType) : null;
+    }
+
+    /**
+     * 내가 쓴 게시글 목록 조회
+     */
+    public Page<BoardDto> getMyBoardList(BoardOrderType orderType, BoardSearchType searchType, String search,
+                                         Pageable pageable, UUID publicId) {
+
+        List<BoardDto> content = queryFactory
+                .select(Projections.constructor(BoardDto.class,
+                        board.boardType,
+                        board.categoryType,
+                        board.id,
+                        board.title,
+                        board.createdIp,
+                        board.thumbnail,
+                        member.publicId,
+                        member.nickname,
+                        boardCount.commentCount,
+                        board.createdAt,
+                        board.updatedAt
+                ))
+                .from(board)
+                .join(boardCount).on(boardCount.boardId.eq(board.id))
+                .join(member).on(member.eq(board.member))
+                .fetchJoin()
+                .where(member.publicId.eq(publicId), isSearchTypeLikeTo(searchType, search))
+                .orderBy(isOrderByEqualToOrderCategory(orderType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = getTotalMyBoardCount(searchType, search, publicId);
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    /**
+     * 내가 쓴 게시글 총 개수
+     * TODO :: 검색에서 댓글 검색 댓글 작업 후 추가 예정
+     */
+    private long getTotalMyBoardCount(BoardSearchType searchType, String search, UUID publicId) {
+        return ofNullable(
+                queryFactory
+                        .select(board.count())
+                        .from(board)
+                        .join(member).on(member.eq(board.member))
+                        .where(member.publicId.eq(publicId), isSearchTypeLikeTo(searchType, search))
+                        .fetchOne()
+        ).orElse(0L);
     }
 }
