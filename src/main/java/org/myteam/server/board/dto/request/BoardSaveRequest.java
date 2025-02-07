@@ -1,4 +1,4 @@
-package org.myteam.server.board.dto;
+package org.myteam.server.board.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

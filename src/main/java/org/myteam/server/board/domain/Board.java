@@ -17,7 +17,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.board.dto.BoardSaveRequest;
+import org.myteam.server.board.dto.request.BoardSaveRequest;
 import org.myteam.server.member.entity.Member;
 
 @Getter
