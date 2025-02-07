@@ -29,8 +29,8 @@ public class BoardCount {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    @Column(name = "like_count", nullable = false)
-    private int likeCount;
+    @Column(name = "recommend_count", nullable = false)
+    private int recommendCount;
 
     @Column(name = "view_count", nullable = false)
     private int viewCount;
@@ -39,9 +39,9 @@ public class BoardCount {
     private int commentCount;
 
     @Builder
-    public BoardCount(Board board, int likeCount, int commentCount, int viewCount) {
+    public BoardCount(Board board, int recommendCount, int commentCount, int viewCount) {
         this.board = board;
-        this.likeCount = likeCount;
+        this.recommendCount = recommendCount;
         this.commentCount = commentCount;
         this.viewCount = viewCount;
     }
@@ -51,7 +51,7 @@ public class BoardCount {
 
         return BoardCount.builder()
                 .board(board)
-                .likeCount(COUNT_SETTING_NUMBER)
+                .recommendCount(COUNT_SETTING_NUMBER)
                 .commentCount(COUNT_SETTING_NUMBER)
                 .viewCount(COUNT_SETTING_NUMBER)
                 .build();
