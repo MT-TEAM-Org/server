@@ -55,7 +55,7 @@ public class BoardResponse {
     /**
      * 좋아요 수
      */
-    private Integer likeCount;
+    private Integer recommendCount;
     /**
      * 댓글 수
      */
@@ -84,7 +84,7 @@ public class BoardResponse {
         this.content = board.getContent();
         this.link = board.getLink();
         this.thumbnail = board.getThumbnail();
-        this.likeCount = boardCount.getLikeCount();
+        this.recommendCount = boardCount.getRecommendCount();
         this.commentCount = boardCount.getCommentCount();
         this.viewCount = boardCount.getViewCount();
         this.createdAt = board.getCreatedAt();
