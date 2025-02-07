@@ -33,7 +33,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
 			.category(NewsCategory.BASEBALL)
-			.orderType(OrderType.RECOMMEND)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -58,8 +58,8 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			() -> assertThat(newsList)
 				.extracting("title", "category", "thumbImg")
 				.containsExactly(
-					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com"),
 					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com"),
+					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com"),
 					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
 				)
 		);
@@ -78,7 +78,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
 			.category(NewsCategory.ESPORTS)
-			.orderType(OrderType.RECOMMEND)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -103,9 +103,9 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			() -> assertThat(newsList)
 				.extracting("title", "category", "thumbImg")
 				.containsExactly(
+					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com"),
 					tuple("기사타이틀6", NewsCategory.ESPORTS, "www.test.com"),
 					tuple("기사타이틀5", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com"),
 					tuple("기사타이틀4", NewsCategory.ESPORTS, "www.test.com")
 				)
 		);
@@ -128,7 +128,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
 			.category(NewsCategory.FOOTBALL)
-			.orderType(OrderType.RECOMMEND)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -170,7 +170,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNews(4, NewsCategory.BASEBALL, 12);
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(OrderType.RECOMMEND)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -189,9 +189,9 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			() -> assertThat(newsList)
 				.extracting("title", "category", "thumbImg")
 				.containsExactly(
+					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com"),
 					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com"),
 					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com"),
 					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
 				)
 		);
@@ -206,7 +206,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNews(4, NewsCategory.BASEBALL, 12);
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(OrderType.RECOMMEND)
+			.orderType(OrderType.DATE)
 			.content("타이틀1")
 			.page(1)
 			.size(10)

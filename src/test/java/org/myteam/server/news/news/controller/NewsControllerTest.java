@@ -26,7 +26,7 @@ class NewsControllerTest extends ControllerTestSupport {
 			.page(1)
 			.size(10)
 			.content("테스트")
-			.orderType(OrderType.RECOMMEND)
+			.orderType(OrderType.DATE)
 			.category(NewsCategory.FOOTBALL)
 			.build();
 
@@ -79,7 +79,7 @@ class NewsControllerTest extends ControllerTestSupport {
 			.page(1)
 			.size(10)
 			.content("테스트")
-			.orderType(OrderType.RECOMMEND)
+			.orderType(OrderType.DATE)
 			.build();
 
 		// when // then
