@@ -17,18 +17,16 @@ import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.service.MemberService;
+import org.myteam.server.member.service.MemberWriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
-import java.util.*;
 import java.util.UUID;
 
 class InquiryReadServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    private MemberService memberService;
+    private MemberWriteService memberService;
     @Autowired
     private MemberJpaRepository memberRepository;
     @Autowired

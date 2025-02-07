@@ -12,7 +12,8 @@ import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.ExistMemberNicknameRequest;
 import org.myteam.server.member.dto.MemberRoleUpdateRequest;
 import org.myteam.server.member.dto.MemberStatusUpdateRequest;
-import org.myteam.server.member.service.MemberService;
+import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.MemberWriteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -28,7 +29,8 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
-    private final MemberService memberService;
+    private final MemberReadService memberReadService;
+    private final MemberWriteService memberWriteService;
     private final JwtProvider jwtProvider;
 
     /**
@@ -48,7 +50,7 @@ public class MemberController {
     @GetMapping("/exists/nickname")
     public ResponseEntity<?> existsByNickname(@Valid ExistMemberNicknameRequest existMemberNicknameRequest, BindingResult bindingResult) {
         log.info("MemberController existsByNickname 메서드 실행 : {}", existMemberNicknameRequest.getNickname());
-        boolean exists = memberService.existsByNickname(existMemberNicknameRequest.getNickname());
+        boolean exists = memberReadService.existsByNickname(existMemberNicknameRequest.getNickname());
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "닉네임 존재 여부 확인", exists));
     }
 
@@ -61,7 +63,7 @@ public class MemberController {
     @GetMapping("/{email}/type")
     public ResponseEntity<?> getMemberType(@PathVariable String email) {
         log.info("MemberController getMemberType 메서드 실행: {}", email);
-        MemberType memberType = memberService.getMemberTypeByEmail(email);
+        MemberType memberType = memberReadService.getMemberTypeByEmail(email);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "회원 타입 조회 성공", memberType));
     }
 
@@ -74,14 +76,14 @@ public class MemberController {
         String authorizationHeader = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
 
         // accessToken 으로 부터 유저 정보 반환
-        MemberResponse response = memberService.getAuthenticatedMember(authorizationHeader);
+        MemberResponse response = memberReadService.getAuthenticatedMember(authorizationHeader);
 
         log.info("email : {}", response.getEmail());
 
         // 서비스 호출
         String targetEmail = response.getEmail(); // 변경을 시도하는 유저의 이메일 (본인 또는 관리자)
 
-        memberService.updateStatus(targetEmail, memberStatusUpdateRequest);
+        memberWriteService.updateStatus(targetEmail, memberStatusUpdateRequest);
 
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "회원 상태가 성공적으로 변경되었습니다.", null));
     }
@@ -89,7 +91,7 @@ public class MemberController {
     @PutMapping("/role")
     public ResponseEntity<?> updateRole(@RequestBody @Valid MemberRoleUpdateRequest memberRoleUpdateRequest) {
         log.info("MemberController updateRole 메서드 실행. memberTypeUpdateRequest : {}", memberRoleUpdateRequest);
-        MemberResponse response = memberService.updateRole(memberRoleUpdateRequest);
+        MemberResponse response = memberWriteService.updateRole(memberRoleUpdateRequest);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "권한 변경 성공", response), HttpStatus.OK);
     }
 
@@ -97,7 +99,7 @@ public class MemberController {
     @GetMapping("/get-token/user/{email}/second/{second}")
     public ResponseEntity<?> getToken(@PathVariable String email, @PathVariable Integer second) {
         log.info("getToken 메서드가 실행되었습니다.");
-        MemberResponse response = memberService.getByEmail(email);
+        MemberResponse response = memberReadService.getByEmail(email);
         String encode = TOKEN_PREFIX + jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofSeconds(second), response.getPublicId(), response.getRole().name(), response.getStatus().name());
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "토큰 조회 성공", encode), HttpStatus.OK);
     }

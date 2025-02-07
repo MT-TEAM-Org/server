@@ -13,8 +13,8 @@ import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberSaveRequest;
-import org.myteam.server.member.dto.MemberUpdateRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
+import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
@@ -84,7 +84,7 @@ public class Member extends Base {
     // 전체 업데이트 메서드
     public void update(MemberUpdateRequest memberUpdateRequest, PasswordEncoder passwordEncoder) {
         // this.email = memberUpdateRequest.getEmail();
-        // this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
+        this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
         this.tel = memberUpdateRequest.getTel();
         this.nickname = memberUpdateRequest.getNickname();
     }
