@@ -8,11 +8,11 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class NewsCommentMemberDto {
-	private UUID memberPublicId;
+	private UUID publicId;
 	private String nickName;
 
-	public NewsCommentMemberDto(UUID memberPublicID, String nickName) {
-		this.memberPublicId = memberPublicID;
+	public NewsCommentMemberDto(UUID publicId, String nickName) {
+		this.publicId = publicId;
 		this.nickName = nickName;
 	}
 }

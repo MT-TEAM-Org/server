@@ -1,5 +1,7 @@
 package org.myteam.server.news.newsCountMember.dto.service.response;
 
+import java.util.UUID;
+
 import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
 
 import lombok.Builder;
@@ -12,10 +14,10 @@ public class NewsCountMemberResponse {
 
 	private Long newsCountMemberId;
 	private Long newsId;
-	private Long memberId;
+	private UUID memberId;
 
 	@Builder
-	public NewsCountMemberResponse(Long newsCountMemberId, Long newsId, Long memberId) {
+	public NewsCountMemberResponse(Long newsCountMemberId, Long newsId, UUID memberId) {
 		this.newsCountMemberId = newsCountMemberId;
 		this.newsId = newsId;
 		this.memberId = memberId;
@@ -25,7 +27,7 @@ public class NewsCountMemberResponse {
 		return NewsCountMemberResponse.builder()
 			.newsCountMemberId(newsCountMember.getId())
 			.newsId(newsCountMember.getNews().getId())
-			.memberId(newsCountMember.getMember().getId())
+			.memberId(newsCountMember.getMember().getPublicId())
 			.build();
 	}
 }

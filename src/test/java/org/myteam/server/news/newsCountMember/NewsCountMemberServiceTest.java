@@ -27,9 +27,9 @@ public class NewsCountMemberServiceTest extends IntegrationTestSupport {
 
 		newsCountMemberService.save(news.getId());
 
-		assertThat(newsCountMemberRepository.findByNewsIdAndMemberId(news.getId(), member.getId()).get())
-			.extracting("news.id", "member.id")
-			.contains(news.getId(), member.getId());
+		assertThat(newsCountMemberRepository.findByNewsIdAndMemberPublicId(news.getId(), member.getPublicId()).get())
+			.extracting("news.id", "member.publicId")
+			.contains(news.getId(), member.getPublicId());
 	}
 
 	@DisplayName("사용자 추천 데이터를 삭제한다.")

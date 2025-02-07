@@ -34,8 +34,8 @@ public class NewsCountMemberService {
 		Member member = securityReadService.getMember();
 		News news = newsReadService.findById(newsId);
 
-		newsCountMemberRepository.deleteByNewsIdAndMemberId(news.getId(), member.getId());
-		return NewsCountMemberDeleteResponse.createResponse(news.getId(), member.getId());
+		newsCountMemberRepository.deleteByNewsIdAndMemberPublicId(news.getId(), member.getPublicId());
+		return NewsCountMemberDeleteResponse.createResponse(news.getId(), member.getPublicId());
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.myteam.server.news.newsCount.service;
 
+import java.util.UUID;
+
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.newsCount.dto.service.response.NewsRecommendResponse;
 import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
@@ -20,7 +22,7 @@ public class NewsCountService {
 	private final NewsCountMemberService newsCountMemberService;
 
 	public NewsRecommendResponse recommendNews(Long newsId) {
-		Long memberId = securityReadService.getMember().getId();
+		UUID memberId = securityReadService.getMember().getPublicId();
 		newsCountMemberReadService.confirmExistMember(newsId, memberId);
 
 		newsCountMemberService.save(newsId);

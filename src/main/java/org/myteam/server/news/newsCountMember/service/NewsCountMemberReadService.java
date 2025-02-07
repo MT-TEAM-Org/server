@@ -1,5 +1,7 @@
 package org.myteam.server.news.newsCountMember.service;
 
+import java.util.UUID;
+
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.news.newsCountMember.repository.NewsCountMemberRepository;
@@ -15,8 +17,8 @@ public class NewsCountMemberReadService {
 
 	private final NewsCountMemberRepository newsCountMemberRepository;
 
-	public void confirmExistMember(Long newsId, Long memberId) {
-		newsCountMemberRepository.findByNewsIdAndMemberId(newsId, memberId)
+	public void confirmExistMember(Long newsId, UUID memberId) {
+		newsCountMemberRepository.findByNewsIdAndMemberPublicId(newsId, memberId)
 			.ifPresent(member -> {
 				throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_NEWS);
 			});

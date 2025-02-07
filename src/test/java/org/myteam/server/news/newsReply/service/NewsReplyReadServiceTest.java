@@ -40,7 +40,7 @@ public class NewsReplyReadServiceTest extends IntegrationTestSupport {
 		NewsReply findNewsReply = newsReplyReadService.findById(newsReply.getId());
 
 		assertThat(findNewsReply)
-			.extracting("id", "newsComment.id", "member.id", "comment")
+			.extracting("id", "newsComment.id", "member.publicId", "comment")
 			.contains(newsReply.getId(), newsComment.getId(), member.getPublicId(), "뉴스 대댓글 테스트");
 	}
 
@@ -84,7 +84,7 @@ public class NewsReplyReadServiceTest extends IntegrationTestSupport {
 					1, 2, 3L
 				),
 			() -> assertThat(newsReplyList)
-				.extracting("newsReplyId", "newsCommentId", "memberDto.id", "memberDto.nickName", "comment")
+				.extracting("newsReplyId", "newsCommentId", "member.publicId", "member.nickName", "comment")
 				.contains(
 					Tuple.tuple(newsReply1.getId(), newsReply1.getNewsComment().getId(), newsReply1.getMember().getPublicId(),
 						"test",
