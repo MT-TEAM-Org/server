@@ -6,8 +6,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.controller.reponse.BoardResponse;
-import org.myteam.server.board.dto.BoardSaveRequest;
+import org.myteam.server.board.dto.reponse.BoardListResponse;
+import org.myteam.server.board.dto.reponse.BoardResponse;
+import org.myteam.server.board.dto.request.BoardRequest;
+import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.web.response.ResponseDto;
@@ -16,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BoardController {
 
     private final BoardService boardService;
+    private final BoardReadService boardReadService;
 
     /**
      * 게시글 생성
@@ -74,24 +79,24 @@ public class BoardController {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 조회 성공", response));
     }
 
-    // /**
-    //  * 게시글 목록 조회
-    //  */
-    // @GetMapping
-    // public ResponseEntity<ResponseDto<BoardListResponse>> getBoardList(@ModelAttribute @Valid BoardRequest request) {
-    //     return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 목록 조회",
-    //             boardReadService.getBoardList(request.toServiceRequest())));
-    // }
-    //
-    // /**
-    //  * 내가 쓴 게시글 목록 조회 (테스트용입니다)
-    //  */
-    // @GetMapping("/my")
-    // public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
-    //         @ModelAttribute @Valid BoardRequest request,
-    //         @AuthenticationPrincipal final CustomUserDetails userDetails) {
-    //
-    //     return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "내가 쓴 게시글 목록 조회",
-    //             boardReadService.getMyBoardList(request.toServiceRequest(), userDetails.getPublicId())));
-    // }
+    /**
+     * 게시글 목록 조회
+     */
+    @GetMapping
+    public ResponseEntity<ResponseDto<BoardListResponse>> getBoardList(@ModelAttribute @Valid BoardRequest request) {
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 목록 조회",
+                boardReadService.getBoardList(request.toServiceRequest())));
+    }
+
+    /**
+     * 내가 쓴 게시글 목록 조회 (테스트용)
+     */
+    @GetMapping("/my")
+    public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
+            @ModelAttribute @Valid BoardRequest request,
+            @AuthenticationPrincipal final CustomUserDetails userDetails) {
+
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "내가 쓴 게시글 목록 조회",
+                boardReadService.getMyBoardList(request.toServiceRequest(), userDetails.getPublicId())));
+    }
 }
