@@ -54,11 +54,14 @@ public enum ErrorCode {
     NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
     NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "New Comment not found"),
     NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "New Reply not found"),
+    INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
+    INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
-    BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists");
+    BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
+    INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists");
 
     private final HttpStatus status;
     private final String msg;

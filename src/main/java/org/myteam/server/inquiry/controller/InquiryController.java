@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
 import org.myteam.server.inquiry.dto.request.InquiryRequest;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
@@ -28,7 +28,7 @@ public class InquiryController {
     private final InquiryReadService inquiryReadService;
     private final InquiryWriteService inquiryWriteService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<ResponseDto<String>> createInquiry(@Valid @RequestBody InquiryRequest inquiryRequest,
                                                      HttpServletRequest request) {
         String clientIp = ClientUtils.getRemoteIP(request);
@@ -42,8 +42,8 @@ public class InquiryController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<ResponseDto<PageCustomResponse<InquiryResponse>>> getMyInquiries(@RequestParam UUID memberPublicId, PageInfoRequest pageInfoRequest) {
-        PageCustomResponse<InquiryResponse> content = inquiryReadService.getInquiriesByMember(memberPublicId, pageInfoRequest);
+    public ResponseEntity<ResponseDto<PageCustomResponse<InquiryResponse>>> getMyInquiries(@ModelAttribute @Valid InquiryFindRequest request) {
+        PageCustomResponse<InquiryResponse> content = inquiryReadService.getInquiriesByMember(request);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
