@@ -38,6 +38,9 @@ public class MemberWriteService {
     private final SecurityReadService securityReadService;
     private final PasswordEncoder passwordEncoder;
     private final MemberActivityRepository memberActivityRepository;
+    private final MemberJpaRepository memberJpaRepository;
+    private final SecurityReadService securityReadService;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 회원 가입
