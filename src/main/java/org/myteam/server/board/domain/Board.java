@@ -31,7 +31,7 @@ public class Board {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "public_id")
     private Member member;
 
     @Enumerated(EnumType.STRING)
