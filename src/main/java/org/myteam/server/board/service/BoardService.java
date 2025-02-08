@@ -1,5 +1,6 @@
 package org.myteam.server.board.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
@@ -11,9 +12,9 @@ import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,23 +25,29 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardCountRepository boardCountRepository;
 
+    private final SecurityReadService securityReadService;
     private final BoardReadService boardReadService;
+    private final BoardCountReadService boardCountReadService;
     private final MemberReadService memberReadService;
+    private final BoardRecommendReadService boardRecommendReadService;
 
     /**
      * 게시글 작성
      */
     @Transactional
-    public BoardResponse saveBoard(final BoardSaveRequest request, final CustomUserDetails userDetails,
-                                   final String clientIP) {
+    public BoardResponse saveBoard(final BoardSaveRequest request, final String clientIP) {
 
-        Member member = memberReadService.findById(userDetails.getPublicId());
+        UUID loginUser = securityReadService.getMember().getPublicId();
+        Member member = memberReadService.findById(loginUser);
+
         verifyBoardTypeAndCategoryType(request.getBoardType(), request.getCategoryType());
 
         Board board = makeBoard(member, clientIP, request);
-        BoardCount boardCount = boardReadService.boardCountFindById(board.getId());
+        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
 
-        return new BoardResponse(board, boardCount);
+        boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
+
+        return new BoardResponse(board, boardCount, isRecommended);
     }
 
     /**
@@ -73,20 +80,26 @@ public class BoardService {
     @Transactional(readOnly = true)
     public BoardResponse getBoard(final Long boardId) {
 
-        Board board = boardReadService.boardFindById(boardId);
-        BoardCount boardCount = boardReadService.boardCountFindById(board.getId());
+        UUID loginUser = securityReadService.getMember().getPublicId();
 
-        return new BoardResponse(board, boardCount);
+        Board board = boardReadService.findById(boardId);
+        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
+
+        boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
+
+        return new BoardResponse(board, boardCount, isRecommended);
     }
 
     /**
      * 게시글 삭제
      */
     @Transactional
-    public void deleteBoard(final Long boardId, final CustomUserDetails userDetails) {
+    public void deleteBoard(final Long boardId) {
 
-        Member member = memberReadService.findById(userDetails.getPublicId());
-        Board board = boardReadService.boardFindById(boardId);
+        UUID loginUser = securityReadService.getMember().getPublicId();
+
+        Member member = memberReadService.findById(loginUser);
+        Board board = boardReadService.findById(boardId);
 
         verifyBoardAuthor(board, member);
 
@@ -98,11 +111,12 @@ public class BoardService {
      * 게시글 수정
      */
     @Transactional
-    public BoardResponse updateBoard(final BoardSaveRequest request, final CustomUserDetails userDetails,
-                                     final Long boardId) {
+    public BoardResponse updateBoard(final BoardSaveRequest request, final Long boardId) {
 
-        Board board = boardReadService.boardFindById(boardId);
-        Member member = memberReadService.findById(userDetails.getPublicId());
+        UUID loginUser = securityReadService.getMember().getPublicId();
+
+        Board board = boardReadService.findById(boardId);
+        Member member = memberReadService.findById(loginUser);
 
         verifyBoardAuthor(board, member);
         verifyBoardTypeAndCategoryType(request.getBoardType(), request.getCategoryType());
@@ -110,8 +124,10 @@ public class BoardService {
         board.updateBoard(request);
         boardRepository.save(board);
 
-        BoardCount boardCount = boardReadService.boardCountFindById(board.getId());
-        return new BoardResponse(board, boardCount);
+        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
+
+        boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
+        return new BoardResponse(board, boardCount, isRecommended);
     }
 
     /**

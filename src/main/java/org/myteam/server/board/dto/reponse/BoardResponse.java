@@ -53,7 +53,11 @@ public class BoardResponse {
      */
     private String thumbnail;
     /**
-     * 좋아요 수
+     * 로그인한 사용자 게시글 추천 여부
+     */
+    private boolean isRecommended;
+    /**
+     * 추천 수
      */
     private Integer recommendCount;
     /**
@@ -73,7 +77,7 @@ public class BoardResponse {
      */
     private LocalDateTime updatedAt;
 
-    public BoardResponse(Board board, BoardCount boardCount) {
+    public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended) {
         this.boardType = board.getBoardType();
         this.categoryType = board.getCategoryType();
         this.boardId = board.getId();
@@ -84,6 +88,7 @@ public class BoardResponse {
         this.content = board.getContent();
         this.link = board.getLink();
         this.thumbnail = board.getThumbnail();
+        this.isRecommended = isRecommended;
         this.recommendCount = boardCount.getRecommendCount();
         this.commentCount = boardCount.getCommentCount();
         this.viewCount = boardCount.getViewCount();

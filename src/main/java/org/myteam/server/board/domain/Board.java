@@ -1,6 +1,7 @@
 package org.myteam.server.board.domain;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,9 +35,11 @@ public class Board {
     @JoinColumn(name = "public_id")
     private Member member;
 
+    @Column(name = "board_type")
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
+    @Column(name = "category_type")
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
 
@@ -46,12 +49,15 @@ public class Board {
 
     private String link;
 
+    @Column(name = "created_ip")
     private String createdIp;
 
     private String thumbnail;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @OneToOne(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
