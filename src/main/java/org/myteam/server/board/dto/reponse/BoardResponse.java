@@ -1,5 +1,6 @@
 package org.myteam.server.board.dto.reponse;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -55,6 +56,7 @@ public class BoardResponse {
     /**
      * 로그인한 사용자 게시글 추천 여부
      */
+    @JsonProperty("isRecommended")
     private boolean isRecommended;
     /**
      * 추천 수
