@@ -69,7 +69,6 @@ public class BoardController {
 
     /**
      * 게시글 상세 조회
-     * TODO :: 현재 로그인 한 사용자가 해당 게시글 추천을 눌렀는지 응답값 추가
      */
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardResponse>> getBoard(@PathVariable final Long boardId) {
