@@ -73,11 +73,11 @@ public class BoardResponse {
     /**
      * 작성 일시
      */
-    private LocalDateTime createdAt;
+    private LocalDateTime createDate;
     /**
      * 수정 일시
      */
-    private LocalDateTime updatedAt;
+    private LocalDateTime lastModifiedDate;
 
     public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended) {
         this.boardType = board.getBoardType();
@@ -94,7 +94,7 @@ public class BoardResponse {
         this.recommendCount = boardCount.getRecommendCount();
         this.commentCount = boardCount.getCommentCount();
         this.viewCount = boardCount.getViewCount();
-        this.createdAt = board.getCreatedAt();
-        this.updatedAt = board.getUpdatedAt();
+        this.createDate = board.getCreateDate();
+        this.lastModifiedDate = board.getLastModifiedDate();
     }
 }

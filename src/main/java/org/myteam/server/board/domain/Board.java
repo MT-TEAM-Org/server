@@ -13,19 +13,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_board")
-public class Board {
+public class Board extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,12 +54,6 @@ public class Board {
 
     private String thumbnail;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @OneToOne(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private BoardCount boardCount;
 
@@ -75,8 +69,6 @@ public class Board {
         this.link = link;
         this.createdIp = createdIp;
         this.thumbnail = thumbnail;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
         this.boardCount = boardCount;
     }
 
@@ -87,7 +79,6 @@ public class Board {
         this.content = request.getContent();
         this.link = request.getLink();
         this.thumbnail = request.getThumbnail();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public boolean isAuthor(Member member) {
