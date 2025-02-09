@@ -5,6 +5,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.domain.QInquiry;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class InquiryQueryRepository {
@@ -40,11 +42,14 @@ public class InquiryQueryRepository {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(inquiry.member.publicId.eq(memberPublicId));
         if (keyword != null && !keyword.trim().isEmpty() && searchType != null) {
+            log.info("검색 유형: {}, 검색어: {}", searchType, keyword);
             switch (searchType) {
                 case ANSWER -> predicate.and(inquiryAnswer.content.containsIgnoreCase(keyword));
                 case CONTENT -> predicate.and(inquiry.content.containsIgnoreCase(keyword));
             }
         }
+
+        log.info("최종 검색 조건: {}", predicate);
 
         // 문의 리스트 조회
         List<InquiryResponse> inquiries = queryFactory
@@ -69,8 +74,13 @@ public class InquiryQueryRepository {
         long total = Optional.ofNullable(queryFactory
                 .select(inquiry.count())
                 .from(inquiry)
-                .where(inquiry.member.publicId.eq(memberPublicId))
+                .where(predicate)
                 .fetchOne()).orElse(0L);
+
+        for (int i = 0; i < inquiries.size(); i++) {
+            System.out.println(i + ": " + inquiries.get(i).getContent());
+        }
+        log.info("검색된 데이터 개수: {}", total);
 
         return new PageImpl<>(inquiries, pageable, total);
     }
