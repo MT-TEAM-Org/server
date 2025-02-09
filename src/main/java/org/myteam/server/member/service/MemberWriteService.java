@@ -38,9 +38,6 @@ public class MemberWriteService {
     private final SecurityReadService securityReadService;
     private final PasswordEncoder passwordEncoder;
     private final MemberActivityRepository memberActivityRepository;
-    private final MemberJpaRepository memberJpaRepository;
-    private final SecurityReadService securityReadService;
-    private final PasswordEncoder passwordEncoder;
 
     /**
      * 회원 가입
@@ -75,7 +72,7 @@ public class MemberWriteService {
     public MemberResponse updateMemberProfile(MemberUpdateRequest memberUpdateRequest) {
         Member member = securityReadService.getMember();
 
-        if (member.getEmail().equals(memberUpdateRequest.getEmail())) {
+        if (!member.getEmail().equals(memberUpdateRequest.getEmail())) {
             throw new PlayHiveException(NO_PERMISSION);
         }
 
