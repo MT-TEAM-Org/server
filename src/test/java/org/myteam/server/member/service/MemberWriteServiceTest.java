@@ -1,5 +1,6 @@
 package org.myteam.server.member.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -15,7 +16,10 @@ import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteReque
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
+import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 
