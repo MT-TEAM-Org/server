@@ -10,6 +10,8 @@ import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.*;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberActivity;
+import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,6 +39,7 @@ public class MemberService {
     private final JwtProvider jwtProvider;
 
     private final MemberRepository memberRepository;
+    private final MemberActivityRepository memberActivityRepository;
 
     @Transactional
     public MemberResponse create(MemberSaveRequest memberSaveRequest) throws PlayHiveException {
@@ -51,6 +54,10 @@ public class MemberService {
         // 2. 패스워드인코딩 + 회원 가입
         Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
         member.updateStatus(MemberStatus.ACTIVE);
+
+        // ✅ 3. MemberActivity 생성 및 연관 관계 설정
+        MemberActivity memberActivity = new MemberActivity(member);  // 멤버와 연결된 활동 생성
+        memberActivityRepository.save(memberActivity);  // DB에 저장
 
         // 4. dto 응답
         return new MemberResponse(member);
