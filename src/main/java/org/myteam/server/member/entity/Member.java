@@ -130,4 +130,8 @@ public class Member extends Base {
             throw new PlayHiveException(ErrorCode.MEMBER_NOT_EQUALS);
         }
     }
+
+    public void setMemberActivity(MemberActivity memberActivity) {
+        this.memberActivity = memberActivity;
+    }
 }
