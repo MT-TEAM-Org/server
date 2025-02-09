@@ -61,6 +61,9 @@ public class Member extends Base {
     @Column(name = "status", nullable = false)
     private MemberStatus status = PENDING;
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MemberActivity memberActivity;
+
     @Builder
     public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
         this.email = email;

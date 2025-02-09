@@ -31,4 +31,8 @@ public class MemberActivity {
     public void increaseInviteCount() {
         this.inviteCount += 1;
     }
+
+    public MemberActivity(Member member) {
+        this.member = member;
+    }
 }
