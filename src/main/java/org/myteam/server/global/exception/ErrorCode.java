@@ -24,7 +24,6 @@ public enum ErrorCode {
     MEMBER_NOT_EQUALS(HttpStatus.BAD_REQUEST, "Member Not Equals"),
     NO_MEMBER_RECOMMEND_RECORD(HttpStatus.BAD_REQUEST, "No Member Recommend Record"),
     ALREADY_MEMBER_RECOMMEND_NEWS(HttpStatus.BAD_REQUEST, "Member Already Recommend News"),
-    ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.BAD_REQUEST, "Member Already Recommend Board"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -65,7 +64,8 @@ public enum ErrorCode {
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
-    INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists");
+    INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists"),
+    ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board");
 
     private final HttpStatus status;
     private final String msg;
