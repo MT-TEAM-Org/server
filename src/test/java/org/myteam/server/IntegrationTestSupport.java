@@ -71,6 +71,7 @@ public abstract class IntegrationTestSupport {
 	protected S3Presigner s3Presigner;
 	@MockBean
 	protected S3Controller s3Controller;
+	@MockBean
 	protected S3Service s3Service;
 	protected S3Client s3Client;
 
