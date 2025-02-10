@@ -3,6 +3,7 @@ package org.myteam.server.global.security.config;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.myteam.server.auth.repository.RefreshJpaRepository;
 import org.myteam.server.global.config.WebConfig;
 import org.myteam.server.global.security.filter.AuthenticationEntryPointHandler;
@@ -48,166 +49,168 @@ import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KE
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    /* 권한 제외 대상 */
-    private static final String[] PERMIT_ALL_URLS = new String[]{
-            // Test Endpoints
-            /** @brief Exception Test */"/test/exception-test",
-            /** @brief Can Access All */"/test/all/**",
-            /** @brief Test login, create */"/api/test/**",
-            /** @brief Test Slack Integration */"/test/slack",
-            "/api/members/get-token/**", "/api/attachments/**", "/api/posts/**",
+	/* 권한 제외 대상 */
+	private static final String[] PERMIT_ALL_URLS = new String[] {
+		// Test Endpoints
+		/** @brief Exception Test */"/test/exception-test",
+		/** @brief Can Access All */"/test/all/**",
+		/** @brief Test login, create */"/api/test/**",
+		/** @brief Test Slack Integration */"/test/slack",
+		"/api/members/get-token/**", "/api/attachments/**", "/api/posts/**",
+		// Chat
+		"/ws-stomp/**",
+		// Health Check
+		/** @brief health check */
+		"/status",
+		// Swagger Documents
+		/** @brief Swagger Docs */
+		"/v3/api-docs/**", "/swagger-ui/**",
+		// Database console
+		/** @brief database url */
+		"/h2-console",
+		// Business Logic
+		/** @brief about login */"/auth/**",
+		/** @brief Allow static resource access */
+		"/upload/**",
+		/** @brief Allow user permission to change */
+		"/api/members/role",
+		"/api/certification/send",
+		"/api/certification/certify-code",
+		"/api/oauth2/members/email/**",
+		"/api/members/type/**",
+		"/api/me/create",
+		TOKEN_REISSUE_PATH,
 
-            // Chat
-            "/ws-stomp/**",
+		// 문의하기
+		"/api/inquiries/create",
 
-            // Health Check
-            /** @brief health check */"/status",
+		//뉴스
+        "/api/news"
+	};
+	/* Admin 접근 권한 */
+	private static final String[] PERMIT_ADMIN_URLS = new String[] {
+		// Test Endpoints
+		/** @brief Check Access Admin */"/test/admin/**",
 
-            // Swagger Documents
-            /** @brief Swagger Docs */"/v3/api-docs/**", "/swagger-ui/**",
+		"/api/admin/**",
+		"/api/inquiries/answers/**",
+	};
+	/* member 접근 권한 */
+	private static final String[] PERMIT_MEMBER_URLS = new String[] {
+		// Test Endpoints
+		/** @brief Check Access Member */"/test/cert",
+	};
 
-            // Database console
-            /** @brief database url */"/h2-console",
+	@Value("${FRONT_URL:http://localhost:3000}")
+	private String frontUrl;
+	private final JwtProvider jwtProvider;
+	private final WebConfig webConfig;
+	private final CustomUserDetailsService customUserDetailsService;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
+	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+	private final RefreshJpaRepository refreshJpaRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
-            // Business Logic
-            /** @brief about login */"/auth/**",
-            /** @brief Allow static resource access */"/upload/**",
-            /** @brief Allow user permission to change */"/api/members/role",
-            "/api/certification/send",
-            "/api/certification/certify-code",
-            "/api/oauth2/members/email/**",
-            "/api/members/type/**",
-            "/api/me/create",
-            TOKEN_REISSUE_PATH,
+	@PostConstruct
+	public void init() {
+		log.debug("init security config");
+		log.debug("frontUrl = {}", frontUrl);
+	}
 
-            // 문의하기
-            "/api/inquiries/create",
-    };
-    /* Admin 접근 권한 */
-    private static final String[] PERMIT_ADMIN_URLS = new String[]{
-            // Test Endpoints
-            /** @brief Check Access Admin */"/test/admin/**",
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		log.debug("BCryptPasswordEncoder 빈 등록됨");
+		return new BCryptPasswordEncoder();
+	}
 
-            "/api/admin/**",
-            "/api/inquiries/answers/**",
-    };
-    /* member 접근 권한 */
-    private static final String[] PERMIT_MEMBER_URLS = new String[]{
-            // Test Endpoints
-            /** @brief Check Access Member */"/test/cert",
-    };
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		// HTTP 헤더 설정
+		http.headers(headers -> headers
+			.httpStrictTransportSecurity(HstsConfig::disable) // HSTS 비활성화
+			.frameOptions(FrameOptionsConfig::disable)        // FrameOptions 비활성화
+		);
 
-    @Value("${FRONT_URL:http://localhost:3000}")
-    private String frontUrl;
-    private final JwtProvider jwtProvider;
-    private final WebConfig webConfig;
-    private final CustomUserDetailsService customUserDetailsService;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
-    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
-    private final RefreshJpaRepository refreshJpaRepository;
-    private final ApplicationEventPublisher eventPublisher;
+		// 기본 보안 설정 비활성화
+		http.logout((auth) -> auth.disable()) // 로그아웃 비활성화
+			.csrf((auth) -> auth.disable()) // csrf disable
+			.formLogin((auth) -> auth.disable()) // From 로그인 방식 disable
+			.httpBasic((auth) -> auth.disable()); // HTTP Basic 인증 방식 disable
 
-    @PostConstruct
-    public void init() {
-        log.debug("init security config");
-        log.debug("frontUrl = {}", frontUrl);
-    }
+		// 세션 관리: Stateless
+		http.sessionManagement(session -> session
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		);
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        log.debug("BCryptPasswordEncoder 빈 등록됨");
-        return new BCryptPasswordEncoder();
-    }
+		// OAuth2 로그인 설정
+		http.oauth2Login(oauth2 -> oauth2
+			.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+			.successHandler(customOauth2SuccessHandler)
+			.failureHandler(oAuth2LoginFailureHandler)
+		);
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // HTTP 헤더 설정
-        http.headers(headers -> headers
-                .httpStrictTransportSecurity(HstsConfig::disable) // HSTS 비활성화
-                .frameOptions(FrameOptionsConfig::disable)        // FrameOptions 비활성화
-        );
+		// JWT 인증 및 토큰 검증 필터 추가
+		http.addFilterAt(
+				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher),
+				UsernamePasswordAuthenticationFilter.class
+			)
+			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);
+		//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 
-        // 기본 보안 설정 비활성화
-        http.logout((auth) -> auth.disable()) // 로그아웃 비활성화
-                .csrf((auth) -> auth.disable()) // csrf disable
-                .formLogin((auth) -> auth.disable()) // From 로그인 방식 disable
-                .httpBasic((auth) -> auth.disable()); // HTTP Basic 인증 방식 disable
+		//        // cors 설정
+		http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
 
-        // 세션 관리: Stateless
-        http.sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+		// 예외 처리 핸들러 설정
+		http.exceptionHandling(exceptionHandling -> exceptionHandling
+			.authenticationEntryPoint(new AuthenticationEntryPointHandler())
+			.accessDeniedHandler(new CustomAccessDeniedHandler())
+		);
 
-        // OAuth2 로그인 설정
-        http.oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .successHandler(customOauth2SuccessHandler)
-                .failureHandler(oAuth2LoginFailureHandler)
-        );
+		// 로그아웃 설정
+		http.logout(logout -> logout
+			.logoutUrl("/logout")
+			.invalidateHttpSession(true)
+			.logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider, refreshJpaRepository))
+			.permitAll()
+		);
 
-        // JWT 인증 및 토큰 검증 필터 추가
-        http.addFilterAt(
-                        new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher),
-                        UsernamePasswordAuthenticationFilter.class
-                )
-                .addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);
-//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
+		// 경로별 인가 작업
+		http.authorizeHttpRequests(authorizeRequests ->
+			authorizeRequests
+				.requestMatchers(PERMIT_ALL_URLS).permitAll()
+				.requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
+				.requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+				.requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
+				.requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
+				.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
 
-//        // cors 설정
-        http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
+				.anyRequest().authenticated()                   // 나머지 요청은 모두 허용
+		);
 
-        // 예외 처리 핸들러 설정
-        http.exceptionHandling(exceptionHandling -> exceptionHandling
-                .authenticationEntryPoint(new AuthenticationEntryPointHandler())
-                .accessDeniedHandler(new CustomAccessDeniedHandler())
-        );
+		return http.build();
+	}
 
-        // 로그아웃 설정
-        http.logout(logout -> logout
-                .logoutUrl("/logout")
-                .invalidateHttpSession(true)
-                .logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider, refreshJpaRepository))
-                .permitAll()
-        );
+	@Bean
+	public AuthenticationManager authenticationManager() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(passwordEncoder());
+		provider.setUserDetailsService(customUserDetailsService);
+		return new ProviderManager(provider);
+	}
 
-        // 경로별 인가 작업
-        http.authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests
-                        .requestMatchers(PERMIT_ALL_URLS).permitAll()
-                        .requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
-                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
-                        .requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
-
-                        .anyRequest().authenticated()                   // 나머지 요청은 모두 허용
-        );
-
-        return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder());
-        provider.setUserDetailsService(customUserDetailsService);
-        return new ProviderManager(provider);
-    }
-
-
-    public CorsConfigurationSource configurationSource() {
-        System.out.println("configurationSource cors 설정이 SecurityFilterChain에 등록됨");
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedOriginPattern(frontUrl); // TODO_ 추후 변경 해야함 배포시
-        configuration.addAllowedOriginPattern("http://localhost:3000"); // TODO_ 추후 변경 해야함 배포시
-        configuration.setAllowCredentials(true);
-        configuration.addExposedHeader(HEADER_AUTHORIZATION);
-        configuration.addExposedHeader(REFRESH_TOKEN_KEY);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+	public CorsConfigurationSource configurationSource() {
+		System.out.println("configurationSource cors 설정이 SecurityFilterChain에 등록됨");
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.addAllowedHeader("*");
+		configuration.addAllowedMethod("*");
+		configuration.addAllowedOriginPattern(frontUrl); // TODO_ 추후 변경 해야함 배포시
+		configuration.addAllowedOriginPattern("http://localhost:3000"); // TODO_ 추후 변경 해야함 배포시
+		configuration.setAllowCredentials(true);
+		configuration.addExposedHeader(HEADER_AUTHORIZATION);
+		configuration.addExposedHeader(REFRESH_TOKEN_KEY);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 }
