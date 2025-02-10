@@ -3,6 +3,7 @@ package org.myteam.server.inquiry.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.myteam.server.inquiry.domain.QInquiry.*;
+import static org.myteam.server.inquiry.domain.QInquiryAnswer.*;
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -32,25 +36,9 @@ public class InquiryQueryRepository {
                                                 InquirySearchType searchType,
                                                 String keyword,
                                                 Pageable pageable) {
-        QInquiry inquiry = QInquiry.inquiry;
-        QInquiryAnswer inquiryAnswer = QInquiryAnswer.inquiryAnswer;
-
         // 정렬 조건 설정
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(orderType, inquiry, inquiryAnswer);
-
-        // 검색 조건 추가
-        BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(inquiry.member.publicId.eq(memberPublicId));
-        if (keyword != null && !keyword.trim().isEmpty() && searchType != null) {
-            log.info("검색 유형: {}, 검색어: {}", searchType, keyword);
-            switch (searchType) {
-                case ANSWER -> predicate.and(inquiryAnswer.content.containsIgnoreCase(keyword));
-                case CONTENT -> predicate.and(inquiry.content.containsIgnoreCase(keyword));
-            }
-        }
-
-        log.info("최종 검색 조건: {}", predicate);
-
+        
         // 문의 리스트 조회
         List<InquiryResponse> inquiries = queryFactory
                 .select(Projections.constructor(InquiryResponse.class,
@@ -64,25 +52,33 @@ public class InquiryQueryRepository {
                 ))
                 .from(inquiry)
                 .leftJoin(inquiryAnswer).on(inquiry.id.eq(inquiryAnswer.inquiry.id))
-                .where(predicate)
+                .where(
+                        isMemberEqualTo(memberPublicId),
+                        getSearchCondition(searchType, keyword)
+                )
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         // 전체 개수 조회
-        long total = Optional.ofNullable(queryFactory
-                .select(inquiry.count())
-                .from(inquiry)
-                .where(predicate)
-                .fetchOne()).orElse(0L);
-
-        for (int i = 0; i < inquiries.size(); i++) {
-            System.out.println(i + ": " + inquiries.get(i).getContent());
-        }
-        log.info("검색된 데이터 개수: {}", total);
+        long total = getInquiryCount(memberPublicId, searchType, keyword);
 
         return new PageImpl<>(inquiries, pageable, total);
+    }
+
+    private long getInquiryCount(UUID memberPublicId,
+                                 InquirySearchType searchType,
+                                 String keyword) {
+        return Optional.ofNullable(queryFactory
+                .select(inquiry.count())
+                .from(inquiry)
+                .where(
+                        isMemberEqualTo(memberPublicId),
+                        getSearchCondition(searchType, keyword)
+                )
+                .fetchOne()
+        ).orElse(0L);
     }
 
     private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry, QInquiryAnswer inquiryAnswer) {
@@ -90,5 +86,21 @@ public class InquiryQueryRepository {
             return inquiryAnswer.answeredAt.desc().nullsLast();
         }
         return inquiry.createdAt.desc();
+    }
+
+    private BooleanExpression isMemberEqualTo(UUID memberPublicId) {
+        return memberPublicId != null ? inquiry.member.publicId.eq(memberPublicId) : null;
+    }
+
+    private BooleanExpression getSearchCondition(InquirySearchType searchType, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty() || searchType == null) {
+            return null;
+        }
+
+        return switch (searchType) {
+            case ANSWER -> inquiryAnswer.content.containsIgnoreCase(keyword);
+            case CONTENT -> inquiry.content.containsIgnoreCase(keyword);
+            default -> null;
+        };
     }
 }

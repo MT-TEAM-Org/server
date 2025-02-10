@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 class InquiryReadServiceTest extends IntegrationTestSupport {
 
@@ -69,13 +70,13 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
                 .build()).getPublicId();
 
         testMember = memberRepository.findByPublicId(testMemberPublicId).get();
-        for (int i = 1; i <= 15; i++) {
-            inquiryWriteService.createInquiry("문의내역 " + i, testMemberPublicId, "127.0.0.1");
-        }
+        IntStream.rangeClosed(1, 15).forEach(i ->
+                inquiryWriteService.createInquiry("문의내역 " + i, testMemberPublicId, "127.0.0.1")
+        );
         otherMember = memberRepository.findByPublicId(otherMemberPublicId).get();
-        for (int i = 1; i <= 15; i++) {
-            inquiryWriteService.createInquiry("건의사항 " + i, otherMemberPublicId, "127.0.0.1");
-        }
+        IntStream.rangeClosed(1, 15).forEach(i ->
+                inquiryWriteService.createInquiry("건의사항 " + i, otherMemberPublicId, "127.0.0.1")
+        );
     }
 
     @AfterEach
