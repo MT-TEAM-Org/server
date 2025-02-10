@@ -41,11 +41,10 @@ public class BoardController {
      */
     @PostMapping
     public ResponseEntity<ResponseDto<BoardResponse>> saveBoard(
-            @AuthenticationPrincipal final CustomUserDetails userDetails,
             @Valid @RequestBody final BoardSaveRequest boardSaveRequest,
             final HttpServletRequest request) {
         final String clientIP = ClientUtils.getRemoteIP(request);
-        final BoardResponse response = boardService.saveBoard(boardSaveRequest, userDetails, clientIP);
+        final BoardResponse response = boardService.saveBoard(boardSaveRequest, clientIP);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 생성 성공", response));
     }
 
@@ -54,9 +53,8 @@ public class BoardController {
      */
     @PutMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardResponse>> updateBoard(
-            @AuthenticationPrincipal final CustomUserDetails userDetails, @PathVariable final Long boardId,
-            @Valid @RequestBody final BoardSaveRequest boardSaveRequest) {
-        final BoardResponse response = boardService.updateBoard(boardSaveRequest, userDetails, boardId);
+            @PathVariable final Long boardId, @Valid @RequestBody final BoardSaveRequest boardSaveRequest) {
+        final BoardResponse response = boardService.updateBoard(boardSaveRequest, boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 수정 성공", response));
     }
 
@@ -64,9 +62,8 @@ public class BoardController {
      * 게시글 삭제
      */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable final Long boardId,
-                                                         @AuthenticationPrincipal final CustomUserDetails userDetails) {
-        boardService.deleteBoard(boardId, userDetails);
+    public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable final Long boardId) {
+        boardService.deleteBoard(boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 삭제 성공", null));
     }
 

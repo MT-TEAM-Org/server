@@ -48,8 +48,8 @@ public class BoardQueryRepository {
                         member.publicId,
                         member.nickname,
                         boardCount.commentCount,
-                        board.createdAt,
-                        board.updatedAt
+                        board.createDate,
+                        board.lastModifiedDate
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.boardId.eq(board.id))
@@ -98,7 +98,7 @@ public class BoardQueryRepository {
         // default 최신순
         BoardOrderType boardOrderType = Optional.ofNullable(orderType).orElse(BoardOrderType.CREATE);
         return switch (boardOrderType) {
-            case CREATE -> board.createdAt.desc();
+            case CREATE -> board.createDate.desc();
             case RECOMMEND -> boardCount.recommendCount.desc();
             case COMMENT -> boardCount.commentCount.desc();
         };
@@ -129,8 +129,8 @@ public class BoardQueryRepository {
                         member.publicId,
                         member.nickname,
                         boardCount.commentCount,
-                        board.createdAt,
-                        board.updatedAt
+                        board.createDate,
+                        board.lastModifiedDate
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.boardId.eq(board.id))

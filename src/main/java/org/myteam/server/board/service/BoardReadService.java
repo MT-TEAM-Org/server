@@ -3,11 +3,9 @@ package org.myteam.server.board.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
 import org.myteam.server.board.dto.request.BoardServiceRequest;
-import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardQueryRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
@@ -23,16 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardReadService {
 
     private final BoardRepository boardRepository;
-    private final BoardCountRepository boardCountRepository;
     private final BoardQueryRepository boardQueryRepository;
 
-    public Board boardFindById(long boardId) {
+    public Board findById(long boardId) {
         return boardRepository.findById(boardId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
-    }
-
-    public BoardCount boardCountFindById(long boardId) {
-        return boardCountRepository.findById(boardId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
     }
 

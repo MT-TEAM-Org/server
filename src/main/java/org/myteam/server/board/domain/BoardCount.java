@@ -56,4 +56,12 @@ public class BoardCount {
                 .viewCount(COUNT_SETTING_NUMBER)
                 .build();
     }
+
+    public void addRecommendCount() {
+        this.recommendCount += 1;
+    }
+
+    public void minusRecommendCount() {
+        this.recommendCount -= 1;
+    }
 }

@@ -22,6 +22,7 @@ public enum ErrorCode {
     INVALID_TYPE(HttpStatus.BAD_REQUEST, "Invalid type provided"),
     INVALID_MIME_TYPE(HttpStatus.BAD_REQUEST, "Invalid mime type provided"),
     MEMBER_NOT_EQUALS(HttpStatus.BAD_REQUEST, "Member Not Equals"),
+    NO_MEMBER_RECOMMEND_RECORD(HttpStatus.BAD_REQUEST, "No Member Recommend Record"),
     ALREADY_MEMBER_RECOMMEND_NEWS(HttpStatus.BAD_REQUEST, "Member Already Recommend News"),
 
     // 401 Unauthorized,
@@ -34,7 +35,8 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Token"),
     MISSING_AUTH_HEADER(HttpStatus.UNAUTHORIZED, "No Authorization header or not Bearer type"),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token"),
-    UNAUTHORIZED_EMAIL_ACCOUNT(HttpStatus.UNAUTHORIZED, "Email account verification failed due to an invalid refresh token."),
+    UNAUTHORIZED_EMAIL_ACCOUNT(HttpStatus.UNAUTHORIZED,
+            "Email account verification failed due to an invalid refresh token."),
 
     // 403 Forbidden
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "Account disabled"),
@@ -57,11 +59,13 @@ public enum ErrorCode {
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
+    BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
-    INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists");
+    INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists"),
+    ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board");
 
     private final HttpStatus status;
     private final String msg;
