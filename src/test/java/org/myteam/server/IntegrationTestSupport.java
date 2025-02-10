@@ -6,11 +6,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
+import org.mockito.Mock;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
@@ -26,6 +28,8 @@ import org.myteam.server.news.newsCountMember.repository.NewsCountMemberReposito
 import org.myteam.server.news.newsReply.domain.NewsReply;
 import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
+import org.myteam.server.upload.controller.S3Controller;
+import org.myteam.server.upload.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -66,6 +70,8 @@ public abstract class IntegrationTestSupport {
 	@MockBean
 	protected S3Presigner s3Presigner;
 	@MockBean
+	protected S3Controller s3Controller;
+	protected S3Service s3Service;
 	protected S3Client s3Client;
 
 	@AfterEach

@@ -9,10 +9,9 @@ import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.member.controller.response.MemberResponse;
-import org.myteam.server.member.dto.MemberDeleteRequest;
 import org.myteam.server.member.dto.MemberSaveRequest;
-import org.myteam.server.member.dto.MemberUpdateRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +30,8 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @RequestMapping("/api/me")
 @RequiredArgsConstructor
 public class MyInfoController {
+
+    private final MemberReadService memberReadService;
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
     private final ReIssueService reIssueService;
@@ -57,18 +58,8 @@ public class MyInfoController {
         log.info("publicId : {}", userDetails.getPublicId());
 
         UUID publicId = userDetails.getPublicId();
-        MemberResponse response = memberService.getByPublicId(publicId);
+        MemberResponse response = memberReadService.getByPublicId(publicId);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "로그인 회원 정보 조회 성공", response), HttpStatus.OK);
-    }
-
-    @PutMapping("/update")
-    public ResponseEntity<?> update(@RequestBody @Valid MemberUpdateRequest memberUpdateRequest,
-                                    BindingResult bindingResult,
-                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
-        log.info("MyInfoController update 메서드 실행 : {}", memberUpdateRequest.toString());
-        String loginUserEmail = memberService.getCurrentLoginUserEmail(userDetails.getPublicId()); // 현재 로그인한 사용자 이메일
-        MemberResponse response = memberService.update(loginUserEmail, memberUpdateRequest);
-        return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "회원정보 수정 성공", response), HttpStatus.OK);
     }
 
     @PutMapping("/change-password")
@@ -76,20 +67,8 @@ public class MyInfoController {
                                             BindingResult bindingResult,
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info("MyInfoController changePassword 메서드 실행 : {}", passwordChangeRequest.toString());
-        String email = memberService.getCurrentLoginUserEmail(userDetails.getPublicId()); // 현재 로그인한 사용자 이메일
+        String email = memberReadService.getCurrentLoginUserEmail(userDetails.getPublicId()); // 현재 로그인한 사용자 이메일
         memberService.changePassword(email, passwordChangeRequest);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "비밀번호 변경 성공", null), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestBody @Valid MemberDeleteRequest memberDeleteRequest,
-                                    BindingResult bindingResult,
-                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
-        log.info("MyInfoController delete 메서드 실행");
-        String loginUserEmail = memberService.getCurrentLoginUserEmail(userDetails.getPublicId()); // 현재 로그인한 사용자 이메일
-
-        memberService.delete(memberDeleteRequest.getEmail(), loginUserEmail, memberDeleteRequest.getPassword());
-
-        return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "회원 삭제 성공", null), HttpStatus.OK);
     }
 }
