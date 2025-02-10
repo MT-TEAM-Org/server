@@ -62,8 +62,6 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
-	protected MemberActivityRepository memberActivityRepository;
-	@Autowired
 	protected InquiryRepository inquiryRepository;
 	@MockBean
 	protected SecurityReadService securityReadService;
