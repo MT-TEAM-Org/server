@@ -12,7 +12,7 @@ import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.service.MemberWriteService;
+import org.myteam.server.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,7 +39,7 @@ public class AuthTestController {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final MemberJpaRepository memberRepository;
-    private final MemberWriteService memberService;
+    private final MemberService memberService;
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody @Valid MemberSaveRequest memberSaveRequest,
