@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class InquiryWriteService {
+public class InquiryService {
 
     private final MemberRepository memberRepository;
     private final InquiryRepository inquiryRepository;

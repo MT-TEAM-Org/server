@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 import java.util.UUID;
 
-class InquiryWriteServiceTest extends IntegrationTestSupport {
+class InquiryServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private MemberService memberService;
@@ -25,7 +25,7 @@ class InquiryWriteServiceTest extends IntegrationTestSupport {
     private MemberJpaRepository memberRepository;
 
     @Autowired
-    private InquiryWriteService inquiryWriteService;
+    private InquiryService inquiryService;
     @Autowired
     private InquiryRepository inquiryRepository;
 
@@ -50,7 +50,7 @@ class InquiryWriteServiceTest extends IntegrationTestSupport {
         System.out.println(testMember.getPublicId());
 
         // When
-        inquiryWriteService.createInquiry("문의내역", memberPublicId, "127.0.0.1");
+        inquiryService.createInquiry("문의내역", memberPublicId, "127.0.0.1");
         List<Inquiry> inquiries = inquiryRepository.findAll();
 
         // Then

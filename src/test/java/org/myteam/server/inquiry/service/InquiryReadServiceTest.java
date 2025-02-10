@@ -9,11 +9,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
-import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
+import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
@@ -23,12 +22,6 @@ import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-<<<<<<< HEAD
-import java.util.ArrayList;
-import java.util.List;
-
-=======
->>>>>>> e72759b (feat: 회원 정보 수정 및 삭제)
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -42,7 +35,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
     private InquiryRepository inquiryRepository;
 
     @Autowired
-    private InquiryWriteService inquiryWriteService;
+    private InquiryService inquiryService;
     @Autowired
     private InquiryReadService inquiryReadService;
 
@@ -74,11 +67,11 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 
         testMember = memberRepository.findByPublicId(testMemberPublicId).get();
         IntStream.rangeClosed(1, 15).forEach(i ->
-                inquiryWriteService.createInquiry("문의내역 " + i, testMemberPublicId, "127.0.0.1")
+                inquiryService.createInquiry("문의내역 " + i, testMemberPublicId, "127.0.0.1")
         );
         otherMember = memberRepository.findByPublicId(otherMemberPublicId).get();
         IntStream.rangeClosed(1, 15).forEach(i ->
-                inquiryWriteService.createInquiry("건의사항 " + i, otherMemberPublicId, "127.0.0.1")
+                inquiryService.createInquiry("건의사항 " + i, otherMemberPublicId, "127.0.0.1")
         );
     }
 
@@ -95,7 +88,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
         // Given
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(
+        InquiriesListResponse response = inquiryReadService.getInquiriesByMember(
                 new InquirySearchRequest(
                         testMember.getPublicId(),
                         InquiryOrderType.RECENT,
@@ -106,11 +99,11 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 
         // Then
         System.out.println("response: " + response);
-        assertThat("문의내역 10").isEqualTo(response.getContent().get(0).getContent());
-        assertThat(response.getContent()).hasSize(5);
-        assertThat(response.getPageInfo().getCurrentPage()).isEqualTo(2);
-        assertThat(response.getPageInfo().getTotalPage()).isEqualTo(3);
-        assertThat(response.getPageInfo().getTotalElement()).isEqualTo(15);
+        assertThat("문의내역 10").isEqualTo(response.getList().getContent().get(0).getContent());
+        assertThat(response.getList().getContent()).hasSize(5);
+        assertThat(response.getList().getPageInfo().getCurrentPage()).isEqualTo(2);
+        assertThat(response.getList().getPageInfo().getTotalPage()).isEqualTo(3);
+        assertThat(response.getList().getPageInfo().getTotalElement()).isEqualTo(15);
     }
 
     @Test
@@ -124,7 +117,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
         }
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(
+        InquiriesListResponse response = inquiryReadService.getInquiriesByMember(
                 new InquirySearchRequest(
                         testMember.getPublicId(),
                         InquiryOrderType.ANSWERED,
@@ -134,11 +127,11 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 
         // Then
         System.out.println("response: " + response);
-        assertThat(response.getContent().get(0).getAnswerContent()).isEqualTo("답변 5");
-        assertThat(response.getContent()).hasSize(5);
-        assertThat(response.getPageInfo().getCurrentPage()).isEqualTo(1);
-        assertThat(response.getPageInfo().getTotalPage()).isEqualTo(3);
-        assertThat(response.getPageInfo().getTotalElement()).isEqualTo(15);
+        assertThat(response.getList().getContent().get(0).getAnswerContent()).isEqualTo("답변 5");
+        assertThat(response.getList().getContent()).hasSize(5);
+        assertThat(response.getList().getPageInfo().getCurrentPage()).isEqualTo(1);
+        assertThat(response.getList().getPageInfo().getTotalPage()).isEqualTo(3);
+        assertThat(response.getList().getPageInfo().getTotalElement()).isEqualTo(15);
     }
 
     @Test
@@ -146,11 +139,11 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
     void shouldSearchInquiriesByContentAndSortByRecent() {
         // Given
         for (int i = 1; i <= 15; i++) {
-            inquiryWriteService.createInquiry("검색어 포함 " + i, testMemberPublicId, "127.0.0.1");
+            inquiryService.createInquiry("검색어 포함 " + i, testMemberPublicId, "127.0.0.1");
         }
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(
+        InquiriesListResponse response = inquiryReadService.getInquiriesByMember(
                 new InquirySearchRequest(
                         testMember.getPublicId(),
                         InquiryOrderType.RECENT,
@@ -160,9 +153,9 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 
         // Then
         System.out.println("response: " + response);
-        assertThat(response.getContent().get(0).getContent()).contains("검색어 포함 15"); // ✅ 최신순 확인
-        assertThat(response.getContent()).hasSize(5);
-        assertThat(response.getPageInfo().getCurrentPage()).isEqualTo(1);
-        assertThat(response.getPageInfo().getTotalPage()).isEqualTo(3);
+        assertThat(response.getList().getContent().get(0).getContent()).contains("검색어 포함 15"); // ✅ 최신순 확인
+        assertThat(response.getList().getContent()).hasSize(5);
+        assertThat(response.getList().getPageInfo().getCurrentPage()).isEqualTo(1);
+        assertThat(response.getList().getPageInfo().getTotalPage()).isEqualTo(3);
     }
 }

@@ -51,4 +51,8 @@ public class BoardReadService {
         );
         return BoardListResponse.createResponse(PageCustomResponse.of(myBoardList));
     }
+
+    public int getMyBoardListCount(UUID memberPublicId) {
+        return boardQueryRepository.getMyBoard(memberPublicId);
+    }
 }

@@ -13,10 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.domain.BoardOrderType;
-import org.myteam.server.board.domain.BoardSearchType;
-import org.myteam.server.board.domain.BoardType;
-import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.board.domain.*;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -145,6 +142,15 @@ public class BoardQueryRepository {
         long total = getTotalMyBoardCount(searchType, search, publicId);
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    public int getMyBoard(UUID memberPublicId) {
+        return queryFactory
+                .select(board.count())
+                .from(board)
+                .where(board.member.publicId.eq(memberPublicId))
+                .fetchOne()
+                .intValue();
     }
 
     /**
