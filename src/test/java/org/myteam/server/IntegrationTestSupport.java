@@ -2,6 +2,7 @@ package org.myteam.server;
 
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -104,6 +105,7 @@ public abstract class IntegrationTestSupport {
 			.title("기사타이틀" + index)
 			.category(category)
 			.thumbImg("www.test.com")
+			.postDate(LocalDateTime.now())
 			.build());
 
 		NewsCount newsCount = NewsCount.builder()
