@@ -72,7 +72,7 @@ public class NewsQueryRepository {
 
 	private OrderSpecifier<?> isOrderByEqualToOrderType(OrderType orderType) {
 		return switch (orderType) {
-			case DATE -> news.createDate.desc();
+			case DATE -> news.postDate.desc();
 			case VIEW -> newsCount.viewCount.desc();
 			case COMMENT -> newsCount.commentCount.desc();
 		};

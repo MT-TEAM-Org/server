@@ -1,5 +1,6 @@
 package org.myteam.server.news.newsCount.dto.service.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NewsRecommendResponse {
 
+	@Schema(description = "뉴스 ID")
 	private Long newsId;
 
 	@Builder

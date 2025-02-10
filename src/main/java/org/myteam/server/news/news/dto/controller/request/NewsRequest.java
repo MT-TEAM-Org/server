@@ -5,6 +5,7 @@ import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.repository.OrderType;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,10 +17,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class NewsRequest extends PageInfoRequest {
 
+	@Schema(description = "뉴스 카테고리", example = "BASEBALL, FOOTBALL, ESPORTS")
 	@NotNull(message = "뉴스 카테고리는 필수입니다.")
 	private NewsCategory category;
+
+	@Schema(description = "뉴스 정렬 타입", example = "DATE(날짜순), COMMENT(댓글순), VIEW(조회순)")
 	@NotNull(message = "뉴스 정렬 타입은 필수입니다.")
 	private OrderType orderType;
+
+	@Schema(description = "검색할 뉴스 내용", example = "검색할 뉴스 제목")
 	private String content;
 
 	@Builder
