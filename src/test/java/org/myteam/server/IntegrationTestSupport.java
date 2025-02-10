@@ -10,6 +10,7 @@ import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.news.domain.News;
@@ -34,6 +35,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.MySQLContainer;
 
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
@@ -51,6 +53,8 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected MemberJpaRepository memberJpaRepository;
 	@Autowired
+	protected MemberActivityRepository memberActivityRepository;
+	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
 	protected InquiryRepository inquiryRepository;
@@ -60,6 +64,8 @@ public abstract class IntegrationTestSupport {
 	protected S3ConfigLocal s3ConfigLocal;
 	@MockBean
 	protected S3Presigner s3Presigner;
+	@MockBean
+	protected S3Client s3Client;
 
 	@AfterEach
 	void tearDown() {
@@ -69,6 +75,7 @@ public abstract class IntegrationTestSupport {
 		newsCountMemberRepository.deleteAllInBatch();
 		newsCountRepository.deleteAllInBatch();
 		newsRepository.deleteAllInBatch();
+		memberActivityRepository.deleteAllInBatch();
 		memberJpaRepository.deleteAllInBatch();
 	}
 

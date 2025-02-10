@@ -39,7 +39,7 @@ public class NewsQueryRepository {
 				news.category,
 				news.title,
 				news.thumbImg,
-				news.postTime
+				news.postDate
 			))
 			.from(news)
 			.join(newsCount).on(newsCount.news.id.eq(news.id))
