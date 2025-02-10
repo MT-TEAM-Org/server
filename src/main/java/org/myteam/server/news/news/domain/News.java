@@ -34,14 +34,14 @@ public class News extends Base {
 
 	private String thumbImg;
 
-	private LocalDateTime postTime;
+	private LocalDateTime postDate;
 
 	@Builder
-	public News(Long id, NewsCategory category, String title, String thumbImg, LocalDateTime postTime) {
+	public News(Long id, NewsCategory category, String title, String thumbImg, LocalDateTime postDate) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
 		this.thumbImg = thumbImg;
-		this.postTime = postTime;
+		this.postDate = postDate;
 	}
 }

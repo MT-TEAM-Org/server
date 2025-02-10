@@ -28,12 +28,12 @@ public class NewsResponse {
 
 	private int viewCount;
 
-	private LocalDateTime postTime;
+	private LocalDateTime postDate;
 
 	@Builder
 	public NewsResponse(Long id, NewsCategory category, String title, String thumbImg, int recommendCount,
 		int commentCount,
-		int viewCount, LocalDateTime postTime) {
+		int viewCount, LocalDateTime postDate) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
@@ -41,7 +41,7 @@ public class NewsResponse {
 		this.recommendCount = recommendCount;
 		this.commentCount = commentCount;
 		this.viewCount = viewCount;
-		this.postTime = postTime;
+		this.postDate = postDate;
 	}
 
 
@@ -60,7 +60,7 @@ public class NewsResponse {
 			.category(news.getCategory())
 			.title(news.getTitle())
 			.thumbImg(news.getThumbImg())
-			.postTime(news.getPostTime())
+			.postDate(news.getPostDate())
 			.recommendCount(newsCount.getRecommendCount())
 			.commentCount(newsCount.getCommentCount())
 			.viewCount(newsCount.getViewCount())

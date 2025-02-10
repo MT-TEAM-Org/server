@@ -65,6 +65,6 @@ public class InquiryQueryRepository {
         if (orderType == InquiryOrderType.ANSWERED) {
             return inquiryAnswer.answeredAt.desc().nullsLast();
         }
-        return inquiry.createdAt.desc();
+        return inquiry.createdAt.asc();
     }
 }

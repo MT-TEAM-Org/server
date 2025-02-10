@@ -14,13 +14,13 @@ public class NewsDto {
 	private NewsCategory category;
 	private String title;
 	private String thumbImg;
-	private LocalDateTime postTime;
+	private LocalDateTime postDate;
 
-	public NewsDto(Long id, NewsCategory category, String title, String thumbImg, LocalDateTime postTime) {
+	public NewsDto(Long id, NewsCategory category, String title, String thumbImg, LocalDateTime postDate) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
 		this.thumbImg = thumbImg;
-		this.postTime = postTime;
+		this.postDate = postDate;
 	}
 }
