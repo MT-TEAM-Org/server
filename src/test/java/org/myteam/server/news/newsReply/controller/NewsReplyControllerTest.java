@@ -132,7 +132,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 			.andDo(print())
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("뉴스 대댓글 ID는 필수입니다."));
+			.andExpect(jsonPath("$.message").value("뉴스 댓글 ID는 필수입니다."));
 	}
 
 	@DisplayName("뉴스 대댓글을 수정한다.")

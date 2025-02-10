@@ -2,6 +2,7 @@ package org.myteam.server;
 
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -39,6 +40,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.MySQLContainer;
 
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
@@ -56,6 +58,8 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected MemberJpaRepository memberJpaRepository;
 	@Autowired
+	protected MemberActivityRepository memberActivityRepository;
+	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
 	protected MemberActivityRepository memberActivityRepository;
@@ -69,8 +73,8 @@ public abstract class IntegrationTestSupport {
 	protected S3Presigner s3Presigner;
 	@MockBean
 	protected S3Controller s3Controller;
-	@MockBean
 	protected S3Service s3Service;
+	protected S3Client s3Client;
 
 	@AfterEach
 	void tearDown() {
@@ -109,6 +113,7 @@ public abstract class IntegrationTestSupport {
 			.title("기사타이틀" + index)
 			.category(category)
 			.thumbImg("www.test.com")
+			.postDate(LocalDateTime.now())
 			.build());
 
 		NewsCount newsCount = NewsCount.builder()
