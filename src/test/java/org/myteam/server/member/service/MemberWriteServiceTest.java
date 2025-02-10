@@ -1,6 +1,5 @@
 package org.myteam.server.member.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -11,7 +10,6 @@ import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +25,7 @@ import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 class MemberWriteServiceTest  extends IntegrationTestSupport {
 
     @Autowired
-    private MemberWriteService memberWriteService;
+    private MemberService memberService;
     @Autowired
     private MemberReadService memberReadService;
 
@@ -51,7 +49,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
         // When
         when(memberJpaRepository.findByEmail(request.getEmail()))
                 .thenThrow(new PlayHiveException(ErrorCode.USER_NOT_FOUND));
-        MemberResponse response = memberWriteService.create(request);
+        MemberResponse response = memberService.create(request);
 
         // Then
         assertNotNull(response);
@@ -69,11 +67,11 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .tel("01012345678")
                 .nickname("testUser")
                 .build();
-        MemberResponse response = memberWriteService.create(request);
+        MemberResponse response = memberService.create(request);
 
         // When & Then
         PlayHiveException exception = assertThrows(PlayHiveException.class, () -> {
-            memberWriteService.create(request);
+            memberService.create(request);
         });
 
         assertEquals(USER_ALREADY_EXISTS, exception.getErrorCode());
@@ -89,7 +87,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .tel("01012345678")
                 .nickname("testUser")
                 .build();
-        MemberResponse response = memberWriteService.create(request);
+        MemberResponse response = memberService.create(request);
         MemberUpdateRequest updateRequest = MemberUpdateRequest.builder()
                 .email("test@example.com")
                 .password("newPasd123")
@@ -98,7 +96,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .build();
 
         // When
-        MemberResponse memberResponse = memberWriteService.updateMemberProfile(updateRequest);
+        MemberResponse memberResponse = memberService.updateMemberProfile(updateRequest);
 
         // Then
         assertNotNull(memberResponse);
@@ -116,7 +114,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .build();
         
         // When
-        memberWriteService.deleteMember(deleteRequest);
+        memberService.deleteMember(deleteRequest);
 
         // Then
         assertEquals(MemberStatus.INACTIVE, member.getStatus());
@@ -132,6 +130,6 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
         when(passwordEncoder.matches(deleteRequest.getPassword(), member.getPassword())).thenReturn(false);
 
         // When & Then
-        assertThrows(PlayHiveException.class, () -> memberWriteService.deleteMember(deleteRequest));
+        assertThrows(PlayHiveException.class, () -> memberService.deleteMember(deleteRequest));
     }
 }

@@ -31,7 +31,7 @@ import static org.myteam.server.global.exception.ErrorCode.UNAUTHORIZED;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class MemberWriteService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
     private final MemberJpaRepository memberJpaRepository;

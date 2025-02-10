@@ -9,11 +9,10 @@ import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.member.controller.response.MemberResponse;
-import org.myteam.server.member.dto.MemberDeleteRequest;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
 import org.myteam.server.member.service.MemberReadService;
-import org.myteam.server.member.service.MemberWriteService;
+import org.myteam.server.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,7 +32,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 public class MyInfoController {
 
     private final MemberReadService memberReadService;
-    private final MemberWriteService memberWriteService;
+    private final MemberService memberService;
     private final JwtProvider jwtProvider;
     private final ReIssueService reIssueService;
 
@@ -43,7 +42,7 @@ public class MyInfoController {
                                     HttpServletResponse httpServletResponse
     ) {
         log.info("MyInfoController create 메서드 실행");
-        MemberResponse response = memberWriteService.create(memberSaveRequest);
+        MemberResponse response = memberService.create(memberSaveRequest);
 
         // Authorization
         String accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1), response.getPublicId(), response.getRole().name(), response.getStatus().name());
@@ -69,7 +68,7 @@ public class MyInfoController {
                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info("MyInfoController changePassword 메서드 실행 : {}", passwordChangeRequest.toString());
         String email = memberReadService.getCurrentLoginUserEmail(userDetails.getPublicId()); // 현재 로그인한 사용자 이메일
-        memberWriteService.changePassword(email, passwordChangeRequest);
+        memberService.changePassword(email, passwordChangeRequest);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "비밀번호 변경 성공", null), HttpStatus.OK);
     }
 }

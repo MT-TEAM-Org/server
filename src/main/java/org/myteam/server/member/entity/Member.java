@@ -131,7 +131,7 @@ public class Member extends Base {
         }
     }
 
-    public void setMemberActivity(MemberActivity memberActivity) {
+    public void updateMemberActivity(MemberActivity memberActivity) {
         this.memberActivity = memberActivity;
     }
 }

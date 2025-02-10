@@ -9,7 +9,7 @@ import org.myteam.server.member.dto.MemberGetRequest;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
-import org.myteam.server.member.service.MemberWriteService;
+import org.myteam.server.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +28,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 public class AdminController {
 
     private final MemberReadService memberReadService;
-    private final MemberWriteService memberWriteService;
+    private final MemberService memberService;
 
     @GetMapping("/email")
     public ResponseEntity<?> getByEmail(@Valid MemberGetRequest memberGetRequest, BindingResult bindingResult) {
@@ -57,7 +57,7 @@ public class AdminController {
     public ResponseEntity<ResponseDto<String>> delete(@RequestBody MemberDeleteRequest memberDeleteRequest, BindingResult bindingResult) {
         log.info("MemberController delete 메서드 실행 : {}", memberDeleteRequest);
         String email = memberDeleteRequest.getEmail();
-        memberWriteService.delete(email);
+        memberService.delete(email);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "회원 삭제 성공",

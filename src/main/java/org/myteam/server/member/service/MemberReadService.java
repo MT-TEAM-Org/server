@@ -41,12 +41,7 @@ public class MemberReadService {
     public ProfileResponse getProfile() {
         Member member = securityReadService.getMember();
 
-        return ProfileResponse.builder()
-                .memberPublicId(member.getPublicId())
-                .email(member.getEmail())
-                .phoneNumber(member.getTel())
-                .nickname(member.getNickname())
-                .build();
+        return ProfileResponse.createProfileResponse(member);
     }
 
     public MemberResponse getByPublicId(UUID publicId) {
