@@ -7,6 +7,7 @@ import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,20 +15,22 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class NewsResponse {
+
+	@Schema(description = "뉴스 ID")
 	private Long id;
-
+	@Schema(description = "뉴스 카테고리")
 	private NewsCategory category;
-
+	@Schema(description = "뉴스 제목")
 	private String title;
-
+	@Schema(description = "뉴스 썸네일 이미지")
 	private String thumbImg;
-
+	@Schema(description = "뉴스 추천수")
 	private int recommendCount;
-
+	@Schema(description = "뉴스 댓글수")
 	private int commentCount;
-
+	@Schema(description = "뉴스 조회수")
 	private int viewCount;
-
+	@Schema(description = "뉴스 계시 날짜")
 	private LocalDateTime postDate;
 
 	@Builder

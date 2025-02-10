@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.newsReply.domain.NewsReply;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,10 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NewsReplyResponse {
 
+	@Schema(description = "뉴스 대댓글 ID")
 	private Long newsReplyId;
+	@Schema(description = "뉴스 댓글 ID")
 	private Long newsCommentId;
+	@Schema(description = "뉴스 작성자")
 	private NewsReplyMemberResponse member;
+	@Schema(description = "뉴스 대댓글 내용")
 	private String comment;
+	@Schema(description = "뉴스 대댓글 작성날짜")
 	private LocalDateTime createDate;
 
 	@Builder
@@ -35,7 +41,7 @@ public class NewsReplyResponse {
 			.newsCommentId(newsReply.getNewsComment().getId())
 			.member(
 				NewsReplyMemberResponse.builder()
-					.memberPublicId(member.getPublicId())
+					.publicId(member.getPublicId())
 					.nickName(member.getNickname())
 					.build()
 			)
