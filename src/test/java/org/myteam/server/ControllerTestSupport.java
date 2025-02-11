@@ -1,5 +1,7 @@
 package org.myteam.server;
 
+import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.member.service.MemberService;
 import org.myteam.server.news.news.controller.NewsController;
 import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.news.newsComment.controller.NewsCommentController;
@@ -46,6 +48,12 @@ public abstract class ControllerTestSupport {
 
 	@MockBean
 	protected NewsReplyReadService newsReplyReadService;
+
+	@MockBean
+	protected MemberService memberService;
+
+	@MockBean
+	protected MemberJpaRepository memberJpaRepository;
 
 }
 

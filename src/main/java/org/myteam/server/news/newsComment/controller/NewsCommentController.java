@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +36,17 @@ public class NewsCommentController {
 	private final NewsCommentService newsCommentService;
 	private final NewsCommentReadService newsCommentReadService;
 
+	@Operation(summary = "뉴스 댓글 저장 API", description = "뉴스 댓글을 저장합니다.")
 	@PostMapping
-	public ResponseEntity<ResponseDto<NewsCommentResponse>> save(@RequestBody @Valid NewsCommentSaveRequest newsSaveRequest, HttpServletRequest request) {
+	public ResponseEntity<ResponseDto<NewsCommentResponse>> save(
+		@RequestBody @Valid NewsCommentSaveRequest newsSaveRequest, HttpServletRequest request) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 댓글 저장 성공",
 			newsCommentService.save(newsSaveRequest.toServiceRequest(ClientUtils.getRemoteIP(request)))));
 	}
 
+	@Operation(summary = "뉴스 댓글 목록 조회 API", description = "뉴스 댓글을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<ResponseDto<NewsCommentListResponse>> findByNewsId(
 		@ModelAttribute @Valid NewsCommentRequest newsCommentRequest) {
@@ -51,6 +56,7 @@ public class NewsCommentController {
 			newsCommentReadService.findByNewsId(newsCommentRequest.toServiceRequest())));
 	}
 
+	@Operation(summary = "뉴스 댓글 수정 API", description = "뉴스 댓글을 수정합니다.")
 	@PatchMapping
 	public ResponseEntity<ResponseDto<Long>> update(
 		@RequestBody @Valid NewsCommentUpdateRequest newsCommentUpdateRequest) {
@@ -60,8 +66,13 @@ public class NewsCommentController {
 			newsCommentService.update(newsCommentUpdateRequest.toServiceRequest())));
 	}
 
+	@Operation(summary = "뉴스 댓글 삭제 API", description = "뉴스 댓글을 삭제합니다.")
 	@DeleteMapping("/{newsCommentId}")
-	public ResponseEntity<ResponseDto<Long>> delete(@PathVariable Long newsCommentId) {
+	public ResponseEntity<ResponseDto<Long>> delete(
+		@PathVariable
+		@Parameter(description = "뉴스 댓글 ID")
+		Long newsCommentId
+	) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 댓글 삭제 성공",

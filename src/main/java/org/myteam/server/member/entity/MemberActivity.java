@@ -34,5 +34,6 @@ public class MemberActivity {
 
     public MemberActivity(Member member) {
         this.member = member;
+        member.updateMemberActivity(this);
     }
 }
