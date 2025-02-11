@@ -38,6 +38,10 @@ public class InquiryQueryRepository {
                                                 Pageable pageable) {
         // 정렬 조건 설정
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(orderType, inquiry, inquiryAnswer);
+        log.info("정렬 조건: {}", orderSpecifier);
+
+        // 검색 조건
+        log.info("검색조건: {}&&{}", isMemberEqualTo(memberPublicId), getSearchCondition(searchType, keyword));
 
         // 문의 리스트 조회
         List<InquiryResponse> inquiries = queryFactory
@@ -94,7 +98,7 @@ public class InquiryQueryRepository {
         if (orderType == InquiryOrderType.ANSWERED) {
             return inquiryAnswer.answeredAt.desc().nullsLast();
         }
-        return inquiry.createdAt.asc();
+        return inquiry.createdAt.desc();
     }
 
     private BooleanExpression isMemberEqualTo(UUID memberPublicId) {

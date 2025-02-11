@@ -35,6 +35,8 @@ public class InquiryReadService {
      * @return
      */
     public InquiriesListResponse getInquiriesByMember(InquirySearchRequest inquirySearchRequest) {
+        log.info("내 문의내역 조회: {}", inquirySearchRequest.getMemberPublicId());
+
         Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
                 inquirySearchRequest.getMemberPublicId(),
                 inquirySearchRequest.getOrderType(),

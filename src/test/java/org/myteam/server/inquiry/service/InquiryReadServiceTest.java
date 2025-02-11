@@ -98,7 +98,6 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
                         5));
 
         // Then
-        System.out.println("response: " + response);
         assertThat("문의내역 10").isEqualTo(response.getList().getContent().get(0).getContent());
         assertThat(response.getList().getContent()).hasSize(5);
         assertThat(response.getList().getPageInfo().getCurrentPage()).isEqualTo(2);

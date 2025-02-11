@@ -2,6 +2,7 @@ package org.myteam.server.board.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,6 +43,12 @@ public class BoardReadService {
     }
 
     public BoardListResponse getMyBoardList(BoardServiceRequest boardServiceRequest, UUID publicId) {
+        log.info("내 게시글 조회: {} orderType: {}  searchType: {}, search: {}",
+                publicId,
+                boardServiceRequest.getOrderType(),
+                boardServiceRequest.getSearchType(),
+                boardServiceRequest.getSearch());
+
 
         Page<BoardDto> myBoardList = boardQueryRepository.getMyBoardList(
                 boardServiceRequest.getOrderType(),
