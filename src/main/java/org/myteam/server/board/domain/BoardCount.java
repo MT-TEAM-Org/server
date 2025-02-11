@@ -29,13 +29,13 @@ public class BoardCount {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    @Column(name = "recommend_count", nullable = false)
+    @Column(nullable = false)
     private int recommendCount;
 
-    @Column(name = "view_count", nullable = false)
+    @Column(nullable = false)
     private int viewCount;
 
-    @Column(name = "comment_count", nullable = false)
+    @Column(nullable = false)
     private int commentCount;
 
     @Builder
