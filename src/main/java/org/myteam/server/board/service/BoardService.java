@@ -2,6 +2,7 @@ package org.myteam.server.board.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardType;
@@ -18,6 +19,7 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -36,9 +38,12 @@ public class BoardService {
      */
     @Transactional
     public BoardResponse saveBoard(final BoardSaveRequest request, final String clientIP) {
+        log.info("save board 실행");
 
         UUID loginUser = securityReadService.getMember().getPublicId();
         Member member = memberReadService.findById(loginUser);
+
+        log.info("user: {} 게시판 업로드 요청", loginUser);
 
         verifyBoardTypeAndCategoryType(request.getBoardType(), request.getCategoryType());
 
@@ -47,7 +52,10 @@ public class BoardService {
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
-        return new BoardResponse(board, boardCount, isRecommended);
+        BoardResponse response = new BoardResponse(board, boardCount, isRecommended);
+
+        log.info("게시판 생성: {}", loginUser);
+        return response;
     }
 
     /**
