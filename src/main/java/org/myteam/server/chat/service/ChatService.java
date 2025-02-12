@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ChatWriteService {
+public class ChatService {
 
     private final ChatRoomRepository roomRepository;
 //    private final KafkaProducerService kafkaProducerService;

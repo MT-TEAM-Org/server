@@ -11,6 +11,7 @@ import org.myteam.server.member.entity.Member;
 import java.util.UUID;
 
 @Getter
+@Builder
 public class MemberResponse {
 
     private String email; // 계정
@@ -31,7 +32,6 @@ public class MemberResponse {
     public MemberResponse() {
     }
 
-    @Builder
     public MemberResponse(final Member member) {
         this.email = member.getEmail();
         this.tel = member.getTel();
@@ -40,5 +40,17 @@ public class MemberResponse {
         this.type = member.getType();
         this.status = member.getStatus();
         this.publicId = member.getPublicId();
+    }
+
+    public static MemberResponse createMemberResponse(Member member) {
+        return MemberResponse.builder()
+                .email(member.getEmail())
+                .tel(member.getTel())
+                .nickname(member.getNickname())
+                .role(member.getRole())
+                .type(member.getType())
+                .status(member.getStatus())
+                .publicId(member.getPublicId())
+                .build();
     }
 }

@@ -17,7 +17,6 @@ public class FilterData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "word")
     private String word;
 
     public FilterData(String word) {

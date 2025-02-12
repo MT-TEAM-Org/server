@@ -18,10 +18,10 @@ public class MemberActivity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(name = "visit_count", nullable = false)
+    @Column(nullable = false)
     private int visitCount = 0;
 
-    @Column(name = "invite_count", nullable = false)
+    @Column(nullable = false)
     private int inviteCount = 0;
 
     public void increaseVisitCount() {

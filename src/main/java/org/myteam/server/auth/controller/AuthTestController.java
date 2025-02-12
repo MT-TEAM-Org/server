@@ -42,7 +42,7 @@ public class AuthTestController {
     private final MemberService memberService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody @Valid MemberSaveRequest memberSaveRequest,
+    public ResponseEntity<ResponseDto<MemberResponse>> create(@RequestBody @Valid MemberSaveRequest memberSaveRequest,
                                     BindingResult bindingResult,
                                     HttpServletResponse httpServletResponse
     ) {
@@ -54,11 +54,16 @@ public class AuthTestController {
 
         // 응답 헤더 설정
         httpServletResponse.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
-        return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "회원가입 성공", response), HttpStatus.CREATED);
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "회원가입 성공",
+                response
+        ));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<ResponseDto<AuthResponse>> login(@RequestBody AuthRequest request) {
         log.info("🔐 로그인 요청 - email: {}", request.getEmail());
 
         // 1. 사용자 인증 시도
@@ -77,6 +82,10 @@ public class AuthTestController {
         log.info("✅ 로그인 성공 - email: {}, accessToken1d: {}, accessToken30s: {}", member.getEmail(), accessToken1d, accessToken30s);
 
         // 4. 응답 반환
-        return ResponseEntity.ok(new AuthResponse(accessToken1d, accessToken30s));
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "로그인 성공",
+                new AuthResponse(accessToken1d, accessToken30s)
+        ));
     }
 }
