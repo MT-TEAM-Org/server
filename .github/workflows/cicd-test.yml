@@ -19,19 +19,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Gradle 캐시 설정
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: gradlew 실행 권한 설정
-        run: chmod +x gradlew
-
       - name: 테스트 진행
         run: ./gradlew test --parallel
 
