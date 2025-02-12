@@ -7,7 +7,11 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mock;
+import org.myteam.server.board.service.BoardReadService;
+import org.myteam.server.board.service.BoardService;
 import org.myteam.server.inquiry.repository.InquiryRepository;
+import org.myteam.server.inquiry.service.InquiryReadService;
+import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -15,7 +19,10 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.repository.NewsRepository;
@@ -62,15 +69,30 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
+	protected InquiryService inquiryService;
+	@MockBean
+	protected InquiryReadService inquiryReadService;
+	@Autowired
 	protected InquiryRepository inquiryRepository;
 	@MockBean
 	protected SecurityReadService securityReadService;
+	@Autowired
+	protected MemberReadService memberReadService;
+	@Autowired
+	protected MemberService memberService;
+	@Autowired
+	protected MyPageReadService myPageReadService;
+	@MockBean
+	protected BoardService boardService;
+	@MockBean
+	protected BoardReadService boardReadService;
 	@MockBean
 	protected S3ConfigLocal s3ConfigLocal;
 	@MockBean
 	protected S3Presigner s3Presigner;
 	@MockBean
 	protected S3Controller s3Controller;
+	@MockBean
 	protected S3Service s3Service;
 	protected S3Client s3Client;
 

@@ -13,16 +13,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.domain.BoardOrderType;
-import org.myteam.server.board.domain.BoardSearchType;
-import org.myteam.server.board.domain.BoardType;
-import org.myteam.server.board.domain.CategoryType;
+import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.board.domain.*;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class BoardQueryRepository {
@@ -144,7 +143,18 @@ public class BoardQueryRepository {
 
         long total = getTotalMyBoardCount(searchType, search, publicId);
 
+        log.info("검색 완료 total: {}", total);
+
         return new PageImpl<>(content, pageable, total);
+    }
+
+    public int getMyBoard(UUID memberPublicId) {
+        return queryFactory
+                .select(board.count())
+                .from(board)
+                .where(board.member.publicId.eq(memberPublicId))
+                .fetchOne()
+                .intValue();
     }
 
     /**

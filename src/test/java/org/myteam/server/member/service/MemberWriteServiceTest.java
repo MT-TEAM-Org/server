@@ -14,6 +14,11 @@ import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateReque
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
+import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 
