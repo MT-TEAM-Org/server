@@ -1,6 +1,7 @@
 package org.myteam.server.member.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.myteam.server.member.domain.MemberRole;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class MemberResponse {
 
     private String email; // 계정
