@@ -85,7 +85,7 @@ public class SecurityConfig {
 		"/api/inquiries/create",
 
 		//뉴스
-        "/api/news"
+        "/api/news/**",
 	};
 	/* Admin 접근 권한 */
 	private static final String[] PERMIT_ADMIN_URLS = new String[] {
