@@ -2,8 +2,10 @@ package org.myteam.server.chat.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.myteam.server.chat.domain.Ban;
 import org.myteam.server.chat.domain.BanReason;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -16,4 +18,13 @@ public class BanResponse {
     private String username;
     private List<BanReason> reason;
     private String bannedAt;
+
+    public static BanResponse createBanResponse(Ban ban) {
+        return BanResponse.builder()
+                .id(ban.getId())
+                .username(ban.getUsername())
+                .reason(ban.getReasons())
+                .bannedAt(ban.getBannedAt().format(DateTimeFormatter.ofPattern("YYYY-MM-DD")))
+                .build();
+    }
 }

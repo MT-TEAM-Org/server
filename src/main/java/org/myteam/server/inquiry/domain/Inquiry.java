@@ -27,7 +27,7 @@ public class Inquiry {
 
     private String clientIp;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)

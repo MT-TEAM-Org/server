@@ -45,19 +45,17 @@ public class Oauth2Member extends Base {
     private String nickname;
 
     // YYYY-MM-dd 형식
-    @Column(name = "birth_date")
     private LocalDate birthdate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
     private GenderType gender;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
+    @Column(nullable = false)
     private MemberRole role = USER;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(nullable = false)
     private MemberType type = LOCAL;
 
     @Builder

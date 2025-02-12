@@ -8,12 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
-import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.dto.MemberSaveRequest;
@@ -40,7 +38,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
     private InquiryReadService inquiryReadService;
 
     @Autowired
-    private InquiryAnswerWriteService inquiryAnswerWriteService;
+    private InquiryAnswerService inquiryAnswerService;
     @Autowired
     private InquiryAnswerRepository inquiryAnswerRepository;
 
@@ -112,7 +110,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 
         // 일부 문의에 답변 추가
         for (int i = 1; i <= 5; i++) {
-            inquiryAnswerWriteService.createAnswer(Long.valueOf(i), "답변 " + i);
+            inquiryAnswerService.createAnswer(Long.valueOf(i), "답변 " + i);
         }
 
         // When

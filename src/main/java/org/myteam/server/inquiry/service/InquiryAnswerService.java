@@ -4,16 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.page.request.PageInfoRequest;
-import org.myteam.server.global.page.request.PageInfoServiceRequest;
-import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryAnswer;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +17,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class InquiryAnswerWriteService {
+public class InquiryAnswerService {
 
     private final InquiryRepository inquiryRepository;
     private final InquiryAnswerRepository inquiryAnswerRepository;
