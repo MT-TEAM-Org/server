@@ -14,7 +14,7 @@ import org.myteam.server.global.page.request.PageInfoRequest;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BoardRequest extends PageInfoRequest {
+public class BoardSearchRequest extends PageInfoRequest {
 
     @NotNull(message = "게시판 타입은 필수입니다")
     private BoardType boardType;
@@ -33,8 +33,8 @@ public class BoardRequest extends PageInfoRequest {
     private String search;
 
     @Builder
-    public BoardRequest(BoardType boardType, CategoryType categoryType, BoardOrderType orderType,
-                        BoardSearchType searchType, String search) {
+    public BoardSearchRequest(BoardType boardType, CategoryType categoryType, BoardOrderType orderType,
+                              BoardSearchType searchType, String search) {
         this.boardType = boardType;
         this.categoryType = categoryType;
         this.orderType = orderType;

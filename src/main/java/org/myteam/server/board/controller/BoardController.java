@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
 import org.myteam.server.board.dto.reponse.BoardResponse;
-import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.global.security.dto.CustomUserDetails;
@@ -80,7 +80,8 @@ public class BoardController {
      * 게시글 목록 조회
      */
     @GetMapping
-    public ResponseEntity<ResponseDto<BoardListResponse>> getBoardList(@ModelAttribute @Valid BoardRequest request) {
+    public ResponseEntity<ResponseDto<BoardListResponse>> getBoardList(
+            @ModelAttribute @Valid BoardSearchRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 목록 조회",
                 boardReadService.getBoardList(request.toServiceRequest())));
     }
@@ -90,7 +91,7 @@ public class BoardController {
      */
     @GetMapping("/my")
     public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
-            @ModelAttribute @Valid BoardRequest request,
+            @ModelAttribute @Valid BoardSearchRequest request,
             @AuthenticationPrincipal final CustomUserDetails userDetails) {
 
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "내가 쓴 게시글 목록 조회",
