@@ -2,6 +2,7 @@ package org.myteam.server.board.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.board.domain.BoardType;
@@ -9,6 +10,7 @@ import org.myteam.server.board.domain.CategoryType;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor // TODO: 테스트용 이후에 삭제
 public class BoardSaveRequest {
     /**
      * 게시판 타입
