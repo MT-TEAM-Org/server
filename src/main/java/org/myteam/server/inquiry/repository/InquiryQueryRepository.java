@@ -72,6 +72,7 @@ public class InquiryQueryRepository {
     }
 
     public int getMyInquires(UUID memberPublicId) {
+        log.info("publicID: {} 문의내역 수 조회", memberPublicId);
         return queryFactory
                 .select(inquiry.count())
                 .from(inquiry)

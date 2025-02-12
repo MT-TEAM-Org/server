@@ -26,7 +26,7 @@ public class InquiryAnswer {
     @Column(nullable = false)
     private String content;
 
-    @Column(name = "answered_at", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime answeredAt;
 
     public static InquiryAnswer createAnswer(Inquiry inquiry, String content) {

@@ -7,6 +7,7 @@ import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.util.ClientUtils;
 import org.myteam.server.util.slack.service.SlackService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

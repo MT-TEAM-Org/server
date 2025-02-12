@@ -4,19 +4,17 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.request.PageInfoServiceRequest;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
+import org.myteam.server.news.news.domain.NewsCategory;
+import org.myteam.server.news.news.repository.OrderType;
 
 import java.util.UUID;
 
 @Getter
-@Setter
 @NoArgsConstructor
-public class InquiryFindRequest extends PageInfoServiceRequest {
-
+public class InquiryServiceRequest extends PageInfoServiceRequest {
     @NotNull(message = "멤버 id는 필수입니다.")
     private UUID memberPublicId;
 
@@ -25,14 +23,15 @@ public class InquiryFindRequest extends PageInfoServiceRequest {
 
     private InquirySearchType searchType;
 
-    private String keyword;
+    private String content;
 
     @Builder
-    public InquiryFindRequest(UUID memberPublicId, InquiryOrderType orderType, InquirySearchType searchType, String keyword, int page, int size) {
+    public InquiryServiceRequest(UUID memberPublicId, InquiryOrderType orderType, InquirySearchType searchType, String content, int size, int page) {
         super(page, size);
         this.memberPublicId = memberPublicId;
-        this.orderType = orderType;
         this.searchType = searchType;
-        this.keyword = keyword;
+        this.orderType = orderType;
+        this.content = content;
     }
+
 }

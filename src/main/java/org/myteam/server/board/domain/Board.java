@@ -1,7 +1,6 @@
 package org.myteam.server.board.domain;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,11 +34,9 @@ public class Board extends BaseTime {
     @JoinColumn(name = "public_id")
     private Member member;
 
-    @Column(name = "board_type")
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
-    @Column(name = "category_type")
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
 
@@ -49,7 +46,6 @@ public class Board extends BaseTime {
 
     private String link;
 
-    @Column(name = "created_ip")
     private String createdIp;
 
     private String thumbnail;

@@ -43,11 +43,14 @@ public class BoardReadService {
     }
 
     public BoardListResponse getMyBoardList(BoardServiceRequest boardServiceRequest, UUID publicId) {
-        log.info("내 게시글 조회: {} orderType: {}  searchType: {}, search: {}",
+        log.info("내 게시글 조회: {} orderType: {}  searchType: {}, search: {}, page: {}, size: {}",
                 publicId,
                 boardServiceRequest.getOrderType(),
                 boardServiceRequest.getSearchType(),
-                boardServiceRequest.getSearch());
+                boardServiceRequest.getSearch(),
+                boardServiceRequest.getPage(),
+                boardServiceRequest.getSize()
+        );
 
 
         Page<BoardDto> myBoardList = boardQueryRepository.getMyBoardList(

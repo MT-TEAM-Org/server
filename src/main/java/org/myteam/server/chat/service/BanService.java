@@ -44,7 +44,7 @@ public class BanService {
         String message = String.format("%s (차단 사유: %s)", username, reasons);
         slackService.sendSlackNotification(message);
 
-        return toBanResponse(savedBan);
+        return BanResponse.createBanResponse(savedBan);
     }
 
     /**
@@ -70,7 +70,7 @@ public class BanService {
         Ban ban = banRepository.findByUsername(username)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BAN_NOT_FOUND));
 
-        return toBanResponse(ban);
+        return BanResponse.createBanResponse(ban);
     }
 
     /**
@@ -81,14 +81,5 @@ public class BanService {
             return true;
         }
         return false;
-    }
-
-    private BanResponse toBanResponse(Ban ban) {
-        return BanResponse.builder()
-                .id(ban.getId())
-                .username(ban.getUsername())
-                .reason(ban.getReasons())
-                .bannedAt(ban.getBannedAt().format(DateTimeFormatter.ofPattern("YYYY-MM-DD")))
-                .build();
     }
 }

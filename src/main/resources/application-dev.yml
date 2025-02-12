@@ -14,9 +14,7 @@ spring:
         use_sql_comments: false
         default_batch_fetch_size: 1000 #최적화 옵션
     hibernate:
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      ddl-auto: create-drop
+      ddl-auto: none
       #  create	기존테이블을 삭제하고 다시 생성
       #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
       #  update	변경된 스키마 적용 (운영 DB 에서 사용X)
