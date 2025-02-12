@@ -63,7 +63,7 @@ public class MemberService {
         memberActivityRepository.save(memberActivity);  // DB에 저장
 
         // 4. dto 응답
-        return new MemberResponse(member);
+        return MemberResponse.createMemberResponse(member);
     }
 
     /**
@@ -81,7 +81,7 @@ public class MemberService {
         memberJpaRepository.save(member);
         log.info("회원 정보 수정 완료: {}", member.getPublicId());
 
-        return new MemberResponse(member);
+        return MemberResponse.createMemberResponse(member);
     }
 
     /**
@@ -127,7 +127,7 @@ public class MemberService {
         member.updateType(memberRoleUpdateRequest.getRole());
 
         // 5. dto 응답
-        return new MemberResponse(member);
+        return MemberResponse.createMemberResponse(member);
     }
 
     @Transactional

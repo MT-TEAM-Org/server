@@ -45,7 +45,7 @@ public class MemberReadService {
     }
 
     public MemberResponse getByPublicId(UUID publicId) {
-        return new MemberResponse(memberRepository.getByPublicId(publicId));
+        return MemberResponse.createMemberResponse(memberRepository.getByPublicId(publicId));
     }
 
     public MemberResponse getByEmail(String email) {
