@@ -149,6 +149,7 @@ public class BoardQueryRepository {
     }
 
     public int getMyBoard(UUID memberPublicId) {
+        log.info("publicID: {} 포스트 수 조회", memberPublicId);
         return queryFactory
                 .select(board.count())
                 .from(board)
