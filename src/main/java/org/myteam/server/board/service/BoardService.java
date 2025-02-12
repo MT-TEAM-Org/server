@@ -52,10 +52,8 @@ public class BoardService {
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
-        BoardResponse response = new BoardResponse(board, boardCount, isRecommended);
-
         log.info("게시판 생성: {}", loginUser);
-        return response;
+        return BoardResponse.createResponse(board, boardCount, isRecommended);
     }
 
     /**
@@ -95,7 +93,7 @@ public class BoardService {
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
-        return new BoardResponse(board, boardCount, isRecommended);
+        return BoardResponse.createResponse(board, boardCount, isRecommended);
     }
 
     /**
@@ -135,7 +133,7 @@ public class BoardService {
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
-        return new BoardResponse(board, boardCount, isRecommended);
+        return BoardResponse.createResponse(board, boardCount, isRecommended);
     }
 
     /**
