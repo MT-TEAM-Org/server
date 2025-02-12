@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.domain.Base;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.member.domain.GenderType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -64,6 +65,14 @@ public class Member extends Base {
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private MemberActivity memberActivity;
 
+    @Enumerated(EnumType.STRING)
+    private GenderType genderType;
+
+    private int birthYear;
+    private int birthMonth;
+    private int birthDay;
+
+
     @Builder
     public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
         this.email = email;
@@ -87,6 +96,9 @@ public class Member extends Base {
     // 전체 업데이트 메서드
     public void update(MemberUpdateRequest memberUpdateRequest, PasswordEncoder passwordEncoder) {
         // this.email = memberUpdateRequest.getEmail();
+        System.out.println("memberUpdateRequest.getPassword() = " + memberUpdateRequest.getPassword());
+        System.out.println("memberUpdateRequest.getTel() = " + memberUpdateRequest.getTel());
+        System.out.println("memberUpdateRequest = " + memberUpdateRequest.getNickname());
         this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
         this.tel = memberUpdateRequest.getTel();
         this.nickname = memberUpdateRequest.getNickname();
@@ -133,5 +145,19 @@ public class Member extends Base {
 
     public void updateMemberActivity(MemberActivity memberActivity) {
         this.memberActivity = memberActivity;
+    }
+
+    public void updateGender(GenderType genderType) {
+        this.genderType = genderType;
+    }
+
+    public void updateBirthDate(String birthDate) {
+        int birthYear = Integer.parseInt(birthDate.substring(0, 2));
+        int birthMonth = Integer.parseInt(birthDate.substring(2, 4));
+        int birthDay = Integer.parseInt(birthDate.substring(4));
+
+        this.birthYear = birthYear;
+        this.birthMonth = birthMonth;
+        this.birthDay = birthDay;
     }
 }
