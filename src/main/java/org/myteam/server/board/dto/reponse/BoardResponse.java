@@ -3,6 +3,7 @@ package org.myteam.server.board.dto.reponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.myteam.server.board.domain.Board;
@@ -79,6 +80,7 @@ public class BoardResponse {
      */
     private LocalDateTime lastModifiedDate;
 
+    @Builder
     public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended) {
         this.boardType = board.getBoardType();
         this.categoryType = board.getCategoryType();
@@ -96,5 +98,13 @@ public class BoardResponse {
         this.viewCount = boardCount.getViewCount();
         this.createDate = board.getCreateDate();
         this.lastModifiedDate = board.getLastModifiedDate();
+    }
+
+    public static BoardResponse createResponse(Board board, BoardCount boardCount, boolean isRecommended) {
+        return BoardResponse.builder()
+                .board(board)
+                .boardCount(boardCount)
+                .isRecommended(isRecommended)
+                .build();
     }
 }
