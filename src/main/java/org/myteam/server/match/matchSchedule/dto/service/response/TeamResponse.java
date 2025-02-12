@@ -2,6 +2,7 @@ package org.myteam.server.match.matchSchedule.dto.service.response;
 
 import org.myteam.server.match.team.domain.Team;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TeamResponse {
 
+	@Schema(description = "팀 ID")
 	private int id;
+	@Schema(description = "팀이름")
 	private String name;
+	@Schema(description = "팀 로고 url")
 	private String logo;
+	@Schema(description = "팀 유형")
 	private String category;
 
 	@Builder

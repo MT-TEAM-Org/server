@@ -38,7 +38,7 @@ jobs:
       - name: 테스트 진행
         run: ./gradlew test --parallel
 
-      - name: 🍀 테스트 결과 Report
+      - name: 테스트 결과 Report
         uses: mikepenz/action-junit-report@v3
         if: always()
         with:

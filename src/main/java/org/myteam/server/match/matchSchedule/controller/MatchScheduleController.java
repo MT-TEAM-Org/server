@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -26,6 +27,7 @@ public class MatchScheduleController {
 	@GetMapping("/{matchCategory}")
 	public ResponseEntity<ResponseDto<MatchScheduleListResponse>> findSchedulesBetweenDate(
 		@PathVariable("matchCategory")
+		@Parameter(description = "경기 유형 FOOTBALL, BASEBALL, ESPORTS")
 		MatchCategory matchCategory) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),

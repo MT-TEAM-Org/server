@@ -4,6 +4,7 @@ import org.myteam.server.match.matchSchedule.domain.MatchSchedule;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,9 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MatchScheduleResponse {
 
+	@Schema(description = "경기 ID")
 	private Long id;
 	private TeamResponse homeTeam;
 	private TeamResponse awayTeam;
+	@Schema(description = "경기 유형 ID")
 	private String category;
 
 	@Builder
