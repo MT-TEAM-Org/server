@@ -3,6 +3,7 @@ package org.myteam.server.mypage.service;
 import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +25,11 @@ import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
+import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -89,10 +92,13 @@ class MyPageReadServiceTest extends IntegrationTestSupport {
         MemberStatsResponse response = myPageReadService.getMemberInfo();
 
         // Then
-        assertThat(response).isNotNull();
-        assertThat(expectedPostCount).isEqualTo(response.getCreatedPostCount());
-        assertThat(expectedCommentCount).isEqualTo(response.getCreatedCommentCount());
-        assertThat(expectedInquiryCount).isEqualTo(response.getCreatedInquiryCount());
+        assertAll(
+                () -> assertThat(response)
+                        .isNotNull(),
+                () -> assertThat(response)
+                        .extracting("createdPostCount", "createdCommentCount", "createdInquiryCount")
+                        .containsExactly(expectedPostCount, expectedCommentCount, expectedInquiryCount)
+        );
     }
 
     @Test
@@ -104,8 +110,12 @@ class MyPageReadServiceTest extends IntegrationTestSupport {
         // When & Then
         PlayHiveException exception = assertThrows(PlayHiveException.class, () -> myPageReadService.getMemberInfo());
 
-        assertThat(exception).isNotNull();
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.UNAUTHORIZED);
+        assertAll(
+                () -> assertThat(exception).isNotNull(),
+                () -> assertThat(exception)
+                        .extracting("errorCode")
+                        .isEqualTo(ErrorCode.UNAUTHORIZED)
+        );
     }
 
     @Test
@@ -120,15 +130,13 @@ class MyPageReadServiceTest extends IntegrationTestSupport {
                 .searchType(null)
                 .build();
 
-        CustomUserDetails userDetails = new CustomUserDetails(testMember);
         String clientIP = "192.168.1.1";
 
         IntStream.rangeClosed(1, 15).forEach(i ->
                 boardService.saveBoard(
                         new BoardSaveRequest(
                                 BoardType.BASEBALL, CategoryType.FREE, "테스트 게시글 제목 " + i, "테스트 게시글 내용 " + i, null, null
-                        ),
-                        userDetails, clientIP)
+                        ), clientIP)
         );
 
         List<BoardDto> boardList = IntStream.rangeClosed(1, 15)
@@ -156,18 +164,25 @@ class MyPageReadServiceTest extends IntegrationTestSupport {
         when(boardReadService.getMyBoardList(request, testMemberPublicId)).thenReturn(mockResponse);
 
         // Then
-        assertThat(mockResponse).isNotNull();
-        assertThat(mockResponse.getList()).isNotNull();
-        assertThat(mockResponse.getList().getPageInfo().getTotalElement()).isEqualTo(15);
+        assertAll(
+                () -> assertThat(mockResponse).isNotNull(),
+                () -> assertThat(mockResponse.getList()).isNotNull(),
+                () -> assertThat(mockResponse.getList().getPageInfo().getTotalElement()).isEqualTo(15),
 
-        BoardDto firstBoard = mockResponse.getList().getContent().get(0);
-        assertThat(firstBoard.getTitle()).startsWith("테스트 게시글 제목");
-        assertThat(firstBoard.getBoardType()).isEqualTo(BoardType.BASEBALL);
-        assertThat(firstBoard.getCategoryType()).isEqualTo(CategoryType.FREE);
+                () -> {
+                    BoardDto firstBoard = mockResponse.getList().getContent().get(0);
+                    assertAll(
+                            () -> assertThat(firstBoard.getTitle()).startsWith("테스트 게시글 제목"),
+                            () -> assertThat(firstBoard.getBoardType()).isEqualTo(BoardType.BASEBALL),
+                            () -> assertThat(firstBoard.getCategoryType()).isEqualTo(CategoryType.FREE)
+                    );
+                }
+        );
+
     }
 
     @Test
-    @DisplayName("✅ 성공: 정상적으로 회원 정보를 가져옴")
+    @DisplayName("✅ 성공: 정상적으로 문의내역을 가져옴")
     void getMemberInquires_Success() {
         // Given
 
@@ -182,11 +197,13 @@ class MyPageReadServiceTest extends IntegrationTestSupport {
                         5));
 
         // Then
-        assertThat(response.getList().getContent().get(0).getContent()).isEqualTo("문의내역 10");
-        assertThat(response.getList().getContent()).hasSize(5);
-        assertThat(response.getList().getPageInfo().getCurrentPage()).isEqualTo(2);
-        assertThat(response.getList().getPageInfo().getTotalPage()).isEqualTo(3);
-        assertThat(response.getList().getPageInfo().getTotalElement()).isEqualTo(15);
+        assertAll(
+                () -> assertThat(response.getList().getContent().get(0).getContent()).isEqualTo("문의내역 10"),
+                () -> assertThat(response.getList().getContent()).hasSize(5),
+                () -> assertThat(response.getList().getPageInfo())
+                        .extracting("currentPage", "totalPage", "totalElement")
+                        .containsExactly(2, 3, 15L)
+        );
     }
 
 }

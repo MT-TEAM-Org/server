@@ -70,7 +70,7 @@ public abstract class IntegrationTestSupport {
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
 	protected InquiryService inquiryService;
-	@Autowired
+	@MockBean
 	protected InquiryReadService inquiryReadService;
 	@Autowired
 	protected InquiryRepository inquiryRepository;
