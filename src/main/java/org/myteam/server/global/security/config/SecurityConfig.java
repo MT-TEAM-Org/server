@@ -186,7 +186,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/board").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/{boardId}/comment").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/board/{boardId}/comment").permitAll()
 
                         .anyRequest().authenticated()                   // 나머지 요청은 모두 허용
         );
