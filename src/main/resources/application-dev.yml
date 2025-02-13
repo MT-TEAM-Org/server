@@ -46,3 +46,8 @@ minio:
   secret-key: ${MINIO_SECRET_KEY}
   region: ${MINIO_REGION}
   bucket: ${MINIO_BUCKET}
+
+playhive:
+  control:
+    aesSecretKey: ${AES_SECRET_KEY}
+    aesIv: ${AES_IV}

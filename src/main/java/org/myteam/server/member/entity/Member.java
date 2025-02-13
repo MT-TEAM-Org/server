@@ -43,6 +43,9 @@ public class Member extends Base {
     @Column(nullable = false, length = 60) // 패스워드 인코딩(BCrypt)
     private String password; // 비밀번호
 
+    @Column(nullable = false)
+    private String encodedPassword;
+
     @Column(length = 11)
     private String tel;
 
@@ -77,11 +80,12 @@ public class Member extends Base {
     }
 
     @Builder
-    public Member(MemberSaveRequest memberSaveRequest, PasswordEncoder passwordEncoder) {
+    public Member(MemberSaveRequest memberSaveRequest, PasswordEncoder passwordEncoder, String encodedPassword) {
         this.email = memberSaveRequest.getEmail();
         this.password = passwordEncoder.encode(memberSaveRequest.getPassword());
         this.tel = memberSaveRequest.getTel();
         this.nickname = memberSaveRequest.getNickname();
+        this.encodedPassword = encodedPassword;
     }
 
     // 전체 업데이트 메서드

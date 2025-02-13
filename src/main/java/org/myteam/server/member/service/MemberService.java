@@ -15,12 +15,16 @@ import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.util.AESCryptoUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import java.util.Optional;
 
 import static org.myteam.server.global.domain.PlayHiveValidator.validate;
@@ -39,6 +43,10 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberActivityRepository memberActivityRepository;
 
+    private final AESCryptoUtil crypto;
+    @Value("${playhive.control.aesSecretKey}") private String secretKey;
+    @Value("${playhive.control.aesIv}") private String iv;
+
     /**
      * 회원 가입
      * @param memberSaveRequest
@@ -54,8 +62,12 @@ public class MemberService {
             throw new PlayHiveException(USER_ALREADY_EXISTS);
         }
 
+        SecretKey secretKey = crypto.getSecretKeyFromString(this.secretKey);
+        IvParameterSpec iv = crypto.getIvFromString(this.iv);
+        String encryptedPwd = crypto.encrypt(memberSaveRequest.getPassword(), secretKey, iv);
+
         // 2. 패스워드인코딩 + 회원 가입
-        Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
+        Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder, encryptedPwd));
         member.updateStatus(MemberStatus.ACTIVE);
 
         // ✅ 3. MemberActivity 생성 및 연관 관계 설정
