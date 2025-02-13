@@ -28,8 +28,8 @@ import static org.myteam.server.global.exception.ErrorCode.UNAUTHORIZED_EMAIL_AC
 @RequiredArgsConstructor
 public class CertifyMailSender implements MailSender {
 
-//    @Value("${SENDER_EMAIL}")
-    private String senderEmail = "teamplayhive@naver.com";
+    @Value("${SENDER_EMAIL}")
+    private String senderEmail;
     private final JavaMailSender javaMailSender;
     private static final int EXPIRATION_MINUTES = 5; // 유효 시간 (5분)
     private final Map<String, CertificationCode> codeStorage = new ConcurrentHashMap<>();

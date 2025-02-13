@@ -108,13 +108,16 @@ public class MemberReadService {
 
     public FindIdResponse findUserId(String phoneNumber) {
         if (phoneNumber.length() != 11 && phoneNumber.length() != 10) {
-            new PlayHiveException(ErrorCode.INVALID_PHONE_NUMBER);
+            throw new PlayHiveException(ErrorCode.INVALID_PHONE_NUMBER);
         }
 
-        Member member = memberJpaRepository.findByTel(phoneNumber)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.PHONE_NUMBER_NOT_FOUND));
+        if (!memberJpaRepository.existsByTel(phoneNumber)) {
+            throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
+        }
 
-        return FindIdResponse.createResponse(member.getEmail(), member.getType());
+        List<Member> memberList = memberJpaRepository.findByTel(phoneNumber);
+
+        return FindIdResponse.createResponse(memberList);
     }
 
     public String findPassword(String email) {

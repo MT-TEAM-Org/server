@@ -78,7 +78,7 @@ public class MyInfoController {
     }
 
     @PostMapping("/find-id")
-    public ResponseEntity<ResponseDto<FindIdResponse>> findUserId(@RequestParam String phoneNumber) {
+    public ResponseEntity<ResponseDto<FindIdResponse>> findUserEmailByTel(@RequestParam String phoneNumber) {
         FindIdResponse response = memberReadService.findUserId(phoneNumber);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
