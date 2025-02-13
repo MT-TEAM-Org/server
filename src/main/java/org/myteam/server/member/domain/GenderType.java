@@ -2,6 +2,8 @@ package org.myteam.server.member.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 
 @AllArgsConstructor
 @Getter
@@ -16,5 +18,11 @@ public enum GenderType {
             }
         }
         return null;
+    }
+
+    public static void validateGender(GenderType genderType) {
+        if (!genderType.equals(GenderType.F) && !genderType.equals(GenderType.M)) {
+            throw new PlayHiveException(ErrorCode.INVALID_GENDER_TYPE);
+        }
     }
 }

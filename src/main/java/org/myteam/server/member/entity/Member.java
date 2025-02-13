@@ -96,9 +96,6 @@ public class Member extends Base {
     // 전체 업데이트 메서드
     public void update(MemberUpdateRequest memberUpdateRequest, PasswordEncoder passwordEncoder) {
         // this.email = memberUpdateRequest.getEmail();
-        System.out.println("memberUpdateRequest.getPassword() = " + memberUpdateRequest.getPassword());
-        System.out.println("memberUpdateRequest.getTel() = " + memberUpdateRequest.getTel());
-        System.out.println("memberUpdateRequest = " + memberUpdateRequest.getNickname());
         this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
         this.tel = memberUpdateRequest.getTel();
         this.nickname = memberUpdateRequest.getNickname();
@@ -152,12 +149,8 @@ public class Member extends Base {
     }
 
     public void updateBirthDate(String birthDate) {
-        int birthYear = Integer.parseInt(birthDate.substring(0, 2));
-        int birthMonth = Integer.parseInt(birthDate.substring(2, 4));
-        int birthDay = Integer.parseInt(birthDate.substring(4));
-
-        this.birthYear = birthYear;
-        this.birthMonth = birthMonth;
-        this.birthDay = birthDay;
+        this.birthYear = Integer.parseInt(birthDate.substring(0, 2));
+        this.birthMonth = Integer.parseInt(birthDate.substring(2, 4));
+        this.birthDay = Integer.parseInt(birthDate.substring(4));
     }
 }
