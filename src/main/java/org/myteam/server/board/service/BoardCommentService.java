@@ -37,8 +37,8 @@ public class BoardCommentService {
      * 게시판 댓글 생성
      */
     @Transactional
-    public BoardCommentResponse save(BoardCommentSaveRequest request, String createdIp) {
-        Board board = boardReadService.findById(request.getBoardId());
+    public BoardCommentResponse save(Long boardId, BoardCommentSaveRequest request, String createdIp) {
+        Board board = boardReadService.findById(boardId);
         Member member = securityReadService.getMember();
 
         BoardComment boardComment = BoardComment.createBoardComment(board, member, request.getImageUrl(),

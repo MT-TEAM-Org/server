@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BoardCommentSaveRequest {
 
-    @NotNull(message = "게시글 ID는 필수입니다.")
-    private Long boardId;
-
     @NotNull(message = "댓글 내용은 필수 입니다.")
     private String comment;
 
