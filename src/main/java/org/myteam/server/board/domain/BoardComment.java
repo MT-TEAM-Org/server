@@ -11,13 +11,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.global.domain.Base;
+import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_board_comment")
-public class BoardComment extends Base {
+public class BoardComment extends BaseTime {
 
     private static final int COUNT_SETTING_NUMBER = 0;
 
