@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.domain.Base;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.member.domain.GenderType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -66,6 +67,14 @@ public class Member extends Base {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private MemberActivity memberActivity;
+
+    @Enumerated(EnumType.STRING)
+    private GenderType genderType;
+
+    private int birthYear;
+    private int birthMonth;
+    private int birthDay;
+
 
     @Builder
     public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
@@ -137,5 +146,15 @@ public class Member extends Base {
 
     public void updateMemberActivity(MemberActivity memberActivity) {
         this.memberActivity = memberActivity;
+    }
+
+    public void updateGender(GenderType genderType) {
+        this.genderType = genderType;
+    }
+
+    public void updateBirthDate(String birthDate) {
+        this.birthYear = Integer.parseInt(birthDate.substring(0, 2));
+        this.birthMonth = Integer.parseInt(birthDate.substring(2, 4));
+        this.birthDay = Integer.parseInt(birthDate.substring(4));
     }
 }

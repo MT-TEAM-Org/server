@@ -26,8 +26,6 @@ import java.util.*;
 import java.util.UUID;
 
 class InquiryServiceTest extends IntegrationTestSupport {
-    @Autowired
-    protected InquiryService inquiryService;
     private Member testMember;
     private UUID memberPublicId;
 

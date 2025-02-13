@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mock;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
+import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.service.InquiryAnswerService;
@@ -74,6 +75,8 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
+	protected InquiryService inquiryService;
+	@Autowired
 	protected InquiryRepository inquiryRepository;
 	@Autowired
 	protected InquiryAnswerRepository inquiryAnswerRepository;
@@ -87,6 +90,14 @@ public abstract class IntegrationTestSupport {
 	protected InquiryAnswerService inquiryAnswerService;
 	@MockBean
 	protected SecurityReadService securityReadService;
+	@Autowired
+	protected MemberService memberService;
+	@Autowired
+	protected MyPageReadService myPageReadService;
+	@MockBean
+	protected BoardService boardService;
+	@MockBean
+	protected BoardReadService boardReadService;
 	@MockBean
 	protected MemberReadService memberReadService;
 

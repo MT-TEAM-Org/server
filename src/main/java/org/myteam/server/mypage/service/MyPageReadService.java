@@ -6,6 +6,8 @@ import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
 import org.myteam.server.board.dto.request.BoardServiceRequest;
 import org.myteam.server.board.service.BoardReadService;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
@@ -13,11 +15,18 @@ import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.service.InquiryReadService;
+import org.myteam.server.member.domain.GenderType;
+import org.myteam.server.member.dto.MemberUpdateRequest;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.mypage.dto.request.MyPageRequest.MyPageUpdateRequest;
 import org.myteam.server.mypage.dto.request.MyPageRequest.BoardRequest;
+import org.myteam.server.mypage.dto.response.MyPageResponse.MemberModifyResponse;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
+import org.myteam.server.profile.dto.request.ProfileRequestDto;
 import org.myteam.server.util.DateUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +56,11 @@ public class MyPageReadService {
         int inquiryCount = inquiryReadService.getInquiriesCountByMember(publicId);
 
         return MemberStatsResponse.createResponse(member, postCount, commentCount, inquiryCount);
+    }
+
+    public MemberModifyResponse getMemberAllInfo() {
+        Member member = securityReadService.getMember();
+        return MemberModifyResponse.createResponse(member);
     }
 
     public BoardListResponse getMemberPosts(BoardServiceRequest boardServiceRequest) {

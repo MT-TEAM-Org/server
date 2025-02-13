@@ -25,6 +25,10 @@ public enum ErrorCode {
     NO_MEMBER_RECOMMEND_RECORD(HttpStatus.BAD_REQUEST, "No Member Recommend Record"),
     ALREADY_MEMBER_RECOMMEND_NEWS(HttpStatus.BAD_REQUEST, "Member Already Recommend News"),
     INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "Phone number is invalid"),
+    INVALID_GENDER_TYPE(HttpStatus.BAD_REQUEST, "Gender Type allow M or F"),
+    INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "BIRTHDATE length must be 6"),
+    INVALID_BIRTH_MONTH(HttpStatus.BAD_REQUEST, "Month is between 1 and 12"),
+    INVALID_BIRTH_DAY(HttpStatus.BAD_REQUEST, "Day is not allowed"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),

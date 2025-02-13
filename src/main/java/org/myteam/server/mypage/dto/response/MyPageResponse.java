@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.myteam.server.member.domain.GenderType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.util.DateUtils;
@@ -38,6 +39,35 @@ public record MyPageResponse() {
                     .role(member.getRole())
                     .registeredAt(DateUtils.formatDateTime(member.getCreateDate()))
                     .registrationMethod(member.getType().getValue())
+                    .build();
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberModifyResponse {
+        private String email;
+        private String tel;
+        private String nickname;
+        private GenderType genderType;
+        private String birthDate;
+
+        public static MemberModifyResponse createResponse(Member member) {
+            StringBuilder birthDate = new StringBuilder();
+            if (member.getBirthYear() != 0) {
+                birthDate.append(String.format("%02d", member.getBirthYear()));
+                birthDate.append(String.format("%02d", member.getBirthMonth()));
+                birthDate.append(String.format("%02d", member.getBirthDay()));
+            }
+
+            return MemberModifyResponse.builder()
+                    .email(member.getEmail())
+                    .tel(member.getTel())
+                    .nickname(member.getNickname())
+                    .genderType(member.getGenderType())
+                    .birthDate(birthDate.toString())
                     .build();
         }
     }
