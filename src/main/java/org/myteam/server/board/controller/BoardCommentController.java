@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/comment")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class BoardCommentController {
 
@@ -35,7 +35,7 @@ public class BoardCommentController {
     /**
      * 게시판 댓글 생성
      */
-    @PostMapping
+    @PostMapping("/board/comment")
     public ResponseEntity<ResponseDto<BoardCommentResponse>> saveBoardComment(
             @RequestBody @Valid BoardCommentSaveRequest boardCommentSaveRequest, HttpServletRequest request) {
         return ResponseEntity.ok(
@@ -46,7 +46,7 @@ public class BoardCommentController {
     /**
      * 게시판 댓글 수정
      */
-    @PutMapping("/{boardCommentId}")
+    @PutMapping("/board/comment/{boardCommentId}")
     public ResponseEntity<ResponseDto<BoardCommentResponse>> updateBoardComment(@PathVariable Long boardCommentId,
                                                                                 @RequestBody @Valid BoardCommentUpdateRequest request) {
         return ResponseEntity.ok(
@@ -56,7 +56,7 @@ public class BoardCommentController {
     /**
      * 게시판 댓글 삭제
      */
-    @DeleteMapping("/{boardCommentId}")
+    @DeleteMapping("/board/comment/{boardCommentId}")
     public ResponseEntity<ResponseDto<Void>> deleteBoardComment(@PathVariable Long boardCommentId) {
         boardCommentService.deleteBoardComment(boardCommentId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시판 댓글 삭제 성공", null));
@@ -65,7 +65,7 @@ public class BoardCommentController {
     /**
      * 게시판 댓글 목록 조회
      */
-    @GetMapping("/{boardId}")
+    @GetMapping("/{boardId}/comment")
     public ResponseEntity<ResponseDto<BoardCommentListResponse>> getBoardComments(@PathVariable Long boardId,
                                                                                   @RequestBody @Valid BoardCommentSearchRequest request) {
         return ResponseEntity.ok(
