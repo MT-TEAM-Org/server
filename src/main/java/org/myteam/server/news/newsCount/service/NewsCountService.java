@@ -41,27 +41,27 @@ public class NewsCountService {
 	}
 
 	public void addRecommendCount(Long newsId) {
-		newsCountReadService.findByNewsId(newsId).addRecommendCount();
+		newsCountReadService.findByNewsIdLock(newsId).addRecommendCount();
 	}
 
 	public void minusRecommendCount(Long newsId) {
-		newsCountReadService.findByNewsId(newsId).minusRecommendCount();
+		newsCountReadService.findByNewsIdLock(newsId).minusRecommendCount();
 	}
 
 	public void addCommendCount(Long newsId) {
-		newsCountReadService.findByNewsId(newsId).addCommentCount();
+		newsCountReadService.findByNewsIdLock(newsId).addCommentCount();
 	}
 
 	public void minusCommendCount(Long newsId) {
-		newsCountReadService.findByNewsId(newsId).minusCommentCount();
+		newsCountReadService.findByNewsIdLock(newsId).minusCommentCount();
 	}
 
 	public void addViewCount(Long newsId) {
-		newsCountReadService.findByNewsId(newsId).addViewCount();
+		newsCountReadService.findByNewsIdLock(newsId).addViewCount();
 	}
 
 	public void minusViewCont(Long newsId) {
-		newsCountReadService.findByNewsId(newsId).minusViewCount();
+		newsCountReadService.findByNewsIdLock(newsId).minusViewCount();
 	}
 
 }
