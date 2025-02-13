@@ -37,8 +37,6 @@ public class MemberReadService {
     private final JwtProvider jwtProvider;
 
     private final AESCryptoUtil crypto;
-    @Value("${playhive.control.aesSecretKey}") private String secretKey;
-    @Value("${playhive.control.aesIv}") private String iv;
 
     public Member findById(UUID publicId) {
         return memberRepository.findByPublicId(publicId)
@@ -125,9 +123,7 @@ public class MemberReadService {
 
         String encodedPassword = member.getEncodedPassword();
 
-        String originPassword = crypto.decrypt(encodedPassword,
-                crypto.getSecretKeyFromString(this.secretKey),
-                crypto.getIvFromString(this.iv));
+        String originPassword = crypto.findOriginPwd(encodedPassword);
 
         return originPassword;
     }

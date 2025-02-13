@@ -44,8 +44,6 @@ public class MemberService {
     private final MemberActivityRepository memberActivityRepository;
 
     private final AESCryptoUtil crypto;
-    @Value("${playhive.control.aesSecretKey}") private String secretKey;
-    @Value("${playhive.control.aesIv}") private String iv;
 
     /**
      * 회원 가입
@@ -62,9 +60,7 @@ public class MemberService {
             throw new PlayHiveException(USER_ALREADY_EXISTS);
         }
 
-        SecretKey secretKey = crypto.getSecretKeyFromString(this.secretKey);
-        IvParameterSpec iv = crypto.getIvFromString(this.iv);
-        String encryptedPwd = crypto.encrypt(memberSaveRequest.getPassword(), secretKey, iv);
+        String encryptedPwd = crypto.createEncodedPwd(memberSaveRequest.getPassword());
 
         // 2. 패스워드인코딩 + 회원 가입
         Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder, encryptedPwd));
@@ -88,7 +84,9 @@ public class MemberService {
             throw new PlayHiveException(NO_PERMISSION);
         }
 
-        member.update(memberUpdateRequest, passwordEncoder);
+        String encodedPwd = crypto.createEncodedPwd(memberUpdateRequest.getPassword());
+
+        member.update(memberUpdateRequest, encodedPwd, passwordEncoder);
 
         memberJpaRepository.save(member);
         log.info("회원 정보 수정 완료: {}", member.getPublicId());

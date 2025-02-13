@@ -2,6 +2,7 @@ package org.myteam.server.util;
 
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
@@ -16,6 +17,23 @@ public class AESCryptoUtil {
     private static final String ALGORITHM = "AES/CBC/PKCS5PADDING";
     private static final String SECRET_KEY_ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
+
+    @Value("${playhive.control.aesSecretKey}") private String secretKey;
+    @Value("${playhive.control.aesIv}") private String iv;
+
+    public String createEncodedPwd(String password) {
+        SecretKey secretKey = getSecretKeyFromString(this.secretKey);
+        IvParameterSpec iv = getIvFromString(this.iv);
+
+        return encrypt(password, secretKey, iv);
+    }
+
+    public String findOriginPwd(String encodedPassword) {
+        SecretKey secretKey = getSecretKeyFromString(this.secretKey);
+        IvParameterSpec iv = getIvFromString(this.iv);
+
+        return decrypt(encodedPassword, secretKey, iv);
+    }
 
     public String encrypt(String plainText, SecretKey secretKey, IvParameterSpec iv) {
         try {

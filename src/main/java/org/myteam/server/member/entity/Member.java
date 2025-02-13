@@ -98,11 +98,12 @@ public class Member extends Base {
     }
 
     // 전체 업데이트 메서드
-    public void update(MemberUpdateRequest memberUpdateRequest, PasswordEncoder passwordEncoder) {
+    public void update(MemberUpdateRequest memberUpdateRequest, String encodedPassword, PasswordEncoder passwordEncoder) {
         // this.email = memberUpdateRequest.getEmail();
         this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
         this.tel = memberUpdateRequest.getTel();
         this.nickname = memberUpdateRequest.getNickname();
+        this.encodedPassword = encodedPassword;
     }
 
     public void updatePassword(PasswordChangeRequest passwordChangeRequest, PasswordEncoder passwordEncoder) {
