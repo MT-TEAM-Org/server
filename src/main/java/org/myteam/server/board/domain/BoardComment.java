@@ -19,6 +19,8 @@ import org.myteam.server.member.entity.Member;
 @Entity(name = "p_board_comment")
 public class BoardComment extends Base {
 
+    private static final int COUNT_SETTING_NUMBER = 0;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

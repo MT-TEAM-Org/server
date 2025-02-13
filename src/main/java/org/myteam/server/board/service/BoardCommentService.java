@@ -112,10 +112,8 @@ public class BoardCommentService {
      * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
      */
     private void verifyBoardCommentAuthor(BoardComment boardComment, Member member) {
-        if (!boardComment.isAuthor(member)) {
-            if (!member.isAdmin()) {
-                throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
-            }
+        if (!boardComment.isAuthor(member) && !member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
     }
 }

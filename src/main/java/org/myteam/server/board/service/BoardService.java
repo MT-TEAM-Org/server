@@ -155,10 +155,8 @@ public class BoardService {
      * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
      */
     private void verifyBoardAuthor(Board board, Member member) {
-        if (!board.isAuthor(member)) {
-            if (!member.isAdmin()) {
-                throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
-            }
+        if (!board.isAuthor(member) && !member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
     }
 }
