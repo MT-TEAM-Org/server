@@ -71,4 +71,14 @@ public class MyInfoController {
         memberService.changePassword(email, passwordChangeRequest);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "비밀번호 변경 성공", null), HttpStatus.OK);
     }
+
+    @PostMapping("/find-id")
+    public ResponseEntity<ResponseDto<String>> findUserId(@RequestParam String phoneNumber) {
+        String userEmail = memberReadService.findUserId(phoneNumber);
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "아이디 찾기 성공",
+                userEmail
+        ));
+    }
 }

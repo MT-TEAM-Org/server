@@ -100,4 +100,15 @@ public class MemberReadService {
                 .map(Member::getType)
                 .orElse(null);
     }
+
+    public String findUserId(String phoneNumber) {
+        if (phoneNumber.length() != 11 && phoneNumber.length() != 10) {
+            new PlayHiveException(ErrorCode.INVALID_PHONE_NUMBER);
+        }
+
+        Member member = memberJpaRepository.findByTel(phoneNumber)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.PHONE_NUMBER_NOT_FOUND));
+
+        return member.getEmail();
+    }
 }

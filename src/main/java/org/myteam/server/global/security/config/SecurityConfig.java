@@ -86,6 +86,9 @@ public class SecurityConfig {
 
 		//뉴스
         "/api/news",
+
+		// 아이디-비밀번호 찾기
+		"/api/me/find-id/**"
 	};
 	/* Admin 접근 권한 */
 	private static final String[] PERMIT_ADMIN_URLS = new String[] {
