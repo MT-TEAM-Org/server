@@ -53,8 +53,4 @@ public class MyPageReadService {
         Member member = securityReadService.getMember();
         return boardReadService.getMyBoardList(boardServiceRequest, member.getPublicId());
     }
-
-    public InquiriesListResponse getMemberInquires(InquirySearchRequest inquiryFindRequest) {
-        return inquiryReadService.getInquiriesByMember(inquiryFindRequest);
-    }
 }

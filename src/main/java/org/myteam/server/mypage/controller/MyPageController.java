@@ -4,12 +4,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
+import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.dto.request.BoardServiceRequest;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
-import org.myteam.server.mypage.dto.request.MyPageRequest.BoardRequest;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
 import org.myteam.server.mypage.service.MyPageReadService;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +26,8 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @RequestMapping("/api/my-page")
 public class MyPageController {
 
-    private MyPageReadService myPageReadService;
-    private InquiryReadService inquiryReadService;
+    private final MyPageReadService myPageReadService;
+    private final InquiryReadService inquiryReadService;
 
     @GetMapping
     public ResponseEntity<ResponseDto<MemberStatsResponse>> getMyPage() {
@@ -41,8 +41,9 @@ public class MyPageController {
     }
 
     @GetMapping("/board")
-    public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoard(@ModelAttribute BoardServiceRequest boardRequest) {
-        BoardListResponse memberPosts = myPageReadService.getMemberPosts(boardRequest);
+    public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoard(
+            @Valid @ModelAttribute BoardRequest boardRequest) {
+        BoardListResponse memberPosts = myPageReadService.getMemberPosts(boardRequest.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -52,8 +53,10 @@ public class MyPageController {
     }
 
     @GetMapping("/inquiry")
-    public ResponseEntity<ResponseDto<InquiriesListResponse>> getMyInquiry(@ModelAttribute @Valid InquirySearchRequest request) {
-        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(request);
+    public ResponseEntity<ResponseDto<InquiriesListResponse>> getMyInquiry(
+            @Valid @ModelAttribute InquirySearchRequest request
+    ) {
+        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(request.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
