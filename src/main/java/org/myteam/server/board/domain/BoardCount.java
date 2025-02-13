@@ -64,4 +64,12 @@ public class BoardCount {
     public void minusRecommendCount() {
         this.recommendCount -= 1;
     }
+
+    public void addCommentCount() {
+        this.commentCount += 1;
+    }
+
+    public void minusCommentCount() {
+        this.commentCount -= 1;
+    }
 }

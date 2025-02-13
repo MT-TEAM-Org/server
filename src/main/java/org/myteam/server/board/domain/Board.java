@@ -16,7 +16,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 
@@ -68,7 +68,7 @@ public class Board extends BaseTime {
         this.boardCount = boardCount;
     }
 
-    public void updateBoard(BoardSaveRequest request) {
+    public void updateBoard(BoardRequest request) {
         this.boardType = request.getBoardType();
         this.categoryType = request.getCategoryType();
         this.title = request.getTitle();

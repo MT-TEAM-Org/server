@@ -2,8 +2,6 @@ package org.myteam.server.board.dto.reponse;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.board.domain.BoardType;
