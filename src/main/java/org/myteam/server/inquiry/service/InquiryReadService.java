@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
+import org.myteam.server.inquiry.dto.request.InquiryServiceRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
@@ -34,7 +35,7 @@ public class InquiryReadService {
      * @param inquirySearchRequest
      * @return
      */
-    public InquiriesListResponse getInquiriesByMember(InquirySearchRequest inquirySearchRequest) {
+    public InquiriesListResponse getInquiriesByMember(InquiryFindRequest inquirySearchRequest) {
         log.info("내 문의내역 조회: {}", inquirySearchRequest.getMemberPublicId());
 
         Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
@@ -43,6 +44,20 @@ public class InquiryReadService {
                 inquirySearchRequest.getSearchType(),
                 inquirySearchRequest.getKeyword(),
                 inquirySearchRequest.toPageable()
+        );
+
+        return InquiriesListResponse.createResponse(PageCustomResponse.of(inquiryResponses));
+    }
+
+    public InquiriesListResponse getInquiriesByMember(InquiryServiceRequest inquiryServiceRequest) {
+        log.info("내 문의내역 조회: {}", inquiryServiceRequest.getMemberPublicId());
+
+        Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
+                inquiryServiceRequest.getMemberPublicId(),
+                inquiryServiceRequest.getOrderType(),
+                inquiryServiceRequest.getSearchType(),
+                inquiryServiceRequest.getContent(),
+                inquiryServiceRequest.toPageable()
         );
 
         return InquiriesListResponse.createResponse(PageCustomResponse.of(inquiryResponses));

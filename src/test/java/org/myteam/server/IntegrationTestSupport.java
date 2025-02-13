@@ -8,7 +8,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
+import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
+import org.myteam.server.inquiry.service.InquiryAnswerService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.matchSchedule.domain.MatchCategory;
@@ -53,6 +55,9 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @SpringBootTest
 public abstract class IntegrationTestSupport {
 
+	/**
+	 * ================== Repository ========================
+	 */
 	@Autowired
 	protected TeamRepository teamRepository;
 	@Autowired
@@ -72,23 +77,25 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
-	protected InquiryService inquiryService;
+	protected InquiryRepository inquiryRepository;
+	@Autowired
+	protected InquiryAnswerRepository inquiryAnswerRepository;
+
+	/**
+	 * ================== Service ========================
+	 */
 	@MockBean
 	protected InquiryReadService inquiryReadService;
-	@Autowired
-	protected InquiryRepository inquiryRepository;
+	@MockBean
+	protected InquiryAnswerService inquiryAnswerService;
 	@MockBean
 	protected SecurityReadService securityReadService;
-	@Autowired
+	@MockBean
 	protected MemberReadService memberReadService;
-	@Autowired
-	protected MemberService memberService;
-	@Autowired
-	protected MyPageReadService myPageReadService;
-	@MockBean
-	protected BoardService boardService;
-	@MockBean
-	protected BoardReadService boardReadService;
+
+	/**
+	 * ================== Config ========================
+	 */
 	@MockBean
 	protected S3ConfigLocal s3ConfigLocal;
 	@MockBean
@@ -111,6 +118,7 @@ public abstract class IntegrationTestSupport {
 		newsRepository.deleteAllInBatch();
 		memberActivityRepository.deleteAllInBatch();
 		memberJpaRepository.deleteAllInBatch();
+		inquiryAnswerRepository.deleteAllInBatch();
 	}
 
 	protected Member createMember(int index) {

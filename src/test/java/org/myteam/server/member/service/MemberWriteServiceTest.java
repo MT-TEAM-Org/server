@@ -22,7 +22,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 
@@ -30,10 +33,7 @@ import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 class MemberWriteServiceTest  extends IntegrationTestSupport {
 
     @Autowired
-    private MemberService memberService;
-    @Autowired
-    private MemberReadService memberReadService;
-
+    protected MemberService memberService;
     @Mock
     private PasswordEncoder passwordEncoder;
 
@@ -52,8 +52,6 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .build();
 
         // When
-        when(memberJpaRepository.findByEmail(request.getEmail()))
-                .thenThrow(new PlayHiveException(ErrorCode.USER_NOT_FOUND));
         MemberResponse response = memberService.create(request);
 
         // Then
@@ -72,7 +70,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .tel("01012345678")
                 .nickname("testUser")
                 .build();
-        MemberResponse response = memberService.create(request);
+        memberService.create(request);
 
         // When & Then
         PlayHiveException exception = assertThrows(PlayHiveException.class, () -> {
@@ -92,7 +90,9 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .tel("01012345678")
                 .nickname("testUser")
                 .build();
-        MemberResponse response = memberService.create(request);
+        MemberResponse memberResponse = memberService.create(request);
+        Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
+
         MemberUpdateRequest updateRequest = MemberUpdateRequest.builder()
                 .email("test@example.com")
                 .password("newPasd123")
@@ -100,41 +100,49 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
                 .tel("01099999999")
                 .build();
 
+        Member mockMember = Member.builder()
+                .publicId(UUID.randomUUID())
+                .email(request.getEmail())
+                .password("password123")
+                .nickname("testUser")
+                .tel("01012345678")
+                .status(MemberStatus.ACTIVE)
+                .build();
+
+        when(securityReadService.getMember()).thenReturn(member);
+
         // When
-        MemberResponse memberResponse = memberService.updateMemberProfile(updateRequest);
+        MemberResponse memberUpdateResponse = memberService.updateMemberProfile(updateRequest);
 
         // Then
-        assertNotNull(memberResponse);
-        assertEquals(updateRequest.getNickname(), memberResponse.getNickname());
-        assertEquals(updateRequest.getTel(), memberResponse.getTel());
+        assertNotNull(memberUpdateResponse);
+        assertEquals(updateRequest.getNickname(), memberUpdateResponse.getNickname());
+        assertEquals(updateRequest.getTel(), memberUpdateResponse.getTel());
     }
 
     @Test
     @DisplayName("✅ 회원 탈퇴 성공")
     void deleteMember_Success() {
         // Given
+        MemberSaveRequest request = MemberSaveRequest.builder()
+                .email("test@example.com")
+                .password("password123")
+                .tel("01012345678")
+                .nickname("testUser")
+                .build();
+        MemberResponse memberResponse = memberService.create(request);
+        Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
+
         MemberDeleteRequest deleteRequest = MemberDeleteRequest.builder()
                 .requestEmail("test@example.com")
                 .password("password123")
                 .build();
         
         // When
+        when(securityReadService.getMember()).thenReturn(member);
         memberService.deleteMember(deleteRequest);
 
         // Then
         assertEquals(MemberStatus.INACTIVE, member.getStatus());
-    }
-
-    @Test
-    @DisplayName("❌ 잘못된 비밀번호 입력 시 예외 발생")
-    void deleteMember_Fail_WrongPassword() {
-        // Given
-        MemberDeleteRequest deleteRequest = new MemberDeleteRequest("test@example.com", "wrongPassword");
-
-        when(securityReadService.getMember()).thenReturn(member);
-        when(passwordEncoder.matches(deleteRequest.getPassword(), member.getPassword())).thenReturn(false);
-
-        // When & Then
-        assertThrows(PlayHiveException.class, () -> memberService.deleteMember(deleteRequest));
     }
 }

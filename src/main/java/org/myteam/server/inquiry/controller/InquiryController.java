@@ -38,15 +38,4 @@ public class InquiryController {
                 content
         ));
     }
-
-    @GetMapping("/my")
-    public ResponseEntity<ResponseDto<InquiriesListResponse>> getMyInquiries(@ModelAttribute @Valid InquirySearchRequest request) {
-        InquiriesListResponse content = inquiryReadService.getInquiriesByMember(request);
-
-        return ResponseEntity.ok(new ResponseDto<>(
-                SUCCESS.name(),
-                "Successfully find inquiries",
-                content
-        ));
-    }
 }
