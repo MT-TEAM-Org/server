@@ -10,13 +10,13 @@ import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
+import org.myteam.server.mypage.dto.request.MyPageRequest.MyPageUpdateRequest;
+import org.myteam.server.mypage.dto.response.MyPageResponse.MemberModifyResponse;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
 import org.myteam.server.mypage.service.MyPageReadService;
+import org.myteam.server.mypage.service.MyPageService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
@@ -27,6 +27,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 public class MyPageController {
 
     private final MyPageReadService myPageReadService;
+    private final MyPageService myPageService;
     private final InquiryReadService inquiryReadService;
 
     @GetMapping
@@ -37,6 +38,28 @@ public class MyPageController {
                 SUCCESS.name(),
                 "회원 정보가 조회되었습니다.",
                 response
+        ));
+    }
+
+    @GetMapping("/modify")
+    public ResponseEntity<ResponseDto<MemberModifyResponse>> getMyInfo() {
+        MemberModifyResponse response = myPageReadService.getMemberAllInfo();
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "내 정보 수정 조회내역입니다.",
+                response
+        ));
+    }
+
+    @PutMapping("/modify")
+    public ResponseEntity<ResponseDto<String>> updateMyInfo(@RequestBody MyPageUpdateRequest myPageUpdateRequest) {
+        myPageService.updateMemberInfo(myPageUpdateRequest);
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "회원 정보가 수정되었습니다.",
+                null
         ));
     }
 
@@ -64,6 +87,5 @@ public class MyPageController {
                 inquiriesListResponse
         ));
     }
-
 
 }
