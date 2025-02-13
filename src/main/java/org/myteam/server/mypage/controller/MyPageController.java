@@ -1,11 +1,12 @@
 package org.myteam.server.mypage.controller;
 
+import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
-import org.myteam.server.board.dto.request.BoardRequest;
-import org.myteam.server.board.dto.request.BoardServiceRequest;
+import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
 @Slf4j
 @RestController
@@ -42,8 +41,8 @@ public class MyPageController {
 
     @GetMapping("/board")
     public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoard(
-            @Valid @ModelAttribute BoardRequest boardRequest) {
-        BoardListResponse memberPosts = myPageReadService.getMemberPosts(boardRequest.toServiceRequest());
+            @Valid @ModelAttribute BoardSearchRequest boardSearchRequest) {
+        BoardListResponse memberPosts = myPageReadService.getMemberPosts(boardSearchRequest.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -56,7 +55,8 @@ public class MyPageController {
     public ResponseEntity<ResponseDto<InquiriesListResponse>> getMyInquiry(
             @Valid @ModelAttribute InquirySearchRequest request
     ) {
-        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(request.toServiceRequest());
+        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(
+                request.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
