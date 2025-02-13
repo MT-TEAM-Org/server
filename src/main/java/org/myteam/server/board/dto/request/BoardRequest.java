@@ -11,7 +11,7 @@ import org.myteam.server.board.domain.CategoryType;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor // TODO: 테스트용 이후에 삭제
-public class BoardSaveRequest {
+public class BoardRequest {
     /**
      * 게시판 타입
      */

@@ -8,7 +8,7 @@ import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardResponse;
-import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
@@ -40,7 +40,7 @@ public class BoardService {
      * 게시글 작성
      */
     @Transactional
-    public BoardResponse saveBoard(final BoardSaveRequest request, final String clientIP) {
+    public BoardResponse saveBoard(final BoardRequest request, final String clientIP) {
         log.info("save board 실행");
 
         UUID loginUser = securityReadService.getMember().getPublicId();
@@ -63,7 +63,7 @@ public class BoardService {
      * 게시글, 게시글 카운트 생성
      */
     private Board makeBoard(final Member member, final String clientIP,
-                            final BoardSaveRequest request) {
+                            final BoardRequest request) {
 
         final Board board = Board.builder()
                 .member(member)
@@ -123,7 +123,7 @@ public class BoardService {
      * 게시글 수정
      */
     @Transactional
-    public BoardResponse updateBoard(final BoardSaveRequest request, final Long boardId) {
+    public BoardResponse updateBoard(final BoardRequest request, final Long boardId) {
 
         UUID loginUser = securityReadService.getMember().getPublicId();
 

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
 import org.myteam.server.board.dto.reponse.BoardResponse;
-import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
@@ -41,10 +41,10 @@ public class BoardController {
      */
     @PostMapping
     public ResponseEntity<ResponseDto<BoardResponse>> saveBoard(
-            @Valid @RequestBody final BoardSaveRequest boardSaveRequest,
+            @Valid @RequestBody final BoardRequest boardRequest,
             final HttpServletRequest request) {
         final String clientIP = ClientUtils.getRemoteIP(request);
-        final BoardResponse response = boardService.saveBoard(boardSaveRequest, clientIP);
+        final BoardResponse response = boardService.saveBoard(boardRequest, clientIP);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 생성 성공", response));
     }
 
@@ -53,8 +53,8 @@ public class BoardController {
      */
     @PutMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardResponse>> updateBoard(
-            @PathVariable final Long boardId, @Valid @RequestBody final BoardSaveRequest boardSaveRequest) {
-        final BoardResponse response = boardService.updateBoard(boardSaveRequest, boardId);
+            @PathVariable final Long boardId, @Valid @RequestBody final BoardRequest boardRequest) {
+        final BoardResponse response = boardService.updateBoard(boardRequest, boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 수정 성공", response));
     }
 
