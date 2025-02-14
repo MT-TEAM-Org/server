@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
-import org.mockito.Mock;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.inquiry.repository.InquiryRepository;
@@ -15,11 +14,16 @@ import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.service.InquiryAnswerService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
+import org.myteam.server.match.matchSchedule.domain.MatchCategory;
+import org.myteam.server.match.matchSchedule.domain.MatchSchedule;
+import org.myteam.server.match.matchSchedule.repository.MatchScheduleRepository;
+import org.myteam.server.match.team.domain.Team;
+import org.myteam.server.match.team.domain.TeamCategory;
+import org.myteam.server.match.team.repository.TeamRepository;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberReadService;
@@ -44,11 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MinIOContainer;
-import org.testcontainers.containers.MySQLContainer;
 
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -60,6 +59,10 @@ public abstract class IntegrationTestSupport {
 	/**
 	 * ================== Repository ========================
 	 */
+	@Autowired
+	protected TeamRepository teamRepository;
+	@Autowired
+	protected MatchScheduleRepository matchScheduleRepository;
 	@Autowired
 	protected NewsRepository newsRepository;
 	@Autowired
@@ -116,6 +119,8 @@ public abstract class IntegrationTestSupport {
 
 	@AfterEach
 	void tearDown() {
+		matchScheduleRepository.deleteAllInBatch();
+		teamRepository.deleteAllInBatch();
 		inquiryRepository.deleteAllInBatch();
 		newsReplyRepository.deleteAllInBatch();
 		newsCommentRepository.deleteAllInBatch();
@@ -197,5 +202,22 @@ public abstract class IntegrationTestSupport {
 				.ip("1.1.1.1")
 				.build()
 		);
+	}
+
+	protected Team createTeam(int index, TeamCategory category) {
+		return teamRepository.save(Team.builder()
+			.name("테스트팀" + index)
+			.logo("www.test.com")
+			.category(category)
+			.build());
+	}
+
+	protected MatchSchedule createMatchSchedule(Team homeTeam, Team awayTeam, MatchCategory category, LocalDateTime startDate) {
+		return matchScheduleRepository.save(MatchSchedule.builder()
+			.homeTeam(homeTeam)
+			.awayTeam(awayTeam)
+			.category(category)
+			.startTime(startDate)
+			.build());
 	}
 }
