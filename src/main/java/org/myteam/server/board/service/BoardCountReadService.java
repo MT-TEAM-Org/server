@@ -10,12 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class BoardCountReadService {
 
     private final BoardCountRepository boardCountRepository;
 
-    @Transactional
     public BoardCount findByBoardId(Long boardId) {
         return boardCountRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_RECOMMEND_NOT_FOUND));
