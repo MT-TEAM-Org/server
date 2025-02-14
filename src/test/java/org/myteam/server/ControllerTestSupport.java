@@ -1,7 +1,11 @@
 package org.myteam.server;
 
-import org.myteam.server.match.matchSchedule.controller.MatchScheduleController;
-import org.myteam.server.match.matchSchedule.service.MatchScheduleReadService;
+import org.mockito.Mock;
+import org.myteam.server.match.match.controller.MatchController;
+import org.myteam.server.match.match.service.MatchReadService;
+import org.myteam.server.match.matchPrediction.controller.MatchPredictionController;
+import org.myteam.server.match.matchPrediction.service.MatchPredictionReadService;
+import org.myteam.server.match.matchPrediction.service.MatchPredictionService;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.news.news.controller.NewsController;
@@ -26,7 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	NewsController.class,
 	NewsCommentController.class,
 	NewsReplyController.class,
-	MatchScheduleController.class
+	MatchController.class,
+	MatchPredictionController.class
 })
 @MockBean(JpaMetamodelMappingContext.class)
 public abstract class ControllerTestSupport {
@@ -50,7 +55,11 @@ public abstract class ControllerTestSupport {
 	@MockBean
 	protected MemberJpaRepository memberJpaRepository;
 	@MockBean
-	protected MatchScheduleReadService matchScheduleReadService;
+	protected MatchReadService matchReadService;
+	@MockBean
+	protected MatchPredictionReadService matchPredictionReadService;
+	@MockBean
+	protected MatchPredictionService matchPredictionService;
 
 }
 
