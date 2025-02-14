@@ -16,6 +16,7 @@ import org.myteam.server.news.newsComment.dto.service.request.NewsCommentSaveSer
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentUpdateServiceRequest;
 import org.myteam.server.news.newsComment.dto.service.response.NewsCommentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public class NewsCommentServiceTest extends IntegrationTestSupport {
 
@@ -24,6 +25,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 
 	@DisplayName("뉴스댓글을 저장한다.")
 	@Test
+	@Transactional
 	void saveTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
@@ -40,7 +42,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 			() -> assertThat(newsCommentRepository.findById(newsCommentResponse.getNewsCommentId()).get())
 				.extracting("id", "news.id", "member.publicId", "comment", "ip")
 				.contains(newsCommentResponse.getNewsCommentId(), news.getId(), member.getPublicId(), "댓글 테스트", "1.1.1.1"),
-			() -> assertThat(newsCountRepository.findById(news.getId()).get().getCommentCount()).isEqualTo(11)
+			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getCommentCount()).isEqualTo(11)
 		);
 	}
 
@@ -66,6 +68,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 
 	@DisplayName("뉴스댓글을 삭제한다.")
 	@Test
+	@Transactional
 	void deleteTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
@@ -77,7 +80,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 			() -> assertThatThrownBy(() -> newsCommentService.delete(deletedCommentId))
 				.isInstanceOf(PlayHiveException.class)
 				.hasMessage(ErrorCode.NEWS_COMMENT_NOT_FOUND.getMsg()),
-			() -> assertThat(newsCountRepository.findById(news.getId()).get().getCommentCount()).isEqualTo(9)
+			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getCommentCount()).isEqualTo(9)
 		);
 	}
 }
