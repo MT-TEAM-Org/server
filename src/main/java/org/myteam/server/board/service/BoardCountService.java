@@ -71,27 +71,27 @@ public class BoardCountService {
      * recommendCount 증가
      */
     public void addRecommendCount(Long boardId) {
-        boardCountReadService.findByBoardId(boardId).addRecommendCount();
+        boardCountReadService.findByBoardIdLock(boardId).addRecommendCount();
     }
 
     /**
      * recommendCount 감소
      */
     public void minusRecommendCount(Long boardId) {
-        boardCountReadService.findByBoardId(boardId).minusRecommendCount();
+        boardCountReadService.findByBoardIdLock(boardId).minusRecommendCount();
     }
 
     /**
      * commentCount 증가
      */
-    public void addCommendCount(Long boardId) {
-        boardCountReadService.findByBoardId(boardId).addCommentCount();
+    public void addCommentCount(Long boardId) {
+        boardCountReadService.findByBoardIdLock(boardId).addCommentCount();
     }
 
     /**
      * commentCount 감소
      */
     public void minusCommendCount(Long boardId) {
-        boardCountReadService.findByBoardId(boardId).minusCommentCount();
+        boardCountReadService.findByBoardIdLock(boardId).minusCommentCount();
     }
 }

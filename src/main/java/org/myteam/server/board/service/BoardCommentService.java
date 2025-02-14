@@ -46,7 +46,7 @@ public class BoardCommentService {
 
         boardCommentRepository.save(boardComment);
 
-        boardCountService.addCommendCount(board.getId());
+        boardCountService.addCommentCount(board.getId());
 
         return BoardCommentResponse.createResponse(boardComment, member);
     }
