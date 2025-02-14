@@ -86,7 +86,7 @@ public class BoardService {
     /**
      * 게시글 상세 조회
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public BoardResponse getBoard(final Long boardId, CustomUserDetails userDetails) {
 
         Board board = boardReadService.findById(boardId);
