@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
@@ -19,9 +18,6 @@ import org.myteam.server.match.matchPrediction.dto.service.request.MatchPredicti
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
-import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.domain.NewsCategory;
-import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class MatchPredictionServiceTest extends IntegrationTestSupport {

@@ -1,148 +1,139 @@
 package org.myteam.server.member.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.myteam.server.global.exception.ErrorCode.*;
+
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+class MemberWriteServiceTest extends IntegrationTestSupport {
 
-import java.util.UUID;
+	@Autowired
+	protected MemberService memberService;
+	@Mock
+	private PasswordEncoder passwordEncoder;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
+	private Member member;
 
+	@Test
+	@DisplayName("✅ 회원 가입 성공")
+	@Transactional
+	void createMember_Success() {
+		// Given
+		MemberSaveRequest request = MemberSaveRequest.builder()
+			.email("test@example.com")
+			.password("password123")
+			.tel("01012345678")
+			.nickname("testUser")
+			.build();
 
-class MemberWriteServiceTest  extends IntegrationTestSupport {
+		// When
+		MemberResponse response = memberService.create(request);
 
-    @Autowired
-    protected MemberService memberService;
-    @Mock
-    private PasswordEncoder passwordEncoder;
+		// Then
+		assertNotNull(response);
+		assertEquals(request.getEmail(), response.getEmail());
+		assertEquals(MemberStatus.ACTIVE, response.getStatus());
+	}
 
-    private Member member;
+	@Test
+	@DisplayName("❌ 회원 가입 실패 - 이메일 중복")
+	void createMember_Failure_DuplicateEmail() {
+		// Given
+		MemberSaveRequest request = MemberSaveRequest.builder()
+			.email("test@example.com")
+			.password("password123")
+			.tel("01012345678")
+			.nickname("testUser")
+			.build();
+		memberService.create(request);
 
-    @Test
-    @DisplayName("✅ 회원 가입 성공")
-    @Transactional
-    void createMember_Success() {
-        // Given
-        MemberSaveRequest request = MemberSaveRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .tel("01012345678")
-                .nickname("testUser")
-                .build();
+		// When & Then
+		PlayHiveException exception = assertThrows(PlayHiveException.class, () -> {
+			memberService.create(request);
+		});
 
-        // When
-        MemberResponse response = memberService.create(request);
+		assertEquals(USER_ALREADY_EXISTS, exception.getErrorCode());
+	}
 
-        // Then
-        assertNotNull(response);
-        assertEquals(request.getEmail(), response.getEmail());
-        assertEquals(MemberStatus.ACTIVE, response.getStatus());
-    }
+	@Test
+	@DisplayName("✅ 회원 프로필 수정 성공")
+	void updateMemberProfile_Success() {
+		// Given
+		MemberSaveRequest request = MemberSaveRequest.builder()
+			.email("test@example.com")
+			.password("password123")
+			.tel("01012345678")
+			.nickname("testUser")
+			.build();
+		MemberResponse memberResponse = memberService.create(request);
+		Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
 
-    @Test
-    @DisplayName("❌ 회원 가입 실패 - 이메일 중복")
-    void createMember_Failure_DuplicateEmail() {
-        // Given
-        MemberSaveRequest request = MemberSaveRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .tel("01012345678")
-                .nickname("testUser")
-                .build();
-        memberService.create(request);
+		MemberUpdateRequest updateRequest = MemberUpdateRequest.builder()
+			.email("test@example.com")
+			.password("newPasd123")
+			.nickname("newNick")
+			.tel("01099999999")
+			.build();
 
-        // When & Then
-        PlayHiveException exception = assertThrows(PlayHiveException.class, () -> {
-            memberService.create(request);
-        });
+		Member mockMember = Member.builder()
+			.publicId(UUID.randomUUID())
+			.email(request.getEmail())
+			.password("password123")
+			.nickname("testUser")
+			.tel("01012345678")
+			.status(MemberStatus.ACTIVE)
+			.build();
 
-        assertEquals(USER_ALREADY_EXISTS, exception.getErrorCode());
-    }
+		when(securityReadService.getMember()).thenReturn(member);
 
-    @Test
-    @DisplayName("✅ 회원 프로필 수정 성공")
-    void updateMemberProfile_Success() {
-        // Given
-        MemberSaveRequest request = MemberSaveRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .tel("01012345678")
-                .nickname("testUser")
-                .build();
-        MemberResponse memberResponse = memberService.create(request);
-        Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
+		// When
+		MemberResponse memberUpdateResponse = memberService.updateMemberProfile(updateRequest);
 
-        MemberUpdateRequest updateRequest = MemberUpdateRequest.builder()
-                .email("test@example.com")
-                .password("newPasd123")
-                .nickname("newNick")
-                .tel("01099999999")
-                .build();
+		// Then
+		assertNotNull(memberUpdateResponse);
+		assertEquals(updateRequest.getNickname(), memberUpdateResponse.getNickname());
+		assertEquals(updateRequest.getTel(), memberUpdateResponse.getTel());
+	}
 
-        Member mockMember = Member.builder()
-                .publicId(UUID.randomUUID())
-                .email(request.getEmail())
-                .password("password123")
-                .nickname("testUser")
-                .tel("01012345678")
-                .status(MemberStatus.ACTIVE)
-                .build();
+	@Test
+	@DisplayName("✅ 회원 탈퇴 성공")
+	void deleteMember_Success() {
+		// Given
+		MemberSaveRequest request = MemberSaveRequest.builder()
+			.email("test@example.com")
+			.password("password123")
+			.tel("01012345678")
+			.nickname("testUser")
+			.build();
+		MemberResponse memberResponse = memberService.create(request);
+		Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
 
-        when(securityReadService.getMember()).thenReturn(member);
+		MemberDeleteRequest deleteRequest = MemberDeleteRequest.builder()
+			.requestEmail("test@example.com")
+			.password("password123")
+			.build();
 
-        // When
-        MemberResponse memberUpdateResponse = memberService.updateMemberProfile(updateRequest);
+		// When
+		when(securityReadService.getMember()).thenReturn(member);
+		memberService.deleteMember(deleteRequest);
 
-        // Then
-        assertNotNull(memberUpdateResponse);
-        assertEquals(updateRequest.getNickname(), memberUpdateResponse.getNickname());
-        assertEquals(updateRequest.getTel(), memberUpdateResponse.getTel());
-    }
-
-    @Test
-    @DisplayName("✅ 회원 탈퇴 성공")
-    void deleteMember_Success() {
-        // Given
-        MemberSaveRequest request = MemberSaveRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .tel("01012345678")
-                .nickname("testUser")
-                .build();
-        MemberResponse memberResponse = memberService.create(request);
-        Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
-
-        MemberDeleteRequest deleteRequest = MemberDeleteRequest.builder()
-                .requestEmail("test@example.com")
-                .password("password123")
-                .build();
-        
-        // When
-        when(securityReadService.getMember()).thenReturn(member);
-        memberService.deleteMember(deleteRequest);
-
-        // Then
-        assertEquals(MemberStatus.INACTIVE, member.getStatus());
-    }
+		// Then
+		assertEquals(MemberStatus.INACTIVE, member.getStatus());
+	}
 }

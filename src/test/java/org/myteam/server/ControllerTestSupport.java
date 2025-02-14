@@ -1,6 +1,5 @@
 package org.myteam.server;
 
-import org.mockito.Mock;
 import org.myteam.server.match.match.controller.MatchController;
 import org.myteam.server.match.match.service.MatchReadService;
 import org.myteam.server.match.matchPrediction.controller.MatchPredictionController;
