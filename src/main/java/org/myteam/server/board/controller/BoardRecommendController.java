@@ -4,7 +4,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.service.BoardRecommendService;
+import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BoardRecommendController {
 
-    private final BoardRecommendService boardRecommendService;
+    private final BoardCountService boardCountService;
 
     /**
      * 게시글 추천
      */
     @PostMapping("/{boardId}")
     public ResponseEntity<ResponseDto<Void>> recommendBoard(@PathVariable Long boardId) {
-        boardRecommendService.recommendBoard(boardId);
+        boardCountService.recommendBoard(boardId);
         return ResponseEntity.ok(
                 new ResponseDto<>(SUCCESS.name(), "게시글 추천 성공", null));
     }
@@ -36,7 +36,7 @@ public class BoardRecommendController {
      */
     @DeleteMapping("/{boardId}")
     public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable Long boardId) {
-        boardRecommendService.deleteRecommendBoard(boardId);
+        boardCountService.deleteRecommendBoard(boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 추천 삭제 성공", null));
     }
 }

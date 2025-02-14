@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class BoardRecommendService {
+public class BoardCountService {
 
     private final SecurityReadService securityReadService;
     private final BoardReadService boardReadService;
@@ -79,5 +79,19 @@ public class BoardRecommendService {
      */
     public void minusRecommendCount(Long boardId) {
         boardCountReadService.findByBoardId(boardId).minusRecommendCount();
+    }
+
+    /**
+     * commentCount 증가
+     */
+    public void addCommendCount(Long boardId) {
+        boardCountReadService.findByBoardId(boardId).addCommentCount();
+    }
+
+    /**
+     * commentCount 감소
+     */
+    public void minusCommendCount(Long boardId) {
+        boardCountReadService.findByBoardId(boardId).minusCommentCount();
     }
 }
