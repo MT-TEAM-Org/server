@@ -39,14 +39,13 @@ public class BoardCommentQueryRepository {
                 .orderBy(isOrderByEqualToOrderType(orderType))
                 .fetch();
 
-        // 🔥 대댓글이 없을 경우 빈 리스트를 할당하여 null 방지
         list.forEach(comment -> {
-            comment.setBoardReplyList(getRepliesForComments(comment.getBoardCommentId(), orderType));
+            comment.setBoardReplyList(getRepliesForComments(comment.getBoardCommentId()));
         });
         return list;
     }
 
-    private List<BoardReplyResponse> getRepliesForComments(Long boardCommentId, BoardOrderType orderType) {
+    public List<BoardReplyResponse> getRepliesForComments(Long boardCommentId) {
         List<BoardReplyResponse> replies = queryFactory
                 .select(Projections.fields(BoardReplyResponse.class,
                         boardReply.boardComment.id.as("boardCommentId"),
