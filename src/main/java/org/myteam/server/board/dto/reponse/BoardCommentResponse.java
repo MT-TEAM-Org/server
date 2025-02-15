@@ -1,10 +1,12 @@
 package org.myteam.server.board.dto.reponse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.myteam.server.board.domain.BoardComment;
 import org.myteam.server.member.entity.Member;
 
@@ -51,6 +53,11 @@ public class BoardCommentResponse {
      * 수정 일시
      */
     private LocalDateTime lastModifiedDate;
+    /**
+     * 대댓글 목록
+     */
+    @Setter
+    private List<BoardReplyResponse> boardReplyList;
 
     @Builder
     public BoardCommentResponse(Long boardCommentId, Long boardId, String createdIp, UUID publicId, String nickname,

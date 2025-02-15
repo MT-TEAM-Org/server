@@ -1,13 +1,16 @@
 package org.myteam.server.board.service;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardComment;
+import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.dto.request.BoardCommentSaveRequest;
 import org.myteam.server.board.dto.request.BoardCommentUpdateRequest;
 import org.myteam.server.board.repository.BoardCommentRepository;
+import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -30,8 +33,10 @@ public class BoardCommentService {
     private final S3Service s3Service;
 
     private final BoardCommentRepository boardCommentRepository;
+    private final BoardReplyRepository boardReplyRepository;
 
     private final BadWordFilter badWordFilter;
+    private final BoardReplyReadService boardReplyReadService;
 
     /**
      * 게시판 댓글 생성
@@ -72,7 +77,7 @@ public class BoardCommentService {
      * 게시판 댓글 삭제
      */
     @Transactional
-    public void deleteBoardComment(long boardCommentId) {
+    public void deleteBoardComment(Long boardCommentId) {
         UUID loginUser = securityReadService.getMember().getPublicId();
 
         Member member = memberReadService.findById(loginUser);
@@ -80,10 +85,27 @@ public class BoardCommentService {
 
         verifyBoardCommentAuthor(boardComment, member);
 
+        // S3 이미지 삭제
         s3Service.deleteFile(getImagePath(boardComment.getImageUrl()));
+        // 대댓글 삭제 (카운트도 포함)
+        int minusCount = deleteBoardReply(boardComment.getId());
+        // 댓글 삭제
         boardCommentRepository.deleteById(boardCommentId);
 
-        boardCountService.minusCommendCount(boardComment.getBoard().getId());
+        // 댓글 카운트 감소
+        boardCountService.minusCommentCount(boardComment.getBoard().getId(), minusCount + 1);
+    }
+
+    /**
+     * 대댓글 삭제
+     */
+    private int deleteBoardReply(Long boardCommentId) {
+        List<BoardReply> boardReplyList = boardReplyReadService.findByBoardCommentId(boardCommentId);
+        for (BoardReply boardReply : boardReplyList) {
+            s3Service.deleteFile(getImagePath(boardReply.getImageUrl()));
+            boardReplyRepository.delete(boardReply);
+        }
+        return boardReplyList.size();
     }
 
     /**
