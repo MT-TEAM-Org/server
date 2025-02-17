@@ -69,7 +69,17 @@ public class BoardCount {
         this.commentCount += 1;
     }
 
+    /**
+     * 댓글 1 감소
+     */
     public void minusCommentCount() {
         this.commentCount -= 1;
+    }
+
+    /**
+     * 댓글 count 만큼 감소
+     */
+    public void minusCommentCount(int count) {
+        this.commentCount -= count;
     }
 }

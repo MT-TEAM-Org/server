@@ -35,4 +35,13 @@ public class BoardCommentReadService {
 
         return BoardCommentListResponse.createResponse(list);
     }
+
+    public BoardCommentResponse findByIdWithReply(Long boardCommentId) {
+        BoardComment boardComment = findById(boardCommentId);
+        BoardCommentResponse response = BoardCommentResponse.createResponse(boardComment, boardComment.getMember());
+
+        response.setBoardReplyList(boardCommentQueryRepository.getRepliesForComments(boardCommentId));
+
+        return response;
+    }
 }

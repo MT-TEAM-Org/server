@@ -72,6 +72,7 @@ public enum ErrorCode {
     BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
     PHONE_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "No matching number exists"),
     BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment not found"),
+    BOARD_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Reply not found"),
 
     MATCH_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match not found"),
 

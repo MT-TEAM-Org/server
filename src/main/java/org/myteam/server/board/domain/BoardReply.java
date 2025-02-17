@@ -19,8 +19,8 @@ import org.myteam.server.member.entity.Member;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "p_board_comment")
-public class BoardComment extends BaseTime {
+@Entity(name = "p_board_reply")
+public class BoardReply extends BaseTime {
 
     private static final int COUNT_SETTING_NUMBER = 0;
 
@@ -29,8 +29,8 @@ public class BoardComment extends BaseTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "board_comment_id")
+    private BoardComment boardComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "public_id")
@@ -45,41 +45,50 @@ public class BoardComment extends BaseTime {
     @Column(nullable = false)
     private int recommendCount;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mentioned_public_id")
+    private Member mentionedMember; // 대댓글 내용에 언급된 댓글 작성자
+
     @Builder
-    public BoardComment(Board board, Member member, String imageUrl, String comment, String createdIp,
-                        int recommendCount) {
-        this.board = board;
+    public BoardReply(BoardComment boardComment, Member member, String imageUrl, String comment, String createdIp,
+                      int recommendCount, Member mentionedMember) {
+        this.boardComment = boardComment;
         this.member = member;
         this.imageUrl = imageUrl;
         this.comment = comment;
         this.createdIp = createdIp;
         this.recommendCount = recommendCount;
+        this.mentionedMember = mentionedMember;
     }
 
-    public static BoardComment createBoardComment(Board board, Member member, String imageUrl, String comment,
-                                                  String createdIp) {
-        final int COUNT_SETTING_NUMBER = 0;
-        return BoardComment.builder()
-                .board(board)
+    public static BoardReply createBoardReply(BoardComment boardComment, Member member, String imageUrl, String comment,
+                                              String createdIp, Member mentionedMember) {
+        return BoardReply.builder()
+                .boardComment(boardComment)
                 .member(member)
                 .imageUrl(imageUrl)
                 .comment(comment)
                 .createdIp(createdIp)
                 .recommendCount(COUNT_SETTING_NUMBER)
+                .mentionedMember(mentionedMember)
                 .build();
     }
 
-    public void updateComment(String imageUrl, String comment) {
+    public void updateReply(String imageUrl, String comment, Member mentionedMember) {
         this.imageUrl = imageUrl;
         this.comment = comment;
+        this.mentionedMember = mentionedMember;
     }
 
     public boolean isAuthor(Member member) {
         return this.member.equals(member);
     }
 
-    public static void verifyBoardCommentAuthor(BoardComment boardComment, Member member) {
-        if (!boardComment.isAuthor(member) && !member.isAdmin()) {
+    /**
+     * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
+     */
+    public static void verifyBoardReplyAuthor(BoardReply boardReply, Member member) {
+        if (!boardReply.isAuthor(member) && !member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
     }
