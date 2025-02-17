@@ -1,56 +1,43 @@
 package org.myteam.server.board.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.myteam.server.board.domain.BoardOrderType;
-import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.global.page.request.PageInfoRequest;
 
 @Getter
-@Setter
 @NoArgsConstructor
-public class BoardRequest extends PageInfoRequest {
-
-    @NotNull(message = "게시판 타입은 필수입니다")
+@AllArgsConstructor // TODO: 테스트용 이후에 삭제
+public class BoardRequest {
+    /**
+     * 게시판 타입
+     */
+    @NotNull(message = "게시판 타입을 선택해주세요")
     private BoardType boardType;
-
+    /**
+     * 카테고리 타입
+     */
+    @NotNull(message = "카테고리를 선택해주세요")
     private CategoryType categoryType;
-
-    private BoardOrderType orderType;
-
     /**
-     * 검색어 타입 (제목, 내용, 제목+내용,
+     * 제목
      */
-    private BoardSearchType searchType;
+    @NotBlank(message = "제목을 입력해주세요")
+    private String title;
     /**
-     * 검색어
+     * 내용
      */
-    private String search;
-
-    @Builder
-    public BoardRequest(BoardType boardType, CategoryType categoryType, BoardOrderType orderType,
-                        BoardSearchType searchType, String search) {
-        this.boardType = boardType;
-        this.categoryType = categoryType;
-        this.orderType = orderType;
-        this.searchType = searchType;
-        this.search = search;
-    }
-
-    public BoardServiceRequest toServiceRequest() {
-        return BoardServiceRequest.builder()
-                .boardType(boardType)
-                .categoryType(categoryType)
-                .orderType(orderType)
-                .searchType(searchType)
-                .search(search)
-                .size(getSize())
-                .page(getPage())
-                .build();
-    }
+    @NotBlank(message = "내용을 입력해주세요")
+    private String content;
+    /**
+     * 출처 링크
+     */
+    private String link;
+    /**
+     * 썸네일 이미지
+     */
+    private String thumbnail;
 }

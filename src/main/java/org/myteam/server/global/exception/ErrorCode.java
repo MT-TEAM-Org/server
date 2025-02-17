@@ -68,6 +68,7 @@ public enum ErrorCode {
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
     BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
     PHONE_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "No matching number exists"),
+    BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment not found"),
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),

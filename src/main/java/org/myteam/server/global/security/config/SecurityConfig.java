@@ -1,8 +1,7 @@
 package org.myteam.server.global.security.config;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.myteam.server.auth.controller.ReIssueController.*;
+import static org.myteam.server.global.security.jwt.JwtProvider.*;
 
 import org.myteam.server.auth.repository.RefreshJpaRepository;
 import org.myteam.server.global.config.WebConfig;
@@ -38,9 +37,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.myteam.server.auth.controller.ReIssueController.TOKEN_REISSUE_PATH;
-import static org.myteam.server.global.security.jwt.JwtProvider.HEADER_AUTHORIZATION;
-import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KEY;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -85,7 +84,8 @@ public class SecurityConfig {
 		"/api/inquiries/",
 
 		//뉴스
-        "/api/news",
+		"/api/news",
+		"/api/news/{newId}",
 
 		// 아이디-비밀번호 찾기
 		"/api/me/find-id/**",
@@ -99,6 +99,7 @@ public class SecurityConfig {
 		"/api/admin/**",
 		"/api/inquiries/answers/**",
 	};
+
 	/* member 접근 권한 */
 	private static final String[] PERMIT_MEMBER_URLS = new String[] {
 		// Test Endpoints
@@ -186,8 +187,12 @@ public class SecurityConfig {
 				.requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
 				.requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
 				.requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
+				.requestMatchers(HttpMethod.DELETE, "/api/categories/**")
+				.hasAnyAuthority(MemberRole.ADMIN.name())
 				.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
+				.requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/board").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/board/{boardId}/comment").permitAll()
 
 				.anyRequest().authenticated()                   // 나머지 요청은 모두 허용
 		);

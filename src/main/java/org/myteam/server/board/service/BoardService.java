@@ -8,12 +8,14 @@ import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardResponse;
-import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardCountRepository boardCountRepository;
+    private final MemberRepository memberRepository;
 
     private final SecurityReadService securityReadService;
     private final BoardReadService boardReadService;
@@ -37,7 +40,7 @@ public class BoardService {
      * 게시글 작성
      */
     @Transactional
-    public BoardResponse saveBoard(final BoardSaveRequest request, final String clientIP) {
+    public BoardResponse saveBoard(final BoardRequest request, final String clientIP) {
         log.info("save board 실행");
 
         UUID loginUser = securityReadService.getMember().getPublicId();
@@ -60,7 +63,7 @@ public class BoardService {
      * 게시글, 게시글 카운트 생성
      */
     private Board makeBoard(final Member member, final String clientIP,
-                            final BoardSaveRequest request) {
+                            final BoardRequest request) {
 
         final Board board = Board.builder()
                 .member(member)
@@ -84,14 +87,17 @@ public class BoardService {
      * 게시글 상세 조회
      */
     @Transactional(readOnly = true)
-    public BoardResponse getBoard(final Long boardId) {
-
-        UUID loginUser = securityReadService.getMember().getPublicId();
+    public BoardResponse getBoard(final Long boardId, CustomUserDetails userDetails) {
 
         Board board = boardReadService.findById(boardId);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
 
-        boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
+        boolean isRecommended = false;
+
+        if (userDetails != null) {
+            UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+            isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
+        }
 
         return BoardResponse.createResponse(board, boardCount, isRecommended);
     }
@@ -117,7 +123,7 @@ public class BoardService {
      * 게시글 수정
      */
     @Transactional
-    public BoardResponse updateBoard(final BoardSaveRequest request, final Long boardId) {
+    public BoardResponse updateBoard(final BoardRequest request, final Long boardId) {
 
         UUID loginUser = securityReadService.getMember().getPublicId();
 
@@ -149,10 +155,8 @@ public class BoardService {
      * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
      */
     private void verifyBoardAuthor(Board board, Member member) {
-        if (!board.isAuthor(member)) {
-            if (!member.isAdmin()) {
-                throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
-            }
+        if (!board.isAuthor(member) && !member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
     }
 }
