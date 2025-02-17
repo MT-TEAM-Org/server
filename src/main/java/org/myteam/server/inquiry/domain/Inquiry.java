@@ -22,7 +22,7 @@ public class Inquiry {
     private String content;
 
     @ManyToOne(optional = true, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "public_id")
     private Member member;
 
     private String clientIp;
@@ -30,10 +30,11 @@ public class Inquiry {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
-    private InquiryAnswer inquiryAnswer;
+    private boolean isAdminAnswered; // 관리자가 답변했는지
 
-    public void addAnswer(InquiryAnswer inquiryAnswer) {
-        this.inquiryAnswer = inquiryAnswer;
+    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private InquiryCount inquiryCount;
+    public boolean isAuthor(Member member) {
+        return this.member.equals(member);
     }
 }

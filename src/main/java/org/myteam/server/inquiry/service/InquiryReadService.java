@@ -2,6 +2,8 @@ package org.myteam.server.inquiry.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.request.InquiryServiceRequest;
@@ -29,6 +31,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class InquiryReadService {
     private final InquiryQueryRepository inquiryQueryRepository;
+    private final InquiryRepository inquiryRepository;
 
     /**
      * 검색 + 정렬 기능
@@ -70,5 +73,21 @@ public class InquiryReadService {
      */
     public int getInquiriesCountByMember(UUID memberPublicId) {
         return inquiryQueryRepository.getMyInquires(memberPublicId);
+    }
+
+    /**
+     * 문의 내역 상세 조회
+     * TODO: 리턴 타입 다시 살펴보기
+     */
+    public InquiryResponse getInquiryById(final Long inquiryId) {
+        Inquiry inquiry = findInquiryById(inquiryId);
+
+        return InquiryResponse.createInquiryResponse(inquiry);
+    }
+
+    public Inquiry findInquiryById(Long inquiryId) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.INQUIRY_NOT_FOUND));
+        return inquiry;
     }
 }

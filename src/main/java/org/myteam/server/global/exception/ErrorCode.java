@@ -64,6 +64,8 @@ public enum ErrorCode {
     NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "New Comment not found"),
     NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "New Reply not found"),
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
+    INQUIRY_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Recommend not found"),
+    INQUIRY_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Comment not found"),
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
     BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
