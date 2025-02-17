@@ -13,6 +13,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.global.domain.BaseTime;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 
 @Getter
@@ -74,5 +76,11 @@ public class BoardComment extends BaseTime {
 
     public boolean isAuthor(Member member) {
         return this.member.equals(member);
+    }
+
+    public static void verifyBoardCommentAuthor(BoardComment boardComment, Member member) {
+        if (!boardComment.isAuthor(member) && !member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
+        }
     }
 }

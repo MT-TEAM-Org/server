@@ -13,6 +13,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.global.domain.BaseTime;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 
 @Getter
@@ -80,5 +82,14 @@ public class BoardReply extends BaseTime {
 
     public boolean isAuthor(Member member) {
         return this.member.equals(member);
+    }
+
+    /**
+     * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
+     */
+    public static void verifyBoardReplyAuthor(BoardReply boardReply, Member member) {
+        if (!boardReply.isAuthor(member) && !member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
+        }
     }
 }

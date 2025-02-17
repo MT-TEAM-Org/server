@@ -7,8 +7,6 @@ import org.myteam.server.board.dto.reponse.BoardReplyResponse;
 import org.myteam.server.board.dto.request.BoardReplySaveRequest;
 import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.chat.domain.BadWordFilter;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
@@ -59,7 +57,7 @@ public class BoardReplyService {
         Member loginUser = securityReadService.getMember();
         BoardReply boardReply = boardReplyReadService.findById(boardReplyId);
 
-        verifyBoardReplyAuthor(boardReply, loginUser);
+        boardReply.verifyBoardReplyAuthor(boardReply, loginUser);
         verifyBoardReplyImageAndRequestImage(boardReply.getImageUrl(), request.getImageUrl());
 
         Member mentionedMember = request.getMentionedPublicId() != null ?
@@ -80,9 +78,9 @@ public class BoardReplyService {
         Member loginUser = securityReadService.getMember();
         BoardReply boardReply = boardReplyReadService.findById(boardReplyId);
 
-        verifyBoardReplyAuthor(boardReply, loginUser);
+        boardReply.verifyBoardReplyAuthor(boardReply, loginUser);
 
-        s3Service.deleteFile(getImagePath(boardReply.getImageUrl()));
+        s3Service.deleteFile(s3Service.getImagePath(boardReply.getImageUrl()));
         boardReplyRepository.delete(boardReply);
 
         boardCountService.minusCommentCount(boardReply.getBoardComment().getBoard().getId());
@@ -93,29 +91,7 @@ public class BoardReplyService {
      */
     private void verifyBoardReplyImageAndRequestImage(String boardReplyImageUrl, String requestImageUrl) {
         if (!boardReplyImageUrl.equals(requestImageUrl)) {
-            s3Service.deleteFile(getImagePath(requestImageUrl));
-        }
-    }
-
-    /**
-     * path만 추출
-     * TODO :: 운영에선 버킷 이름 수정 예정
-     */
-    public static String getImagePath(String url) {
-        String target = "devbucket/";
-        int index = url.indexOf(target);
-        if (index != -1) {
-            return url.substring(index + target.length());
-        }
-        return null;
-    }
-
-    /**
-     * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
-     */
-    private void verifyBoardReplyAuthor(BoardReply boardReply, Member member) {
-        if (!boardReply.isAuthor(member) && !member.isAdmin()) {
-            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
+            s3Service.deleteFile(s3Service.getImagePath(requestImageUrl));
         }
     }
 }

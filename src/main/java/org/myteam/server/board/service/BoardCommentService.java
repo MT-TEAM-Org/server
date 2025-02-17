@@ -12,8 +12,6 @@ import org.myteam.server.board.dto.request.BoardCommentUpdateRequest;
 import org.myteam.server.board.repository.BoardCommentRepository;
 import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.chat.domain.BadWordFilter;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
@@ -64,7 +62,7 @@ public class BoardCommentService {
         Member member = securityReadService.getMember();
         BoardComment boardComment = boardCommentReadService.findById(boardCommentId);
 
-        verifyBoardCommentAuthor(boardComment, member);
+        boardComment.verifyBoardCommentAuthor(boardComment, member);
         verifyBoardCommentImageAndRequestImage(boardComment.getImageUrl(), request.getImageUrl());
 
         boardComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));
@@ -83,10 +81,10 @@ public class BoardCommentService {
         Member member = memberReadService.findById(loginUser);
         BoardComment boardComment = boardCommentReadService.findById(boardCommentId);
 
-        verifyBoardCommentAuthor(boardComment, member);
+        boardComment.verifyBoardCommentAuthor(boardComment, member);
 
         // S3 이미지 삭제
-        s3Service.deleteFile(getImagePath(boardComment.getImageUrl()));
+        s3Service.deleteFile(s3Service.getImagePath(boardComment.getImageUrl()));
         // 대댓글 삭제 (카운트도 포함)
         int minusCount = deleteBoardReply(boardComment.getId());
         // 댓글 삭제
@@ -102,7 +100,7 @@ public class BoardCommentService {
     private int deleteBoardReply(Long boardCommentId) {
         List<BoardReply> boardReplyList = boardReplyReadService.findByBoardCommentId(boardCommentId);
         for (BoardReply boardReply : boardReplyList) {
-            s3Service.deleteFile(getImagePath(boardReply.getImageUrl()));
+            s3Service.deleteFile(s3Service.getImagePath(boardReply.getImageUrl()));
             boardReplyRepository.delete(boardReply);
         }
         return boardReplyList.size();
@@ -113,29 +111,7 @@ public class BoardCommentService {
      */
     private void verifyBoardCommentImageAndRequestImage(String boardCommentImageUrl, String requestImageUrl) {
         if (!boardCommentImageUrl.equals(requestImageUrl)) {
-            s3Service.deleteFile(getImagePath(requestImageUrl));
-        }
-    }
-
-    /**
-     * path만 추출
-     * TODO :: 운영에선 버킷 이름 수정 예정
-     */
-    public static String getImagePath(String url) {
-        String target = "devbucket/";
-        int index = url.indexOf(target);
-        if (index != -1) {
-            return url.substring(index + target.length());
-        }
-        return null;
-    }
-
-    /**
-     * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
-     */
-    private void verifyBoardCommentAuthor(BoardComment boardComment, Member member) {
-        if (!boardComment.isAuthor(member) && !member.isAdmin()) {
-            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
+            s3Service.deleteFile(s3Service.getImagePath(requestImageUrl));
         }
     }
 }
