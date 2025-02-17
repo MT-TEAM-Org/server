@@ -39,8 +39,14 @@ public class MemberReadService {
     private final AESCryptoUtil crypto;
 
     public Member findById(UUID publicId) {
-        return memberRepository.findByPublicId(publicId)
+        Member member = memberRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
+
+        if (!member.verifyMemberStatus()) {
+            throw new PlayHiveException(ErrorCode.INVALID_USER);
+        }
+
+        return member;
     }
 
     public ProfileResponse getProfile() {
