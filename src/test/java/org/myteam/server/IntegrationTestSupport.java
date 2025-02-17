@@ -142,7 +142,7 @@ public abstract class IntegrationTestSupport {
 	protected Member createMember(int index) {
 		Member member = Member.builder()
 			.email("test" + index + "@test.com")
-			.password("1234")
+			.encodedPassword("1234")
 			.tel("12345")
 			.nickname("test")
 			.role(MemberRole.USER)

@@ -33,6 +33,8 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       MINIO_REGION: ${MINIO_REGION}
       MINIO_BUCKET: ${MINIO_BUCKET}
+      AES_SECRET_KEY: ${AES_SECRET_KEY}
+      AES_IV: ${AES_IV}
     restart: always
 
   #  zookeeper:

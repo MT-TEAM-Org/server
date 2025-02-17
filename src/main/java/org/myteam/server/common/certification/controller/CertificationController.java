@@ -1,5 +1,6 @@
 package org.myteam.server.common.certification.controller;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,13 +35,17 @@ public class CertificationController {
     }
 
     @PostMapping("/certify-code")
-    public ResponseEntity<?> certifyCode(@Valid @RequestBody CertificationCertifyRequest certificationCertifyRequest, BindingResult bindingResult) {
+    public ResponseEntity<?> certifyCode(@Valid @RequestBody CertificationCertifyRequest certificationCertifyRequest,
+                                         HttpSession session,
+                                         BindingResult bindingResult) {
         String code = certificationCertifyRequest.getCode(); // 인증 코드
         String email = certificationCertifyRequest.getEmail(); // 이메일
         boolean isValid = certificationService.certify(email, code);
 
         if (isValid) {
             log.info("certify email: {} success", email);
+
+            session.setAttribute("certifiedEmail", email);
             return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "인증 코드 확인", null), HttpStatus.OK);
         } else {
             log.info("certify code failed");
