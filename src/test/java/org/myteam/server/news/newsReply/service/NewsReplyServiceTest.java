@@ -1,9 +1,7 @@
 package org.myteam.server.news.newsReply.service;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
@@ -41,7 +39,8 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 
 		assertThat(newsReplyRepository.findById(newsReplyResponse.getNewsReplyId()).get())
 			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip")
-			.contains(newsReplyResponse.getNewsReplyId(), newsComment.getId(), member.getPublicId(), "대댓글 테스트", "1.1.1.1");
+			.contains(newsReplyResponse.getNewsReplyId(), newsComment.getId(), member.getPublicId(), "대댓글 테스트",
+				"1.1.1.1");
 	}
 
 	@DisplayName("뉴스 대댓글을 수정한다.")

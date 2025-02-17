@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
@@ -45,7 +44,8 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 		// then
 		assertAll(
 			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getRecommendCount()).isEqualTo(11),
-			() -> assertThat(newsCountMemberRepository.findByNewsIdAndMemberPublicId(news.getId(), member.getPublicId()).get())
+			() -> assertThat(
+				newsCountMemberRepository.findByNewsIdAndMemberPublicId(news.getId(), member.getPublicId()).get())
 				.extracting("news.id", "member.publicId")
 				.contains(news.getId(), member.getPublicId())
 		);

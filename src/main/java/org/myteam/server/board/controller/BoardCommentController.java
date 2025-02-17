@@ -66,7 +66,16 @@ public class BoardCommentController {
     }
 
     /**
-     * 게시판 댓글 목록 조회
+     * 댓글 상세 조회 (대댓글 포함) -> 댓글 ID로 조회
+     */
+    @GetMapping("/comment/{boardCommentId}")
+    public ResponseEntity<ResponseDto<BoardCommentResponse>> getBoardComment(@PathVariable Long boardCommentId) {
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시판 댓글 조회 성공",
+                boardCommentReadService.findByIdWithReply(boardCommentId)));
+    }
+
+    /**
+     * 게시판 댓글 목록 조회 (대댓글 포함) -> 게시글 ID로 조회
      */
     @GetMapping("/{boardId}/comment")
     public ResponseEntity<ResponseDto<BoardCommentListResponse>> getBoardComments(@PathVariable Long boardId,

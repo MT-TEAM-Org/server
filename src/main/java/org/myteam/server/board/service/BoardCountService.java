@@ -89,9 +89,16 @@ public class BoardCountService {
     }
 
     /**
-     * commentCount 감소
+     * commentCount 감소 (1 감소)
      */
-    public void minusCommendCount(Long boardId) {
+    public void minusCommentCount(Long boardId) {
         boardCountReadService.findByBoardIdLock(boardId).minusCommentCount();
+    }
+
+    /**
+     * commentCount 감소 (본 댓글 + 대댓글)
+     */
+    public void minusCommentCount(Long boardId, int count) {
+        boardCountReadService.findByBoardIdLock(boardId).minusCommentCount(count);
     }
 }

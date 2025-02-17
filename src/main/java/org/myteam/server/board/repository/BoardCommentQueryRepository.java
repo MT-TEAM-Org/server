@@ -1,6 +1,7 @@
 package org.myteam.server.board.repository;
 
 import static org.myteam.server.board.domain.QBoardComment.boardComment;
+import static org.myteam.server.board.domain.QBoardReply.boardReply;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
+import org.myteam.server.board.dto.reponse.BoardReplyResponse;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -36,7 +38,39 @@ public class BoardCommentQueryRepository {
                 .where(isBoardEqualTo(boardId))
                 .orderBy(isOrderByEqualToOrderType(orderType))
                 .fetch();
+
+        list.forEach(comment -> {
+            comment.setBoardReplyList(getRepliesForComments(comment.getBoardCommentId()));
+        });
         return list;
+    }
+
+    public List<BoardReplyResponse> getRepliesForComments(Long boardCommentId) {
+        List<BoardReplyResponse> replies = queryFactory
+                .select(Projections.fields(BoardReplyResponse.class,
+                        boardReply.boardComment.id.as("boardCommentId"),
+                        boardReply.id.as("boardReplyId"),
+                        boardReply.createdIp,
+                        boardReply.member.publicId,
+                        boardReply.member.nickname,
+                        boardReply.imageUrl,
+                        boardReply.comment,
+                        boardReply.recommendCount,
+                        boardReply.mentionedMember.publicId.as("mentionedPublicId"),
+                        boardReply.mentionedMember.nickname.as("mentionedNickname"),
+                        boardReply.createDate,
+                        boardReply.lastModifiedDate))
+                .from(boardReply)
+                .leftJoin(boardReply.mentionedMember)
+                .where(isBoardCommentEqualTo(boardCommentId))
+                .orderBy(boardReply.createDate.desc())
+                .fetch();
+
+        return replies;
+    }
+
+    private BooleanExpression isBoardCommentEqualTo(Long boardCommentId) {
+        return boardReply.boardComment.id.eq(boardCommentId);
     }
 
     private OrderSpecifier<?> isOrderByEqualToOrderType(BoardOrderType orderType) {
