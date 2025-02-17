@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
+import org.myteam.server.inquiry.dto.request.InquiryServiceRequest;
+import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.global.page.request.PageInfoRequest;
@@ -19,6 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -31,7 +35,9 @@ public class InquiryReadService {
      * @param inquirySearchRequest
      * @return
      */
-    public PageCustomResponse<InquiryResponse> getInquiriesByMember(InquirySearchRequest inquirySearchRequest) {
+    public InquiriesListResponse getInquiriesByMember(InquiryFindRequest inquirySearchRequest) {
+        log.info("내 문의내역 조회: {}", inquirySearchRequest.getMemberPublicId());
+
         Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
                 inquirySearchRequest.getMemberPublicId(),
                 inquirySearchRequest.getOrderType(),
@@ -40,6 +46,29 @@ public class InquiryReadService {
                 inquirySearchRequest.toPageable()
         );
 
-        return PageCustomResponse.of(inquiryResponses);
+        return InquiriesListResponse.createResponse(PageCustomResponse.of(inquiryResponses));
+    }
+
+    public InquiriesListResponse getInquiriesByMember(InquiryServiceRequest inquiryServiceRequest) {
+        log.info("내 문의내역 조회: {}", inquiryServiceRequest.getMemberPublicId());
+
+        Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
+                inquiryServiceRequest.getMemberPublicId(),
+                inquiryServiceRequest.getOrderType(),
+                inquiryServiceRequest.getSearchType(),
+                inquiryServiceRequest.getContent(),
+                inquiryServiceRequest.toPageable()
+        );
+
+        return InquiriesListResponse.createResponse(PageCustomResponse.of(inquiryResponses));
+    }
+
+    /**
+     * 내 문의하기 수
+     * @param memberPublicId
+     * @return
+     */
+    public int getInquiriesCountByMember(UUID memberPublicId) {
+        return inquiryQueryRepository.getMyInquires(memberPublicId);
     }
 }

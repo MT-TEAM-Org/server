@@ -1,5 +1,9 @@
 package org.myteam.server;
 
+import org.myteam.server.match.matchSchedule.controller.MatchScheduleController;
+import org.myteam.server.match.matchSchedule.service.MatchScheduleReadService;
+import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.member.service.MemberService;
 import org.myteam.server.news.news.controller.NewsController;
 import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.news.newsComment.controller.NewsCommentController;
@@ -21,31 +25,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(controllers = {
 	NewsController.class,
 	NewsCommentController.class,
-	NewsReplyController.class
+	NewsReplyController.class,
+	MatchScheduleController.class
 })
 @MockBean(JpaMetamodelMappingContext.class)
 public abstract class ControllerTestSupport {
 
 	@Autowired
 	protected MockMvc mockMvc;
-
 	@Autowired
 	protected ObjectMapper objectMapper;
-
 	@MockBean
 	protected NewsReadService newsReadService;
-
 	@MockBean
 	protected NewsCommentService newsCommentService;
-
 	@MockBean
 	protected NewsCommentReadService newsCommentReadService;
-
 	@MockBean
 	protected NewsReplyService newsReplyService;
-
 	@MockBean
 	protected NewsReplyReadService newsReplyReadService;
+	@MockBean
+	protected MemberService memberService;
+	@MockBean
+	protected MemberJpaRepository memberJpaRepository;
+	@MockBean
+	protected MatchScheduleReadService matchScheduleReadService;
 
 }
 

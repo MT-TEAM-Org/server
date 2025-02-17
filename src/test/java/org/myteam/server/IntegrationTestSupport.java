@@ -2,16 +2,34 @@ package org.myteam.server;
 
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
+import org.myteam.server.board.service.BoardReadService;
+import org.myteam.server.board.service.BoardService;
 import org.myteam.server.inquiry.repository.InquiryRepository;
+import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
+import org.myteam.server.inquiry.repository.InquiryRepository;
+import org.myteam.server.inquiry.service.InquiryAnswerService;
+import org.myteam.server.inquiry.service.InquiryReadService;
+import org.myteam.server.inquiry.service.InquiryService;
+import org.myteam.server.match.matchSchedule.domain.MatchCategory;
+import org.myteam.server.match.matchSchedule.domain.MatchSchedule;
+import org.myteam.server.match.matchSchedule.repository.MatchScheduleRepository;
+import org.myteam.server.match.team.domain.Team;
+import org.myteam.server.match.team.domain.TeamCategory;
+import org.myteam.server.match.team.repository.TeamRepository;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.repository.NewsRepository;
@@ -24,22 +42,27 @@ import org.myteam.server.news.newsCountMember.repository.NewsCountMemberReposito
 import org.myteam.server.news.newsReply.domain.NewsReply;
 import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
+import org.myteam.server.upload.controller.S3Controller;
+import org.myteam.server.upload.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MinIOContainer;
-import org.testcontainers.containers.MySQLContainer;
 
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
 @SpringBootTest
 public abstract class IntegrationTestSupport {
 
+	/**
+	 * ================== Repository ========================
+	 */
+	@Autowired
+	protected TeamRepository teamRepository;
+	@Autowired
+	protected MatchScheduleRepository matchScheduleRepository;
 	@Autowired
 	protected NewsRepository newsRepository;
 	@Autowired
@@ -51,31 +74,68 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected MemberJpaRepository memberJpaRepository;
 	@Autowired
+	protected MemberActivityRepository memberActivityRepository;
+	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
 	@Autowired
+	protected InquiryService inquiryService;
+	@Autowired
 	protected InquiryRepository inquiryRepository;
+	@Autowired
+	protected InquiryAnswerRepository inquiryAnswerRepository;
+
+	/**
+	 * ================== Service ========================
+	 */
+	@MockBean
+	protected InquiryReadService inquiryReadService;
+	@MockBean
+	protected InquiryAnswerService inquiryAnswerService;
 	@MockBean
 	protected SecurityReadService securityReadService;
+	@Autowired
+	protected MemberService memberService;
+	@Autowired
+	protected MyPageReadService myPageReadService;
+	@MockBean
+	protected BoardService boardService;
+	@MockBean
+	protected BoardReadService boardReadService;
+	@MockBean
+	protected MemberReadService memberReadService;
+
+	/**
+	 * ================== Config ========================
+	 */
 	@MockBean
 	protected S3ConfigLocal s3ConfigLocal;
 	@MockBean
 	protected S3Presigner s3Presigner;
+	@MockBean
+	protected S3Controller s3Controller;
+	@MockBean
+	protected S3Service s3Service;
+	protected S3Client s3Client;
 
 	@AfterEach
 	void tearDown() {
+		matchScheduleRepository.deleteAllInBatch();
+		teamRepository.deleteAllInBatch();
 		inquiryRepository.deleteAllInBatch();
 		newsReplyRepository.deleteAllInBatch();
 		newsCommentRepository.deleteAllInBatch();
 		newsCountMemberRepository.deleteAllInBatch();
 		newsCountRepository.deleteAllInBatch();
 		newsRepository.deleteAllInBatch();
+		memberActivityRepository.deleteAllInBatch();
 		memberJpaRepository.deleteAllInBatch();
+		inquiryAnswerRepository.deleteAllInBatch();
 	}
 
 	protected Member createMember(int index) {
 		Member member = Member.builder()
 			.email("test" + index + "@test.com")
-			.password("1234")
+			.encodedPassword("1234")
 			.tel("12345")
 			.nickname("test")
 			.role(MemberRole.USER)
@@ -97,6 +157,7 @@ public abstract class IntegrationTestSupport {
 			.title("기사타이틀" + index)
 			.category(category)
 			.thumbImg("www.test.com")
+			.postDate(LocalDateTime.now())
 			.build());
 
 		NewsCount newsCount = NewsCount.builder()
@@ -141,5 +202,22 @@ public abstract class IntegrationTestSupport {
 				.ip("1.1.1.1")
 				.build()
 		);
+	}
+
+	protected Team createTeam(int index, TeamCategory category) {
+		return teamRepository.save(Team.builder()
+			.name("테스트팀" + index)
+			.logo("www.test.com")
+			.category(category)
+			.build());
+	}
+
+	protected MatchSchedule createMatchSchedule(Team homeTeam, Team awayTeam, MatchCategory category, LocalDateTime startDate) {
+		return matchScheduleRepository.save(MatchSchedule.builder()
+			.homeTeam(homeTeam)
+			.awayTeam(awayTeam)
+			.category(category)
+			.startTime(startDate)
+			.build());
 	}
 }

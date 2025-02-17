@@ -2,6 +2,7 @@ package org.myteam.server.news.newsComment.dto.controller.request;
 
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentSaveServiceRequest;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,8 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NewsCommentSaveRequest {
 
+	@Schema(description = "뉴스 ID")
 	@NotNull(message = "뉴스ID는 필수입니다.")
 	private Long newsId;
+	@Schema(description = "댓글")
 	@NotNull(message = "뉴스 댓글은 필수입니다.")
 	private String comment;
 

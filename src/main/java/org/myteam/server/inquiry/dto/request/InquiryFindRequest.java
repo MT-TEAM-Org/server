@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.request.PageInfoServiceRequest;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
+import org.myteam.server.inquiry.domain.InquirySearchType;
 
 import java.util.UUID;
 
@@ -22,10 +23,16 @@ public class InquiryFindRequest extends PageInfoServiceRequest {
     @NotNull(message = "문의하기 정렬 타입은 필수입니다.")
     private InquiryOrderType orderType;
 
+    private InquirySearchType searchType;
+
+    private String keyword;
+
     @Builder
-    public InquiryFindRequest(UUID memberPublicId, InquiryOrderType orderType, int page, int size) {
+    public InquiryFindRequest(UUID memberPublicId, InquiryOrderType orderType, InquirySearchType searchType, String keyword, int page, int size) {
         super(page, size);
         this.memberPublicId = memberPublicId;
         this.orderType = orderType;
+        this.searchType = searchType;
+        this.keyword = keyword;
     }
 }

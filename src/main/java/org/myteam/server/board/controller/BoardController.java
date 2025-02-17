@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
 import org.myteam.server.board.dto.reponse.BoardResponse;
 import org.myteam.server.board.dto.request.BoardRequest;
-import org.myteam.server.board.dto.request.BoardSaveRequest;
+import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.global.security.dto.CustomUserDetails;
@@ -41,11 +41,10 @@ public class BoardController {
      */
     @PostMapping
     public ResponseEntity<ResponseDto<BoardResponse>> saveBoard(
-            @AuthenticationPrincipal final CustomUserDetails userDetails,
-            @Valid @RequestBody final BoardSaveRequest boardSaveRequest,
+            @Valid @RequestBody final BoardRequest boardRequest,
             final HttpServletRequest request) {
         final String clientIP = ClientUtils.getRemoteIP(request);
-        final BoardResponse response = boardService.saveBoard(boardSaveRequest, userDetails, clientIP);
+        final BoardResponse response = boardService.saveBoard(boardRequest, clientIP);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 생성 성공", response));
     }
 
@@ -54,9 +53,8 @@ public class BoardController {
      */
     @PutMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardResponse>> updateBoard(
-            @AuthenticationPrincipal final CustomUserDetails userDetails, @PathVariable final Long boardId,
-            @Valid @RequestBody final BoardSaveRequest boardSaveRequest) {
-        final BoardResponse response = boardService.updateBoard(boardSaveRequest, userDetails, boardId);
+            @PathVariable final Long boardId, @Valid @RequestBody final BoardRequest boardRequest) {
+        final BoardResponse response = boardService.updateBoard(boardRequest, boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 수정 성공", response));
     }
 
@@ -64,9 +62,8 @@ public class BoardController {
      * 게시글 삭제
      */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable final Long boardId,
-                                                         @AuthenticationPrincipal final CustomUserDetails userDetails) {
-        boardService.deleteBoard(boardId, userDetails);
+    public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable final Long boardId) {
+        boardService.deleteBoard(boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 삭제 성공", null));
     }
 
@@ -74,8 +71,9 @@ public class BoardController {
      * 게시글 상세 조회
      */
     @GetMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<BoardResponse>> getBoard(@PathVariable final Long boardId) {
-        final BoardResponse response = boardService.getBoard(boardId);
+    public ResponseEntity<ResponseDto<BoardResponse>> getBoard(@PathVariable final Long boardId,
+                                                               @AuthenticationPrincipal final CustomUserDetails userDetails) {
+        final BoardResponse response = boardService.getBoard(boardId, userDetails);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 조회 성공", response));
     }
 
@@ -83,7 +81,8 @@ public class BoardController {
      * 게시글 목록 조회
      */
     @GetMapping
-    public ResponseEntity<ResponseDto<BoardListResponse>> getBoardList(@ModelAttribute @Valid BoardRequest request) {
+    public ResponseEntity<ResponseDto<BoardListResponse>> getBoardList(
+            @ModelAttribute @Valid BoardSearchRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 목록 조회",
                 boardReadService.getBoardList(request.toServiceRequest())));
     }
@@ -93,7 +92,7 @@ public class BoardController {
      */
     @GetMapping("/my")
     public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
-            @ModelAttribute @Valid BoardRequest request,
+            @ModelAttribute @Valid BoardSearchRequest request,
             @AuthenticationPrincipal final CustomUserDetails userDetails) {
 
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "내가 쓴 게시글 목록 조회",

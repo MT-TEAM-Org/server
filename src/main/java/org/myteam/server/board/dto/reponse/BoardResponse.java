@@ -1,7 +1,9 @@
 package org.myteam.server.board.dto.reponse;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.myteam.server.board.domain.Board;
@@ -53,7 +55,12 @@ public class BoardResponse {
      */
     private String thumbnail;
     /**
-     * 좋아요 수
+     * 로그인한 사용자 게시글 추천 여부
+     */
+    @JsonProperty("isRecommended")
+    private boolean isRecommended;
+    /**
+     * 추천 수
      */
     private Integer recommendCount;
     /**
@@ -67,13 +74,14 @@ public class BoardResponse {
     /**
      * 작성 일시
      */
-    private LocalDateTime createdAt;
+    private LocalDateTime createDate;
     /**
      * 수정 일시
      */
-    private LocalDateTime updatedAt;
+    private LocalDateTime lastModifiedDate;
 
-    public BoardResponse(Board board, BoardCount boardCount) {
+    @Builder
+    public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended) {
         this.boardType = board.getBoardType();
         this.categoryType = board.getCategoryType();
         this.boardId = board.getId();
@@ -84,10 +92,19 @@ public class BoardResponse {
         this.content = board.getContent();
         this.link = board.getLink();
         this.thumbnail = board.getThumbnail();
+        this.isRecommended = isRecommended;
         this.recommendCount = boardCount.getRecommendCount();
         this.commentCount = boardCount.getCommentCount();
         this.viewCount = boardCount.getViewCount();
-        this.createdAt = board.getCreatedAt();
-        this.updatedAt = board.getUpdatedAt();
+        this.createDate = board.getCreateDate();
+        this.lastModifiedDate = board.getLastModifiedDate();
+    }
+
+    public static BoardResponse createResponse(Board board, BoardCount boardCount, boolean isRecommended) {
+        return BoardResponse.builder()
+                .board(board)
+                .boardCount(boardCount)
+                .isRecommended(isRecommended)
+                .build();
     }
 }

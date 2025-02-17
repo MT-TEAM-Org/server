@@ -29,13 +29,13 @@ public class BoardCount {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    @Column(name = "recommend_count", nullable = false)
+    @Column(nullable = false)
     private int recommendCount;
 
-    @Column(name = "view_count", nullable = false)
+    @Column(nullable = false)
     private int viewCount;
 
-    @Column(name = "comment_count", nullable = false)
+    @Column(nullable = false)
     private int commentCount;
 
     @Builder
@@ -55,5 +55,21 @@ public class BoardCount {
                 .commentCount(COUNT_SETTING_NUMBER)
                 .viewCount(COUNT_SETTING_NUMBER)
                 .build();
+    }
+
+    public void addRecommendCount() {
+        this.recommendCount += 1;
+    }
+
+    public void minusRecommendCount() {
+        this.recommendCount -= 1;
+    }
+
+    public void addCommentCount() {
+        this.commentCount += 1;
+    }
+
+    public void minusCommentCount() {
+        this.commentCount -= 1;
     }
 }

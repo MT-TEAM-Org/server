@@ -43,6 +43,7 @@ public class Ban {
         if (reasons != null) {
             this.reasons.addAll(reasons);
         }
+        this.message = message;
         this.active = active;
     }
 

@@ -10,6 +10,8 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PlayHive Server Error"),
     API_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "API Server Error"),
     IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "File I/O operation failed"),
+    ENCRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during encryption."),
+    DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during decryption."),
 
     // 503 Service Unavailable
     KAFKA_TOPIC_DELETE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "Failed to delete the Kafka topic."),
@@ -22,7 +24,13 @@ public enum ErrorCode {
     INVALID_TYPE(HttpStatus.BAD_REQUEST, "Invalid type provided"),
     INVALID_MIME_TYPE(HttpStatus.BAD_REQUEST, "Invalid mime type provided"),
     MEMBER_NOT_EQUALS(HttpStatus.BAD_REQUEST, "Member Not Equals"),
+    NO_MEMBER_RECOMMEND_RECORD(HttpStatus.BAD_REQUEST, "No Member Recommend Record"),
     ALREADY_MEMBER_RECOMMEND_NEWS(HttpStatus.BAD_REQUEST, "Member Already Recommend News"),
+    INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "Phone number is invalid"),
+    INVALID_GENDER_TYPE(HttpStatus.BAD_REQUEST, "Gender Type allow M or F"),
+    INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "BIRTHDATE length must be 6"),
+    INVALID_BIRTH_MONTH(HttpStatus.BAD_REQUEST, "Month is between 1 and 12"),
+    INVALID_BIRTH_DAY(HttpStatus.BAD_REQUEST, "Day is not allowed"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -34,7 +42,8 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Token"),
     MISSING_AUTH_HEADER(HttpStatus.UNAUTHORIZED, "No Authorization header or not Bearer type"),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token"),
-    UNAUTHORIZED_EMAIL_ACCOUNT(HttpStatus.UNAUTHORIZED, "Email account verification failed due to an invalid refresh token."),
+    UNAUTHORIZED_EMAIL_ACCOUNT(HttpStatus.UNAUTHORIZED,
+            "Email account verification failed due to an invalid refresh token."),
 
     // 403 Forbidden
     ACCOUNT_DISABLED(HttpStatus.FORBIDDEN, "Account disabled"),
@@ -57,11 +66,15 @@ public enum ErrorCode {
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
+    BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
+    PHONE_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "No matching number exists"),
+    BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment not found"),
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
-    INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists");
+    INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists"),
+    ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board");
 
     private final HttpStatus status;
     private final String msg;

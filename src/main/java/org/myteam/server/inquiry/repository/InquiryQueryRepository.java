@@ -38,7 +38,11 @@ public class InquiryQueryRepository {
                                                 Pageable pageable) {
         // 정렬 조건 설정
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(orderType, inquiry, inquiryAnswer);
-        
+        log.info("정렬 조건: {}", orderSpecifier);
+
+        // 검색 조건
+        log.info("검색조건: {}&&{}", isMemberEqualTo(memberPublicId), getSearchCondition(searchType, keyword));
+
         // 문의 리스트 조회
         List<InquiryResponse> inquiries = queryFactory
                 .select(Projections.constructor(InquiryResponse.class,
@@ -65,6 +69,16 @@ public class InquiryQueryRepository {
         long total = getInquiryCount(memberPublicId, searchType, keyword);
 
         return new PageImpl<>(inquiries, pageable, total);
+    }
+
+    public int getMyInquires(UUID memberPublicId) {
+        log.info("publicID: {} 문의내역 수 조회", memberPublicId);
+        return queryFactory
+                .select(inquiry.count())
+                .from(inquiry)
+                .where(inquiry.member.publicId.eq(memberPublicId))
+                .fetchOne()
+                .intValue();
     }
 
     private long getInquiryCount(UUID memberPublicId,

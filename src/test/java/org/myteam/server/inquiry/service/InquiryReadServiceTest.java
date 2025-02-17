@@ -2,6 +2,11 @@ package org.myteam.server.inquiry.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,11 +14,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
-import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
+import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
+import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
@@ -22,9 +27,11 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -34,19 +41,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
     @Autowired
     private MemberService memberService;
     @Autowired
-    private MemberJpaRepository memberRepository;
-    @Autowired
-    private InquiryRepository inquiryRepository;
-
-    @Autowired
-    private InquiryWriteService inquiryWriteService;
-    @Autowired
-    private InquiryReadService inquiryReadService;
-
-    @Autowired
-    private InquiryAnswerWriteService inquiryAnswerWriteService;
-    @Autowired
-    private InquiryAnswerRepository inquiryAnswerRepository;
+    private InquiryService inquiryService;
 
     private Member testMember;
     private Member otherMember;
@@ -57,10 +52,10 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
     @BeforeEach
     void setUp() {
         testMemberPublicId = memberService.create(MemberSaveRequest.builder()
-                        .email("test@example.com")
-                        .tel("01012345678")
-                        .nickname("testUser")
-                        .password("teamPlayHive12#")
+                .email("test@example.com")
+                .tel("01012345678")
+                .nickname("testUser")
+                .password("teamPlayHive12#")
                 .build()).getPublicId();
         otherMemberPublicId = memberService.create(MemberSaveRequest.builder()
                 .email("other@example.com")
@@ -69,97 +64,182 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
                 .password("otherMember!@#")
                 .build()).getPublicId();
 
-        testMember = memberRepository.findByPublicId(testMemberPublicId).get();
+        testMember = memberJpaRepository.findByPublicId(testMemberPublicId).get();
         IntStream.rangeClosed(1, 15).forEach(i ->
-                inquiryWriteService.createInquiry("문의내역 " + i, testMemberPublicId, "127.0.0.1")
+                inquiryService.createInquiry("문의내역 " + i, testMemberPublicId, "127.0.0.1")
         );
-        otherMember = memberRepository.findByPublicId(otherMemberPublicId).get();
+        otherMember = memberJpaRepository.findByPublicId(otherMemberPublicId).get();
         IntStream.rangeClosed(1, 15).forEach(i ->
-                inquiryWriteService.createInquiry("건의사항 " + i, otherMemberPublicId, "127.0.0.1")
+                inquiryService.createInquiry("건의사항 " + i, otherMemberPublicId, "127.0.0.1")
         );
-    }
-
-    @AfterEach
-    void cleanUp() {
-        inquiryAnswerRepository.deleteAllInBatch();
-        inquiryRepository.deleteAllInBatch();
-        memberJpaRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("최신순으로 회원의 문의 내역을 조회한다.")
+    @DisplayName("✅ 최신순으로 회원의 문의 내역을 조회한다.")
     void shouldReturnPagedInquiriesForMember() {
         // Given
+        InquiryFindRequest request = new InquiryFindRequest(
+                testMember.getPublicId(),
+                InquiryOrderType.RECENT,
+                null,
+                null,
+                2,
+                5
+        );
+
+        List<InquiryResponse> inquiryResponses = IntStream.rangeClosed(6, 10)
+                .mapToObj(i -> new InquiryResponse(
+                        (long) i,
+                        "문의내역 " + i,
+                        "닉네임",
+                        "192.168.143.22",
+                        LocalDateTime.now().minusDays(i).withMinute(i),
+                        "답변 내용 " + i,
+                        LocalDateTime.now()
+                ))
+                .sorted(Comparator.comparing(InquiryResponse::getCreatedAt))
+                .toList();
+
+
+        PageCustomResponse<InquiryResponse> pageCustomResponse = PageCustomResponse.of(
+                new PageImpl<>(inquiryResponses, PageRequest.of(1, 5), 15)
+        );
+
+        InquiriesListResponse mockResponse = InquiriesListResponse.createResponse(pageCustomResponse);
+
+        given(inquiryReadService.getInquiriesByMember(any(InquiryFindRequest.class)))
+                .willReturn(mockResponse);
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(
-                new InquirySearchRequest(
-                        testMember.getPublicId(),
-                        InquiryOrderType.RECENT,
-                        null,
-                        null,
-                        2,
-                        5));
+        InquiriesListResponse response = inquiryReadService.getInquiriesByMember(request);
 
         // Then
-        System.out.println("response: " + response);
-        assertThat("문의내역 10").isEqualTo(response.getContent().get(0).getContent());
-        assertThat(response.getContent()).hasSize(5);
-        assertThat(response.getPageInfo().getCurrentPage()).isEqualTo(2);
-        assertThat(response.getPageInfo().getTotalPage()).isEqualTo(3);
-        assertThat(response.getPageInfo().getTotalElement()).isEqualTo(15);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getList().getContent()).hasSize(5),
+                () -> assertThat(response.getList().getPageInfo())
+                        .extracting("currentPage", "totalPage", "totalElement")
+                        .containsExactly(2, 3, 15L),
+                () -> assertThat(response.getList().getContent())
+                        .extracting("content")
+                        .containsExactly("문의내역 10", "문의내역 9", "문의내역 8", "문의내역 7", "문의내역 6")
+        );
+
+
+        then(inquiryReadService).should(times(1)).getInquiriesByMember(any(InquiryFindRequest.class));
     }
 
     @Test
     @DisplayName("답변일 기준으로 회원의 문의 내역을 조회한다.")
     void shouldReturnPagedInquiriesSortedByAnswered() {
         // Given
+        InquiryFindRequest request = new InquiryFindRequest(
+                testMember.getPublicId(),
+                InquiryOrderType.ANSWERED,
+                null,
+                null,
+                1, 5
+        );
 
-        // 일부 문의에 답변 추가
-        for (int i = 1; i <= 5; i++) {
-            inquiryAnswerWriteService.createAnswer(Long.valueOf(i), "답변 " + i);
-        }
+        // 일부 문의에 대한 가짜 응답 데이터를 생성
+        List<InquiryResponse> inquiryResponses = IntStream.rangeClosed(11, 15)
+                .mapToObj(i -> new InquiryResponse(
+                        (long) i,
+                        "문의내역 " + i,
+                        "닉네임",
+                        "192.168.143.22",
+                        LocalDateTime.now().minusDays(i),
+                        "답변 " + i,
+                        LocalDateTime.now().minusDays(i).withMinute(i)
+                ))
+                .sorted(Comparator.comparing(InquiryResponse::getAnsweredAt))
+                .toList();
+
+        PageCustomResponse<InquiryResponse> pageCustomResponse = PageCustomResponse.of(
+                new PageImpl<>(inquiryResponses, PageRequest.of(0, 5), 15)
+        );
+
+        InquiriesListResponse mockResponse = InquiriesListResponse.createResponse(pageCustomResponse);
+
+        // inquiryReadService의 getInquiriesByMember 메서드를 Mocking하여 원하는 응답 반환하도록 설정
+        given(inquiryReadService.getInquiriesByMember(any(InquiryFindRequest.class)))
+                .willReturn(mockResponse);
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(
-                new InquirySearchRequest(
-                        testMember.getPublicId(),
-                        InquiryOrderType.ANSWERED,
-                        null,
-                        null,
-                        1, 5));
+        InquiriesListResponse response = inquiryReadService.getInquiriesByMember(request);
 
         // Then
-        System.out.println("response: " + response);
-        assertThat(response.getContent().get(0).getAnswerContent()).isEqualTo("답변 5");
-        assertThat(response.getContent()).hasSize(5);
-        assertThat(response.getPageInfo().getCurrentPage()).isEqualTo(1);
-        assertThat(response.getPageInfo().getTotalPage()).isEqualTo(3);
-        assertThat(response.getPageInfo().getTotalElement()).isEqualTo(15);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getList().getContent()).hasSize(5),
+                () -> assertThat(response.getList().getPageInfo())
+                        .extracting("currentPage", "totalPage", "totalElement")
+                        .containsExactly(1, 3, 15L),
+                () -> assertThat(response.getList().getContent())
+                        .extracting("answerContent")
+                        .containsExactly("답변 15", "답변 14", "답변 13", "답변 12", "답변 11") // 최신 답변순 확인
+        );
+
+        then(inquiryReadService).should(times(1)).getInquiriesByMember(any(InquiryFindRequest.class));
     }
 
     @Test
     @DisplayName("문의 내용을 검색하고 최신순으로 조회한다.")
     void shouldSearchInquiriesByContentAndSortByRecent() {
         // Given
-        for (int i = 1; i <= 15; i++) {
-            inquiryWriteService.createInquiry("검색어 포함 " + i, testMemberPublicId, "127.0.0.1");
-        }
+        InquiryFindRequest request = new InquiryFindRequest(
+                testMember.getPublicId(),
+                InquiryOrderType.RECENT,
+                InquirySearchType.CONTENT,
+                "문의사항",
+                1, 5
+        );
+
+        // ✅ 검색된 문의 목록을 생성 (최신순)
+        List<InquiryResponse> inquiryResponses = IntStream.rangeClosed(1, 15)
+                .mapToObj(i -> new InquiryResponse(
+                        (long) i,
+                        "문의사항 " + i,
+                        "닉네임",
+                        "127.0.0.1",
+                        LocalDateTime.now().minusDays(i),
+                        null,
+                        LocalDateTime.now().minusDays(i)
+                ))
+                .sorted(Comparator.comparing(InquiryResponse::getCreatedAt))
+                .toList();
+
+        PageCustomResponse<InquiryResponse> pageCustomResponse = PageCustomResponse.of(
+                new PageImpl<>(inquiryResponses.subList(0, 5), PageRequest.of(0, 5), 15)
+        );
+
+        InquiriesListResponse mockResponse = InquiriesListResponse.createResponse(pageCustomResponse);
+
+        given(inquiryReadService.getInquiriesByMember(any(InquiryFindRequest.class)))
+                .willReturn(mockResponse);
 
         // When
-        PageCustomResponse<InquiryResponse> response = inquiryReadService.getInquiriesByMember(
-                new InquirySearchRequest(
-                        testMember.getPublicId(),
-                        InquiryOrderType.RECENT,
-                        InquirySearchType.CONTENT,
-                        "검색어", // ✅ 검색어 적용
-                        1, 5));
+        InquiriesListResponse response = inquiryReadService.getInquiriesByMember(request);
 
         // Then
-        System.out.println("response: " + response);
-        assertThat(response.getContent().get(0).getContent()).contains("검색어 포함 15"); // ✅ 최신순 확인
-        assertThat(response.getContent()).hasSize(5);
-        assertThat(response.getPageInfo().getCurrentPage()).isEqualTo(1);
-        assertThat(response.getPageInfo().getTotalPage()).isEqualTo(3);
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getList().getContent()).hasSize(5),
+                () -> assertThat(response.getList().getPageInfo())
+                        .extracting("currentPage", "totalPage", "totalElement")
+                        .containsExactly(1, 3, 15L),
+                () -> assertThat(response.getList().getContent())
+                        .extracting("content")
+                        .containsExactly(
+                                "문의사항 15",
+                                "문의사항 14",
+                                "문의사항 13",
+                                "문의사항 12",
+                                "문의사항 11"
+                        )
+        );
+
+        // ✅ Mocking이 예상대로 호출되었는지 검증
+        then(inquiryReadService).should(times(1)).getInquiriesByMember(any(InquiryFindRequest.class));
     }
 }

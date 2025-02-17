@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,16 +23,26 @@ public class NewsCountController {
 
 	private final NewsCountService newsCountService;
 
+	@Operation(summary = "뉴스 추천수 추가 API", description = "뉴스를 추천합니다.")
 	@PatchMapping("/recommend/{newsId}")
-	public ResponseEntity<ResponseDto<NewsRecommendResponse>> recommend(@PathVariable Long newsId) {
+	public ResponseEntity<ResponseDto<NewsRecommendResponse>> recommend(
+		@PathVariable
+		@Parameter(description = "뉴스 ID")
+		Long newsId
+	) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 추천 추가 성공",
 			newsCountService.recommendNews(newsId)));
 	}
 
+	@Operation(summary = "뉴스 추천수 삭제 API", description = "뉴스의 추천을 취소합니다.")
 	@DeleteMapping("/recommend/{newsId}")
-	public ResponseEntity<ResponseDto<NewsRecommendResponse>> cancelRecommend(@PathVariable Long newsId) {
+	public ResponseEntity<ResponseDto<NewsRecommendResponse>> cancelRecommend(
+		@PathVariable
+		@Parameter(description = "뉴스 ID")
+		Long newsId
+	) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 추천 삭제 성공",

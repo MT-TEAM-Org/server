@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.request.PageInfoServiceRequest;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class InquirySearchRequest extends PageInfoServiceRequest {
+public class InquirySearchRequest extends PageInfoRequest {
 
     @NotNull(message = "멤버 id는 필수입니다.")
     private UUID memberPublicId;
@@ -34,5 +35,16 @@ public class InquirySearchRequest extends PageInfoServiceRequest {
         this.orderType = orderType;
         this.searchType = searchType;
         this.keyword = keyword;
+    }
+
+    public InquiryServiceRequest toServiceRequest() {
+        return InquiryServiceRequest.builder()
+                .memberPublicId(memberPublicId)
+                .orderType(orderType)
+                .searchType(searchType)
+                .content(keyword)
+                .size(getSize())
+                .page(getPage())
+                .build();
     }
 }

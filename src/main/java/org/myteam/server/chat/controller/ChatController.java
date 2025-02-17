@@ -7,9 +7,7 @@ import org.myteam.server.chat.dto.request.ChatMessage;
 import org.myteam.server.chat.dto.request.RoomRequest;
 import org.myteam.server.chat.dto.response.ChatRoomResponse;
 import org.myteam.server.chat.service.ChatReadService;
-import org.myteam.server.chat.dto.request.FilterDataRequest;
-import org.myteam.server.chat.service.ChatWriteService;
-import org.myteam.server.chat.service.FilterWriteService;
+import org.myteam.server.chat.service.ChatService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -28,7 +26,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 public class ChatController {
 
     private final ChatReadService chatReadService;
-    private final ChatWriteService chatWriteService;
+    private final ChatService chatService;
 
     /**
      * TODO: Kafka를 통해 메시지 전송
@@ -39,7 +37,7 @@ public class ChatController {
     public ChatMessage chat(@DestinationVariable Long roomId, ChatMessage message) {
         log.info("Sending message to room {}: {}", roomId, message);
 
-        Chat chat = chatWriteService.createChat(roomId, message.getSender(), message.getSenderEmail(), message.getMessage());
+        Chat chat = chatService.createChat(roomId, message.getSender(), message.getSenderEmail(), message.getMessage());
 
         return ChatMessage.builder()
                 .roomId(roomId)
@@ -57,7 +55,7 @@ public class ChatController {
     public ResponseEntity<ResponseDto<ChatRoomResponse>> createChatRoom(@RequestBody RoomRequest requestDto) {
         log.info("createChatRoom: {}", requestDto.getRoomName());
 
-        ChatRoomResponse newRoomResponse = chatWriteService.createChatRoom(requestDto.getRoomName());
+        ChatRoomResponse newRoomResponse = chatService.createChatRoom(requestDto.getRoomName());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -74,7 +72,7 @@ public class ChatController {
     public ResponseEntity<ResponseDto<String>> deleteChatRoom(@PathVariable Long roomId) {
         log.info("deleteChatRoom: {}", roomId);
 
-        String deleteChatRoomName = chatWriteService.deleteChatRoom(roomId);
+        String deleteChatRoomName = chatService.deleteChatRoom(roomId);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),

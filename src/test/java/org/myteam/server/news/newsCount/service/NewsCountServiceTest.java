@@ -21,6 +21,7 @@ import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
 import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public class NewsCountServiceTest extends IntegrationTestSupport {
 
@@ -33,6 +34,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 	@DisplayName("뉴스 추천 클릭시 사용자 좋아요 추가를 테스트한다.")
 	@Test
+	@Transactional
 	void recommendNewsTest() {
 		News news = createNews(1, NewsCategory.FOOTBALL, 10);
 		Member member = createMember(1);
@@ -42,7 +44,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		// then
 		assertAll(
-			() -> assertThat(newsCountRepository.findById(news.getId()).get().getRecommendCount()).isEqualTo(11),
+			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getRecommendCount()).isEqualTo(11),
 			() -> assertThat(newsCountMemberRepository.findByNewsIdAndMemberPublicId(news.getId(), member.getPublicId()).get())
 				.extracting("news.id", "member.publicId")
 				.contains(news.getId(), member.getPublicId())
@@ -51,6 +53,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 	@DisplayName("뉴스 추천 취소시 사용자 좋아요 제거를 테스트한다.")
 	@Test
+	@Transactional
 	void cancelRecommendNewsTest() {
 		News news = createNews(1, NewsCategory.FOOTBALL, 10);
 		Member member = createMember(1);
@@ -61,7 +64,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		// then
 		assertAll(
-			() -> assertThat(newsCountRepository.findById(news.getId()).get().getRecommendCount()).isEqualTo(9),
+			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getRecommendCount()).isEqualTo(9),
 			() -> assertThatThrownBy(() -> newsCountMemberRepository.findById(newsCountMember.getId()).get())
 				.isInstanceOf(NoSuchElementException.class)
 				.hasMessage("No value present")

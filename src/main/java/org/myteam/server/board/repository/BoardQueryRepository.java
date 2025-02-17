@@ -13,16 +13,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.domain.BoardOrderType;
-import org.myteam.server.board.domain.BoardSearchType;
-import org.myteam.server.board.domain.BoardType;
-import org.myteam.server.board.domain.CategoryType;
+import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.board.domain.*;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class BoardQueryRepository {
@@ -48,8 +47,8 @@ public class BoardQueryRepository {
                         member.publicId,
                         member.nickname,
                         boardCount.commentCount,
-                        board.createdAt,
-                        board.updatedAt
+                        board.createDate,
+                        board.lastModifiedDate
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.boardId.eq(board.id))
@@ -98,7 +97,7 @@ public class BoardQueryRepository {
         // default 최신순
         BoardOrderType boardOrderType = Optional.ofNullable(orderType).orElse(BoardOrderType.CREATE);
         return switch (boardOrderType) {
-            case CREATE -> board.createdAt.desc();
+            case CREATE -> board.createDate.desc();
             case RECOMMEND -> boardCount.recommendCount.desc();
             case COMMENT -> boardCount.commentCount.desc();
         };
@@ -129,8 +128,8 @@ public class BoardQueryRepository {
                         member.publicId,
                         member.nickname,
                         boardCount.commentCount,
-                        board.createdAt,
-                        board.updatedAt
+                        board.createDate,
+                        board.lastModifiedDate
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.boardId.eq(board.id))
@@ -144,7 +143,19 @@ public class BoardQueryRepository {
 
         long total = getTotalMyBoardCount(searchType, search, publicId);
 
+        log.info("검색 완료 total: {}", total);
+
         return new PageImpl<>(content, pageable, total);
+    }
+
+    public int getMyBoard(UUID memberPublicId) {
+        log.info("publicID: {} 포스트 수 조회", memberPublicId);
+        return queryFactory
+                .select(board.count())
+                .from(board)
+                .where(board.member.publicId.eq(memberPublicId))
+                .fetchOne()
+                .intValue();
     }
 
     /**
