@@ -57,18 +57,26 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Category not found"),
-    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Board not found"),
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "Room not found"),
     BAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Ban not found"),
-    NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
-    NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "New Comment not found"),
-    NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "New Reply not found"),
+
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
+
+    NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
+    NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment not found"),
+    NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "News Reply not found"),
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
+
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Board not found"),
     BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
     PHONE_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "No matching number exists"),
     BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment not found"),
+
+    MATCH_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match not found"),
+
+    MATCH_PREDICTION_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match Prediction not found"),
+
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
