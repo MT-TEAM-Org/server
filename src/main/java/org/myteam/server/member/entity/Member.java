@@ -121,6 +121,10 @@ public class Member extends Base {
         return email.equals(this.email);
     }
 
+    public boolean verifyMemberStatus() {
+        return this.getStatus() == MemberStatus.ACTIVE;
+    }
+
     public boolean isAdmin() {
         return this.role.equals(ADMIN);
     }
