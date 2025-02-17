@@ -78,6 +78,12 @@ public enum ErrorCode {
     MATCH_PREDICTION_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match Prediction not found"),
 
 
+    MATCH_NOT_FOUND(HttpStatus.NOT_FOUND, "Match not found"),
+    MATCH_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Match Comment not found"),
+    MATCH_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Match Reply not found"),
+    MATCH_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Match Count not found"),
+
+
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
