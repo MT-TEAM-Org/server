@@ -1,31 +1,20 @@
 package org.myteam.server.inquiry.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.inquiry.domain.Inquiry;
-import org.myteam.server.inquiry.repository.InquiryRepository;
-import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
-import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.util.*;
-import java.util.UUID;
 
 class InquiryServiceTest extends IntegrationTestSupport {
+  
     private Member testMember;
     private UUID memberPublicId;
 
@@ -35,7 +24,7 @@ class InquiryServiceTest extends IntegrationTestSupport {
         Member member = Member.builder()
                 .publicId(UUID.randomUUID())
                 .email("test@example.com")
-                .password("teamPlayHive12#")
+                .encodedPassword("teamPlayHive12#")
                 .tel("01012345678")
                 .nickname("testUser")
                 .role(MemberRole.USER)

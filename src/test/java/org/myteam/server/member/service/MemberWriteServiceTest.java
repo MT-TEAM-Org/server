@@ -1,26 +1,25 @@
 package org.myteam.server.member.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.myteam.server.global.exception.ErrorCode.*;
+
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.UUID;
 
@@ -103,7 +102,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
         Member mockMember = Member.builder()
                 .publicId(UUID.randomUUID())
                 .email(request.getEmail())
-                .password("password123")
+                .encodedPassword("password123")
                 .nickname("testUser")
                 .tel("01012345678")
                 .status(MemberStatus.ACTIVE)

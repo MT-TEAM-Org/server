@@ -8,15 +8,16 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
-import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.service.InquiryAnswerService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
-import org.myteam.server.match.matchSchedule.domain.MatchCategory;
-import org.myteam.server.match.matchSchedule.domain.MatchSchedule;
-import org.myteam.server.match.matchSchedule.repository.MatchScheduleRepository;
+import org.myteam.server.match.match.domain.Match;
+import org.myteam.server.match.match.domain.MatchCategory;
+import org.myteam.server.match.match.repository.MatchRepository;
+import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
+import org.myteam.server.match.matchPrediction.repository.MatchPredictionRepository;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.match.team.repository.TeamRepository;
@@ -44,6 +45,7 @@ import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
 import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.util.slack.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -62,7 +64,7 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected TeamRepository teamRepository;
 	@Autowired
-	protected MatchScheduleRepository matchScheduleRepository;
+	protected MatchRepository matchRepository;
 	@Autowired
 	protected NewsRepository newsRepository;
 	@Autowired
@@ -83,6 +85,8 @@ public abstract class IntegrationTestSupport {
 	protected InquiryRepository inquiryRepository;
 	@Autowired
 	protected InquiryAnswerRepository inquiryAnswerRepository;
+	@Autowired
+	protected MatchPredictionRepository matchPredictionRepository;
 
 	/**
 	 * ================== Service ========================
@@ -116,10 +120,13 @@ public abstract class IntegrationTestSupport {
 	@MockBean
 	protected S3Service s3Service;
 	protected S3Client s3Client;
+	@MockBean
+	protected SlackService slackService;
 
 	@AfterEach
 	void tearDown() {
-		matchScheduleRepository.deleteAllInBatch();
+		matchPredictionRepository.deleteAllInBatch();
+		matchRepository.deleteAllInBatch();
 		teamRepository.deleteAllInBatch();
 		inquiryRepository.deleteAllInBatch();
 		newsReplyRepository.deleteAllInBatch();
@@ -135,7 +142,7 @@ public abstract class IntegrationTestSupport {
 	protected Member createMember(int index) {
 		Member member = Member.builder()
 			.email("test" + index + "@test.com")
-			.password("1234")
+			.encodedPassword("1234")
 			.tel("12345")
 			.nickname("test")
 			.role(MemberRole.USER)
@@ -212,12 +219,21 @@ public abstract class IntegrationTestSupport {
 			.build());
 	}
 
-	protected MatchSchedule createMatchSchedule(Team homeTeam, Team awayTeam, MatchCategory category, LocalDateTime startDate) {
-		return matchScheduleRepository.save(MatchSchedule.builder()
+	protected Match createMatch(Team homeTeam, Team awayTeam, MatchCategory category,
+		LocalDateTime startDate) {
+		return matchRepository.save(Match.builder()
 			.homeTeam(homeTeam)
 			.awayTeam(awayTeam)
 			.category(category)
 			.startTime(startDate)
+			.build());
+	}
+
+	protected MatchPrediction createMatchPrediction(Match match, int home, int away) {
+		return matchPredictionRepository.save(MatchPrediction.builder()
+			.match(match)
+			.home(home)
+			.away(away)
 			.build());
 	}
 }

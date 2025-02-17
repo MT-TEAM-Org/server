@@ -10,10 +10,13 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberType;
+import org.myteam.server.member.dto.FindIdResponse;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.profile.dto.response.ProfileResponseDto.ProfileResponse;
+import org.myteam.server.util.AESCryptoUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,8 @@ public class MemberReadService {
     private final SecurityReadService securityReadService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+
+    private final AESCryptoUtil crypto;
 
     public Member findById(UUID publicId) {
         return memberRepository.findByPublicId(publicId)
@@ -99,5 +104,30 @@ public class MemberReadService {
         return memberRepository.findByEmail(email)
                 .map(Member::getType)
                 .orElse(null);
+    }
+
+    public FindIdResponse findUserId(String phoneNumber) {
+        if (phoneNumber.length() != 11 && phoneNumber.length() != 10) {
+            throw new PlayHiveException(ErrorCode.INVALID_PHONE_NUMBER);
+        }
+
+        if (!memberJpaRepository.existsByTel(phoneNumber)) {
+            throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        List<Member> memberList = memberJpaRepository.findByTel(phoneNumber);
+
+        return FindIdResponse.createResponse(memberList);
+    }
+
+    public String findPassword(String email) {
+        Member member = memberJpaRepository.findByEmail(email)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.PHONE_NUMBER_NOT_FOUND));
+
+        String encodedPassword = member.getEncodedPassword();
+
+        String originPassword = crypto.findOriginPwd(encodedPassword);
+
+        return originPassword;
     }
 }

@@ -10,6 +10,8 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PlayHive Server Error"),
     API_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "API Server Error"),
     IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "File I/O operation failed"),
+    ENCRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during encryption."),
+    DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during decryption."),
 
     // 503 Service Unavailable
     KAFKA_TOPIC_DELETE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "Failed to delete the Kafka topic."),
@@ -24,6 +26,7 @@ public enum ErrorCode {
     MEMBER_NOT_EQUALS(HttpStatus.BAD_REQUEST, "Member Not Equals"),
     NO_MEMBER_RECOMMEND_RECORD(HttpStatus.BAD_REQUEST, "No Member Recommend Record"),
     ALREADY_MEMBER_RECOMMEND_NEWS(HttpStatus.BAD_REQUEST, "Member Already Recommend News"),
+    INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "Phone number is invalid"),
     INVALID_GENDER_TYPE(HttpStatus.BAD_REQUEST, "Gender Type allow M or F"),
     INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "BIRTHDATE length must be 6"),
     INVALID_BIRTH_MONTH(HttpStatus.BAD_REQUEST, "Month is between 1 and 12"),
@@ -54,18 +57,27 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Category not found"),
-    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Board not found"),
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "Room not found"),
     BAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Ban not found"),
-    NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
-    NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "New Comment not found"),
-    NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "New Reply not found"),
+
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
+
+    NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
+    NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment not found"),
+    NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "News Reply not found"),
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
+
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Board not found"),
     BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
+    PHONE_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "No matching number exists"),
     BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment not found"),
     BOARD_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Reply not found"),
+
+    MATCH_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match not found"),
+
+    MATCH_PREDICTION_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match Prediction not found"),
+
 
     // 409 Conflict,
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
