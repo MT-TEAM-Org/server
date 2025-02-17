@@ -1,14 +1,18 @@
 package org.myteam.server.member.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.service.ReIssueService;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.member.controller.response.MemberResponse;
+import org.myteam.server.member.dto.FindIdResponse;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
 import org.myteam.server.member.service.MemberReadService;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.util.UUID;
 
+import static org.myteam.server.global.exception.ErrorCode.UNAUTHORIZED;
 import static org.myteam.server.global.security.jwt.JwtProvider.*;
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
@@ -70,5 +75,32 @@ public class MyInfoController {
         String email = memberReadService.getCurrentLoginUserEmail(userDetails.getPublicId()); // 현재 로그인한 사용자 이메일
         memberService.changePassword(email, passwordChangeRequest);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "비밀번호 변경 성공", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/find-id")
+    public ResponseEntity<ResponseDto<FindIdResponse>> findUserEmailByTel(@RequestParam String phoneNumber) {
+        FindIdResponse response = memberReadService.findUserId(phoneNumber);
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "아이디 찾기 성공",
+                response
+        ));
+    }
+
+    @PostMapping("/find-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String email, HttpSession session) {
+        String certifiedEmail = (String) session.getAttribute("certifiedEmail");
+
+        if (certifiedEmail == null || !certifiedEmail.equals(email)) {
+            throw new PlayHiveException(ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT);
+        }
+
+        String password = memberReadService.findPassword(email);
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "비밀번호 찾기 성공",
+                password
+        ));
     }
 }

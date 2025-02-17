@@ -16,6 +16,7 @@ import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
+import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
@@ -41,8 +42,8 @@ public class Member extends Base {
     @Column(nullable = false)
     private String email; // 계정
 
-    @Column(nullable = false, length = 60) // 패스워드 인코딩(BCrypt)
-    private String password; // 비밀번호
+    @Column(nullable = false)
+    private String encodedPassword;
 
     @Column(length = 11)
     private String tel;
@@ -74,9 +75,9 @@ public class Member extends Base {
 
 
     @Builder
-    public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
+    public Member(String email, String encodedPassword, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
         this.email = email;
-        this.password = password;
+        this.encodedPassword = encodedPassword;
         this.tel = tel;
         this.nickname = nickname;
         this.role = role;
@@ -86,23 +87,22 @@ public class Member extends Base {
     }
 
     @Builder
-    public Member(MemberSaveRequest memberSaveRequest, PasswordEncoder passwordEncoder) {
-        this.email = memberSaveRequest.getEmail();
-        this.password = passwordEncoder.encode(memberSaveRequest.getPassword());
-        this.tel = memberSaveRequest.getTel();
-        this.nickname = memberSaveRequest.getNickname();
+    public Member(String email, String encodedPassword, String tel, String nickname) {
+        this.email = email;
+        this.encodedPassword = encodedPassword;
+        this.tel = tel;
+        this.nickname = nickname;
     }
 
     // 전체 업데이트 메서드
-    public void update(MemberUpdateRequest memberUpdateRequest, PasswordEncoder passwordEncoder) {
-        // this.email = memberUpdateRequest.getEmail();
-        this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
-        this.tel = memberUpdateRequest.getTel();
-        this.nickname = memberUpdateRequest.getNickname();
+    public void update(String encodedPassword, String tel, String nickname) {
+        this.encodedPassword = encodedPassword;
+        this.tel = tel;
+        this.nickname = nickname;
     }
 
-    public void updatePassword(PasswordChangeRequest passwordChangeRequest, PasswordEncoder passwordEncoder) {
-        this.password = passwordEncoder.encode(passwordChangeRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
+    public void updatePassword(String encodedPassword) {
+        this.encodedPassword = encodedPassword; // 비밀번호 변경 시 암호화 필요
     }
 
     public void updateEmail(String email) {
@@ -125,13 +125,23 @@ public class Member extends Base {
         return this.role.equals(ADMIN);
     }
 
-    public boolean validatePassword(String inputPassword, PasswordEncoder bCryptPasswordEncoder) {
-        // 입력된 평문 패스워드와 이미 암호화된 패스워드를 비교
-        boolean isValid = bCryptPasswordEncoder.matches(inputPassword, this.password);
-        log.info("Input password: {}", inputPassword);
-        log.info("Stored password: {}", this.password);
-        log.info("Is valid: {}", isValid);
-        return isValid;
+    public boolean validatePassword(String inputPassword, AESCryptoUtil aesCryptoUtil) {
+        try {
+            // ✅ 저장된 암호화된 비밀번호를 AES 복호화
+            String decryptedPassword = aesCryptoUtil.findOriginPwd(this.encodedPassword);
+
+            // ✅ 평문 패스워드와 복호화된 패스워드 비교
+            boolean isValid = inputPassword.equals(decryptedPassword);
+
+            log.info("Input password: {}", inputPassword);
+            log.info("Decrypted password: {}", decryptedPassword);
+            log.info("Is valid: {}", isValid);
+
+            return isValid;
+        } catch (Exception e) {
+            log.error("Failed to validate password", e);
+            return false;
+        }
     }
 
     public void confirmMemberEquals(Member member) {

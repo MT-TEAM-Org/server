@@ -9,8 +9,9 @@ import org.myteam.server.member.domain.validator.MemberValidator;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.mypage.dto.request.MyPageRequest;
+import org.myteam.server.mypage.dto.request.MyPageRequest.MyPageUpdateRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto;
+import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,18 +23,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class MyPageService {
 
     private final SecurityReadService securityReadService;
-    private final PasswordEncoder passwordEncoder;
     private final MemberJpaRepository memberJpaRepository;
     private final MemberValidator memberValidator;
+    private final AESCryptoUtil cryptoUtil;
 
-    public void updateMemberInfo(MyPageRequest.MyPageUpdateRequest request) {
+    public void updateMemberInfo(MyPageUpdateRequest request) {
         Member member = securityReadService.getMember();
 
         if (!member.verifyOwnEmail(request.getEmail())) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
-        member.update(new ProfileRequestDto.MemberUpdateRequest(request.getEmail(), request.getPassword(), request.getTel(), request.getNickname()), passwordEncoder);
+        String encodedPwd = cryptoUtil.createEncodedPwd(request.getPassword());
+
+        member.update(encodedPwd, request.getTel(), request.getNickname());
 
         if (request.getBirthDate() != null) {
             memberValidator.validateBirthDate(request.getBirthDate());
