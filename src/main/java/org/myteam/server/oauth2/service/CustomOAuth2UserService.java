@@ -105,7 +105,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         UUID publicId = UUID.randomUUID();
         Member newMember = Member.builder()
                 .email(oAuth2Response.getEmail())
-                .password(PasswordUtil.generateRandomPassword())
+                .encodedPassword(PasswordUtil.generateRandomPassword())
                 .role(USER)
                 .tel(oAuth2Response.getTel())
                 .nickname(oAuth2Response.getNickname())

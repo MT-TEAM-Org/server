@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class MyPageService {
 
     private final SecurityReadService securityReadService;
-    private final PasswordEncoder passwordEncoder;
     private final MemberJpaRepository memberJpaRepository;
     private final MemberValidator memberValidator;
     private final AESCryptoUtil cryptoUtil;
@@ -37,8 +36,7 @@ public class MyPageService {
 
         String encodedPwd = cryptoUtil.createEncodedPwd(request.getPassword());
 
-        member.update(new ProfileRequestDto.MemberUpdateRequest(request.getEmail(), request.getPassword(), request.getTel(), request.getNickname()),
-                encodedPwd, passwordEncoder);
+        member.update(encodedPwd, request.getTel(), request.getNickname());
 
         if (request.getBirthDate() != null) {
             memberValidator.validateBirthDate(request.getBirthDate());

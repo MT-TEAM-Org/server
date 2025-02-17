@@ -112,5 +112,5 @@ minio:
 
 playhive:
   control:
-    aesSecretKey: testestetsetstestetsetstetsetstestetsetetses
-    aesIv: tesetstestetsetstetstste
+    aesSecretKey: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=" # "0123456789abcdef0123456789abcdef"
+    aesIv: "YWJjZGVmMDEyMzQ1Njc4OQ==" # "abcdef0123456789"

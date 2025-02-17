@@ -16,15 +16,11 @@ import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.util.AESCryptoUtil;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import java.util.Optional;
 
 import static org.myteam.server.global.domain.PlayHiveValidator.validate;
@@ -40,7 +36,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final MemberJpaRepository memberJpaRepository;
     private final SecurityReadService securityReadService;
-    private final PasswordEncoder passwordEncoder;
     private final MemberActivityRepository memberActivityRepository;
 
     private final AESCryptoUtil crypto;
@@ -63,7 +58,8 @@ public class MemberService {
         String encryptedPwd = crypto.createEncodedPwd(memberSaveRequest.getPassword());
 
         // 2. 패스워드인코딩 + 회원 가입
-        Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder, encryptedPwd));
+        Member member = memberJpaRepository.save(
+                new Member(memberSaveRequest.getEmail(), encryptedPwd, memberSaveRequest.getTel(), memberSaveRequest.getNickname()));
         member.updateStatus(MemberStatus.ACTIVE);
 
         // ✅ 3. MemberActivity 생성 및 연관 관계 설정
@@ -86,7 +82,7 @@ public class MemberService {
 
         String encodedPwd = crypto.createEncodedPwd(memberUpdateRequest.getPassword());
 
-        member.update(memberUpdateRequest, encodedPwd, passwordEncoder);
+        member.update(encodedPwd, memberUpdateRequest.getTel(), memberUpdateRequest.getNickname());
 
         memberJpaRepository.save(member);
         log.info("회원 정보 수정 완료: {}", member.getPublicId());
@@ -105,7 +101,7 @@ public class MemberService {
         if (!isOwnValid) throw new PlayHiveException(NO_PERMISSION);
 
         // 비밀번호 일치 여부 확인
-        boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), passwordEncoder);
+        boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), crypto);
         if (!isPWValid) throw new PlayHiveException(NO_PERMISSION);
 
         member.updateStatus(MemberStatus.INACTIVE);
@@ -145,10 +141,12 @@ public class MemberService {
         Member findMember = memberRepository.getByEmail(email);
         boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
         if (!isEqual) throw new PlayHiveException(INVALID_PARAMETER, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
-        boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), passwordEncoder);
+        boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), crypto);
         if (!isValid) throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");
 
-        findMember.updatePassword(passwordChangeRequest, passwordEncoder); // 비밀번호 변경
+        String encodedPwd = crypto.createEncodedPwd(passwordChangeRequest.getNewPassword());
+
+        findMember.updatePassword(encodedPwd); // 비밀번호 변경
     }
 
     @Transactional

@@ -103,7 +103,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
         Member mockMember = Member.builder()
                 .publicId(UUID.randomUUID())
                 .email(request.getEmail())
-                .password("password123")
+                .encodedPassword("password123")
                 .nickname("testUser")
                 .tel("01012345678")
                 .status(MemberStatus.ACTIVE)
