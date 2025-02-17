@@ -52,7 +52,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = craeteNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
 
 		NewsCommentUpdateServiceRequest newsCommentUpdateServiceRequest = NewsCommentUpdateServiceRequest.builder()
 			.newsCommentId(newsComment.getId())
@@ -73,7 +73,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = craeteNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
 		Long deletedCommentId = newsCommentService.delete(newsComment.getId());
 
 		assertAll(

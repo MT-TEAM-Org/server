@@ -27,7 +27,7 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 	void saveTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
-		NewsComment newsComment = craeteNewsComment(news, member, "뉴스 댓글 테스트1");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1");
 
 		NewsReplySaveServiceRequest newsReplySaveServiceRequest = NewsReplySaveServiceRequest.builder()
 			.newsCommentId(newsComment.getId())
@@ -48,7 +48,7 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 	void updateTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
-		NewsComment newsComment = craeteNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
 		NewsReply newsReply = createNewsReply(newsComment, member, "뉴스 대댓글 테스트");
 
 		NewsReplyUpdateServiceRequest newsReplyUpdateServiceRequest = NewsReplyUpdateServiceRequest.builder()
@@ -69,7 +69,7 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = craeteNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
 		NewsReply newsReply = createNewsReply(newsComment, member, "뉴스 대댓글 테스트");
 		Long deletedReplyId = newsReplyService.delete(newsReply.getId());
 
