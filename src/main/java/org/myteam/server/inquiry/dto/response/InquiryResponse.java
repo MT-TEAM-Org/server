@@ -19,20 +19,16 @@ public class InquiryResponse {
     private String memberNickname;
     private String clientIp;
     private LocalDateTime createdAt;
-    private String answerContent;
-    private LocalDateTime answeredAt;
+    private String isAdminAnswered;
 
     // Entity -> DTO 변환 메서드
     public static InquiryResponse createInquiryResponse(Inquiry inquiry) {
-        InquiryAnswer inquiryAnswer = inquiry.getInquiryAnswer();
-
         return InquiryResponse.builder()
                 .id(inquiry.getId())
                 .content(inquiry.getContent())
                 .memberNickname(inquiry.getMember().getNickname())
                 .createdAt(inquiry.getCreatedAt())
-                .answerContent(inquiryAnswer != null ? inquiryAnswer.getContent() : "답변 없음")
-                .answeredAt(inquiryAnswer != null ? inquiryAnswer.getAnsweredAt() : null)
+                .isAdminAnswered(inquiry.isAdminAnswered() != true ? "접수완료" : "답변완료")
                 .build();
     }
 }

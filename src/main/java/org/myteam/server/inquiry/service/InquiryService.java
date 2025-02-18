@@ -78,7 +78,7 @@ public class InquiryService {
         Member member = memberReadService.findById(loginUser);
         Inquiry inquiry = inquiryReadService.findInquiryById(inquiryId);
 
-        verifyInquiryAuthor(inquiry, member);
+        inquiry.verifyInquiryAuthor(member);
 
         inquiryCountRepository.deleteByInquiryId(inquiry.getId());
         inquiryRepository.delete(inquiry);
@@ -111,12 +111,4 @@ public class InquiryService {
         return slackMessage;
     }
 
-    /**
-     * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
-     */
-    private void verifyInquiryAuthor(Inquiry inquiry, Member member) {
-        if (!inquiry.isAuthor(member) && !member.isAdmin()) {
-            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
-        }
-    }
 }

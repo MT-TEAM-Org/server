@@ -67,59 +67,6 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 	}
 
 	@Test
-	@DisplayName("✅ 최신순으로 회원의 문의 내역을 조회한다.")
-	void shouldReturnPagedInquiriesForMember() {
-		// Given
-		InquiryFindRequest request = new InquiryFindRequest(
-				testMember.getPublicId(),
-				InquiryOrderType.RECENT,
-				null,
-				null,
-				2,
-				5
-		);
-
-		List<InquiryResponse> inquiryResponses = IntStream.rangeClosed(6, 10)
-				.mapToObj(i -> new InquiryResponse(
-						(long)i,
-						"문의내역 " + i,
-						"닉네임",
-						"192.168.143.22",
-						LocalDateTime.now().minusDays(i).withMinute(i),
-						"답변 내용 " + i,
-						LocalDateTime.now()
-				))
-				.sorted(Comparator.comparing(InquiryResponse::getCreatedAt))
-				.toList();
-
-		PageCustomResponse<InquiryResponse> pageCustomResponse = PageCustomResponse.of(
-				new PageImpl<>(inquiryResponses, PageRequest.of(1, 5), 15)
-		);
-
-		InquiriesListResponse mockResponse = InquiriesListResponse.createResponse(pageCustomResponse);
-
-		given(inquiryReadService.getInquiriesByMember(any(InquiryFindRequest.class)))
-				.willReturn(mockResponse);
-
-		// When
-		InquiriesListResponse response = inquiryReadService.getInquiriesByMember(request);
-
-		// Then
-		assertAll(
-				() -> assertThat(response).isNotNull(),
-				() -> assertThat(response.getList().getContent()).hasSize(5),
-				() -> assertThat(response.getList().getPageInfo())
-						.extracting("currentPage", "totalPage", "totalElement")
-						.containsExactly(2, 3, 15L),
-				() -> assertThat(response.getList().getContent())
-						.extracting("content")
-						.containsExactly("문의내역 10", "문의내역 9", "문의내역 8", "문의내역 7", "문의내역 6")
-		);
-
-		then(inquiryReadService).should(times(1)).getInquiriesByMember(any(InquiryFindRequest.class));
-	}
-
-	@Test
 	@DisplayName("답변일 기준으로 회원의 문의 내역을 조회한다.")
 	void shouldReturnPagedInquiriesSortedByAnswered() {
 		// Given
@@ -139,10 +86,9 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 						"닉네임",
 						"192.168.143.22",
 						LocalDateTime.now().minusDays(i),
-						"답변 " + i,
-						LocalDateTime.now().minusDays(i).withMinute(i)
+						"접수완료"
 				))
-				.sorted(Comparator.comparing(InquiryResponse::getAnsweredAt))
+				.sorted(Comparator.comparing(InquiryResponse::getCreatedAt))
 				.toList();
 
 		PageCustomResponse<InquiryResponse> pageCustomResponse = PageCustomResponse.of(
@@ -179,7 +125,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 		// Given
 		InquiryFindRequest request = new InquiryFindRequest(
 				testMember.getPublicId(),
-				InquiryOrderType.RECENT,
+				InquiryOrderType.ANSWERED,
 				InquirySearchType.CONTENT,
 				"문의사항",
 				1, 5
@@ -193,8 +139,7 @@ class InquiryReadServiceTest extends IntegrationTestSupport {
 						"닉네임",
 						"127.0.0.1",
 						LocalDateTime.now().minusDays(i),
-						null,
-						LocalDateTime.now().minusDays(i)
+						"답변완료"
 				))
 				.sorted(Comparator.comparing(InquiryResponse::getCreatedAt))
 				.toList();

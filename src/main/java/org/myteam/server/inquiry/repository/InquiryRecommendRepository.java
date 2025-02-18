@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface InquiryRecommendRepository extends JpaRepository<InquiryRecommend, Long> {
 
-    Optional<BoardRecommend> findByBoardIdAndMemberPublicId(Long boardId, UUID memberId);
+    Optional<InquiryRecommend> findByInquiryIdAndMemberPublicId(Long inquiryId, UUID memberId);
 
-    void deleteByBoardIdAndMemberPublicId(Long boardId, UUID publicId);
+    void deleteByInquiryIdAndMemberPublicId(Long inquiryId, UUID publicId);
 }

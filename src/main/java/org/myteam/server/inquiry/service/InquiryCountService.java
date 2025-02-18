@@ -43,7 +43,7 @@ public class InquiryCountService {
 
         isAlreadyRecommended(inquiry, member);
 
-        inquiryRecommendRepository.deleteByBoardIdAndMemberPublicId(inquiry.getId(), member.getPublicId());
+        inquiryRecommendRepository.deleteByInquiryIdAndMemberPublicId(inquiry.getId(), member.getPublicId());
 
         minusRecommendCount(inquiryId);
     }
@@ -87,7 +87,7 @@ public class InquiryCountService {
     /**
      * commentCount 감소
      */
-    public void minusCommendCount(Long inquiryId) {
-        inquiryCountReadService.findByInquiryId(inquiryId).minusCommentCount();
+    public void minusCommentCount(Long inquiryId, int count) {
+        inquiryCountReadService.findByInquiryId(inquiryId).minusCommentCount(count);
     }
 }

@@ -3,13 +3,14 @@ package org.myteam.server.inquiry.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.board.domain.BoardComment;
-import org.myteam.server.board.dto.reponse.BoardCommentResponse;
+import lombok.Setter;
 import org.myteam.server.inquiry.domain.InquiryComment;
 import org.myteam.server.member.entity.Member;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -24,6 +25,9 @@ public class InquiryCommentResponse {
     private int recommendCount; // 추천 수
     private String comment; // 댓글 내용
     private LocalDateTime createDate; // 작성 일시
+
+    @Setter
+    private List<InquiryReplyResponse> boardReplyList; // 대댓글 목록
 
     @Builder
     public InquiryCommentResponse(Long inquiryCommentId, Long inquiryId, String createdIp,
@@ -52,5 +56,11 @@ public class InquiryCommentResponse {
                 .recommendCount(inquiryComment.getRecommendCount())
                 .createDate(inquiryComment.getCreateDate())
                 .build();
+    }
+
+    public static List<InquiryCommentResponse> convertToResponseList(List<InquiryComment> inquiryComments) {
+        return inquiryComments.stream()
+                .map(comment -> InquiryCommentResponse.createResponse(comment, comment.getMember()))
+                .collect(Collectors.toList());
     }
 }

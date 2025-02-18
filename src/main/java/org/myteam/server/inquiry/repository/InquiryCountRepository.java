@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface InquiryCountRepository extends JpaRepository<InquiryCount, Long> {
     void deleteByInquiryId(Long id);
 
-    Optional<InquiryCount> findByInquiryId(Long InquiryId);
+    Optional<InquiryCount> findByInquiryId(Long inquiryId);
 }

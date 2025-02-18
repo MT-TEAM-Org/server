@@ -10,7 +10,6 @@ import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
-import org.myteam.server.inquiry.service.InquiryAnswerService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.match.domain.Match;
@@ -93,8 +92,6 @@ public abstract class IntegrationTestSupport {
 	 */
 	@MockBean
 	protected InquiryReadService inquiryReadService;
-	@MockBean
-	protected InquiryAnswerService inquiryAnswerService;
 	@MockBean
 	protected SecurityReadService securityReadService;
 	@Autowired

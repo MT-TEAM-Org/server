@@ -5,15 +5,17 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.board.domain.BoardComment;
+import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 
+@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-public class InquiryComment extends BaseTime {
+public class InquiryReply extends BaseTime {
 
     private static final int COUNT_SETTING_NUMBER = 0;
 
@@ -22,8 +24,8 @@ public class InquiryComment extends BaseTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inquiry_id")
-    private Inquiry inquiry;
+    @JoinColumn(name = "inquiry_comment_id")
+    private InquiryComment inquiryComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "public_id")
@@ -38,33 +40,39 @@ public class InquiryComment extends BaseTime {
     @Column(nullable = false)
     private int recommendCount;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mentioned_public_id")
+    private Member mentionedMember;
+
     @Builder
-    public InquiryComment(Inquiry inquiry, Member member, String imageUrl, String comment, String createdIp,
-                        int recommendCount) {
-        this.inquiry = inquiry;
+    public InquiryReply(InquiryComment inquiryComment, Member member, String imageUrl, String comment, String createdIp,
+                      int recommendCount, Member mentionedMember) {
+        this.inquiryComment = inquiryComment;
         this.member = member;
         this.imageUrl = imageUrl;
         this.comment = comment;
         this.createdIp = createdIp;
         this.recommendCount = recommendCount;
+        this.mentionedMember = mentionedMember;
     }
 
-    public static InquiryComment createComment(Inquiry inquiry, Member member, String imageUrl, String comment,
-                                                  String createdIp) {
-        final int COUNT_SETTING_NUMBER = 0;
-        return InquiryComment.builder()
-                .inquiry(inquiry)
+    public static InquiryReply createInquiryReply(InquiryComment inquiryComment, Member member, String imageUrl, String comment,
+                                              String createdIp, Member mentionedMember) {
+        return InquiryReply.builder()
+                .inquiryComment(inquiryComment)
                 .member(member)
                 .imageUrl(imageUrl)
                 .comment(comment)
                 .createdIp(createdIp)
                 .recommendCount(COUNT_SETTING_NUMBER)
+                .mentionedMember(mentionedMember)
                 .build();
     }
 
-    public void updateComment(String imageUrl, String comment) {
+    public void updateReply(String imageUrl, String comment, Member mentionedMember) {
         this.imageUrl = imageUrl;
         this.comment = comment;
+        this.mentionedMember = mentionedMember;
     }
 
     public boolean isAuthor(Member member) {
@@ -74,7 +82,7 @@ public class InquiryComment extends BaseTime {
     /**
      * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
      */
-    public void verifyInquiryCommentAuthor(Member member) {
+    public void verifyBoardReplyAuthor(Member member) {
         if (!this.isAuthor(member) && !member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }

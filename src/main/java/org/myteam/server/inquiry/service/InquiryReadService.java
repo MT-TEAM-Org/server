@@ -77,7 +77,7 @@ public class InquiryReadService {
 
     /**
      * 문의 내역 상세 조회
-     * TODO: 리턴 타입 다시 살펴보기
+     * @TODO: 리턴 타입 다시 살펴보기
      */
     public InquiryResponse getInquiryById(final Long inquiryId) {
         Inquiry inquiry = findInquiryById(inquiryId);

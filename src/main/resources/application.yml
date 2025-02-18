@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: test
     include: auth, mail, swagger
   application:
     name: myteam-server

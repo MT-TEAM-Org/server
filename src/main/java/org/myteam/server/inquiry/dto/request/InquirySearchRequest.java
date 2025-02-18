@@ -21,7 +21,6 @@ public class InquirySearchRequest extends PageInfoRequest {
     @NotNull(message = "멤버 id는 필수입니다.")
     private UUID memberPublicId;
 
-    @NotNull(message = "문의하기 정렬 타입은 필수입니다.")
     private InquiryOrderType orderType;
 
     private InquirySearchType searchType;

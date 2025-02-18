@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.inquiry.domain.QInquiry.*;
 import static org.myteam.server.inquiry.domain.QInquiryAnswer.*;
 
@@ -58,7 +59,8 @@ public class InquiryQueryRepository {
                 .leftJoin(inquiryAnswer).on(inquiry.id.eq(inquiryAnswer.inquiry.id))
                 .where(
                         isMemberEqualTo(memberPublicId),
-                        getSearchCondition(searchType, keyword)
+                        getSearchCondition(searchType, keyword),
+                        getOrderType(orderType)
                 )
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
@@ -106,15 +108,25 @@ public class InquiryQueryRepository {
         return memberPublicId != null ? inquiry.member.publicId.eq(memberPublicId) : null;
     }
 
-    private BooleanExpression getSearchCondition(InquirySearchType searchType, String keyword) {
-        if (keyword == null || keyword.trim().isEmpty() || searchType == null) {
+    private BooleanExpression getSearchCondition(InquirySearchType searchType, String search) {
+        if (search == null || search.isEmpty()) {
             return null;
         }
 
         return switch (searchType) {
-            case ANSWER -> inquiryAnswer.content.containsIgnoreCase(keyword);
-            case CONTENT -> inquiry.content.containsIgnoreCase(keyword);
+            case TITLE -> board.title.like("%" + search + "%");
+            case CONTENT -> board.content.like("%" + search + "%");
+            case TITLE_CONTENT -> board.title.like("%" + search + "%")
+                    .or(board.content.like("%" + search + "%"));
+            case NICKNAME -> board.member.nickname.like("%" + search + "%");
             default -> null;
         };
+    }
+
+    private BooleanExpression getOrderType(InquiryOrderType orderType) {
+        if (orderType == InquiryOrderType.ANSWERED) {
+            return inquiry.isAdminAnswered.isTrue();
+        }
+        return null;
     }
 }

@@ -10,7 +10,7 @@ import lombok.*;
 public class InquiryCount {
 
     @Id
-    private Long InquiryId;
+    private Long inquiryId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
@@ -57,7 +57,7 @@ public class InquiryCount {
         this.commentCount += 1;
     }
 
-    public void minusCommentCount() {
-        this.commentCount -= 1;
+    public void minusCommentCount(int count) {
+        this.commentCount -= count;
     }
 }

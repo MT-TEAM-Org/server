@@ -17,7 +17,7 @@ public class InquiryRecommendReadService {
 
     // TODO: memberId가 없을때 생각
     public void confirmExistInquiryRecommend(Long inquiryId, UUID memberId) {
-        inquiryRecommendRepository.findByBoardIdAndMemberPublicId(inquiryId, memberId)
+        inquiryRecommendRepository.findByInquiryIdAndMemberPublicId(inquiryId, memberId)
                 .ifPresent(member -> {
                     throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_BOARD);
                 });
@@ -25,7 +25,7 @@ public class InquiryRecommendReadService {
 
     // TODO: memberId가 없을때 생각
     public boolean isAlreadyRecommended(Long inquiryId, UUID publicId) {
-        if (!inquiryRecommendRepository.findByBoardIdAndMemberPublicId(inquiryId, publicId).isPresent()) {
+        if (!inquiryRecommendRepository.findByInquiryIdAndMemberPublicId(inquiryId, publicId).isPresent()) {
             throw new PlayHiveException(ErrorCode.NO_MEMBER_RECOMMEND_RECORD);
         }
         return true;
@@ -33,6 +33,6 @@ public class InquiryRecommendReadService {
 
     // TODO: memberId가 없을때 생각
     public boolean isRecommended(Long inquiryId, UUID publicId) {
-        return inquiryRecommendRepository.findByBoardIdAndMemberPublicId(inquiryId, publicId).isPresent();
+        return inquiryRecommendRepository.findByInquiryIdAndMemberPublicId(inquiryId, publicId).isPresent();
     }
 }
