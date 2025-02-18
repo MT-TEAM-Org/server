@@ -16,7 +16,6 @@ import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
 import org.myteam.server.oauth2.service.CustomOAuth2UserService;
-import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -117,7 +116,6 @@ public class SecurityConfig {
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final RefreshJpaRepository refreshJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
-	private final AESCryptoUtil aesCryptoUtil;
 
 	@PostConstruct
 	public void init() {
@@ -159,7 +157,7 @@ public class SecurityConfig {
 
 		// JWT 인증 및 토큰 검증 필터 추가
 		http.addFilterAt(
-				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher, aesCryptoUtil),
+				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher),
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);

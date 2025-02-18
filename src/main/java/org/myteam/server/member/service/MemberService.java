@@ -61,7 +61,7 @@ public class MemberService {
 
         // 2. 패스워드인코딩 + 회원 가입
         Member member = memberJpaRepository.save(
-                new Member(memberSaveRequest.getEmail(), passwordEncoder.encode(encryptedPwd), memberSaveRequest.getTel(), memberSaveRequest.getNickname()));
+                new Member(memberSaveRequest, passwordEncoder, encryptedPwd));
         member.updateStatus(MemberStatus.ACTIVE);
 
         // ✅ 3. MemberActivity 생성 및 연관 관계 설정
@@ -84,7 +84,7 @@ public class MemberService {
 
         String encodedPwd = crypto.createEncodedPwd(memberUpdateRequest.getPassword());
 
-        member.update(encodedPwd, memberUpdateRequest.getTel(), memberUpdateRequest.getNickname());
+        member.update(memberUpdateRequest, encodedPwd, passwordEncoder);
 
         memberJpaRepository.save(member);
         log.info("회원 정보 수정 완료: {}", member.getPublicId());
@@ -103,7 +103,7 @@ public class MemberService {
         if (!isOwnValid) throw new PlayHiveException(NO_PERMISSION);
 
         // 비밀번호 일치 여부 확인
-        boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), crypto);
+        boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), passwordEncoder);
         if (!isPWValid) throw new PlayHiveException(NO_PERMISSION);
 
         member.updateStatus(MemberStatus.INACTIVE);
@@ -143,12 +143,13 @@ public class MemberService {
         Member findMember = memberRepository.getByEmail(email);
         boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
         if (!isEqual) throw new PlayHiveException(INVALID_PARAMETER, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
-        boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), crypto);
+        boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), passwordEncoder);
         if (!isValid) throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");
 
+        String password = passwordEncoder.encode(passwordChangeRequest.getNewPassword());
         String encodedPwd = crypto.createEncodedPwd(passwordChangeRequest.getNewPassword());
 
-        findMember.updatePassword(encodedPwd); // 비밀번호 변경
+        findMember.updatePassword(password, encodedPwd); // 비밀번호 변경
     }
 
     @Transactional
