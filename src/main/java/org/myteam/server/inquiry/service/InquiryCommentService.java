@@ -15,6 +15,7 @@ import org.myteam.server.inquiry.dto.request.InquiryCommentRequest;
 import org.myteam.server.inquiry.dto.request.InquiryCommentUpdateRequest;
 import org.myteam.server.inquiry.dto.response.InquiryCommentResponse;
 import org.myteam.server.inquiry.repository.InquiryCommentRepository;
+import org.myteam.server.inquiry.repository.InquiryReplyRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 //import org.myteam.server.upload.service.S3Service;
@@ -39,6 +40,7 @@ public class InquiryCommentService {
 //    private final S3Service s3Service;
     private final InquiryReplyReadService inquiryReplyReadService;
     private final InquiryReplyService inquiryReplyService;
+    private final InquiryReplyRepository inquiryReplyRepository;
 
     /**
      * 문의 내역 댓글 생성
@@ -106,7 +108,7 @@ public class InquiryCommentService {
         List<InquiryReply> inquiryReplyList = inquiryReplyReadService.findByBoardCommentId(boardCommentId);
         for (InquiryReply inquiryReply : inquiryReplyList) {
 //            s3Service.deleteFile(MediaUtils.getImagePath(inquiryReply.getImageUrl()));
-            inquiryReplyService.deleteReply(inquiryReply);
+            inquiryReplyRepository.delete(inquiryReply);
         }
         return inquiryReplyList.size();
     }

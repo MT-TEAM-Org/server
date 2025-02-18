@@ -2,10 +2,10 @@ package org.myteam.server.inquiry.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.domain.InquiryRecommend;
+import org.myteam.server.inquiry.repository.InquiryCountRepository;
 import org.myteam.server.inquiry.repository.InquiryRecommendRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -23,6 +23,7 @@ public class InquiryCountService {
     private final InquiryRecommendRepository inquiryRecommendRepository;
     private final InquiryCountReadService inquiryCountReadService;
     private final InquiryRecommendReadService inquiryRecommendReadService;
+    private final InquiryCountRepository inquiryCountRepository;
 
 
     /**
@@ -33,11 +34,13 @@ public class InquiryCountService {
         Inquiry inquiry = inquiryReadService.findInquiryById(inquiryId);
         Member member = securityReadService.getMember();
 
+        verifyMemberAlreadyRecommend(inquiry, member);
+
         recommend(inquiry, member);
         addRecommendCount(inquiry.getId());
     }
 
-    public void deleteRecommendBoard(Long inquiryId) {
+    public void deleteRecommendInquiry(Long inquiryId) {
         Inquiry inquiry = inquiryReadService.findInquiryById(inquiryId);
         Member member = securityReadService.getMember();
 
@@ -46,6 +49,13 @@ public class InquiryCountService {
         inquiryRecommendRepository.deleteByInquiryIdAndMemberPublicId(inquiry.getId(), member.getPublicId());
 
         minusRecommendCount(inquiryId);
+    }
+
+    /**
+     * 이미 추천한 상태인지 검사
+     */
+    private void verifyMemberAlreadyRecommend(Inquiry inquiry, Member member) {
+        inquiryRecommendReadService.confirmExistInquiryRecommend(inquiry.getId(), member.getPublicId());
     }
 
     /**
@@ -59,7 +69,10 @@ public class InquiryCountService {
      * 게시글 추천 생성
      */
     private void recommend(Inquiry inquiry, Member member) {
-        InquiryRecommend recommend = InquiryRecommend.builder().inquiry(inquiry).member(member).build();
+        InquiryRecommend recommend = InquiryRecommend.builder()
+                .inquiry(inquiry)
+                .member(member)
+                .build();
         inquiryRecommendRepository.save(recommend);
     }
 
@@ -67,27 +80,39 @@ public class InquiryCountService {
      * recommendCount 증가
      */
     public void addRecommendCount(Long inquiryId) {
-        inquiryCountReadService.findByInquiryId(inquiryId).addRecommendCount();
+        InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiryId);
+        inquiryCount.addRecommendCount();
+        inquiryCountRepository.save(inquiryCount);
     }
 
     /**
      * recommendCount 감소
      */
     public void minusRecommendCount(Long inquiryId) {
-        inquiryCountReadService.findByInquiryId(inquiryId).minusRecommendCount();
+        InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiryId);
+        inquiryCount.minusRecommendCount();
+        inquiryCountRepository.save(inquiryCount);
     }
 
     /**
      * commentCount 증가
      */
     public void addCommentCount(Long inquiryId) {
-        inquiryCountReadService.findByInquiryId(inquiryId).addCommentCount();
+        InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiryId);
+        inquiryCount.addCommentCount();
+        inquiryCountRepository.save(inquiryCount);
+    }
+
+    public void minusCommentCount(Long inquiryId) {
+        inquiryCountReadService.findByInquiryId(inquiryId).minusCommentCount();
     }
 
     /**
      * commentCount 감소
      */
     public void minusCommentCount(Long inquiryId, int count) {
-        inquiryCountReadService.findByInquiryId(inquiryId).minusCommentCount(count);
+        InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiryId);
+        inquiryCount.minusCommentCount(count);
+        inquiryCountRepository.save(inquiryCount);
     }
 }

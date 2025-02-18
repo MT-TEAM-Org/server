@@ -14,7 +14,7 @@ import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 
 class InquiryServiceTest extends IntegrationTestSupport {
-  
+
     private Member testMember;
     private UUID memberPublicId;
 

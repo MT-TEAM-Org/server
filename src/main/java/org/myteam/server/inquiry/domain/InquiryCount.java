@@ -60,4 +60,8 @@ public class InquiryCount {
     public void minusCommentCount(int count) {
         this.commentCount -= count;
     }
+
+    public void minusCommentCount() {
+        this.commentCount -= 1;
+    }
 }

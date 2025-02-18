@@ -23,8 +23,8 @@ public class InquiryCommentReadService {
     private final InquiryCommentRepository inquiryCommentRepository;
     private final InquiryCommentQueryRepository inquiryCommentQueryRepository;
 
-    public InquiryComment findById(Long inquiryId) {
-        return inquiryCommentRepository.findById(inquiryId)
+    public InquiryComment findById(Long inquiryCommentId) {
+        return inquiryCommentRepository.findById(inquiryCommentId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_COMMENT_NOT_FOUND));
     }
 

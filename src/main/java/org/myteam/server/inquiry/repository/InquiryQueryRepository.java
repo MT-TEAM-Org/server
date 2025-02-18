@@ -23,8 +23,8 @@ import java.util.UUID;
 
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.inquiry.domain.QInquiry.*;
+import static org.myteam.server.inquiry.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.inquiry.domain.QInquiryCount.*;
-import static org.myteam.server.inquiry.domain.QInquiryComment.*;
 import static org.myteam.server.member.entity.QMember.member;
 
 @Slf4j
