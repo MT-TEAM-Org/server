@@ -11,6 +11,7 @@ import org.myteam.server.auth.repository.RefreshJpaRepository;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
+import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,16 +35,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final JwtProvider jwtProvider;
     private final RefreshJpaRepository refreshJpaRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AESCryptoUtil aesCryptoUtil;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
                                    JwtProvider jwtProvider,
                                    RefreshJpaRepository refreshJpaRepository,
-                                   ApplicationEventPublisher eventPublisher) {
+                                   ApplicationEventPublisher eventPublisher,
+                                   AESCryptoUtil aesCryptoUtil) {
         setFilterProcessesUrl("/login");
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
         this.refreshJpaRepository = refreshJpaRepository;
         this.eventPublisher = eventPublisher;
+        this.aesCryptoUtil = aesCryptoUtil;
     }
 
     @Override
@@ -55,11 +59,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             String username = credentials.get("username");
             String password = credentials.get("password");
+            String encodedPassword = aesCryptoUtil.createEncodedPwd(password);
 
             log.info("로그인 요청 - username: {}, password: {}", username, password);
 
             UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(username, password);
+                    new UsernamePasswordAuthenticationToken(username, encodedPassword);
 
             return authenticationManager.authenticate(authToken);
         } catch (IOException e) {
