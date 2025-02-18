@@ -24,6 +24,7 @@ class InquiryServiceTest extends IntegrationTestSupport {
         Member member = Member.builder()
                 .publicId(UUID.randomUUID())
                 .email("test@example.com")
+                .password("1234")
                 .encodedPassword("teamPlayHive12#")
                 .tel("01012345678")
                 .nickname("testUser")
