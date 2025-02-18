@@ -16,7 +16,7 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+//import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ public class BoardCommentService {
     private final SecurityReadService securityReadService;
     private final MemberReadService memberReadService;
     private final BoardCountService boardCountService;
-    private final S3Service s3Service;
+//    private final S3Service s3Service;
 
     private final BoardCommentRepository boardCommentRepository;
     private final BoardReplyRepository boardReplyRepository;
@@ -85,7 +85,7 @@ public class BoardCommentService {
         boardComment.verifyBoardCommentAuthor(boardComment, member);
 
         // S3 이미지 삭제
-        s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
+//        s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
         // 대댓글 삭제 (카운트도 포함)
         int minusCount = deleteBoardReply(boardComment.getId());
         // 댓글 삭제
@@ -101,7 +101,7 @@ public class BoardCommentService {
     private int deleteBoardReply(Long boardCommentId) {
         List<BoardReply> boardReplyList = boardReplyReadService.findByBoardCommentId(boardCommentId);
         for (BoardReply boardReply : boardReplyList) {
-            s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+//            s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
             boardReplyRepository.delete(boardReply);
         }
         return boardReplyList.size();
@@ -112,7 +112,7 @@ public class BoardCommentService {
      */
     private void verifyBoardCommentImageAndRequestImage(String boardCommentImageUrl, String requestImageUrl) {
         if (!boardCommentImageUrl.equals(requestImageUrl)) {
-            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
+//            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
         }
     }
 }

@@ -17,7 +17,7 @@ import org.myteam.server.inquiry.dto.response.InquiryCommentResponse;
 import org.myteam.server.inquiry.repository.InquiryCommentRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+//import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,7 @@ public class InquiryCommentService {
     private final InquiryCommentRepository inquiryCommentRepository;
     private final InquiryCountService inquiryCountService;
     private final InquiryCommentReadService inquiryCommentReadService;
-    private final S3Service s3Service;
+//    private final S3Service s3Service;
     private final InquiryReplyReadService inquiryReplyReadService;
     private final InquiryReplyService inquiryReplyService;
 
@@ -92,7 +92,7 @@ public class InquiryCommentService {
 
         inquiryComment.verifyInquiryCommentAuthor(member);
 
-        s3Service.deleteFile(MediaUtils.getImagePath(inquiryComment.getImageUrl()));
+//        s3Service.deleteFile(MediaUtils.getImagePath(inquiryComment.getImageUrl()));
         int minusCount = deleteBoardReply(inquiryComment.getId());
         inquiryCommentRepository.deleteById(inquiryCommentId);
 
@@ -105,7 +105,7 @@ public class InquiryCommentService {
     private int deleteBoardReply(Long boardCommentId) {
         List<InquiryReply> inquiryReplyList = inquiryReplyReadService.findByBoardCommentId(boardCommentId);
         for (InquiryReply inquiryReply : inquiryReplyList) {
-            s3Service.deleteFile(MediaUtils.getImagePath(inquiryReply.getImageUrl()));
+//            s3Service.deleteFile(MediaUtils.getImagePath(inquiryReply.getImageUrl()));
             inquiryReplyService.deleteReply(inquiryReply);
         }
         return inquiryReplyList.size();
@@ -116,7 +116,7 @@ public class InquiryCommentService {
      */
     private void verifyInquiryCommentImageAndRequestImage(String inquiryCommentImageUrl, String requestImageUrl) {
         if (!inquiryCommentImageUrl.equals(requestImageUrl)) {
-            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
+//            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
         }
     }
 }
