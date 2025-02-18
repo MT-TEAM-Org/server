@@ -16,8 +16,12 @@ import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.match.repository.MatchRepository;
+import org.myteam.server.match.matchComment.domain.MatchComment;
+import org.myteam.server.match.matchComment.repository.MatchCommentRepository;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPrediction.repository.MatchPredictionRepository;
+import org.myteam.server.match.matchReply.domain.MatchReply;
+import org.myteam.server.match.matchReply.repository.MatchReplyRepository;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.match.team.repository.TeamRepository;
@@ -51,7 +55,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
@@ -87,6 +90,10 @@ public abstract class IntegrationTestSupport {
 	protected InquiryAnswerRepository inquiryAnswerRepository;
 	@Autowired
 	protected MatchPredictionRepository matchPredictionRepository;
+	@Autowired
+	protected MatchCommentRepository matchCommentRepository;
+	@Autowired
+	protected MatchReplyRepository matchReplyRepository;
 
 	/**
 	 * ================== Service ========================
@@ -119,12 +126,13 @@ public abstract class IntegrationTestSupport {
 	protected S3Controller s3Controller;
 	@MockBean
 	protected S3Service s3Service;
-	protected S3Client s3Client;
 	@MockBean
 	protected SlackService slackService;
 
 	@AfterEach
 	void tearDown() {
+		matchReplyRepository.deleteAllInBatch();
+		matchCommentRepository.deleteAllInBatch();
 		matchPredictionRepository.deleteAllInBatch();
 		matchRepository.deleteAllInBatch();
 		teamRepository.deleteAllInBatch();
@@ -180,7 +188,7 @@ public abstract class IntegrationTestSupport {
 		return savedNews;
 	}
 
-	protected NewsComment craeteNewsComment(News news, Member member, String comment) {
+	protected NewsComment createNewsComment(News news, Member member, String comment) {
 		return newsCommentRepository.save(
 			NewsComment.builder()
 				.news(news)
@@ -235,5 +243,27 @@ public abstract class IntegrationTestSupport {
 			.home(home)
 			.away(away)
 			.build());
+	}
+
+	protected MatchComment createMatchComment(Match match, Member member, String comment) {
+		return matchCommentRepository.save(
+			MatchComment.builder()
+				.match(match)
+				.member(member)
+				.comment(comment)
+				.ip("1.1.1.1")
+				.build()
+		);
+	}
+
+	protected MatchReply createMatchReply(MatchComment matchComment, Member member, String comment) {
+		return matchReplyRepository.save(
+			MatchReply.builder()
+				.matchComment(matchComment)
+				.member(member)
+				.comment(comment)
+				.ip("1.1.1.1")
+				.build()
+		);
 	}
 }
