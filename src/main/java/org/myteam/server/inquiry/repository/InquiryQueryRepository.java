@@ -23,7 +23,9 @@ import java.util.UUID;
 
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.inquiry.domain.QInquiry.*;
-import static org.myteam.server.inquiry.domain.QInquiryAnswer.*;
+import static org.myteam.server.inquiry.domain.QInquiryCount.*;
+import static org.myteam.server.inquiry.domain.QInquiryComment.*;
+import static org.myteam.server.member.entity.QMember.member;
 
 @Slf4j
 @Repository
@@ -38,8 +40,8 @@ public class InquiryQueryRepository {
                                                 String keyword,
                                                 Pageable pageable) {
         // 정렬 조건 설정
-        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(orderType, inquiry, inquiryAnswer);
-        log.info("정렬 조건: {}", orderSpecifier);
+//        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(orderType, inquiry);
+//        log.info("정렬 조건: {}", orderSpecifier);
 
         // 검색 조건
         log.info("검색조건: {}&&{}", isMemberEqualTo(memberPublicId), getSearchCondition(searchType, keyword));
@@ -52,17 +54,19 @@ public class InquiryQueryRepository {
                         inquiry.member.nickname,
                         inquiry.clientIp,
                         inquiry.createdAt,
-                        inquiryAnswer.content,
-                        inquiryAnswer.answeredAt
+                        member.publicId,
+                        member.nickname,
+                        inquiry.isAdminAnswered.when(true).then("답변완료").otherwise("접수완료")
                 ))
                 .from(inquiry)
-                .leftJoin(inquiryAnswer).on(inquiry.id.eq(inquiryAnswer.inquiry.id))
+                .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
+                .join(member).on(member.eq(inquiry.member))
                 .where(
-                        isMemberEqualTo(memberPublicId),
-                        getSearchCondition(searchType, keyword),
-                        getOrderType(orderType)
+//                        isMemberEqualTo(memberPublicId),
+                        getSearchCondition(searchType, keyword)
+//                        getOrderType(orderType)
                 )
-                .orderBy(orderSpecifier)
+                .orderBy(inquiry.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -114,11 +118,12 @@ public class InquiryQueryRepository {
         }
 
         return switch (searchType) {
-            case TITLE -> board.title.like("%" + search + "%");
-            case CONTENT -> board.content.like("%" + search + "%");
-            case TITLE_CONTENT -> board.title.like("%" + search + "%")
-                    .or(board.content.like("%" + search + "%"));
-            case NICKNAME -> board.member.nickname.like("%" + search + "%");
+//            case TITLE -> inquiry.title.like("%" + search + "%");
+            case CONTENT -> inquiry.content.like("%" + search + "%");
+//            case TITLE_CONTENT -> inquiry.title.like("%" + search + "%")
+//                    .or(inquiry.content.like("%" + search + "%"));
+            case NICKNAME -> inquiry.member.nickname.like("%" + search + "%");
+            case COMMENT -> inquiryComment.comment.like("%" + search + "%");
             default -> null;
         };
     }

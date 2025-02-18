@@ -44,12 +44,13 @@ public class InquiryService {
     /**
      * 문의 내역 생성
      * @param content
-     * @param memberPublicId
      * @param clientIP
      * @return
      */
-    public String createInquiry(String content, UUID memberPublicId, String clientIP) {
-        Optional<Member> member = memberRepository.findByPublicId(memberPublicId);
+    public String createInquiry(String content, String clientIP) {
+        Optional<Member> member = securityReadService.getOptionalMember();
+        UUID DEFAULT_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        UUID memberPublicId = member.map(Member::getPublicId).orElse(DEFAULT_UUID);
 
         Inquiry inquiry = makeInquiry(content, clientIP, member);
         InquiryCount inquiryCount = InquiryCount.createCount(inquiry);
@@ -85,6 +86,7 @@ public class InquiryService {
     }
 
     private Inquiry makeInquiry(String content, String clientIP, Optional<Member> member) {
+        System.out.println(member.get().getNickname());
         Inquiry inquiry = Inquiry.builder()
                 .content(content)
                 .member(member.orElse(null))

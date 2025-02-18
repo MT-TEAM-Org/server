@@ -18,9 +18,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class InquirySearchRequest extends PageInfoRequest {
 
-    @NotNull(message = "멤버 id는 필수입니다.")
-    private UUID memberPublicId;
-
     private InquiryOrderType orderType;
 
     private InquirySearchType searchType;
@@ -28,9 +25,8 @@ public class InquirySearchRequest extends PageInfoRequest {
     private String keyword;
 
     @Builder
-    public InquirySearchRequest(UUID memberPublicId, InquiryOrderType orderType, InquirySearchType searchType, String keyword, int page, int size) {
+    public InquirySearchRequest(InquiryOrderType orderType, InquirySearchType searchType, String keyword, int page, int size) {
         super(page, size);
-        this.memberPublicId = memberPublicId;
         this.orderType = orderType;
         this.searchType = searchType;
         this.keyword = keyword;
@@ -38,7 +34,6 @@ public class InquirySearchRequest extends PageInfoRequest {
 
     public InquiryServiceRequest toServiceRequest() {
         return InquiryServiceRequest.builder()
-                .memberPublicId(memberPublicId)
                 .orderType(orderType)
                 .searchType(searchType)
                 .content(keyword)

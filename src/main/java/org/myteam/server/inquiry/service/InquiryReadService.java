@@ -19,6 +19,7 @@ import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import java.util.UUID;
 public class InquiryReadService {
     private final InquiryQueryRepository inquiryQueryRepository;
     private final InquiryRepository inquiryRepository;
+    private final SecurityReadService securityReadService;
 
     /**
      * 검색 + 정렬 기능
@@ -53,10 +55,11 @@ public class InquiryReadService {
     }
 
     public InquiriesListResponse getInquiriesByMember(InquiryServiceRequest inquiryServiceRequest) {
-        log.info("내 문의내역 조회: {}", inquiryServiceRequest.getMemberPublicId());
+        Member member = securityReadService.getMember();
+        log.info("내 문의내역 조회: {}", member.getPublicId());
 
         Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
-                inquiryServiceRequest.getMemberPublicId(),
+                member.getPublicId(),
                 inquiryServiceRequest.getOrderType(),
                 inquiryServiceRequest.getSearchType(),
                 inquiryServiceRequest.getContent(),
