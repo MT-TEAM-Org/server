@@ -11,7 +11,7 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+//import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +24,7 @@ public class BoardReplyService {
     private final BoardCommentReadService boardCommentReadService;
     private final MemberReadService memberReadService;
     private final SecurityReadService securityReadService;
-    private final S3Service s3Service;
+//    private final S3Service s3Service;
 
     private final BoardReplyRepository boardReplyRepository;
     private final BadWordFilter badWordFilter;
@@ -81,7 +81,7 @@ public class BoardReplyService {
 
         boardReply.verifyBoardReplyAuthor(boardReply, loginUser);
 
-        s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+//        s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
         boardReplyRepository.delete(boardReply);
 
         boardCountService.minusCommentCount(boardReply.getBoardComment().getBoard().getId());
@@ -92,7 +92,7 @@ public class BoardReplyService {
      */
     private void verifyBoardReplyImageAndRequestImage(String boardReplyImageUrl, String requestImageUrl) {
         if (!boardReplyImageUrl.equals(requestImageUrl)) {
-            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
+//            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
         }
     }
 }

@@ -18,6 +18,7 @@ import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.util.AESCryptoUtil;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class MemberService {
     private final SecurityReadService securityReadService;
     private final MemberActivityRepository memberActivityRepository;
 
+    private final PasswordEncoder passwordEncoder;
     private final AESCryptoUtil crypto;
 
     /**
@@ -59,7 +61,7 @@ public class MemberService {
 
         // 2. 패스워드인코딩 + 회원 가입
         Member member = memberJpaRepository.save(
-                new Member(memberSaveRequest.getEmail(), encryptedPwd, memberSaveRequest.getTel(), memberSaveRequest.getNickname()));
+                new Member(memberSaveRequest.getEmail(), passwordEncoder.encode(encryptedPwd), memberSaveRequest.getTel(), memberSaveRequest.getNickname()));
         member.updateStatus(MemberStatus.ACTIVE);
 
         // ✅ 3. MemberActivity 생성 및 연관 관계 설정
