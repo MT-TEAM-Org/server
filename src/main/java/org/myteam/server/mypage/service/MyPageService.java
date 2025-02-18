@@ -26,6 +26,7 @@ public class MyPageService {
     private final MemberJpaRepository memberJpaRepository;
     private final MemberValidator memberValidator;
     private final AESCryptoUtil cryptoUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public void updateMemberInfo(MyPageUpdateRequest request) {
         Member member = securityReadService.getMember();
@@ -34,9 +35,10 @@ public class MyPageService {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
+        String password = passwordEncoder.encode(request.getPassword());
         String encodedPwd = cryptoUtil.createEncodedPwd(request.getPassword());
 
-        member.update(encodedPwd, request.getTel(), request.getNickname());
+        member.update(password, encodedPwd, request.getTel(), request.getNickname());
 
         if (request.getBirthDate() != null) {
             memberValidator.validateBirthDate(request.getBirthDate());

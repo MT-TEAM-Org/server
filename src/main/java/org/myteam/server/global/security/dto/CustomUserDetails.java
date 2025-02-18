@@ -33,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return member.getEncodedPassword();
+        return member.getPassword();
     }
 
     @Override
