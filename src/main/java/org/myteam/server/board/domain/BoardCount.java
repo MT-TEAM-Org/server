@@ -14,13 +14,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.global.domain.BaseTime;
 
 @Getter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_board_count")
-public class BoardCount {
+public class BoardCount extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

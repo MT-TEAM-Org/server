@@ -11,13 +11,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_board_comment_recommend")
-public class BoardCommentRecommend {
+public class BoardCommentRecommend extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
