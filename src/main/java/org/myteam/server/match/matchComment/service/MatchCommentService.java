@@ -31,7 +31,7 @@ public class MatchCommentService {
 
 		MatchComment matchComment = matchCommentRepository.save(
 			MatchComment.createEntity(match, member, matchCommentSaveServiceRequest.getComment(),
-				matchCommentSaveServiceRequest.getIp()));
+				matchCommentSaveServiceRequest.getIp(), matchCommentSaveServiceRequest.getImgUrl()));
 
 		// newsCountService.addCommendCount(matchComment.getId());
 
@@ -43,7 +43,7 @@ public class MatchCommentService {
 		MatchComment matchComment = matchCommentReadService.findById(matchCommentUpdateServiceRequest.getMatchCommentId());
 
 		matchComment.confirmMember(member);
-		matchComment.updateComment(matchCommentUpdateServiceRequest.getComment());
+		matchComment.update(matchCommentUpdateServiceRequest.getComment(), matchCommentUpdateServiceRequest.getImgUrl());
 
 		return matchComment.getId();
 	}

@@ -18,11 +18,14 @@ public class MatchCommentSaveRequest {
 	@Schema(description = "댓글")
 	@NotNull(message = "경기 댓글은 필수입니다.")
 	private String comment;
+	@Schema(description = "경기 댓글 이미지 (있을 시)")
+	private String imgUrl;
 
 	@Builder
-	public MatchCommentSaveRequest(Long matchId, String comment) {
+	public MatchCommentSaveRequest(Long matchId, String comment, String imgUrl) {
 		this.matchId = matchId;
 		this.comment = comment;
+		this.imgUrl = imgUrl;
 	}
 
 	public MatchCommentSaveServiceRequest toServiceRequest(String ip) {
@@ -30,6 +33,7 @@ public class MatchCommentSaveRequest {
 			.matchId(matchId)
 			.comment(comment)
 			.ip(ip)
+			.imgUrl(imgUrl)
 			.build();
 	}
 }

@@ -10,10 +10,12 @@ public class MatchReplyUpdateServiceRequest {
 
 	private Long matchReplyId;
 	private String comment;
+	private String imgUrl;
 
 	@Builder
-	public MatchReplyUpdateServiceRequest(Long matchReplyId, String comment) {
+	public MatchReplyUpdateServiceRequest(Long matchReplyId, String comment, String imgUrl) {
 		this.matchReplyId = matchReplyId;
 		this.comment = comment;
+		this.imgUrl = imgUrl;
 	}
 }

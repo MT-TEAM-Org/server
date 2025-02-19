@@ -41,13 +41,14 @@ public class MatchCommentServiceTest extends IntegrationTestSupport {
 			.matchId(match.getId())
 			.comment("댓글 테스트")
 			.ip("1.1.1.1")
+			.imgUrl("www.test.com")
 			.build();
 
 		MatchCommentResponse matchCommentResponse = matchCommentService.save(matchCommentSaveServiceRequest);
 
 		assertThat(matchCommentRepository.findById(matchCommentResponse.getMatchCommentId()).get())
-			.extracting("id", "match.id", "member.publicId", "comment", "ip")
-			.contains(matchCommentResponse.getMatchCommentId(), match.getId(), member.getPublicId(), "댓글 테스트", "1.1.1.1");
+			.extracting("id", "match.id", "member.publicId", "comment", "ip", "imgUrl")
+			.contains(matchCommentResponse.getMatchCommentId(), match.getId(), member.getPublicId(), "댓글 테스트", "1.1.1.1", "www.test.com");
 
 		// assertAll(
 		// 	() -> assertThat(matchCommentRepository.findById(matchCommentResponse.getMatchCommentId()).get())
@@ -72,13 +73,14 @@ public class MatchCommentServiceTest extends IntegrationTestSupport {
 		MatchCommentUpdateServiceRequest matchCommentUpdateServiceRequest = MatchCommentUpdateServiceRequest.builder()
 			.matchCommentId(matchComment.getId())
 			.comment("경기 댓글 수정 테스트")
+			.imgUrl("www.modifyTest.com")
 			.build();
 
 		Long updatedCommentId = matchCommentService.update(matchCommentUpdateServiceRequest);
 
 		assertThat(matchCommentRepository.findById(updatedCommentId).get())
-			.extracting("id", "match.id", "member.publicId", "comment", "ip")
-			.contains(matchComment.getId(), match.getId(), member.getPublicId(), "경기 댓글 수정 테스트", "1.1.1.1");
+			.extracting("id", "match.id", "member.publicId", "comment", "ip", "imgUrl")
+			.contains(matchComment.getId(), match.getId(), member.getPublicId(), "경기 댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com");
 	}
 
 	@DisplayName("경기댓글을 삭제한다.")

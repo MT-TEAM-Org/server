@@ -34,29 +34,42 @@ public class MatchReply extends Base {
 
 	private String ip;
 
+	private String imgUrl;
+
 	@Builder
-	public MatchReply(Long id, MatchComment matchComment, Member member, String comment, String ip) {
+	public MatchReply(Long id, MatchComment matchComment, Member member, String comment, String ip, String imgUrl) {
 		this.id = id;
 		this.matchComment = matchComment;
 		this.member = member;
 		this.comment = comment;
 		this.ip = ip;
+		this.imgUrl = imgUrl;
 	}
 
 	public void confirmMember(Member member) {
 		this.member.confirmMemberEquals(member);
 	}
 
-	public void updateComment(String comment) {
+	public void update(String comment, String imgUrl) {
+		updateComment(comment);
+		updateImgUrl(imgUrl);
+	}
+
+	private void updateComment(String comment) {
 		this.comment = comment;
 	}
 
-	public static MatchReply createEntity(MatchComment matchComment, Member member, String comment, String ip) {
+	private void updateImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
+	}
+
+	public static MatchReply createEntity(MatchComment matchComment, Member member, String comment, String ip, String imgUrl) {
 		return MatchReply.builder()
 			.matchComment(matchComment)
 			.member(member)
 			.comment(comment)
 			.ip(ip)
+			.imgUrl(imgUrl)
 			.build();
 	}
 }

@@ -195,6 +195,7 @@ public abstract class IntegrationTestSupport {
 				.member(member)
 				.comment(comment)
 				.ip("1.1.1.1")
+				.imgUrl("www.test.com")
 				.build()
 		);
 	}
@@ -215,6 +216,7 @@ public abstract class IntegrationTestSupport {
 				.member(member)
 				.comment(comment)
 				.ip("1.1.1.1")
+				.imgUrl("www.test.com")
 				.build()
 		);
 	}
@@ -252,6 +254,7 @@ public abstract class IntegrationTestSupport {
 				.member(member)
 				.comment(comment)
 				.ip("1.1.1.1")
+				.imgUrl("www.test.com")
 				.build()
 		);
 	}
@@ -263,6 +266,7 @@ public abstract class IntegrationTestSupport {
 				.member(member)
 				.comment(comment)
 				.ip("1.1.1.1")
+				.imgUrl("www.test.com")
 				.build()
 		);
 	}

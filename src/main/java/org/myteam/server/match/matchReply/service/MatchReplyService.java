@@ -31,7 +31,7 @@ public class MatchReplyService {
 		return MatchReplyResponse.createResponse(
 			matchReplyRepository.save(
 				MatchReply.createEntity(matchComment, member, matchReplySaveServiceRequest.getComment(),
-					matchReplySaveServiceRequest.getIp())), member
+					matchReplySaveServiceRequest.getIp(), matchReplySaveServiceRequest.getImgUrl())), member
 		);
 	}
 
@@ -40,7 +40,7 @@ public class MatchReplyService {
 		MatchReply matchReply = matchReplyReadService.findById(matchReplyUpdateServiceRequest.getMatchReplyId());
 
 		matchReply.confirmMember(member);
-		matchReply.updateComment(matchReplyUpdateServiceRequest.getComment());
+		matchReply.update(matchReplyUpdateServiceRequest.getComment(), matchReplyUpdateServiceRequest.getImgUrl());
 
 		return matchReply.getId();
 	}
