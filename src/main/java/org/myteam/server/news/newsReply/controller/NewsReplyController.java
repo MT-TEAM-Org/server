@@ -78,4 +78,30 @@ public class NewsReplyController {
 			"뉴스 대댓글 삭제 성공",
 			newsReplyService.delete(newsReplyId)));
 	}
+
+	@Operation(summary = "뉴스 대댓글 추천 API", description = "뉴스 대댓글을 추천합니다.")
+	@PatchMapping("/recommend/{newsReplyId}")
+	public ResponseEntity<ResponseDto<Long>> recommend(
+		@PathVariable
+		@Parameter(description = "뉴스 댓글 ID")
+		Long newsReplyId
+	) {
+		return ResponseEntity.ok(new ResponseDto<>(
+			SUCCESS.name(),
+			"뉴스 댓글 추천 성공",
+			newsReplyService.recommend(newsReplyId)));
+	}
+
+	@Operation(summary = "뉴스 대댓글 추천 취소 API", description = "뉴스 대댓글을 추천 취소합니다.")
+	@DeleteMapping("/recommend/{newsReplyId}")
+	public ResponseEntity<ResponseDto<Long>> cancelRecommend(
+		@PathVariable
+		@Parameter(description = "뉴스 대댓글 ID")
+		Long newsReplyId
+	) {
+		return ResponseEntity.ok(new ResponseDto<>(
+			SUCCESS.name(),
+			"뉴스 대댓글 추천 삭제 성공",
+			newsReplyService.cancelRecommend(newsReplyId)));
+	}
 }

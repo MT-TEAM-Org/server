@@ -34,29 +34,53 @@ public class NewsReply extends Base {
 
 	private String ip;
 
+	private String imgUrl;
+
+	private int recommendCount;
+
 	@Builder
-	public NewsReply(Long id, NewsComment newsComment, Member member, String comment, String ip) {
+	public NewsReply(Long id, NewsComment newsComment, Member member, String comment, String ip, String imgUrl, int recommendCount) {
 		this.id = id;
 		this.newsComment = newsComment;
 		this.member = member;
 		this.comment = comment;
 		this.ip = ip;
+		this.imgUrl = imgUrl;
+		this.recommendCount = recommendCount;
 	}
 
 	public void confirmMember(Member member) {
 		this.member.confirmMemberEquals(member);
 	}
 
+	public void addRecommendCount() {
+		this.recommendCount += 1;
+	}
+
+	public void minusRecommendCount() {
+		this.recommendCount -= 1;
+	}
+
+	public void update(String comment, String imgUrl) {
+		updateComment(comment);
+		updateImgUrl(imgUrl);
+	}
+
 	public void updateComment(String comment) {
 		this.comment = comment;
 	}
 
-	public static NewsReply createNewsReply(NewsComment newsComment, Member member, String comment, String ip) {
+	public void updateImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
+	}
+
+	public static NewsReply createEntity(NewsComment newsComment, Member member, String comment, String ip, String imgUrl) {
 		return NewsReply.builder()
 			.newsComment(newsComment)
 			.member(member)
 			.comment(comment)
 			.ip(ip)
+			.imgUrl(imgUrl)
 			.build();
 	}
 }

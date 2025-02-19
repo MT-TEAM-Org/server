@@ -7,6 +7,7 @@ import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.dto.repository.NewsCommentDto;
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentServiceRequest;
 import org.myteam.server.news.newsComment.dto.service.response.NewsCommentListResponse;
+import org.myteam.server.news.newsComment.repository.NewsCommentLockRepository;
 import org.myteam.server.news.newsComment.repository.NewsCommentQueryRepository;
 import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class NewsCommentReadService {
 
 	private final NewsCommentRepository newsCommentRepository;
+	private final NewsCommentLockRepository newsCommentLockRepository;
 	private final NewsCommentQueryRepository newsCommentQueryRepository;
 
 	public NewsCommentListResponse findByNewsId(NewsCommentServiceRequest newsCommentServiceRequest) {
@@ -35,6 +37,11 @@ public class NewsCommentReadService {
 
 	public NewsComment findById(Long newsCommentId) {
 		return newsCommentRepository.findById(newsCommentId)
+			.orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_COMMENT_NOT_FOUND));
+	}
+
+	public NewsComment findByIdLock(Long newsCommentId) {
+		return newsCommentLockRepository.findById(newsCommentId)
 			.orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_COMMENT_NOT_FOUND));
 	}
 

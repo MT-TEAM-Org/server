@@ -2,9 +2,9 @@ package org.myteam.server.news.news.dto.service.response;
 
 import java.time.LocalDateTime;
 
+import org.myteam.server.news.RecommendYN;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.domain.NewsCategory;
-import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,11 +32,13 @@ public class NewsResponse {
 	private int viewCount;
 	@Schema(description = "뉴스 계시 날짜")
 	private LocalDateTime postDate;
+	@Schema(description = "개인 추천 여부 (YES: 추천, NO: 추천X")
+	private RecommendYN recommendYN;
 
 	@Builder
 	public NewsResponse(Long id, NewsCategory category, String title, String thumbImg, int recommendCount,
 		int commentCount,
-		int viewCount, LocalDateTime postDate) {
+		int viewCount, LocalDateTime postDate, RecommendYN recommendYN) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
@@ -45,19 +47,10 @@ public class NewsResponse {
 		this.commentCount = commentCount;
 		this.viewCount = viewCount;
 		this.postDate = postDate;
+		this.recommendYN = recommendYN;
 	}
 
-
-	public static NewsResponse createResponse(NewsDto newsDto) {
-		return NewsResponse.builder()
-			.id(newsDto.getId())
-			.category(newsDto.getCategory())
-			.title(newsDto.getTitle())
-			.thumbImg(newsDto.getThumbImg())
-			.build();
-	}
-
-	public static NewsResponse createResponse(News news, NewsCount newsCount) {
+	public static NewsResponse createResponse(News news, NewsCount newsCount, boolean recommendYn) {
 		return NewsResponse.builder()
 			.id(news.getId())
 			.category(news.getCategory())
@@ -67,6 +60,7 @@ public class NewsResponse {
 			.recommendCount(newsCount.getRecommendCount())
 			.commentCount(newsCount.getCommentCount())
 			.viewCount(newsCount.getViewCount())
+			.recommendYN(RecommendYN.createRecommendYN(recommendYn))
 			.build();
 	}
 }

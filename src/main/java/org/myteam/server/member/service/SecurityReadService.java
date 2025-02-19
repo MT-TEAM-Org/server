@@ -1,5 +1,7 @@
 package org.myteam.server.member.service;
 
+import java.util.UUID;
+
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
@@ -29,6 +31,15 @@ public class SecurityReadService {
 			return (CustomUserDetails) authentication.getPrincipal();
 		}
 		throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+	}
+
+	//로그인을 했던 안했던 통과해야하는 기능에 사용
+	public UUID getAuthenticatedPublicId() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
+			return ((CustomUserDetails)authentication.getPrincipal()).getPublicId();
+		}
+		return null;
 	}
 
 }

@@ -10,10 +10,12 @@ public class NewsReplyUpdateServiceRequest {
 
 	private Long newsReplyId;
 	private String comment;
+	private String imgUrl;
 
 	@Builder
-	public NewsReplyUpdateServiceRequest(Long newsReplyId, String comment) {
+	public NewsReplyUpdateServiceRequest(Long newsReplyId, String comment, String imgUrl) {
 		this.newsReplyId = newsReplyId;
 		this.comment = comment;
+		this.imgUrl = imgUrl;
 	}
 }

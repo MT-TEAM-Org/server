@@ -34,14 +34,15 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 			.newsId(news.getId())
 			.comment("댓글 테스트")
 			.ip("1.1.1.1")
+			.imgUrl("www.test.com")
 			.build();
 
 		NewsCommentResponse newsCommentResponse = newsCommentService.save(newsCommentSaveServiceRequest);
 
 		assertAll(
 			() -> assertThat(newsCommentRepository.findById(newsCommentResponse.getNewsCommentId()).get())
-				.extracting("id", "news.id", "member.publicId", "comment", "ip")
-				.contains(newsCommentResponse.getNewsCommentId(), news.getId(), member.getPublicId(), "댓글 테스트", "1.1.1.1"),
+				.extracting("id", "news.id", "member.publicId", "comment", "ip", "imgUrl")
+				.contains(newsCommentResponse.getNewsCommentId(), news.getId(), member.getPublicId(), "댓글 테스트", "1.1.1.1", "www.test.com"),
 			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getCommentCount()).isEqualTo(11)
 		);
 	}
@@ -57,13 +58,14 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		NewsCommentUpdateServiceRequest newsCommentUpdateServiceRequest = NewsCommentUpdateServiceRequest.builder()
 			.newsCommentId(newsComment.getId())
 			.comment("뉴스 댓글 수정 테스트")
+			.imgUrl("www.modifyTest.com")
 			.build();
 
 		Long updatedCommentId = newsCommentService.update(newsCommentUpdateServiceRequest);
 
 		assertThat(newsCommentRepository.findById(updatedCommentId).get())
-			.extracting("id", "news.id", "member.publicId", "comment", "ip")
-			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 수정 테스트", "1.1.1.1");
+			.extracting("id", "news.id", "member.publicId", "comment", "ip", "imgUrl")
+			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com");
 	}
 
 	@DisplayName("뉴스댓글을 삭제한다.")

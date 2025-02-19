@@ -9,6 +9,8 @@ import org.myteam.server.news.newsComment.dto.service.request.NewsCommentSaveSer
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentUpdateServiceRequest;
 import org.myteam.server.news.newsComment.dto.service.response.NewsCommentResponse;
 import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
+import org.myteam.server.news.newsCommentMember.service.NewsCommentMemberReadService;
+import org.myteam.server.news.newsCommentMember.service.NewsCommentMemberService;
 import org.myteam.server.news.newsCount.service.NewsCountService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,14 +27,16 @@ public class NewsCommentService {
 	private final NewsReadService newsReadService;
 	private final SecurityReadService securityReadService;
 	private final NewsCountService newsCountService;
+	private final NewsCommentMemberReadService newsCommentMemberReadService;
+	private final NewsCommentMemberService newsCommentMemberService;
 
 	public NewsCommentResponse save(NewsCommentSaveServiceRequest newsCommentSaveServiceRequest) {
 		News news = newsReadService.findById(newsCommentSaveServiceRequest.getNewsId());
 		Member member = securityReadService.getMember();
 
 		NewsComment newsComment = newsCommentRepository.save(
-			NewsComment.createNewsComment(news, member, newsCommentSaveServiceRequest.getComment(),
-				newsCommentSaveServiceRequest.getIp()));
+			NewsComment.createEntity(news, member, newsCommentSaveServiceRequest.getComment(),
+				newsCommentSaveServiceRequest.getIp(), newsCommentSaveServiceRequest.getImgUrl()));
 
 		newsCountService.addCommendCount(news.getId());
 
@@ -44,7 +48,7 @@ public class NewsCommentService {
 		NewsComment newsComment = newsCommentReadService.findById(newsCommentUpdateServiceRequest.getNewsCommentId());
 
 		newsComment.confirmMember(member);
-		newsComment.updateComment(newsCommentUpdateServiceRequest.getComment());
+		newsComment.update(newsCommentUpdateServiceRequest.getComment(), newsCommentUpdateServiceRequest.getImgUrl());
 
 		return newsComment.getId();
 	}
@@ -58,6 +62,32 @@ public class NewsCommentService {
 		newsCommentRepository.deleteById(newsCommentId);
 
 		newsCountService.minusCommendCount(newsComment.getNews().getId());
+
+		return newsComment.getId();
+	}
+
+	public Long recommend(Long newsCommentId) {
+		Member member = securityReadService.getMember();
+		NewsComment newsComment = newsCommentReadService.findByIdLock(newsCommentId);
+
+		newsCommentMemberReadService.confirmExistMember(newsCommentId, member.getPublicId());
+
+		newsCommentMemberService.save(newsCommentId);
+
+		newsComment.addRecommendCount();
+
+		return newsComment.getId();
+	}
+
+	public Long cancelRecommend(Long newsCommentId) {
+		Member member = securityReadService.getMember();
+		NewsComment newsComment = newsCommentReadService.findByIdLock(newsCommentId);
+
+		newsCommentMemberReadService.confirmExistMember(newsCommentId, member.getPublicId());
+
+		newsCommentMemberService.deleteByNewsCommentIdMemberId(newsCommentId);
+
+		newsComment.minusRecommendCount();
 
 		return newsComment.getId();
 	}

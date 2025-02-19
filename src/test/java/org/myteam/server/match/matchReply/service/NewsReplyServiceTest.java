@@ -51,14 +51,15 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 			.matchCommentId(matchComment.getId())
 			.comment("대댓글 테스트")
 			.ip("1.1.1.1")
+			.imgUrl("wwww.test.com")
 			.build();
 
 		MatchReplyResponse matchReplyResponse = matchReplyService.save(matchReplySaveServiceRequest);
 
 		assertThat(matchReplyRepository.findById(matchReplyResponse.getMatchReplyId()).get())
-			.extracting("id", "matchComment.id", "member.publicId", "comment", "ip")
+			.extracting("id", "matchComment.id", "member.publicId", "comment", "ip", "imgUrl")
 			.contains(matchReplyResponse.getMatchReplyId(), matchComment.getId(), member.getPublicId(), "대댓글 테스트",
-				"1.1.1.1");
+				"1.1.1.1", "wwww.test.com");
 	}
 
 	@DisplayName("경기 대댓글을 수정한다.")
@@ -78,13 +79,14 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 		MatchReplyUpdateServiceRequest matchReplyUpdateServiceRequest = MatchReplyUpdateServiceRequest.builder()
 			.matchReplyId(matchReply.getId())
 			.comment("경기 대댓글 수정 테스트")
+			.imgUrl("www.modifyTest.com")
 			.build();
 
 		Long updatedReplyId = matchReplyService.update(matchReplyUpdateServiceRequest);
 
 		assertThat(matchReplyRepository.findById(updatedReplyId).get())
-			.extracting("id", "matchComment.id", "member.publicId", "comment", "ip")
-			.contains(matchReply.getId(), matchComment.getId(), member.getPublicId(), "경기 대댓글 수정 테스트", "1.1.1.1");
+			.extracting("id", "matchComment.id", "member.publicId", "comment", "ip", "imgUrl")
+			.contains(matchReply.getId(), matchComment.getId(), member.getPublicId(), "경기 대댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com");
 	}
 
 	@DisplayName("경기 대댓글을 삭제한다.")
