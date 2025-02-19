@@ -68,33 +68,33 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @SpringBootTest
 public abstract class IntegrationTestSupport {
 
-	/**
-	 * ================== Repository ========================
-	 */
-	@Autowired
-	protected TeamRepository teamRepository;
-	@Autowired
-	protected MatchRepository matchRepository;
-	@Autowired
-	protected NewsRepository newsRepository;
-	@Autowired
-	protected NewsCountRepository newsCountRepository;
-	@Autowired
-	protected NewsCommentRepository newsCommentRepository;
-	@Autowired
-	protected NewsReplyRepository newsReplyRepository;
-	@Autowired
-	protected MemberJpaRepository memberJpaRepository;
-	@Autowired
-	protected MemberActivityRepository memberActivityRepository;
-	@Autowired
-	protected NewsCountMemberRepository newsCountMemberRepository;
-	@Autowired
-	protected InquiryService inquiryService;
-	@Autowired
-	protected InquiryRepository inquiryRepository;
-	@Autowired
-	protected MatchPredictionRepository matchPredictionRepository;
+    /**
+     * ================== Repository ========================
+     */
+    @Autowired
+    protected TeamRepository teamRepository;
+    @Autowired
+    protected MatchRepository matchRepository;
+    @Autowired
+    protected NewsRepository newsRepository;
+    @Autowired
+    protected NewsCountRepository newsCountRepository;
+    @Autowired
+    protected NewsCommentRepository newsCommentRepository;
+    @Autowired
+    protected NewsReplyRepository newsReplyRepository;
+    @Autowired
+    protected MemberJpaRepository memberJpaRepository;
+    @Autowired
+    protected MemberActivityRepository memberActivityRepository;
+    @Autowired
+    protected NewsCountMemberRepository newsCountMemberRepository;
+    @Autowired
+    protected InquiryService inquiryService;
+    @Autowired
+    protected InquiryRepository inquiryRepository;
+    @Autowired
+    protected MatchPredictionRepository matchPredictionRepository;
     @Autowired
     protected MatchCommentRepository matchCommentRepository;
     @Autowired
@@ -108,24 +108,23 @@ public abstract class IntegrationTestSupport {
     @Autowired
     protected BoardCommentRepository boardCommentRepository;
 
-
     /**
-	 * ================== Service ========================
-	 */
-	@MockBean
-	protected InquiryReadService inquiryReadService;
-	@MockBean
-	protected SecurityReadService securityReadService;
-	@Autowired
-	protected MemberService memberService;
-	@Autowired
-	protected MyPageReadService myPageReadService;
-	@MockBean
-	protected BoardService boardService;
-	@MockBean
-	protected BoardReadService boardReadService;
-	@MockBean
-	protected MemberReadService memberReadService;
+     * ================== Service ========================
+     */
+    @MockBean
+    protected InquiryReadService inquiryReadService;
+    @MockBean
+    protected SecurityReadService securityReadService;
+    @Autowired
+    protected MemberService memberService;
+    @Autowired
+    protected MyPageReadService myPageReadService;
+    @MockBean
+    protected BoardService boardService;
+    @Autowired
+    protected BoardReadService boardReadService;
+    @MockBean
+    protected MemberReadService memberReadService;
     @Autowired
     protected BoardCountReadService boardCountReadService;
     @Autowired
@@ -145,8 +144,8 @@ public abstract class IntegrationTestSupport {
     @MockBean
     protected SlackService slackService;
 
-	@AfterEach
-	void tearDown() {
+    @AfterEach
+    void tearDown() {
         matchReplyRepository.deleteAllInBatch();
         matchCommentRepository.deleteAllInBatch();
         matchPredictionRepository.deleteAllInBatch();
@@ -164,7 +163,7 @@ public abstract class IntegrationTestSupport {
         boardRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
-	}
+    }
 
     protected Member createMember(int index) {
         Member member = Member.builder()
