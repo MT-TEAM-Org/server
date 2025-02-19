@@ -30,12 +30,13 @@ public class BoardCommentService {
     private final MemberReadService memberReadService;
     private final BoardCountService boardCountService;
     private final S3Service s3Service;
+    private final BoardReplyReadService boardReplyReadService;
+    private final BoardCommentRecommendReadService boardCommentRecommendReadService;
 
     private final BoardCommentRepository boardCommentRepository;
     private final BoardReplyRepository boardReplyRepository;
 
     private final BadWordFilter badWordFilter;
-    private final BoardReplyReadService boardReplyReadService;
 
     /**
      * 게시판 댓글 생성
@@ -52,7 +53,10 @@ public class BoardCommentService {
 
         boardCountService.addCommentCount(board.getId());
 
-        return BoardCommentResponse.createResponse(boardComment, member);
+        boolean isRecommended = boardCommentRecommendReadService.isRecommended(boardComment.getId(),
+                member.getPublicId());
+
+        return BoardCommentResponse.createResponse(boardComment, member, isRecommended);
     }
 
     /**
@@ -69,7 +73,10 @@ public class BoardCommentService {
         boardComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));
         boardCommentRepository.save(boardComment);
 
-        return BoardCommentResponse.createResponse(boardComment, member);
+        boolean isRecommended = boardCommentRecommendReadService.isRecommended(boardComment.getId(),
+                member.getPublicId());
+
+        return BoardCommentResponse.createResponse(boardComment, member, isRecommended);
     }
 
     /**

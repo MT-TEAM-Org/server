@@ -12,9 +12,11 @@ import org.myteam.server.board.dto.request.BoardCommentSaveRequest;
 import org.myteam.server.board.dto.request.BoardCommentUpdateRequest;
 import org.myteam.server.board.service.BoardCommentReadService;
 import org.myteam.server.board.service.BoardCommentService;
+import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,9 +71,10 @@ public class BoardCommentController {
      * 댓글 상세 조회 (대댓글 포함) -> 댓글 ID로 조회
      */
     @GetMapping("/comment/{boardCommentId}")
-    public ResponseEntity<ResponseDto<BoardCommentResponse>> getBoardComment(@PathVariable Long boardCommentId) {
+    public ResponseEntity<ResponseDto<BoardCommentResponse>> getBoardComment(@PathVariable Long boardCommentId,
+                                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시판 댓글 조회 성공",
-                boardCommentReadService.findByIdWithReply(boardCommentId)));
+                boardCommentReadService.findByIdWithReply(boardCommentId, userDetails)));
     }
 
     /**
@@ -79,9 +82,10 @@ public class BoardCommentController {
      */
     @GetMapping("/{boardId}/comment")
     public ResponseEntity<ResponseDto<BoardCommentListResponse>> getBoardComments(@PathVariable Long boardId,
-                                                                                  @RequestParam BoardOrderType orderType) {
+                                                                                  @RequestParam BoardOrderType orderType,
+                                                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(
                 new ResponseDto<>(SUCCESS.name(), "게시판 댓글 목록 조회 성공",
-                        boardCommentReadService.findByBoardId(boardId, orderType)));
+                        boardCommentReadService.findByBoardId(boardId, orderType, userDetails)));
     }
 }

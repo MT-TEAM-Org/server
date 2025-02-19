@@ -74,6 +74,8 @@ public enum ErrorCode {
     PHONE_NUMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "No matching number exists"),
     BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment not found"),
     BOARD_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Reply not found"),
+    BOARD_COMMENT_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment Recommend not found"),
+    BOARD_REPLY_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Reply Recommend not found"),
 
     MATCH_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match not found"),
 
@@ -90,7 +92,9 @@ public enum ErrorCode {
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
     INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists"),
-    ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board");
+    ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board"),
+    ALREADY_MEMBER_RECOMMEND_REPLY(HttpStatus.CONFLICT, "Member Already Recommend Reply"),
+    ALREADY_MEMBER_RECOMMEND_COMMENT(HttpStatus.CONFLICT, "Member Already Recommend Comment");
 
     private final HttpStatus status;
     private final String msg;

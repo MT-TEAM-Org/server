@@ -47,6 +47,10 @@ public class BoardDto {
      */
     private Integer commentCount;
     /**
+     * 추천 수
+     */
+    private Integer recommendCount;
+    /**
      * 작성 일시
      */
     private LocalDateTime createdAt;
@@ -57,7 +61,7 @@ public class BoardDto {
 
     public BoardDto(BoardType boardType, CategoryType categoryType, Long id, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,
-                    LocalDateTime createdAt, LocalDateTime updatedAt) {
+                    Integer recommendCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.boardType = boardType;
         this.categoryType = categoryType;
         this.id = id;
@@ -67,6 +71,7 @@ public class BoardDto {
         this.publicId = publicId;
         this.nickname = nickname;
         this.commentCount = commentCount;
+        this.recommendCount = recommendCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
