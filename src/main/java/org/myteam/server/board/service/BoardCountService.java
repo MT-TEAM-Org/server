@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BoardCountService {
 
     private final SecurityReadService securityReadService;
@@ -20,7 +21,6 @@ public class BoardCountService {
 
     private final BoardRecommendRepository boardRecommendRepository;
 
-    @Transactional
     public void recommendBoard(Long boardId) {
         Board board = boardReadService.findById(boardId);
         Member member = securityReadService.getMember();
@@ -32,7 +32,6 @@ public class BoardCountService {
         addRecommendCount(board.getId());
     }
 
-    @Transactional
     public void deleteRecommendBoard(Long boardId) {
 
         Board board = boardReadService.findById(boardId);
