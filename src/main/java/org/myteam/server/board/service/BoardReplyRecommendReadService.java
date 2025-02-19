@@ -29,4 +29,8 @@ public class BoardReplyRecommendReadService {
         }
         return true;
     }
+
+    public boolean isRecommended(Long boardReplyId, UUID publicId) {
+        return boardReplyRecommendRepository.findByBoardReplyIdAndMemberPublicId(boardReplyId, publicId).isPresent();
+    }
 }

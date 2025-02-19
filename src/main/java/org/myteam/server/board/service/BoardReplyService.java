@@ -23,6 +23,7 @@ public class BoardReplyService {
     private final BoardReplyReadService boardReplyReadService;
     private final BoardCommentReadService boardCommentReadService;
     private final MemberReadService memberReadService;
+    private final BoardReplyRecommendReadService boardReplyRecommendReadService;
     private final SecurityReadService securityReadService;
     private final S3Service s3Service;
 
@@ -47,7 +48,10 @@ public class BoardReplyService {
 
         boardCountService.addCommentCount(boardComment.getBoard().getId());
 
-        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember);
+        boolean isRecommended = boardReplyRecommendReadService.isRecommended(boardReply.getId(),
+                loginUser.getPublicId());
+
+        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember, isRecommended);
     }
 
     /**
@@ -68,7 +72,10 @@ public class BoardReplyService {
                 mentionedMember);
         boardReplyRepository.save(boardReply);
 
-        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember);
+        boolean isRecommended = boardReplyRecommendReadService.isRecommended(boardReply.getId(),
+                loginUser.getPublicId());
+
+        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember, isRecommended);
     }
 
     /**
