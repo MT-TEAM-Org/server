@@ -3,16 +3,23 @@ package org.myteam.server.board.repository;
 import static org.myteam.server.board.domain.QBoardComment.boardComment;
 import static org.myteam.server.board.domain.QBoardReply.boardReply;
 
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.dto.reponse.BoardReplyResponse;
+import org.myteam.server.board.service.BoardCommentRecommendReadService;
+import org.myteam.server.board.service.BoardReplyRecommendReadService;
+import org.myteam.server.global.security.dto.CustomUserDetails;
+import org.myteam.server.member.repository.MemberRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,8 +27,13 @@ import org.springframework.stereotype.Repository;
 public class BoardCommentQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final MemberRepository memberRepository;
 
-    public List<BoardCommentResponse> getBoardCommentList(Long boardId, BoardOrderType orderType) {
+    private final BoardCommentRecommendReadService boardCommentRecommendReadService;
+    private final BoardReplyRecommendReadService boardReplyRecommendReadService;
+
+    public List<BoardCommentResponse> getBoardCommentList(Long boardId, BoardOrderType orderType,
+                                                          CustomUserDetails userDetails) {
         List<BoardCommentResponse> list = queryFactory
                 .select(Projections.constructor(BoardCommentResponse.class,
                         boardComment.id,
@@ -33,19 +45,29 @@ public class BoardCommentQueryRepository {
                         boardComment.comment,
                         boardComment.recommendCount,
                         boardComment.createDate,
-                        boardComment.lastModifiedDate))
+                        boardComment.lastModifiedDate,
+                        ExpressionUtils.as(Expressions.constant(false), "isRecommended")
+                ))
                 .from(boardComment)
                 .where(isBoardEqualTo(boardId))
                 .orderBy(isOrderByEqualToOrderType(orderType))
                 .fetch();
 
         list.forEach(comment -> {
-            comment.setBoardReplyList(getRepliesForComments(comment.getBoardCommentId()));
+            boolean isRecommended = false;
+
+            if (userDetails != null) {
+                UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+                isRecommended = boardCommentRecommendReadService.isRecommended(comment.getBoardCommentId(), loginUser);
+            }
+            comment.setRecommended(isRecommended);
+            comment.setBoardReplyList(getRepliesForComments(comment.getBoardCommentId(), userDetails));
         });
+
         return list;
     }
 
-    public List<BoardReplyResponse> getRepliesForComments(Long boardCommentId) {
+    public List<BoardReplyResponse> getRepliesForComments(Long boardCommentId, CustomUserDetails userDetails) {
         List<BoardReplyResponse> replies = queryFactory
                 .select(Projections.fields(BoardReplyResponse.class,
                         boardReply.boardComment.id.as("boardCommentId"),
@@ -59,12 +81,23 @@ public class BoardCommentQueryRepository {
                         boardReply.mentionedMember.publicId.as("mentionedPublicId"),
                         boardReply.mentionedMember.nickname.as("mentionedNickname"),
                         boardReply.createDate,
-                        boardReply.lastModifiedDate))
+                        boardReply.lastModifiedDate
+                ))
                 .from(boardReply)
                 .leftJoin(boardReply.mentionedMember)
                 .where(isBoardCommentEqualTo(boardCommentId))
                 .orderBy(boardReply.createDate.desc())
                 .fetch();
+
+        replies.forEach(reply -> {
+            boolean isRecommended = false;
+
+            if (userDetails != null) {
+                UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+                isRecommended = boardReplyRecommendReadService.isRecommended(reply.getBoardReplyId(), loginUser);
+            }
+            reply.setRecommended(isRecommended);
+        });
 
         return replies;
     }

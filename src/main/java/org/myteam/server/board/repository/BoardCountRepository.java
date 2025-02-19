@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BoardCountRepository extends JpaRepository<BoardCount, Long> {
 
-    void deleteByBoardId(Long id);
+    void deleteByBoardId(Long boardId);
 
     Optional<BoardCount> findByBoardId(Long boardId);
 }

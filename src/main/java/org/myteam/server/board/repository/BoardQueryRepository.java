@@ -14,7 +14,10 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.domain.*;
+import org.myteam.server.board.domain.BoardOrderType;
+import org.myteam.server.board.domain.BoardSearchType;
+import org.myteam.server.board.domain.BoardType;
+import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -47,11 +50,12 @@ public class BoardQueryRepository {
                         member.publicId,
                         member.nickname,
                         boardCount.commentCount,
+                        boardCount.recommendCount,
                         board.createDate,
                         board.lastModifiedDate
                 ))
                 .from(board)
-                .join(boardCount).on(boardCount.boardId.eq(board.id))
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
                 .join(member).on(member.eq(board.member))
                 .fetchJoin()
                 .where(isBoardTypeEqualTo(boardType), isCategoryEqualTo(categoryType),
@@ -132,7 +136,7 @@ public class BoardQueryRepository {
                         board.lastModifiedDate
                 ))
                 .from(board)
-                .join(boardCount).on(boardCount.boardId.eq(board.id))
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
                 .join(member).on(member.eq(board.member))
                 .fetchJoin()
                 .where(member.publicId.eq(publicId), isSearchTypeLikeTo(searchType, search))

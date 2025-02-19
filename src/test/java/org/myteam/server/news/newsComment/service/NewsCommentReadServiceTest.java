@@ -32,7 +32,7 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = craeteNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
 
 		NewsComment findNewsComment = newsCommentReadService.findById(newsComment.getId());
 
@@ -56,8 +56,8 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 		Member member1 = createMember(1);
 		Member member2 = createMember(1);
 
-		NewsComment newsComment1 = craeteNewsComment(news, member1, "뉴스 댓글 테스트1");
-		NewsComment newsComment2 = craeteNewsComment(news, member2, "뉴스 댓글 테스트2");
+		NewsComment newsComment1 = createNewsComment(news, member1, "뉴스 댓글 테스트1");
+		NewsComment newsComment2 = createNewsComment(news, member2, "뉴스 댓글 테스트2");
 
 		NewsCommentServiceRequest newsCommentServiceRequest = NewsCommentServiceRequest.builder()
 			.newsId(news.getId())

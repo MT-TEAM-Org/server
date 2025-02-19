@@ -83,4 +83,13 @@ public class BoardComment extends BaseTime {
             throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
     }
+
+    public void addRecommendCount() {
+        this.recommendCount += 1;
+    }
+
+
+    public void minusRecommendCount() {
+        this.recommendCount -= 1;
+    }
 }
