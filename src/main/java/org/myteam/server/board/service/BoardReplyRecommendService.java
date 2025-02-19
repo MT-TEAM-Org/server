@@ -5,8 +5,6 @@ import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.board.domain.BoardReplyRecommend;
 import org.myteam.server.board.repository.BoardReplyLockRepository;
 import org.myteam.server.board.repository.BoardReplyRecommendRepository;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
@@ -65,19 +63,15 @@ public class BoardReplyRecommendService {
      * 게시판 대댓글 추천 생성
      */
     private void recommend(BoardReply boardReply, Member member) {
-        BoardReplyRecommend recommend = BoardReplyRecommend.builder()
-                .boardReply(boardReply)
-                .member(member)
-                .build();
-        boardReplyRecommendRepository.save(recommend);
+        BoardReplyRecommend boardReplyRecommend = BoardReplyRecommend.createBoardReplyRecommend(boardReply, member);
+        boardReplyRecommendRepository.save(boardReplyRecommend);
     }
 
     /**
      * 게시판 대댓글 추천수 증가
      */
     private void addRecommendCount(Long boardReplyId) {
-        BoardReply reply = boardReplyLockRepository.findById(boardReplyId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_REPLY_RECOMMEND_NOT_FOUND));
+        BoardReply reply = boardReplyRecommendReadService.findByIdLock(boardReplyId);
         reply.addRecommendCount();
     }
 
@@ -85,9 +79,7 @@ public class BoardReplyRecommendService {
      * 게시판 대댓글 추천소 감소
      */
     private void minusRecommendCount(Long boardReplyId) {
-        BoardReply reply = boardReplyLockRepository.findById(boardReplyId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_REPLY_RECOMMEND_NOT_FOUND));
-
+        BoardReply reply = boardReplyRecommendReadService.findByIdLock(boardReplyId);
         reply.minusRecommendCount();
     }
 }

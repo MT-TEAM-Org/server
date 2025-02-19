@@ -3,10 +3,7 @@ package org.myteam.server.board.service;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.BoardComment;
 import org.myteam.server.board.domain.BoardCommentRecommend;
-import org.myteam.server.board.repository.BoardCommentLockRepository;
 import org.myteam.server.board.repository.BoardCommentRecommendRepository;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
@@ -21,7 +18,6 @@ public class BoardCommentRecommendService {
     private final BoardCommentRecommendReadService boardCommentRecommendReadService;
 
     private final BoardCommentRecommendRepository boardCommentRecommendRepository;
-    private final BoardCommentLockRepository boardCommentLockRepository;
 
     @Transactional
     public void recommendBoardComment(Long boardCommentId) {
@@ -66,10 +62,7 @@ public class BoardCommentRecommendService {
      * 게시판 댓글 추천 생성
      */
     private void recommend(BoardComment boardComment, Member member) {
-        BoardCommentRecommend recommend = BoardCommentRecommend.builder()
-                .boardComment(boardComment)
-                .member(member)
-                .build();
+        BoardCommentRecommend recommend = BoardCommentRecommend.createBoardCommentRecommend(boardComment, member);
         boardCommentRecommendRepository.save(recommend);
     }
 
@@ -77,9 +70,7 @@ public class BoardCommentRecommendService {
      * 게시판 댓글 추천수 증가
      */
     private void addRecommendCount(Long boardCommentId) {
-        BoardComment comment = boardCommentLockRepository.findById(boardCommentId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_COMMENT_RECOMMEND_NOT_FOUND));
-
+        BoardComment comment = boardCommentRecommendReadService.findByIdLock(boardCommentId);
         comment.addRecommendCount();
     }
 
@@ -87,9 +78,7 @@ public class BoardCommentRecommendService {
      * 게시판 댓글 추천소 감소
      */
     private void minusRecommendCount(Long boardCommentId) {
-        BoardComment comment = boardCommentLockRepository.findById(boardCommentId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_COMMENT_RECOMMEND_NOT_FOUND));
-
+        BoardComment comment = boardCommentRecommendReadService.findByIdLock(boardCommentId);
         comment.minusRecommendCount();
     }
 }

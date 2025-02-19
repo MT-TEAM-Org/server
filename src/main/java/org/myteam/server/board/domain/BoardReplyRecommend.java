@@ -34,4 +34,12 @@ public class BoardReplyRecommend {
         this.boardReply = boardReply;
         this.member = member;
     }
+
+    public static BoardReplyRecommend createBoardReplyRecommend(BoardReply boardReply, Member member) {
+
+        return BoardReplyRecommend.builder()
+                .boardReply(boardReply)
+                .member(member)
+                .build();
+    }
 }
