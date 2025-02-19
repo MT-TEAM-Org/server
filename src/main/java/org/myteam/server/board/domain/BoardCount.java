@@ -58,6 +58,10 @@ public class BoardCount {
                 .build();
     }
 
+    public void addViewCount() {
+        this.viewCount += 1;
+    }
+
     public void addRecommendCount() {
         this.recommendCount += 1;
     }

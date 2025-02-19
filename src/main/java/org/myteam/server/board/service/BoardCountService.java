@@ -100,4 +100,8 @@ public class BoardCountService {
     public void minusCommentCount(Long boardId, int count) {
         boardCountReadService.findByBoardIdLock(boardId).minusCommentCount(count);
     }
+
+    public void addViewCount(Long boardId) {
+        boardCountReadService.findByBoardIdLock(boardId).addViewCount();
+    }
 }
