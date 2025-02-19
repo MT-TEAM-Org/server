@@ -5,6 +5,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,9 +25,11 @@ public class BoardCommentRecommend extends BaseTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_comment_id")
     private BoardComment boardComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "public_id")
     private Member member;
 
     @Builder
