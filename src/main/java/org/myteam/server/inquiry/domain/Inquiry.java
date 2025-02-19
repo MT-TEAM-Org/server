@@ -36,6 +36,7 @@ public class Inquiry {
 
     @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     private InquiryCount inquiryCount;
+
     public boolean isAuthor(Member member) {
         return this.member.equals(member);
     }
@@ -47,5 +48,9 @@ public class Inquiry {
         if (!this.isAuthor(member) && !member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
+    }
+
+    public void updateAdminAnswered() {
+        this.isAdminAnswered = true;
     }
 }

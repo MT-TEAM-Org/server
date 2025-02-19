@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.request.InquiryServiceRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
+import org.myteam.server.inquiry.dto.response.InquiryDetailsResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.global.page.request.PageInfoRequest;
@@ -33,6 +35,7 @@ public class InquiryReadService {
     private final InquiryQueryRepository inquiryQueryRepository;
     private final InquiryRepository inquiryRepository;
     private final SecurityReadService securityReadService;
+    private final InquiryCountReadService inquiryCountReadService;
 
     /**
      * 검색 + 정렬 기능
@@ -79,12 +82,12 @@ public class InquiryReadService {
 
     /**
      * 문의 내역 상세 조회
-     * @TODO: 리턴 타입 다시 살펴보기
      */
-    public InquiryResponse getInquiryById(final Long inquiryId) {
+    public InquiryDetailsResponse getInquiryById(final Long inquiryId) {
         Inquiry inquiry = findInquiryById(inquiryId);
+        InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiry.getId());
 
-        return InquiryResponse.createInquiryResponse(inquiry);
+        return InquiryDetailsResponse.createResponse(inquiry, inquiryCount);
     }
 
     public Inquiry findInquiryById(Long inquiryId) {

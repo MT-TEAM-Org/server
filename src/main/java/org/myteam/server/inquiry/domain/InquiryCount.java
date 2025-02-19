@@ -18,20 +18,12 @@ public class InquiryCount {
     private Inquiry inquiry;
 
     @Column(nullable = false)
-    private int recommendCount;
-
-    @Column(nullable = false)
-    private int viewCount;
-
-    @Column(nullable = false)
     private int commentCount;
 
     @Builder
-    public InquiryCount(Inquiry inquiry, int recommendCount, int commentCount, int viewCount) {
+    public InquiryCount(Inquiry inquiry, int commentCount) {
         this.inquiry = inquiry;
-        this.recommendCount = recommendCount;
         this.commentCount = commentCount;
-        this.viewCount = viewCount;
     }
 
     public static InquiryCount createCount(Inquiry inquiry) {
@@ -39,18 +31,8 @@ public class InquiryCount {
 
         return InquiryCount.builder()
                 .inquiry(inquiry)
-                .recommendCount(COUNT_SETTING_NUMBER)
                 .commentCount(COUNT_SETTING_NUMBER)
-                .viewCount(COUNT_SETTING_NUMBER)
                 .build();
-    }
-
-    public void addRecommendCount() {
-        this.recommendCount += 1;
-    }
-
-    public void minusRecommendCount() {
-        this.recommendCount -= 1;
     }
 
     public void addCommentCount() {

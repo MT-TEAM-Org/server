@@ -16,9 +16,10 @@ import org.myteam.server.inquiry.dto.request.InquiryCommentUpdateRequest;
 import org.myteam.server.inquiry.dto.response.InquiryCommentResponse;
 import org.myteam.server.inquiry.repository.InquiryCommentRepository;
 import org.myteam.server.inquiry.repository.InquiryReplyRepository;
+import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-//import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,14 +38,14 @@ public class InquiryCommentService {
     private final InquiryCommentRepository inquiryCommentRepository;
     private final InquiryCountService inquiryCountService;
     private final InquiryCommentReadService inquiryCommentReadService;
-//    private final S3Service s3Service;
+    private final S3Service s3Service;
     private final InquiryReplyReadService inquiryReplyReadService;
     private final InquiryReplyService inquiryReplyService;
     private final InquiryReplyRepository inquiryReplyRepository;
+    private final InquiryRepository inquiryRepository;
 
     /**
      * 문의 내역 댓글 생성
-     * TODO: 익명 사용자 확인해보기
      * @param inquiryId
      * @param request
      * @param createdIp
@@ -60,6 +61,11 @@ public class InquiryCommentService {
         inquiryCommentRepository.save(inquiryComment);
 
         inquiryCountService.addCommentCount(inquiry.getId());
+
+        if (member.isAdmin()) {
+            inquiry.updateAdminAnswered();
+            inquiryRepository.save(inquiry);
+        }
 
         return InquiryCommentResponse.createResponse(inquiryComment, member);
     }
@@ -85,7 +91,6 @@ public class InquiryCommentService {
 
     /**
      * 문의내역 댓글 삭제
-     * TODO: 익명 사용자 확인
      * @param inquiryCommentId
      */
     public void deleteInquiryComment(Long inquiryCommentId) {
@@ -94,7 +99,7 @@ public class InquiryCommentService {
 
         inquiryComment.verifyInquiryCommentAuthor(member);
 
-//        s3Service.deleteFile(MediaUtils.getImagePath(inquiryComment.getImageUrl()));
+        s3Service.deleteFile(MediaUtils.getImagePath(inquiryComment.getImageUrl()));
         int minusCount = deleteBoardReply(inquiryComment.getId());
         inquiryCommentRepository.deleteById(inquiryCommentId);
 
@@ -107,7 +112,7 @@ public class InquiryCommentService {
     private int deleteBoardReply(Long boardCommentId) {
         List<InquiryReply> inquiryReplyList = inquiryReplyReadService.findByBoardCommentId(boardCommentId);
         for (InquiryReply inquiryReply : inquiryReplyList) {
-//            s3Service.deleteFile(MediaUtils.getImagePath(inquiryReply.getImageUrl()));
+            s3Service.deleteFile(MediaUtils.getImagePath(inquiryReply.getImageUrl()));
             inquiryReplyRepository.delete(inquiryReply);
         }
         return inquiryReplyList.size();
@@ -118,7 +123,7 @@ public class InquiryCommentService {
      */
     private void verifyInquiryCommentImageAndRequestImage(String inquiryCommentImageUrl, String requestImageUrl) {
         if (!inquiryCommentImageUrl.equals(requestImageUrl)) {
-//            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
+            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
         }
     }
 }

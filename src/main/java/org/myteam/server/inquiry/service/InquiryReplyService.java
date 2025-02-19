@@ -13,6 +13,7 @@ import org.myteam.server.inquiry.repository.InquiryReplyRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class InquiryReplyService {
     private final BadWordFilter badWordFilter;
     private final InquiryCountService inquiryCountService;
     private final InquiryReplyReadService inquiryReplyReadService;
-//    private final S3Service s3Service;
+    private final S3Service s3Service;
 
     /**
      * 문의내역 대댓글 생성
@@ -85,7 +86,7 @@ public class InquiryReplyService {
 
         inquiryReply.verifyBoardReplyAuthor(member);
 
-//        s3Service.deleteFile(MediaUtils.getImagePath(inquiryReply.getImageUrl()));
+        s3Service.deleteFile(MediaUtils.getImagePath(inquiryReply.getImageUrl()));
         inquiryReplyRepository.delete(inquiryReply);
 
         inquiryCountService.minusCommentCount(inquiryReply.getInquiryComment().getInquiry().getId());
@@ -93,7 +94,7 @@ public class InquiryReplyService {
 
     private void verifyInquiryReplyImageAndRequestImage(String inquiryReplyImageUrl, String requestImageUrl) {
         if (!inquiryReplyImageUrl.equals(requestImageUrl)) {
-//            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
+            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
         }
     }
 }

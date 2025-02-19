@@ -32,7 +32,6 @@ public class InquiryCommentController {
 
     /**
      * 문의 내역 댓글 생성
-     * TODO: 익명 파
      * @param inquiryId
      * @param inquiryCommentRequest
      * @param request

@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
-import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
@@ -83,8 +82,6 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected InquiryRepository inquiryRepository;
 	@Autowired
-	protected InquiryAnswerRepository inquiryAnswerRepository;
-	@Autowired
 	protected MatchPredictionRepository matchPredictionRepository;
 
 	/**
@@ -133,7 +130,6 @@ public abstract class IntegrationTestSupport {
 		newsRepository.deleteAllInBatch();
 		memberActivityRepository.deleteAllInBatch();
 		memberJpaRepository.deleteAllInBatch();
-		inquiryAnswerRepository.deleteAllInBatch();
 	}
 
 	protected Member createMember(int index) {

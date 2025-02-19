@@ -31,15 +31,11 @@ import java.util.UUID;
 @Transactional
 public class InquiryService {
 
-    private final MemberRepository memberRepository;
     private final InquiryRepository inquiryRepository;
     private final InquiryCountRepository inquiryCountRepository;
     private final SlackService slackService;
-    private final InquiryCountReadService inquiryCountReadService;
-    private final InquiryRecommendReadService inquiryRecommendReadService;
     private final SecurityReadService securityReadService;
     private final InquiryReadService inquiryReadService;
-    private final MemberReadService memberReadService;
 
     /**
      * 문의 내역 생성
@@ -49,8 +45,6 @@ public class InquiryService {
      */
     public String createInquiry(String content, String clientIP) {
         Optional<Member> member = securityReadService.getOptionalMember();
-        UUID DEFAULT_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        UUID memberPublicId = member.map(Member::getPublicId).orElse(DEFAULT_UUID);
 
         Inquiry inquiry = makeInquiry(content, clientIP, member);
         InquiryCount inquiryCount = InquiryCount.createCount(inquiry);
@@ -59,7 +53,6 @@ public class InquiryService {
 
         inquiryRepository.save(inquiry);
         inquiryCountRepository.save(inquiryCount);
-        boolean isRecommended = inquiryRecommendReadService.isRecommended(inquiry.getId(), memberPublicId);
         slackService.sendSlackNotification(slackMessage);
 
         log.info("문의 내용이 접수되었습니다.");
@@ -69,14 +62,10 @@ public class InquiryService {
 
     /**
      * 문의 내역 삭제
-     * TODO: 익명일 때 생각하기
      * @param inquiryId
      */
     public void deleteInquiry(final Long inquiryId) {
-
-        UUID loginUser = securityReadService.getMember().getPublicId();
-
-        Member member = memberReadService.findById(loginUser);
+        Member member = securityReadService.getMember();
         Inquiry inquiry = inquiryReadService.findInquiryById(inquiryId);
 
         inquiry.verifyInquiryAuthor(member);
@@ -86,7 +75,6 @@ public class InquiryService {
     }
 
     private Inquiry makeInquiry(String content, String clientIP, Optional<Member> member) {
-        System.out.println(member.get().getNickname());
         Inquiry inquiry = Inquiry.builder()
                 .content(content)
                 .member(member.orElse(null))

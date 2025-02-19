@@ -16,7 +16,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/inquiries")
+@RequestMapping("/api/inquiry")
 public class InquiryController {
     private final InquiryService inquiryService;
 

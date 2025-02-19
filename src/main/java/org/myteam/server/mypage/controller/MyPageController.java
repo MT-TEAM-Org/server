@@ -10,6 +10,7 @@ import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
+import org.myteam.server.inquiry.dto.response.InquiryDetailsResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
@@ -101,6 +102,7 @@ public class MyPageController {
 
 
     /**
+     * TODO: 이건 ㄱㅊ
      * 문의 내역 목록 조회
      * @param request
      * @return
@@ -109,8 +111,8 @@ public class MyPageController {
     public ResponseEntity<ResponseDto<InquiriesListResponse>> getMyInquiry(
             @Valid @ModelAttribute InquirySearchRequest request
     ) {
-        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(
-                request.toServiceRequest());
+        InquiriesListResponse inquiriesListResponse = inquiryReadService
+                .getInquiriesByMember(request.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -120,6 +122,7 @@ public class MyPageController {
     }
 
     /**
+     * ㄱㅊ
      * 문의내역 삭제
      */
     @DeleteMapping("/{inquiryId}")
@@ -133,11 +136,12 @@ public class MyPageController {
     }
 
     /**
+     * TODO: 이거 잘못된듯? => response가 수정이 필요함
      * 문의내역 상세 조회
      */
     @GetMapping("/{inquiryId}")
-    public ResponseEntity<ResponseDto<InquiryResponse>> getBoard(@PathVariable final Long inquiryId) {
-        final InquiryResponse response = inquiryReadService.getInquiryById(inquiryId);
+    public ResponseEntity<ResponseDto<InquiryDetailsResponse>> getBoard(@PathVariable final Long inquiryId) {
+        final InquiryDetailsResponse response = inquiryReadService.getInquiryById(inquiryId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "문의 내역 조회 성공",
