@@ -1,8 +1,11 @@
 package org.myteam.server.news.newsReply.service;
 
+import java.util.UUID;
+
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.newsComment.repository.NewsCommentLockRepository;
 import org.myteam.server.news.newsReply.domain.NewsReply;
 import org.myteam.server.news.newsReply.dto.repository.NewsReplyDto;
@@ -25,10 +28,12 @@ public class NewsReplyReadService {
 	private final NewsReplyRepository newsReplyRepository;
 	private final NewsReplyLockRepository newsReplyLockRepository;
 	private final NewsReplyQueryRepository newsReplyQueryRepository;
+	private final SecurityReadService securityReadService;
 
 	public NewsReplyListResponse findByNewsCommentId(NewsReplyServiceRequest newsReplyServiceRequest) {
 		Page<NewsReplyDto> list = newsReplyQueryRepository.getNewsReplyList(
 			newsReplyServiceRequest.getNewsCommentId(),
+			securityReadService.getAuthenticatedPublicId(),
 			newsReplyServiceRequest.toPageable()
 		);
 

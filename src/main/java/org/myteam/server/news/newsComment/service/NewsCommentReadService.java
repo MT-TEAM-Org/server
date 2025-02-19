@@ -3,6 +3,7 @@ package org.myteam.server.news.newsComment.service;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.dto.repository.NewsCommentDto;
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentServiceRequest;
@@ -24,11 +25,12 @@ public class NewsCommentReadService {
 	private final NewsCommentRepository newsCommentRepository;
 	private final NewsCommentLockRepository newsCommentLockRepository;
 	private final NewsCommentQueryRepository newsCommentQueryRepository;
+	private final SecurityReadService securityReadService;
 
 	public NewsCommentListResponse findByNewsId(NewsCommentServiceRequest newsCommentServiceRequest) {
-
 		Page<NewsCommentDto> list = newsCommentQueryRepository.getNewsCommentList(
 			newsCommentServiceRequest.getNewsId(),
+			securityReadService.getAuthenticatedPublicId(),
 			newsCommentServiceRequest.toPageable()
 		);
 

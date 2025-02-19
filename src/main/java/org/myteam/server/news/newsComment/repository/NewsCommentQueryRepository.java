@@ -42,6 +42,7 @@ public class NewsCommentQueryRepository {
 				newsComment.comment,
 				newsComment.ip,
 				newsComment.createDate,
+				newsComment.recommendCount,
 				existsNewsCommentMember(memberId)
 			))
 			.from(newsComment)
