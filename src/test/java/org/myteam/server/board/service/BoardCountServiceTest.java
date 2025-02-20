@@ -124,7 +124,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         countDownLatch.await();
 
-        assertThat(boardCountRepository.findById(board.getId()).get().getRecommendCount()).isEqualTo(50);
+        assertThat(boardCountRepository.findById(savedBoardCount.getId()).get().getRecommendCount()).isEqualTo(50);
     }
 
     @DisplayName("게시글 추천수 감소 동시성 테스트한다.")
@@ -181,7 +181,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         countDownLatch.await();
 
-        assertThat(boardCountRepository.findById(board.getId()).get().getRecommendCount()).isEqualTo(0);
+        assertThat(boardCountRepository.findById(savedBoardCount.getId()).get().getRecommendCount()).isEqualTo(0);
     }
 
     @DisplayName("게시판 댓글수 증가 동시성 테스트한다.")
@@ -235,7 +235,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
         }
         countDownLatch.await();
 
-        assertThat(boardCountRepository.findById(board.getId()).get().getCommentCount())
+        assertThat(boardCountRepository.findById(savedBoardCount.getId()).get().getCommentCount())
                 .isEqualTo(50);
     }
 
@@ -292,7 +292,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         countDownLatch.await();
 
-        assertThat(boardCountRepository.findById(board.getId()).get().getCommentCount())
+        assertThat(boardCountRepository.findById(savedBoardCount.getId()).get().getCommentCount())
                 .isEqualTo(0);
     }
 
@@ -346,6 +346,6 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
         }
         countDownLatch.await();
 
-        assertThat(boardCountRepository.findById(board.getId()).get().getViewCount()).isEqualTo(50);
+        assertThat(boardCountRepository.findById(savedBoardCount.getId()).get().getViewCount()).isEqualTo(50);
     }
 }
