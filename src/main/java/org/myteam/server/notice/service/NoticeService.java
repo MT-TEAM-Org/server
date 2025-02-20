@@ -25,11 +25,13 @@ public class NoticeService {
     private final NoticeCountRepository noticeCountRepository;
     private final SecurityReadService securityReadService;
     private final NoticeRecommendReadService noticeRecommendReadService;
+    private final NoticeReadService noticeReadService;
+    private final NoticeCountReadService noticeCountReadService;
 
     /**
      * 공지사항 작성
      */
-    public NoticeSaveResponse saveNotice(NoticeSaveResquest request, String clientIp) {
+    public NoticeSaveResponse saveNotice(NoticeSaveRequest request, String clientIp) {
         log.info("save Notice 실행");
         Member member = securityReadService.getMember();
 
@@ -49,7 +51,7 @@ public class NoticeService {
 
     }
 
-    private Notice makeNotice(final Member member, String clientIp, NoticeSaveResquest resquest) {
+    private Notice makeNotice(final Member member, String clientIp, NoticeSaveRequest resquest) {
         Notice notice = Notice.builder()
                 .member(member)
                 .createdIP(clientIp)
@@ -60,5 +62,32 @@ public class NoticeService {
 
         noticeRepository.save(notice);
         return notice;
+    }
+
+    /**
+     * 공지사항 수정
+     */
+    public NoticeSaveResponse updateNotice(NoticeSaveRequest request, Long noticeId) {
+        log.info("update Notice 실행");
+
+        Member member = securityReadService.getMember();
+        if (member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Notice notice = noticeReadService.findById(noticeId);
+        if (notice.getMember().getPublicId() == member.getPublicId()) {
+            throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
+        notice.updateNotice(request.getTitle(), request.getContent(), request.getImgUrl());
+        noticeRepository.save(notice);
+
+        NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
+
+        boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
+
+        log.info("공지사항 수정: {}", notice.getId());
+        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended);
     }
 }

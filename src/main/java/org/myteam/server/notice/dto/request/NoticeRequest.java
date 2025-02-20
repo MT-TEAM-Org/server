@@ -12,7 +12,7 @@ public record NoticeRequest() {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public final class NoticeSaveResquest {
+    public final class NoticeSaveRequest {
         @NotBlank(message = "제목을 입력해주세요")
         private String title;
         @NotBlank(message = "내용을 입력해주세요")

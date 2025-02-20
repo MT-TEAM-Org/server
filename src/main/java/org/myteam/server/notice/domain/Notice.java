@@ -44,7 +44,9 @@ public class Notice extends BaseTime {
     }
 
     // TODO: update 하면 request 넣기
-    public void updateNotice() {
-
+    public void updateNotice(String title, String content, String imgUrl) {
+        this.title = title;
+        this.content = content;
+        this.imgUrl = imgUrl;
     }
 }
