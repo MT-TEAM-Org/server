@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BoardCommentRecommendService {
 
     private final BoardCommentReadService boardCommentReadService;
@@ -19,7 +20,6 @@ public class BoardCommentRecommendService {
 
     private final BoardCommentRecommendRepository boardCommentRecommendRepository;
 
-    @Transactional
     public void recommendBoardComment(Long boardCommentId) {
         BoardComment boardComment = boardCommentReadService.findById(boardCommentId);
         Member member = securityReadService.getMember();
@@ -31,7 +31,6 @@ public class BoardCommentRecommendService {
         addRecommendCount(boardComment.getId());
     }
 
-    @Transactional
     public void deleteRecommendBoardComment(Long boardCommentId) {
         BoardComment boardComment = boardCommentReadService.findById(boardCommentId);
         Member member = securityReadService.getMember();
@@ -69,7 +68,7 @@ public class BoardCommentRecommendService {
     /**
      * 게시판 댓글 추천수 증가
      */
-    private void addRecommendCount(Long boardCommentId) {
+    public void addRecommendCount(Long boardCommentId) {
         BoardComment comment = boardCommentRecommendReadService.findByIdLock(boardCommentId);
         comment.addRecommendCount();
     }
@@ -77,7 +76,7 @@ public class BoardCommentRecommendService {
     /**
      * 게시판 댓글 추천소 감소
      */
-    private void minusRecommendCount(Long boardCommentId) {
+    public void minusRecommendCount(Long boardCommentId) {
         BoardComment comment = boardCommentRecommendReadService.findByIdLock(boardCommentId);
         comment.minusRecommendCount();
     }

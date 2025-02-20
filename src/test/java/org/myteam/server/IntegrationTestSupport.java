@@ -6,17 +6,25 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.domain.Board;
+import org.myteam.server.board.domain.BoardComment;
+import org.myteam.server.board.domain.BoardCommentRecommend;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
+import org.myteam.server.board.domain.BoardReply;
+import org.myteam.server.board.domain.BoardReplyRecommend;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.board.repository.BoardCommentRecommendRepository;
 import org.myteam.server.board.repository.BoardCommentRepository;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRecommendRepository;
+import org.myteam.server.board.repository.BoardReplyRecommendRepository;
+import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.board.service.BoardCountReadService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
+import org.myteam.server.board.service.BoardReplyRecommendService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.inquiry.repository.InquiryAnswerRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
@@ -111,6 +119,12 @@ public abstract class IntegrationTestSupport {
     protected BoardRecommendRepository boardRecommendRepository;
     @Autowired
     protected BoardCommentRepository boardCommentRepository;
+    @Autowired
+    protected BoardCommentRecommendRepository boardCommentRecommendRepository;
+    @Autowired
+    protected BoardReplyRepository boardReplyRepository;
+    @Autowired
+    protected BoardReplyRecommendRepository boardReplyRecommendRepository;
 
     /**
      * ================== Service ========================
@@ -135,6 +149,8 @@ public abstract class IntegrationTestSupport {
     protected BoardCountReadService boardCountReadService;
     @Autowired
     protected BoardRecommendReadService boardRecommendReadService;
+    @Autowired
+    protected BoardReplyRecommendService boardReplyRecommendService;
 
     /**
      * ================== Config ========================
@@ -163,6 +179,9 @@ public abstract class IntegrationTestSupport {
         newsCountMemberRepository.deleteAllInBatch();
         newsCountRepository.deleteAllInBatch();
         newsRepository.deleteAllInBatch();
+        boardReplyRecommendRepository.deleteAllInBatch();
+        boardReplyRepository.deleteAllInBatch();
+        boardCommentRecommendRepository.deleteAllInBatch();
         boardCommentRepository.deleteAllInBatch();
         boardRecommendRepository.deleteAllInBatch();
         boardCountRepository.deleteAllInBatch();
@@ -329,5 +348,57 @@ public abstract class IntegrationTestSupport {
         boardRecommendRepository.save(recommend);
 
         return recommend;
+    }
+
+    protected BoardComment createBoardComment(Board board, Member member, String comment) {
+        BoardComment boardComment = BoardComment.builder()
+                .board(board)
+                .member(member)
+                .imageUrl("http://localhost:9000/bucket/test.png")
+                .comment(comment)
+                .createdIp("127.0.0.1")
+                .recommendCount(0)
+                .build();
+
+        boardCommentRepository.save(boardComment);
+
+        return boardComment;
+    }
+
+    protected BoardCommentRecommend createBoardCommentRecommend(BoardComment boardComment, Member member) {
+        BoardCommentRecommend boardCommentRecommend = BoardCommentRecommend.builder()
+                .boardComment(boardComment)
+                .member(member)
+                .build();
+        boardCommentRecommendRepository.save(boardCommentRecommend);
+
+        return boardCommentRecommend;
+    }
+
+    protected BoardReply createBoardReply(BoardComment boardComment, Member member, String comment,
+                                          Member mentionedMember) {
+        BoardReply boardReply = BoardReply.builder()
+                .boardComment(boardComment)
+                .member(member)
+                .imageUrl("http://localhost:9000/bucket/test.png")
+                .comment(comment)
+                .createdIp("127.0.0.1")
+                .recommendCount(0)
+                .mentionedMember(mentionedMember)
+                .build();
+
+        boardReplyRepository.save(boardReply);
+
+        return boardReply;
+    }
+
+    protected BoardReplyRecommend createBoardReplyRecommend(BoardReply boardReply, Member member) {
+        BoardReplyRecommend boardReplyRecommend = BoardReplyRecommend.builder()
+                .boardReply(boardReply)
+                .member(member)
+                .build();
+        boardReplyRecommendRepository.save(boardReplyRecommend);
+
+        return boardReplyRecommend;
     }
 }
