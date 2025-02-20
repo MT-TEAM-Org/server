@@ -90,4 +90,24 @@ public class NoticeService {
         log.info("공지사항 수정: {}", notice.getId());
         return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended);
     }
+
+    /**
+     * 공지사항 삭제
+     */
+    public void deleteNotice(Long noticeId) {
+        log.info("delete Notice 실행");
+
+        Member member = securityReadService.getMember();
+        if (member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Notice notice = noticeReadService.findById(noticeId);
+        if (notice.getMember().getPublicId() == member.getPublicId()) {
+            throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
+        noticeCountRepository.deleteByNoticeId(notice.getId());
+        noticeRepository.delete(notice);
+    }
 }

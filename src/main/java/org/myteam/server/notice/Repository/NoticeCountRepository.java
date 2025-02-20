@@ -11,5 +11,5 @@ public interface NoticeCountRepository extends JpaRepository<NoticeCount, Long> 
 
     Optional<NoticeCount> findByNoticeId(Long noticeId);
 
-    void deleteByInquiryId(Long noticeId);
+    void deleteByNoticeId(Long noticeId);
 }
