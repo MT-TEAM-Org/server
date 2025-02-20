@@ -22,6 +22,7 @@ import org.myteam.server.board.repository.BoardReplyRecommendRepository;
 import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.board.service.BoardCountReadService;
+import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
 import org.myteam.server.board.service.BoardReplyRecommendService;
@@ -151,6 +152,8 @@ public abstract class IntegrationTestSupport {
     protected BoardRecommendReadService boardRecommendReadService;
     @Autowired
     protected BoardReplyRecommendService boardReplyRecommendService;
+    @Autowired
+    protected BoardCountService boardCountService;
 
     /**
      * ================== Config ========================

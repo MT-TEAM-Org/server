@@ -18,22 +18,13 @@ import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.board.repository.BoardCountRepository;
-import org.myteam.server.board.repository.BoardRecommendRepository;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 public class BoardCountServiceTest extends IntegrationTestSupport {
-    @Autowired
-    private BoardCountService boardCountService;
-    @Autowired
-    private BoardCountRepository boardCountRepository;
-    @Autowired
-    private BoardRecommendRepository boardRecommendRepository;
 
     @DisplayName("게시글 추천 클릭시 사용자 좋아요 추가를 테스트한다.")
     @Test
