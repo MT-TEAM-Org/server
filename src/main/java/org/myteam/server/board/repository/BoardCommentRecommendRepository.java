@@ -11,4 +11,6 @@ public interface BoardCommentRecommendRepository extends JpaRepository<BoardComm
     Optional<BoardCommentRecommend> findByBoardCommentIdAndMemberPublicId(Long boardCommentId, UUID publicId);
 
     void deleteByBoardCommentIdAndMemberPublicId(Long boardCommentId, UUID publicId);
+
+    void deleteByBoardCommentId(Long boardCommentId);
 }
