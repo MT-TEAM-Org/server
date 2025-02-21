@@ -74,8 +74,8 @@ public class BoardQueryRepository {
 
                 BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
 
-                if (commentSearch != null) { // Null 체크 추가
-                    boardDto.setBoardCommentSearchDto(commentSearch); // BoardDto에 해당 필드를 추가해야 함
+                if (commentSearch != null) {
+                    boardDto.setBoardCommentSearchDto(commentSearch);
                 }
             });
         }
