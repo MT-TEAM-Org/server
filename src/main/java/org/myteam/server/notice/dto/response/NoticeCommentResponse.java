@@ -15,7 +15,10 @@ public record NoticeCommentResponse() {
     @Data
     @Builder
     @Getter
+<<<<<<< HEAD
     @NoArgsConstructor
+=======
+>>>>>>> e54602e (feat: 공지사항 댓글 기능 추가)
     @AllArgsConstructor
     public static final class NoticeCommentSaveResponse {
         private Long noticeCommentId;
@@ -31,8 +34,12 @@ public record NoticeCommentResponse() {
         private int recommendCount;
         private LocalDateTime createDate;
         private LocalDateTime lastModifiedDate;
+<<<<<<< HEAD
         @Setter
         private List<NoticeReplyResponse> noticeReplyList;
+=======
+        private List<NoticeReplyResponse> boardReplyList;
+>>>>>>> e54602e (feat: 공지사항 댓글 기능 추가)
 
         public static NoticeCommentSaveResponse createResponse(NoticeComment noticeComment, Member member, boolean isRecommended) {
             return NoticeCommentSaveResponse.builder()
@@ -54,7 +61,10 @@ public record NoticeCommentResponse() {
     @Data
     @Builder
     @Getter
+<<<<<<< HEAD
     @NoArgsConstructor
+=======
+>>>>>>> e54602e (feat: 공지사항 댓글 기능 추가)
     @AllArgsConstructor
     public static final class NoticeReplyResponse {
         private Long noticeReplyId;
@@ -93,6 +103,7 @@ public record NoticeCommentResponse() {
         }
     }
 
+<<<<<<< HEAD
     @Data
     @Builder
     @Getter
@@ -109,4 +120,6 @@ public record NoticeCommentResponse() {
                     .build();
         }
     }
+=======
+>>>>>>> e54602e (feat: 공지사항 댓글 기능 추가)
 }

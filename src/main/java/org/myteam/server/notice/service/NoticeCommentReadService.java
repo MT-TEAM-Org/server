@@ -9,7 +9,6 @@ import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.notice.Repository.NoticeCommentQueryRepository;
 import org.myteam.server.notice.Repository.NoticeCommentRepository;
 import org.myteam.server.notice.domain.NoticeComment;
-import org.myteam.server.notice.dto.response.NoticeCommentResponse;
 import org.myteam.server.notice.dto.response.NoticeCommentResponse.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
