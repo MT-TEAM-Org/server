@@ -98,7 +98,7 @@ public class BoardQueryRepository {
 
 
     private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search) {
-        if (search == null || search.isEmpty()) {
+        if (searchType == null || search == null || search.isEmpty()) {
             return null;
         }
 
