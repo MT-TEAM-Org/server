@@ -1,7 +1,5 @@
 package org.myteam.server.notice.Repository;
 
-import static org.myteam.server.board.domain.QBoardComment.boardComment;
-import static org.myteam.server.board.domain.QBoardReply.boardReply;
 import static org.myteam.server.notice.domain.QNoticeComment.noticeComment;
 import static org.myteam.server.notice.domain.QNoticeReply.noticeReply;
 
@@ -11,7 +9,6 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.dto.reponse.BoardReplyResponse;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.notice.dto.response.NoticeCommentResponse.*;
@@ -68,8 +65,8 @@ public class NoticeCommentQueryRepository {
     public List<NoticeReplyResponse> getRepliesForComments(Long noticeCommentId, CustomUserDetails userDetails) {
         List<NoticeReplyResponse> replies = queryFactory
                 .select(Projections.fields(NoticeReplyResponse.class,
-                        noticeReply.noticeComment.id.as("boardCommentId"),
-                        noticeReply.id.as("boardReplyId"),
+                        noticeReply.noticeComment.id.as("noticeCommentId"),
+                        noticeReply.id.as("noticeReplyId"),
                         noticeReply.createdIp,
                         noticeReply.member.publicId,
                         noticeReply.member.nickname,

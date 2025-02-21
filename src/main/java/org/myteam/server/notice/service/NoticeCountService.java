@@ -33,6 +33,17 @@ public class NoticeCountService {
         addRecommendCount(notice.getId());
     }
 
+    public void deleteRecommendNotice(Long noticeId) {
+        Notice notice = noticeReadService.findById(noticeId);
+        Member member = securityReadService.getMember();
+
+        isAlreadyRecommended(notice, member);
+
+        noticeRecommendRepository.deleteByNoticeIdAndMemberPublicId(notice.getId(), member.getPublicId());
+
+        minusRecommendCount(noticeId);
+    }
+
     /**
      * 추천이 되어있는 상태인지 검사
      */
@@ -44,7 +55,7 @@ public class NoticeCountService {
      * 이미 추천한 상태인지 검사
      */
     private void verifyMemberAlreadyRecommend(Notice notice, Member member) {
-        noticeRecommendReadService.confirmExistBoardRecommend(notice.getId(), member.getPublicId());
+        noticeRecommendReadService.confirmExistNoticeRecommend(notice.getId(), member.getPublicId());
     }
 
     /**

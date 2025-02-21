@@ -64,7 +64,7 @@ public class NoticeCommentService {
         Member member = securityReadService.getMember();
         NoticeComment noticeComment = noticeCommentReadService.findById(noticeCommentId);
 
-        noticeComment.verifyBoardCommentAuthor(member);
+        noticeComment.verifyNoticeCommentAuthor(member);
         if (!MediaUtils.verifyImageUrlAndRequestImageUrl(noticeComment.getImageUrl(), request.getImageUrl())) {
             s3Service.deleteFile(MediaUtils.getImagePath(request.getImageUrl()));
         }
@@ -83,7 +83,7 @@ public class NoticeCommentService {
         Member member = securityReadService.getMember();
         NoticeComment noticeComment = noticeCommentReadService.findById(noticeCommentId);
 
-        noticeComment.verifyBoardCommentAuthor(member);
+        noticeComment.verifyNoticeCommentAuthor(member);
 
         // S3 이미지 삭제
         s3Service.deleteFile(MediaUtils.getImagePath(noticeComment.getImageUrl()));

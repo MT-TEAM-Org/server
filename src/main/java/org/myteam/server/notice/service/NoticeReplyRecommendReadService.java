@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.notice.Repository.NoticeReplyRecommendRepository;
+import org.myteam.server.notice.Repository.NoticeReplyRepository;
 import org.myteam.server.notice.domain.NoticeReply;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class NoticeReplyRecommendReadService {
 
     private final NoticeReplyRecommendRepository noticeReplyRecommendRepository;
+    private final NoticeReplyRepository noticeReplyRepository;
 
     public void confirmExistNoticeReply(Long noticeReplyId, UUID publicId) {
         noticeReplyRecommendRepository.findByNoticeReplyIdAndMemberPublicId(noticeReplyId, publicId)
@@ -24,15 +26,20 @@ public class NoticeReplyRecommendReadService {
                 });
     }
 
-    public boolean isAlreadyRecommended(Long boardReplyId, UUID publicId) {
-        if (!noticeReplyRecommendRepository.findByNoticeReplyIdAndMemberPublicId(boardReplyId, publicId)
+    public boolean isAlreadyRecommended(Long noticeReplyId, UUID publicId) {
+        if (!noticeReplyRecommendRepository.findByNoticeReplyIdAndMemberPublicId(noticeReplyId, publicId)
                 .isPresent()) {
             throw new PlayHiveException(ErrorCode.NO_MEMBER_RECOMMEND_RECORD);
         }
         return true;
     }
 
-    public boolean isRecommended(Long boardReplyId, UUID publicId) {
-        return noticeReplyRecommendRepository.findByNoticeReplyIdAndMemberPublicId(boardReplyId, publicId).isPresent();
+    public boolean isRecommended(Long noticeReplyId, UUID publicId) {
+        return noticeReplyRecommendRepository.findByNoticeReplyIdAndMemberPublicId(noticeReplyId, publicId).isPresent();
+    }
+
+    public NoticeReply findById(Long noticeReplyId) {
+        return noticeReplyRepository.findById(noticeReplyId)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.NOTICE_REPLY_NOT_FOUND));
     }
 }

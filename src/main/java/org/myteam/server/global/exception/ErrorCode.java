@@ -96,6 +96,7 @@ public enum ErrorCode {
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
     INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists"),
+    ALREADY_MEMBER_RECOMMEND_NOTICE(HttpStatus.CONFLICT, "Member Already Recommend NOTICE"),
     ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board"),
     ALREADY_MEMBER_RECOMMEND_REPLY(HttpStatus.CONFLICT, "Member Already Recommend Reply"),
     ALREADY_MEMBER_RECOMMEND_COMMENT(HttpStatus.CONFLICT, "Member Already Recommend Comment");

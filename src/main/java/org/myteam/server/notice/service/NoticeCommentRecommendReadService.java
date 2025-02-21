@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.notice.Repository.NoticeCommentRecommendRepository;
+import org.myteam.server.notice.Repository.NoticeCommentRepository;
+import org.myteam.server.notice.domain.NoticeComment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class NoticeCommentRecommendReadService {
 
     private final NoticeCommentRecommendRepository noticeCommentRecommendRepository;
+    private final NoticeCommentRepository noticeCommentRepository;
 
     public void confirmExistNoticeCommentRecommend(Long noticeCommentId, UUID memberPublicId) {
         noticeCommentRecommendRepository.findByNoticeCommentIdAndMemberPublicId(noticeCommentId, memberPublicId)
@@ -36,5 +39,10 @@ public class NoticeCommentRecommendReadService {
     public boolean isRecommended(Long noticeCommentId, UUID publicId) {
         return noticeCommentRecommendRepository.findByNoticeCommentIdAndMemberPublicId(noticeCommentId, publicId)
                 .isPresent();
+    }
+
+    public NoticeComment findById(Long noticeCommentId) {
+        return noticeCommentRepository.findById(noticeCommentId)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.NOTICE_COMMENT_NOT_FOUND));
     }
 }

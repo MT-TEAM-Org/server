@@ -78,7 +78,7 @@ public class NoticeComment extends BaseTime {
         this.recommendCount -= 1;
     }
 
-    public void verifyBoardCommentAuthor(Member member) {
+    public void verifyNoticeCommentAuthor(Member member) {
         if (!isAuthor(this.member) && !member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
