@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BoardReplyRecommendRepository extends JpaRepository<BoardReplyRecommend, Long> {
 
-    Optional<Object> findByBoardReplyIdAndMemberPublicId(Long boardReplyId, UUID publicId);
+    Optional<BoardReplyRecommend> findByBoardReplyIdAndMemberPublicId(Long boardReplyId, UUID publicId);
 
     void deleteByBoardReplyIdAndMemberPublicId(Long boardReplyId, UUID publicId);
 }
