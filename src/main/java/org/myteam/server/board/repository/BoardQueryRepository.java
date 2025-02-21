@@ -2,6 +2,7 @@ package org.myteam.server.board.repository;
 
 import static java.util.Optional.ofNullable;
 import static org.myteam.server.board.domain.QBoard.board;
+import static org.myteam.server.board.domain.QBoardComment.boardComment;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.member.entity.QMember.member;
 
@@ -18,6 +19,7 @@ import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.board.dto.reponse.BoardCommentSearchDto;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,7 +35,6 @@ public class BoardQueryRepository {
 
     /**
      * 게시글 목록 조회
-     * TODO :: 검색에서 댓글 검색 댓글 작업 후 추가 예정
      */
     public Page<BoardDto> getBoardList(BoardType boardType, CategoryType categoryType,
                                        BoardOrderType orderType,
@@ -67,8 +68,34 @@ public class BoardQueryRepository {
 
         long total = getTotalBoardCount(boardType, categoryType, searchType, search);
 
+        // searchType이 COMMENT일 경우, 댓글 데이터 추가
+        if (searchType == BoardSearchType.COMMENT && search != null) {
+            content.forEach(boardDto -> {
+
+                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+
+                if (commentSearch != null) { // Null 체크 추가
+                    boardDto.setBoardCommentSearchDto(commentSearch); // BoardDto에 해당 필드를 추가해야 함
+                }
+            });
+        }
+
         return new PageImpl<>(content, pageable, total);
     }
+
+    private BoardCommentSearchDto getSearchBoardComment(Long boardId, String search) {
+        return queryFactory
+                .select(Projections.fields(BoardCommentSearchDto.class,
+                        boardComment.id.as("boardCommentId"),
+                        boardComment.comment
+                ))
+                .from(boardComment)
+                .where(boardComment.board.id.eq(boardId)
+                        .and(boardComment.comment.like("%" + search + "%")))
+                .orderBy(boardComment.createDate.desc(), boardComment.comment.asc())
+                .fetchFirst();
+    }
+
 
     private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search) {
         if (search == null || search.isEmpty()) {

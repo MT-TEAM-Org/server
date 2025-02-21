@@ -99,8 +99,10 @@ public class BoardCommentService {
         int minusCount = deleteBoardReply(boardComment.getId());
         // 댓글 추천 삭제
         boardCommentRecommendRepository.deleteByBoardCommentId(boardComment.getId());
-        // S3 이미지 삭제
-        s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
+        if (boardComment.getImageUrl() != null) {
+            // S3 이미지 삭제
+            s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
+        }
         // 댓글 삭제
         boardCommentRepository.deleteById(boardCommentId);
 
@@ -116,8 +118,10 @@ public class BoardCommentService {
         for (BoardReply boardReply : boardReplyList) {
             // 대댓글 추천 삭제
             boardReplyRecommendRepository.deleteAllByBoardReplyId(boardReply.getId());
-            // 대댓글 이미지 삭제
-            s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+            if (boardReply.getImageUrl() != null) {
+                // 대댓글 이미지 삭제
+                s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+            }
             // 대댓글 삭제
             boardReplyRepository.delete(boardReply);
         }

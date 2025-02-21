@@ -92,8 +92,10 @@ public class BoardReplyService {
 
         // 대댓글 추천 삭제
         boardReplyRecommendRepository.deleteAllByBoardReplyId(boardReply.getId());
-        // 대댓글 이미지 삭제
-        s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+        if (boardReply.getImageUrl() != null) {
+            // 대댓글 이미지 삭제
+            s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+        }
         // 대댓글 삭제
         boardReplyRepository.delete(boardReply);
         // 게시글 댓글 카운트 감소
