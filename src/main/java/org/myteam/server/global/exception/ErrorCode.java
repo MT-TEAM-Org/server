@@ -65,6 +65,8 @@ public enum ErrorCode {
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Not Found"),
     NOTICE_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Count Not Found"),
+    NOTICE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Comment Count Not Found"),
+    NOTICE_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Comment Count Not Found"),
 
     NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
     NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment not found"),
