@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.util.UUID;
+
 public record NoticeCommentRequest() {
 
     @Data
@@ -31,5 +33,19 @@ public record NoticeCommentRequest() {
 
         @Pattern(regexp = ".*\\.(png|jpeg|gif|webp|heic)$", message = "이미지는 png,jpeg,gif,webp,heic 확장자만 가능 합니다.")
         private String imageUrl;
+    }
+
+    @Data
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    public static final class NoticeReplySaveRequest {
+        @NotNull(message = "대댓글 내용은 필수 입니다.")
+        private String comment;
+
+        @Pattern(regexp = ".*\\.(png|jpeg|gif|webp|heic)$", message = "이미지는 png,jpeg,gif,webp,heic 확장자만 가능 합니다.")
+        private String imageUrl;
+
+        private UUID mentionedPublicId;
     }
 }

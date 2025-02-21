@@ -9,4 +9,8 @@ public class MediaUtils {
         }
         return null;
     }
+
+    public static boolean verifyImageUrlAndRequestImageUrl(String existsUrl, String requestUrl) {
+        return existsUrl.equals(requestUrl);
+    }
 }

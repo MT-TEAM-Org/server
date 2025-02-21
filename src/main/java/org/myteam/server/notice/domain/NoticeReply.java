@@ -79,8 +79,8 @@ public class NoticeReply extends BaseTime {
     /**
      * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
      */
-    public static void verifyBoardReplyAuthor(NoticeReply noticeReply, Member member) {
-        if (!noticeReply.isAuthor(member) && !member.isAdmin()) {
+    public void verifyNoticeReplyAuthor(Member member) {
+        if (!isAuthor(member) && !member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
     }

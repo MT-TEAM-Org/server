@@ -65,7 +65,9 @@ public class NoticeCommentService {
         NoticeComment noticeComment = noticeCommentReadService.findById(noticeCommentId);
 
         noticeComment.verifyBoardCommentAuthor(member);
-        verifyNoticeCommentImageAndRequestImage(noticeComment.getImageUrl(), request.getImageUrl());
+        if (!MediaUtils.verifyImageUrlAndRequestImageUrl(noticeComment.getImageUrl(), request.getImageUrl())) {
+            s3Service.deleteFile(MediaUtils.getImagePath(request.getImageUrl()));
+        }
 
         noticeComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));
 
@@ -104,14 +106,5 @@ public class NoticeCommentService {
             noticeReplyRepository.delete(noticeReply);
         }
         return noticeReplyList.size();
-    }
-
-    /**
-     * 기존 이미지와 요청 이미지가 같지 않으면 삭제
-     */
-    private void verifyNoticeCommentImageAndRequestImage(String noticeCommentImageUrl, String requestImageUrl) {
-        if (!noticeCommentImageUrl.equals(requestImageUrl)) {
-            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
-        }
     }
 }
