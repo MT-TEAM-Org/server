@@ -11,6 +11,8 @@ import org.myteam.server.board.dto.request.BoardCommentSaveRequest;
 import org.myteam.server.board.dto.request.BoardCommentUpdateRequest;
 import org.myteam.server.board.repository.BoardCommentRecommendRepository;
 import org.myteam.server.board.repository.BoardCommentRepository;
+import org.myteam.server.board.repository.BoardReplyRecommendRepository;
+import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
@@ -29,15 +31,16 @@ public class BoardCommentService {
     private final SecurityReadService securityReadService;
     private final MemberReadService memberReadService;
     private final BoardCountService boardCountService;
-    private final S3Service s3Service;
-    private final BoardReplyService boardReplyService;
     private final BoardReplyReadService boardReplyReadService;
     private final BoardCommentRecommendReadService boardCommentRecommendReadService;
 
+    private final BoardCommentRecommendRepository boardCommentRecommendRepository;
     private final BoardCommentRepository boardCommentRepository;
+    private final BoardReplyRecommendRepository boardReplyRecommendRepository;
+    private final BoardReplyRepository boardReplyRepository;
 
     private final BadWordFilter badWordFilter;
-    private final BoardCommentRecommendRepository boardCommentRecommendRepository;
+    private final S3Service s3Service;
 
     /**
      * 게시판 댓글 생성
@@ -111,7 +114,12 @@ public class BoardCommentService {
     private int deleteBoardReply(Long boardCommentId) {
         List<BoardReply> boardReplyList = boardReplyReadService.findByBoardCommentId(boardCommentId);
         for (BoardReply boardReply : boardReplyList) {
-            boardReplyService.delete(boardReply.getId());
+            // 대댓글 추천 삭제
+            boardReplyRecommendRepository.deleteAllByBoardReplyId(boardReply.getId());
+            // 대댓글 이미지 삭제
+            s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+            // 대댓글 삭제
+            boardReplyRepository.delete(boardReply);
         }
         return boardReplyList.size();
     }
