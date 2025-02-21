@@ -8,8 +8,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BoardRecommendRepository extends JpaRepository<BoardRecommend, Long> {
-    
+
     Optional<BoardRecommend> findByBoardIdAndMemberPublicId(Long boardId, UUID memberId);
 
     void deleteByBoardIdAndMemberPublicId(Long boardId, UUID publicId);
+
+    void deleteAllByBoardId(Long boardId);
 }
