@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.request.PageInfoServiceRequest;
 import org.myteam.server.notice.domain.NoticeSearchType;
-import org.myteam.server.notice.service.NoticeService;
 
 public record NoticeRequest() {
 
@@ -26,6 +26,24 @@ public record NoticeRequest() {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static final class NoticeSearchRequest extends PageInfoRequest {
+        private NoticeSearchType searchType;
+        private String search;
+
+        public NoticeServiceRequest toServiceRequest() {
+            return NoticeServiceRequest.builder()
+                    .searchType(searchType)
+                    .search(search)
+                    .size(getSize())
+                    .page(getPage())
+                    .build();
+        }
+    }
+
+
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static final class NoticeServiceRequest extends PageInfoServiceRequest {
