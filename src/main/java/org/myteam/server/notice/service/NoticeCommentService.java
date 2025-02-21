@@ -77,7 +77,7 @@ public class NoticeCommentService {
     /**
      * 공지사항 댓글 삭제
      */
-    public void deleteBoardComment(Long noticeCommentId) {
+    public void deleteNoticeComment(Long noticeCommentId) {
         Member member = securityReadService.getMember();
         NoticeComment noticeComment = noticeCommentReadService.findById(noticeCommentId);
 

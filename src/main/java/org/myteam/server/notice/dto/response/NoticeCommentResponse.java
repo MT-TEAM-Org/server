@@ -30,7 +30,8 @@ public record NoticeCommentResponse() {
         private int recommendCount;
         private LocalDateTime createDate;
         private LocalDateTime lastModifiedDate;
-        private List<NoticeReplyResponse> boardReplyList;
+        @Setter
+        private List<NoticeReplyResponse> noticeReplyList;
 
         public static NoticeCommentSaveResponse createResponse(NoticeComment noticeComment, Member member, boolean isRecommended) {
             return NoticeCommentSaveResponse.builder()
@@ -90,4 +91,19 @@ public record NoticeCommentResponse() {
         }
     }
 
+    @Data
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    public static final class NoticeCommentListResponse {
+        private long total;
+        private List<NoticeCommentSaveResponse> content;
+
+        public static NoticeCommentListResponse createResponse(List<NoticeCommentSaveResponse> content) {
+            return NoticeCommentListResponse.builder()
+                    .total(content.size())
+                    .content(content)
+                    .build();
+        }
+    }
 }
