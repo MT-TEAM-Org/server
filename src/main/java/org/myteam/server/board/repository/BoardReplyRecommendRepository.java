@@ -12,4 +12,6 @@ public interface BoardReplyRecommendRepository extends JpaRepository<BoardReplyR
     Optional<BoardReplyRecommend> findByBoardReplyIdAndMemberPublicId(Long boardReplyId, UUID publicId);
 
     void deleteByBoardReplyIdAndMemberPublicId(Long boardReplyId, UUID publicId);
+
+    void deleteAllByBoardReplyId(Long boardReplyId);
 }

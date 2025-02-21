@@ -61,4 +61,8 @@ public class BoardCommentReadService {
 
         return response;
     }
+
+    public List<BoardComment> findAllByBoardId(Long boardId) {
+        return boardCommentRepository.findAllByBoardId(boardId);
+    }
 }

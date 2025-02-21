@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BoardReplyRepository extends JpaRepository<BoardReply, Long> {
     List<BoardReply> findByBoardCommentId(Long boardCommentId);
+
+    List<BoardReply> findAllByBoardCommentId(Long boardCommentId);
 }
