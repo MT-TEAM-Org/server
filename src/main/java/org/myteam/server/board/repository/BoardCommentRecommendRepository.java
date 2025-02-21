@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BoardCommentRecommendRepository extends JpaRepository<BoardCommentRecommend, Long> {
-    Optional<Object> findByBoardCommentIdAndMemberPublicId(Long boardCommentId, UUID publicId);
+    Optional<BoardCommentRecommend> findByBoardCommentIdAndMemberPublicId(Long boardCommentId, UUID publicId);
 
     void deleteByBoardCommentIdAndMemberPublicId(Long boardCommentId, UUID publicId);
 }
