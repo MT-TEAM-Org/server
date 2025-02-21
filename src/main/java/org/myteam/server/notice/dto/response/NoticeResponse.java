@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
 
@@ -17,7 +18,7 @@ public record NoticeResponse() {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public final class NoticeSaveResponse {
+    public static final class NoticeSaveResponse {
         private Long noticeId; // 공지사항 id
         private UUID publicId; // 작성자 id
         private String nickname; // 작성자 닉네임
@@ -50,5 +51,40 @@ public record NoticeResponse() {
                     .modifiedAt(notice.getLastModifiedDate())
                     .build();
         }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    public static final class NoticeListResponse {
+        private PageCustomResponse<NoticeDto> list;
+
+        @Builder
+        public NoticeListResponse(PageCustomResponse<NoticeDto> list) {
+            this.list = list;
+        }
+
+        public static NoticeListResponse createResponse(PageCustomResponse<NoticeDto> list) {
+            return NoticeListResponse.builder()
+                    .list(list)
+                    .build();
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static final class NoticeDto {
+        private Long id;
+        private String title;
+        private String createdIp;
+        private String thumbnail;
+        private UUID publicId;
+        private String nickname;
+        private Integer commentCount;
+        private Integer recommendCount;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 }
