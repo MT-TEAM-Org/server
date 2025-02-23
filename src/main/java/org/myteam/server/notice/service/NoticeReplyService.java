@@ -40,6 +40,7 @@ public class NoticeReplyService {
      * 공지사항 대댓글 생성
      */
     public NoticeReplyResponse saveReply(Long noticeCommentId, NoticeReplySaveRequest request, String createdIp) {
+        log.info("공지사항 대댓글: {} 생성 시도", noticeCommentId);
         Member member = securityReadService.getMember();
         NoticeComment noticeComment = noticeCommentReadService.findById(noticeCommentId);
 
@@ -49,8 +50,11 @@ public class NoticeReplyService {
         NoticeReply noticeReply = NoticeReply.createNoticeReply(noticeComment, member, request.getImageUrl(),
                 badWordFilter.filterMessage(request.getComment()), createdIp, mentionedMember);
 
-        noticeCountService.addCommentCount(noticeComment.getNotice().getId());
+        noticeReplyRepository.save(noticeReply);
 
+        log.info("공지사항 대댓글: {} 생성 성공", noticeCommentId);
+
+        noticeCountService.addCommentCount(noticeComment.getNotice().getId());
         boolean isRecommended = noticeReplyRecommendReadService.isRecommended(noticeReply.getId(), member.getPublicId());
 
         return NoticeReplyResponse.createResponse(noticeReply, member, mentionedMember, isRecommended);
@@ -60,6 +64,7 @@ public class NoticeReplyService {
      * 공지사항 대댓글 수정
      */
     public NoticeReplyResponse update(Long noticeReplyId, NoticeReplySaveRequest request) {
+        log.info("공지사항 대댓글: {} 수정 시도", noticeReplyId);
         Member member = securityReadService.getMember();
         NoticeReply noticeReply = noticeReplyReadService.findById(noticeReplyId);
 
@@ -74,6 +79,8 @@ public class NoticeReplyService {
 
         noticeReply.updateReply(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()), mentionedMember);
         noticeReplyRepository.save(noticeReply);
+
+        log.info("공지사항 대댓글: {} 수정 성공", noticeReplyId);
 
         boolean isRecommended = noticeReplyRecommendReadService.isRecommended(noticeReply.getId(), member.getPublicId());
 

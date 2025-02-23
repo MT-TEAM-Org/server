@@ -34,14 +34,17 @@ public class NoticeCommentReadService {
     }
 
     public NoticeCommentListResponse findByNoticeId(Long noticeId, CustomUserDetails userDetails) {
+        log.info("공지사항 {} 댓글 목록 조회 시도", noticeId);
         List<NoticeCommentSaveResponse> list = noticeCommentQueryRepository.getNoticeCommentList(
                 noticeId,
                 userDetails);
+        log.info("공지사항 {} 댓글 목록 조회 성공", noticeId);
 
         return NoticeCommentListResponse.createResponse(list);
     }
 
     public NoticeCommentSaveResponse findByIdWithReply(Long noticeCommentId, CustomUserDetails userDetails) {
+        log.info("공지사항 댓글: {} 상세 조회 시도", noticeCommentId);
         NoticeComment noticedComment = findById(noticeCommentId);
 
         boolean issRecommended = false;
@@ -55,6 +58,7 @@ public class NoticeCommentReadService {
                 issRecommended);
 
         response.setNoticeReplyList(noticeCommentQueryRepository.getRepliesForComments(noticedComment.getId(), userDetails));
+        log.info("공지사항 댓글: {} 상세 조회 성공", noticeCommentId);
 
         return response;
     }

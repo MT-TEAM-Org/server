@@ -30,9 +30,9 @@ public class NoticeCommentQueryRepository {
 
     public List<NoticeCommentSaveResponse> getNoticeCommentList(Long noticeId, CustomUserDetails userDetails) {
         List<NoticeCommentSaveResponse> list = queryFactory
-                .select(Projections.constructor(NoticeCommentSaveResponse.class,
-                        noticeComment.id,
-                        noticeComment.notice.id,
+                .select(Projections.fields(NoticeCommentSaveResponse.class,
+                        noticeComment.id.as("noticeCommentId"),
+                        noticeComment.notice.id.as("noticeId"),
                         noticeComment.createdIp,
                         noticeComment.member.publicId,
                         noticeComment.member.nickname,
@@ -65,8 +65,8 @@ public class NoticeCommentQueryRepository {
     public List<NoticeReplyResponse> getRepliesForComments(Long noticeCommentId, CustomUserDetails userDetails) {
         List<NoticeReplyResponse> replies = queryFactory
                 .select(Projections.fields(NoticeReplyResponse.class,
-                        noticeReply.noticeComment.id.as("noticeCommentId"),
                         noticeReply.id.as("noticeReplyId"),
+                        noticeReply.noticeComment.id.as("noticeCommentId"),
                         noticeReply.createdIp,
                         noticeReply.member.publicId,
                         noticeReply.member.nickname,
@@ -80,7 +80,7 @@ public class NoticeCommentQueryRepository {
                 ))
                 .from(noticeReply)
                 .leftJoin(noticeReply.mentionedMember)
-                .where(isNoticeEqualTo(noticeCommentId))
+                .where(isNoticeCommentEqualTo(noticeCommentId))
                 .orderBy(noticeReply.createDate.desc())
                 .fetch();
 
@@ -99,5 +99,9 @@ public class NoticeCommentQueryRepository {
 
     private BooleanExpression isNoticeEqualTo(Long noticeId) {
         return noticeComment.notice.id.eq(noticeId);
+    }
+
+    private BooleanExpression isNoticeCommentEqualTo(Long noticeCommentId) {
+        return noticeReply.noticeComment.id.eq(noticeCommentId);
     }
 }

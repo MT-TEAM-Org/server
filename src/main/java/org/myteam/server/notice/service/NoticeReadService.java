@@ -42,7 +42,7 @@ public class NoticeReadService {
      * 공지사항 상세 조회
      */
     public NoticeSaveResponse getNotice(Long noticeId, CustomUserDetails userDetails) {
-        log.info("공지사항 상세 조회 호출");
+        log.info("공지사항: {} 상세 조회 호출", noticeId);
 
         Notice notice = findById(noticeId);
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
@@ -54,6 +54,8 @@ public class NoticeReadService {
             isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), memberPublicId);
         }
 
+        log.info("공지사항 상세 조회 성공: {}", noticeId);
+
         return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended);
     }
 
@@ -61,11 +63,14 @@ public class NoticeReadService {
      * 공지사항 목록 조회
      */
     public NoticeListResponse getNoticeList(NoticeServiceRequest request) {
+        log.info("공지사항 목록 조회 호출");
         Page<NoticeDto> noticePagingList = noticeQueryRepository.getNoticeList(
                 request.getSearchType(),
                 request.getSearch(),
                 request.toPageable()
         );
+
+        log.info("공지사항 목록 조회 성공");
 
         return NoticeListResponse.createResponse(PageCustomResponse.of(noticePagingList));
     }

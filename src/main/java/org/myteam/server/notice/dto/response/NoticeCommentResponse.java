@@ -15,6 +15,7 @@ public record NoticeCommentResponse() {
     @Data
     @Builder
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static final class NoticeCommentSaveResponse {
         private Long noticeCommentId;
@@ -53,6 +54,7 @@ public record NoticeCommentResponse() {
     @Data
     @Builder
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static final class NoticeReplyResponse {
         private Long noticeReplyId;
@@ -94,6 +96,7 @@ public record NoticeCommentResponse() {
     @Data
     @Builder
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static final class NoticeCommentListResponse {
         private long total;

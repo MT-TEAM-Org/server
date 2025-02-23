@@ -25,8 +25,8 @@ public class NoticeReplyController {
      */
     @PostMapping("/{noticeCommentId}/reply")
     public ResponseEntity<ResponseDto<NoticeReplyResponse>> saveNoticeReply(@PathVariable Long noticeCommentId,
-                                                                                                 @Valid @RequestBody NoticeReplySaveRequest noticeReplySaveRequest,
-                                                                                                 HttpServletRequest request) {
+                                                                            @Valid @RequestBody NoticeReplySaveRequest noticeReplySaveRequest,
+                                                                            HttpServletRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "공지사항 대댓글 저장 성공",

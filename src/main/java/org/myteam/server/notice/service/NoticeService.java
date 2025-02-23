@@ -35,7 +35,7 @@ public class NoticeService {
         log.info("save Notice 실행");
         Member member = securityReadService.getMember();
 
-        if (member.isAdmin()) {
+        if (!member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -71,12 +71,12 @@ public class NoticeService {
         log.info("update Notice 실행");
 
         Member member = securityReadService.getMember();
-        if (member.isAdmin()) {
+        if (!member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
         Notice notice = noticeReadService.findById(noticeId);
-        if (notice.getMember().getPublicId() == member.getPublicId()) {
+        if (notice.getMember().getPublicId() != member.getPublicId()) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -98,16 +98,18 @@ public class NoticeService {
         log.info("delete Notice 실행");
 
         Member member = securityReadService.getMember();
-        if (member.isAdmin()) {
+        if (!member.isAdmin()) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
         Notice notice = noticeReadService.findById(noticeId);
-        if (notice.getMember().getPublicId() == member.getPublicId()) {
+        if (notice.getMember().getPublicId() != member.getPublicId()) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
         noticeCountRepository.deleteByNoticeId(notice.getId());
         noticeRepository.delete(notice);
+
+        log.info("공지사항 삭제: {}", noticeId);
     }
 }

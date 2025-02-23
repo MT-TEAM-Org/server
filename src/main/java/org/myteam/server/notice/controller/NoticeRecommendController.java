@@ -73,7 +73,7 @@ public class NoticeRecommendController {
     }
 
     /**
-     * 공지사항 댓글 추천
+     * 공지사항 대댓글 추천
      */
     @PostMapping("/reply/{noticeReplyId}")
     public ResponseEntity<ResponseDto<Void>> recommendReply(@PathVariable Long noticeReplyId) {
@@ -86,7 +86,7 @@ public class NoticeRecommendController {
     }
 
     /**
-     * 공지사항 댓글 추천 삭제
+     * 공지사항 대댓글 추천 삭제
      */
     @DeleteMapping("/reply/{noticeReplyId}")
     public ResponseEntity<ResponseDto<Void>> deleteReply(@PathVariable Long noticeReplyId) {
