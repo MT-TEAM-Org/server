@@ -62,7 +62,10 @@ public enum ErrorCode {
     BAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Ban not found"),
 
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
+    INQUIRY_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Recommend not found"),
+    INQUIRY_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Comment not found"),
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
+    INQUIRY_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Reply not found"),
 
     NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
     NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment not found"),

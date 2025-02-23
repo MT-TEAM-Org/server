@@ -81,7 +81,7 @@ public class SecurityConfig {
             TOKEN_REISSUE_PATH,
 
             // 문의하기
-            "/api/inquiries/",
+            "/api/inquiry",
 
             //뉴스
             "/api/news",

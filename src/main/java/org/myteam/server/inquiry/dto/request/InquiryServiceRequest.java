@@ -15,8 +15,6 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class InquiryServiceRequest extends PageInfoServiceRequest {
-    @NotNull(message = "멤버 id는 필수입니다.")
-    private UUID memberPublicId;
 
     @NotNull(message = "문의하기 정렬 타입은 필수입니다.")
     private InquiryOrderType orderType;
@@ -26,9 +24,8 @@ public class InquiryServiceRequest extends PageInfoServiceRequest {
     private String content;
 
     @Builder
-    public InquiryServiceRequest(UUID memberPublicId, InquiryOrderType orderType, InquirySearchType searchType, String content, int size, int page) {
+    public InquiryServiceRequest(InquiryOrderType orderType, InquirySearchType searchType, String content, int size, int page) {
         super(page, size);
-        this.memberPublicId = memberPublicId;
         this.searchType = searchType;
         this.orderType = orderType;
         this.content = content;
