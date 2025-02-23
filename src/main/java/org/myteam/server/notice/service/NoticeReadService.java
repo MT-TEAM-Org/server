@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-<<<<<<< HEAD
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.repository.MemberRepository;
@@ -22,13 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-=======
 import org.myteam.server.notice.Repository.NoticeRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
->>>>>>> 602a42f (feat: 공지사항 수정)
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,19 +33,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class NoticeReadService {
 
     private final NoticeRepository noticeRepository;
-<<<<<<< HEAD
     private final NoticeCountReadService noticeCountReadService;
     private final MemberRepository memberRepository;
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeQueryRepository noticeQueryRepository;
-=======
->>>>>>> 602a42f (feat: 공지사항 수정)
 
     public Notice findById(Long noticeId) {
         return noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.NOTICE_NOT_FOUND));
     }
-<<<<<<< HEAD
 
     /**
      * 공지사항 상세 조회
@@ -87,6 +80,4 @@ public class NoticeReadService {
         return NoticeListResponse.createResponse(PageCustomResponse.of(noticePagingList));
     }
 
-=======
->>>>>>> 602a42f (feat: 공지사항 수정)
 }
