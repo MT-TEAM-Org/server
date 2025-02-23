@@ -12,10 +12,7 @@ import org.myteam.server.improvement.repository.ImprovementReplyRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.domain.NoticeComment;
 import org.myteam.server.notice.domain.NoticeReply;
-import org.myteam.server.notice.dto.request.NoticeCommentRequest;
-import org.myteam.server.notice.dto.response.NoticeCommentResponse;
 import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +60,7 @@ public class ImprovementReplyService {
     /**
      * 개선요청 대댓글 수정
      */
-    public ImprovementReplyResponse update(Long improvementReplyId, NoticeCommentRequest.NoticeReplySaveRequest request) {
+    public ImprovementReplyResponse update(Long improvementReplyId, ImprovementReplySaveRequest request) {
         log.info("개선요청 대댓글: {} 수정 시도", improvementReplyId);
         Member member = securityReadService.getMember();
         ImprovementReply improvementReply = improvementReplyReadService.findById(improvementReplyId);
@@ -85,5 +82,20 @@ public class ImprovementReplyService {
         boolean isRecommended = improvementReplyRecommendReadService.isRecommended(improvementReply.getId(), member.getPublicId());
 
         return ImprovementReplyResponse.createResponse(improvementReply, member, mentionedMember, isRecommended);
+    }
+
+    /**
+     * 공지사항 대댓글 삭제
+     */
+    public void delete(Long improvementReplyId) {
+        Member member = securityReadService.getMember();
+        ImprovementReply improvementReply = improvementReplyReadService.findById(improvementReplyId);
+
+        improvementReply.verifyNoticeReplyAuthor(member);
+
+        s3Service.deleteFile(MediaUtils.getImagePath(improvementReply.getImageUrl()));
+        improvementReplyRepository.delete(improvementReply);
+
+        improvementCountService.minusCommentCount(improvementReply.getImprovementComment().getImprovement().getId());
     }
 }
