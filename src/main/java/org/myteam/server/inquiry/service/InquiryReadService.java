@@ -2,10 +2,14 @@ package org.myteam.server.inquiry.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.request.InquiryServiceRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
+import org.myteam.server.inquiry.dto.response.InquiryDetailsResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.global.page.request.PageInfoRequest;
@@ -13,10 +17,10 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
 import org.myteam.server.inquiry.dto.response.InquiryResponse;
-import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,9 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class InquiryReadService {
     private final InquiryQueryRepository inquiryQueryRepository;
+    private final InquiryRepository inquiryRepository;
+    private final SecurityReadService securityReadService;
+    private final InquiryCountReadService inquiryCountReadService;
 
     /**
      * 검색 + 정렬 기능
@@ -50,10 +57,11 @@ public class InquiryReadService {
     }
 
     public InquiriesListResponse getInquiriesByMember(InquiryServiceRequest inquiryServiceRequest) {
-        log.info("내 문의내역 조회: {}", inquiryServiceRequest.getMemberPublicId());
+        Member member = securityReadService.getMember();
+        log.info("내 문의내역 조회: {}", member.getPublicId());
 
         Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
-                inquiryServiceRequest.getMemberPublicId(),
+                member.getPublicId(),
                 inquiryServiceRequest.getOrderType(),
                 inquiryServiceRequest.getSearchType(),
                 inquiryServiceRequest.getContent(),
@@ -70,5 +78,21 @@ public class InquiryReadService {
      */
     public int getInquiriesCountByMember(UUID memberPublicId) {
         return inquiryQueryRepository.getMyInquires(memberPublicId);
+    }
+
+    /**
+     * 문의 내역 상세 조회
+     */
+    public InquiryDetailsResponse getInquiryById(final Long inquiryId) {
+        Inquiry inquiry = findInquiryById(inquiryId);
+        InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiry.getId());
+
+        return InquiryDetailsResponse.createResponse(inquiry, inquiryCount);
+    }
+
+    public Inquiry findInquiryById(Long inquiryId) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.INQUIRY_NOT_FOUND));
+        return inquiry;
     }
 }

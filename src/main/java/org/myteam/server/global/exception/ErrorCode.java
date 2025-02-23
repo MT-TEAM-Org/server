@@ -63,6 +63,8 @@ public enum ErrorCode {
     BAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Ban not found"),
 
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry not found"),
+    INQUIRY_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Recommend not found"),
+    INQUIRY_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Comment not found"),
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Not Found"),
     NOTICE_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Count Not Found"),
@@ -72,6 +74,7 @@ public enum ErrorCode {
     IMPROVEMENT_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Improvement Count Not Found"),
     IMPROVEMENT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Improvement Comment Count Not Found"),
     IMPROVEMENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Improvement Comment Count Not Found"),
+    INQUIRY_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Reply not found"),
 
     NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
     NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment not found"),
