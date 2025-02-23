@@ -69,7 +69,7 @@ public class NoticeCommentService {
         NoticeComment noticeComment = noticeCommentReadService.findById(noticeCommentId);
 
         noticeComment.verifyNoticeCommentAuthor(member);
-        if (MediaUtils.verifyImageUrlAndRequestImageUrl(noticeComment.getImageUrl(), request.getImageUrl())) {
+        if (!MediaUtils.verifyImageUrlAndRequestImageUrl(noticeComment.getImageUrl(), request.getImageUrl())) {
             s3Service.deleteFile(MediaUtils.getImagePath(request.getImageUrl()));
         }
 

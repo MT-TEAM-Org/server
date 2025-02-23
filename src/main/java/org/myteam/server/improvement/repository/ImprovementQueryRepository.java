@@ -1,7 +1,6 @@
 package org.myteam.server.improvement.repository;
 
 import static java.util.Optional.ofNullable;
-import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.improvement.domain.QImprovementCount.improvementCount;
@@ -13,12 +12,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.myteam.server.board.domain.BoardSearchType;
-import org.myteam.server.board.domain.BoardType;
-import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
-import org.myteam.server.improvement.dto.ImprovementResponse.*;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package org.myteam.server.improvement.dto;
+package org.myteam.server.improvement.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
