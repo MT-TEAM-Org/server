@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 
@@ -58,6 +59,11 @@ public class BoardDto {
      * 수정 일시
      */
     private LocalDateTime updatedAt;
+    /**
+     * 댓글 검색 시 결과
+     */
+    @Setter
+    private BoardCommentSearchDto boardCommentSearchDto;
 
     public BoardDto(BoardType boardType, CategoryType categoryType, Long id, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,
