@@ -58,6 +58,7 @@ import org.myteam.server.news.newsCommentMember.domain.NewsCommentMember;
 import org.myteam.server.news.newsCommentMember.repository.NewsCommentMemberRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
+import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
 import org.myteam.server.news.newsCountMember.repository.NewsCountMemberRepository;
 import org.myteam.server.news.newsReply.domain.NewsReply;
 import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
@@ -92,7 +93,11 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected NewsCommentRepository newsCommentRepository;
 	@Autowired
+	protected NewsCommentMemberRepository newsCommentMemberRepository;
+	@Autowired
 	protected NewsReplyRepository newsReplyRepository;
+	@Autowired
+	protected NewsReplyMemberRepository newsReplyMemberRepository;
 	@Autowired
 	protected MemberJpaRepository memberJpaRepository;
 	@Autowired
@@ -159,10 +164,6 @@ public abstract class IntegrationTestSupport {
 	protected S3Service s3Service;
 	@MockBean
 	protected SlackService slackService;
-	@Autowired
-	private NewsCommentMemberRepository newsCommentMemberRepository;
-	@Autowired
-	private NewsReplyMemberRepository newsReplyMemberRepository;
 
 	@AfterEach
 	void tearDown() {
@@ -170,7 +171,9 @@ public abstract class IntegrationTestSupport {
 		matchRepository.deleteAllInBatch();
 		teamRepository.deleteAllInBatch();
 		inquiryRepository.deleteAllInBatch();
+		newsReplyMemberRepository.deleteAllInBatch();
 		newsReplyRepository.deleteAllInBatch();
+		newsCommentMemberRepository.deleteAllInBatch();
 		newsCommentRepository.deleteAllInBatch();
 		newsCountMemberRepository.deleteAllInBatch();
 		newsCountRepository.deleteAllInBatch();
@@ -229,6 +232,16 @@ public abstract class IntegrationTestSupport {
 		newsCountRepository.save(newsCount);
 
 		return savedNews;
+	}
+
+
+	protected NewsCountMember createNewsCountMember(Member member, News news) {
+		return newsCountMemberRepository.save(
+			NewsCountMember.builder()
+				.news(news)
+				.member(member)
+				.build()
+		);
 	}
 
 	protected NewsComment createNewsComment(News news, Member member, String comment) {
