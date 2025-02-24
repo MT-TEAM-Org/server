@@ -33,6 +33,7 @@ public enum ErrorCode {
     INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "BIRTHDATE length must be 6"),
     INVALID_BIRTH_MONTH(HttpStatus.BAD_REQUEST, "Month is between 1 and 12"),
     INVALID_BIRTH_DAY(HttpStatus.BAD_REQUEST, "Day is not allowed"),
+    INVALID_IMPROVEMENT_STATUS(HttpStatus.BAD_REQUEST, "Improvement status is invalid"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -69,6 +70,15 @@ public enum ErrorCode {
     INQUIRY_ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry answer not found"),
     INQUIRY_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Inquiry Reply not found"),
 
+    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Not Found"),
+    NOTICE_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Count Not Found"),
+    NOTICE_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Comment Count Not Found"),
+    NOTICE_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Notice Comment Count Not Found"),
+    IMPROVEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Improvement Not Found"),
+    IMPROVEMENT_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Improvement Count Not Found"),
+    IMPROVEMENT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Improvement Comment Count Not Found"),
+    IMPROVEMENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Improvement Comment Count Not Found"),
+
     NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, "News not found"),
     NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment not found"),
     NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "News Reply not found"),
@@ -97,6 +107,7 @@ public enum ErrorCode {
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
     INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists"),
+    ALREADY_MEMBER_RECOMMEND_NOTICE(HttpStatus.CONFLICT, "Member Already Recommend NOTICE"),
     ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board"),
     ALREADY_MEMBER_RECOMMEND_REPLY(HttpStatus.CONFLICT, "Member Already Recommend Reply"),
     ALREADY_MEMBER_RECOMMEND_COMMENT(HttpStatus.CONFLICT, "Member Already Recommend Comment");

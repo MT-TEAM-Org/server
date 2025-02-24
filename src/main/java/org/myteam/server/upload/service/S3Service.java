@@ -3,6 +3,7 @@ package org.myteam.server.upload.service;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3Service {
@@ -77,6 +79,11 @@ public class S3Service {
      * 파일 삭제
      */
     public boolean deleteFile(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            log.warn("파일 삭제 요청이 들어왔지만, fileName이 null 또는 빈 문자열입니다.");
+            return false;
+        }
+
         try {
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(bucket)
