@@ -1,6 +1,12 @@
 package org.myteam.server.inquiry.domain;
 
 public enum InquirySearchType {
+    /**
+     * 내용
+     */
     CONTENT,
-    ANSWER,
+    /**
+     * 댓글
+     */
+    COMMENT
 }

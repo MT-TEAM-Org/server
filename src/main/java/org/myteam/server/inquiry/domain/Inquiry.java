@@ -3,6 +3,8 @@ package org.myteam.server.inquiry.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 
 import java.time.LocalDateTime;
@@ -22,7 +24,7 @@ public class Inquiry {
     private String content;
 
     @ManyToOne(optional = true, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "public_id")
     private Member member;
 
     private String clientIp;
@@ -30,10 +32,25 @@ public class Inquiry {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
-    private InquiryAnswer inquiryAnswer;
+    private boolean isAdminAnswered; // 관리자가 답변했는지
 
-    public void addAnswer(InquiryAnswer inquiryAnswer) {
-        this.inquiryAnswer = inquiryAnswer;
+    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private InquiryCount inquiryCount;
+
+    public boolean isAuthor(Member member) {
+        return this.member.equals(member);
+    }
+
+    /**
+     * 작성자와 일치 하는지 검사 (어드민도 수정/삭제 허용)
+     */
+    public void verifyInquiryAuthor(Member member) {
+        if (!this.isAuthor(member) && !member.isAdmin()) {
+            throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
+        }
+    }
+
+    public void updateAdminAnswered() {
+        this.isAdminAnswered = true;
     }
 }

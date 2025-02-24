@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 
@@ -47,6 +48,10 @@ public class BoardDto {
      */
     private Integer commentCount;
     /**
+     * 추천 수
+     */
+    private Integer recommendCount;
+    /**
      * 작성 일시
      */
     private LocalDateTime createdAt;
@@ -54,10 +59,15 @@ public class BoardDto {
      * 수정 일시
      */
     private LocalDateTime updatedAt;
+    /**
+     * 댓글 검색 시 결과
+     */
+    @Setter
+    private BoardCommentSearchDto boardCommentSearchDto;
 
     public BoardDto(BoardType boardType, CategoryType categoryType, Long id, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,
-                    LocalDateTime createdAt, LocalDateTime updatedAt) {
+                    Integer recommendCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.boardType = boardType;
         this.categoryType = categoryType;
         this.id = id;
@@ -67,6 +77,7 @@ public class BoardDto {
         this.publicId = publicId;
         this.nickname = nickname;
         this.commentCount = commentCount;
+        this.recommendCount = recommendCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

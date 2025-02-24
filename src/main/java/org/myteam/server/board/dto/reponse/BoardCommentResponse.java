@@ -1,5 +1,6 @@
 package org.myteam.server.board.dto.reponse;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,12 @@ public class BoardCommentResponse {
      */
     private String comment;
     /**
+     * 로그인한 사용자 게시글 댓글 추천 여부
+     */
+    @Setter
+    @JsonProperty("isRecommended")
+    private boolean isRecommended;
+    /**
      * 추천 수
      */
     private int recommendCount;
@@ -61,8 +68,9 @@ public class BoardCommentResponse {
 
     @Builder
     public BoardCommentResponse(Long boardCommentId, Long boardId, String createdIp, UUID publicId, String nickname,
-                                String imageUrl, String comment, int recommendCount, LocalDateTime createDate,
-                                LocalDateTime lastModifiedDate) {
+                                String imageUrl, String comment, int recommendCount,
+                                LocalDateTime createDate,
+                                LocalDateTime lastModifiedDate, boolean isRecommended) {
         this.boardCommentId = boardCommentId;
         this.boardId = boardId;
         this.createdIp = createdIp;
@@ -70,12 +78,13 @@ public class BoardCommentResponse {
         this.nickname = nickname;
         this.imageUrl = imageUrl;
         this.comment = comment;
+        this.isRecommended = isRecommended;
         this.recommendCount = recommendCount;
         this.createDate = createDate;
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public static BoardCommentResponse createResponse(BoardComment boardComment, Member member) {
+    public static BoardCommentResponse createResponse(BoardComment boardComment, Member member, boolean isRecommended) {
         return BoardCommentResponse.builder()
                 .boardCommentId(boardComment.getId())
                 .boardId(boardComment.getBoard().getId())
@@ -84,6 +93,7 @@ public class BoardCommentResponse {
                 .nickname(member.getNickname())
                 .imageUrl(boardComment.getImageUrl())
                 .comment(boardComment.getComment())
+                .isRecommended(isRecommended)
                 .recommendCount(boardComment.getRecommendCount())
                 .createDate(boardComment.getCreateDate())
                 .lastModifiedDate(boardComment.getLastModifiedDate())

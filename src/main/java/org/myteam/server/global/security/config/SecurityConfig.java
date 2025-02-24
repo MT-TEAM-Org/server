@@ -16,7 +16,6 @@ import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
 import org.myteam.server.oauth2.service.CustomOAuth2UserService;
-import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -82,7 +81,7 @@ public class SecurityConfig {
 		TOKEN_REISSUE_PATH,
 
 		// 문의하기
-		"/api/inquiries/",
+		"/api/inquiry",
 
 		//뉴스
 		"/api/news",
@@ -121,7 +120,6 @@ public class SecurityConfig {
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final RefreshJpaRepository refreshJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
-	private final AESCryptoUtil aesCryptoUtil;
 
 	@PostConstruct
 	public void init() {
@@ -163,7 +161,7 @@ public class SecurityConfig {
 
 		// JWT 인증 및 토큰 검증 필터 추가
 		http.addFilterAt(
-				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher, aesCryptoUtil),
+				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher),
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);
@@ -196,8 +194,10 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.DELETE, "/api/categories/**")
 				.hasAnyAuthority(MemberRole.ADMIN.name())
 				.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/board").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll() // 게시글 상세 조회
+				.requestMatchers(HttpMethod.GET, "/api/board").permitAll() // 게시글 목록 조회
+				.requestMatchers(HttpMethod.GET, "/api/board/comment/{boardCommentId}")
+				.permitAll() // 게시판 댓글 상세 조회
 				.requestMatchers(HttpMethod.GET, "/api/board/{boardId}/comment").permitAll()
 
 				.anyRequest().authenticated()                   // 나머지 요청은 모두 허용

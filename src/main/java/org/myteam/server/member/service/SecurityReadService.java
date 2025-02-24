@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,6 +25,10 @@ public class SecurityReadService {
 	public Member getMember() {
 		return memberRepository.findByPublicId(getAuthenticatedUser().getPublicId())
 				.orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
+	}
+
+	public Optional<Member> getOptionalMember() {
+		return memberRepository.findByPublicId(getAuthenticatedUser().getPublicId());
 	}
 
 	private CustomUserDetails getAuthenticatedUser() {

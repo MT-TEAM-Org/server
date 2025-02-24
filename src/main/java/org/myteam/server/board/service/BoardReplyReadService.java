@@ -24,4 +24,8 @@ public class BoardReplyReadService {
     public List<BoardReply> findByBoardCommentId(Long boardCommentId) {
         return boardReplyRepository.findByBoardCommentId(boardCommentId);
     }
+
+    public List<BoardReply> findAllByBoardCommentId(Long boardCommentId) {
+        return boardReplyRepository.findAllByBoardCommentId(boardCommentId);
+    }
 }

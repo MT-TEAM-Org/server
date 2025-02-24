@@ -9,7 +9,9 @@ import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.dto.request.BoardCommentSaveRequest;
 import org.myteam.server.board.dto.request.BoardCommentUpdateRequest;
+import org.myteam.server.board.repository.BoardCommentRecommendRepository;
 import org.myteam.server.board.repository.BoardCommentRepository;
+import org.myteam.server.board.repository.BoardReplyRecommendRepository;
 import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.util.upload.MediaUtils;
@@ -29,13 +31,16 @@ public class BoardCommentService {
     private final SecurityReadService securityReadService;
     private final MemberReadService memberReadService;
     private final BoardCountService boardCountService;
-    private final S3Service s3Service;
+    private final BoardReplyReadService boardReplyReadService;
+    private final BoardCommentRecommendReadService boardCommentRecommendReadService;
 
+    private final BoardCommentRecommendRepository boardCommentRecommendRepository;
     private final BoardCommentRepository boardCommentRepository;
+    private final BoardReplyRecommendRepository boardReplyRecommendRepository;
     private final BoardReplyRepository boardReplyRepository;
 
     private final BadWordFilter badWordFilter;
-    private final BoardReplyReadService boardReplyReadService;
+    private final S3Service s3Service;
 
     /**
      * 게시판 댓글 생성
@@ -52,7 +57,10 @@ public class BoardCommentService {
 
         boardCountService.addCommentCount(board.getId());
 
-        return BoardCommentResponse.createResponse(boardComment, member);
+        boolean isRecommended = boardCommentRecommendReadService.isRecommended(boardComment.getId(),
+                member.getPublicId());
+
+        return BoardCommentResponse.createResponse(boardComment, member, isRecommended);
     }
 
     /**
@@ -69,7 +77,10 @@ public class BoardCommentService {
         boardComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));
         boardCommentRepository.save(boardComment);
 
-        return BoardCommentResponse.createResponse(boardComment, member);
+        boolean isRecommended = boardCommentRecommendReadService.isRecommended(boardComment.getId(),
+                member.getPublicId());
+
+        return BoardCommentResponse.createResponse(boardComment, member, isRecommended);
     }
 
     /**
@@ -84,10 +95,14 @@ public class BoardCommentService {
 
         boardComment.verifyBoardCommentAuthor(boardComment, member);
 
-        // S3 이미지 삭제
-        s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
         // 대댓글 삭제 (카운트도 포함)
         int minusCount = deleteBoardReply(boardComment.getId());
+        // 댓글 추천 삭제
+        boardCommentRecommendRepository.deleteByBoardCommentId(boardComment.getId());
+        if (boardComment.getImageUrl() != null) {
+            // S3 이미지 삭제
+            s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
+        }
         // 댓글 삭제
         boardCommentRepository.deleteById(boardCommentId);
 
@@ -101,7 +116,13 @@ public class BoardCommentService {
     private int deleteBoardReply(Long boardCommentId) {
         List<BoardReply> boardReplyList = boardReplyReadService.findByBoardCommentId(boardCommentId);
         for (BoardReply boardReply : boardReplyList) {
-            s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+            // 대댓글 추천 삭제
+            boardReplyRecommendRepository.deleteAllByBoardReplyId(boardReply.getId());
+            if (boardReply.getImageUrl() != null) {
+                // 대댓글 이미지 삭제
+                s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+            }
+            // 대댓글 삭제
             boardReplyRepository.delete(boardReply);
         }
         return boardReplyList.size();

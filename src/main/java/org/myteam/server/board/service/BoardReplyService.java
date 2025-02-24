@@ -5,6 +5,7 @@ import org.myteam.server.board.domain.BoardComment;
 import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.board.dto.reponse.BoardReplyResponse;
 import org.myteam.server.board.dto.request.BoardReplySaveRequest;
+import org.myteam.server.board.repository.BoardReplyRecommendRepository;
 import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.util.upload.MediaUtils;
@@ -23,10 +24,12 @@ public class BoardReplyService {
     private final BoardReplyReadService boardReplyReadService;
     private final BoardCommentReadService boardCommentReadService;
     private final MemberReadService memberReadService;
+    private final BoardReplyRecommendReadService boardReplyRecommendReadService;
     private final SecurityReadService securityReadService;
     private final S3Service s3Service;
 
     private final BoardReplyRepository boardReplyRepository;
+    private final BoardReplyRecommendRepository boardReplyRecommendRepository;
     private final BadWordFilter badWordFilter;
 
     /**
@@ -47,7 +50,10 @@ public class BoardReplyService {
 
         boardCountService.addCommentCount(boardComment.getBoard().getId());
 
-        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember);
+        boolean isRecommended = boardReplyRecommendReadService.isRecommended(boardReply.getId(),
+                loginUser.getPublicId());
+
+        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember, isRecommended);
     }
 
     /**
@@ -68,7 +74,10 @@ public class BoardReplyService {
                 mentionedMember);
         boardReplyRepository.save(boardReply);
 
-        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember);
+        boolean isRecommended = boardReplyRecommendReadService.isRecommended(boardReply.getId(),
+                loginUser.getPublicId());
+
+        return BoardReplyResponse.createResponse(boardReply, loginUser, mentionedMember, isRecommended);
     }
 
     /**
@@ -81,9 +90,15 @@ public class BoardReplyService {
 
         boardReply.verifyBoardReplyAuthor(boardReply, loginUser);
 
-        s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+        // 대댓글 추천 삭제
+        boardReplyRecommendRepository.deleteAllByBoardReplyId(boardReply.getId());
+        if (boardReply.getImageUrl() != null) {
+            // 대댓글 이미지 삭제
+            s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+        }
+        // 대댓글 삭제
         boardReplyRepository.delete(boardReply);
-
+        // 게시글 댓글 카운트 감소
         boardCountService.minusCommentCount(boardReply.getBoardComment().getBoard().getId());
     }
 

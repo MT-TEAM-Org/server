@@ -10,6 +10,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.dto.CustomOAuth2User;
 import org.myteam.server.oauth2.response.*;
+import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -28,9 +29,11 @@ import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberJpaRepository memberJpaRepository;
+    private final AESCryptoUtil aesCryptoUtil;
 
-    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository) {
+    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository, AESCryptoUtil aesCryptoUtil) {
         this.memberJpaRepository = memberJpaRepository;
+        this.aesCryptoUtil = aesCryptoUtil;
     }
 
     @Override
@@ -101,11 +104,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private OAuth2User createNewMember(OAuth2Response oAuth2Response, String providerId) {
         log.debug("Creating new member for providerId: {}", providerId);
+        String password = PasswordUtil.generateRandomPassword();
+        String encodedPassword = aesCryptoUtil.createEncodedPwd(password);
 
         UUID publicId = UUID.randomUUID();
         Member newMember = Member.builder()
                 .email(oAuth2Response.getEmail())
-                .encodedPassword(PasswordUtil.generateRandomPassword())
+                .password(password)
+                .encodedPassword(encodedPassword)
                 .role(USER)
                 .tel(oAuth2Response.getTel())
                 .nickname(oAuth2Response.getNickname())

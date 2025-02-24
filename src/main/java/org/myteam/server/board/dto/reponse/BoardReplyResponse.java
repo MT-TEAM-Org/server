@@ -1,10 +1,12 @@
 package org.myteam.server.board.dto.reponse;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.member.entity.Member;
 
@@ -40,6 +42,12 @@ public class BoardReplyResponse {
      */
     private String comment;
     /**
+     * 로그인한 사용자 게시글 대댓글 추천 여부
+     */
+    @Setter
+    @JsonProperty("isRecommended")
+    private boolean isRecommended;
+    /**
      * 추천 수
      */
     private int recommendCount;
@@ -62,7 +70,8 @@ public class BoardReplyResponse {
 
     @Builder
     public BoardReplyResponse(Long boardCommentId, Long boardReplyId, String createdIp, UUID publicId, String nickname,
-                              String imageUrl, String comment, int recommendCount, UUID mentionedPublicId,
+                              String imageUrl, String comment, boolean isRecommended, int recommendCount,
+                              UUID mentionedPublicId,
                               String mentionedNickname, LocalDateTime createDate, LocalDateTime lastModifiedDate) {
         this.boardCommentId = boardCommentId;
         this.boardReplyId = boardReplyId;
@@ -71,6 +80,7 @@ public class BoardReplyResponse {
         this.nickname = nickname;
         this.imageUrl = imageUrl;
         this.comment = comment;
+        this.isRecommended = isRecommended;
         this.recommendCount = recommendCount;
         this.mentionedPublicId = mentionedPublicId;
         this.mentionedNickname = mentionedNickname;
@@ -78,7 +88,8 @@ public class BoardReplyResponse {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public static BoardReplyResponse createResponse(BoardReply boardReply, Member member, Member mentionedMember) {
+    public static BoardReplyResponse createResponse(BoardReply boardReply, Member member, Member mentionedMember,
+                                                    boolean isRecommended) {
         return BoardReplyResponse.builder()
                 .boardCommentId(boardReply.getBoardComment().getId())
                 .boardReplyId(boardReply.getId())
@@ -87,6 +98,7 @@ public class BoardReplyResponse {
                 .nickname(member.getNickname())
                 .imageUrl(boardReply.getImageUrl())
                 .comment(boardReply.getComment())
+                .isRecommended(isRecommended)
                 .recommendCount(boardReply.getRecommendCount())
                 .mentionedPublicId(mentionedMember != null ? mentionedMember.getPublicId() : null)
                 .mentionedNickname(mentionedMember != null ? mentionedMember.getNickname() : null)
