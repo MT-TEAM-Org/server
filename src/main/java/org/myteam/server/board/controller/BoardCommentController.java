@@ -5,7 +5,6 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.dto.reponse.BoardCommentListResponse;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.dto.request.BoardCommentSaveRequest;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -82,10 +80,9 @@ public class BoardCommentController {
      */
     @GetMapping("/{boardId}/comment")
     public ResponseEntity<ResponseDto<BoardCommentListResponse>> getBoardComments(@PathVariable Long boardId,
-                                                                                  @RequestParam BoardOrderType orderType,
                                                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(
                 new ResponseDto<>(SUCCESS.name(), "게시판 댓글 목록 조회 성공",
-                        boardCommentReadService.findByBoardId(boardId, orderType, userDetails)));
+                        boardCommentReadService.findByBoardId(boardId, userDetails)));
     }
 }
