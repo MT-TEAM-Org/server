@@ -95,6 +95,32 @@ public class SecurityConfig {
 		"/api/me/find-id/**",
 		"api/me/find-password",
 	};
+
+	/** @brief Get 요청에서의 모든 사용자 인가 */
+	private static final String[] PUBLIC_GET_URLS = {
+		/** @brief 게시판 관련 URL */
+		"/api/board/{boardId}", // 게시글 상세 조회
+		"/api/board", // 게시글 목록 조회
+		"/api/board/comment/{boardCommentId}", // 게시판 댓글 상세 조회
+		"/api/board/{boardId}/comment",
+
+		/** @brief 문의사항 관련 URL */
+		"/api/inquiry/{inquiryId}/comment",
+		"/api/inquiry/comment/{inquiryCommentId}",
+
+		/** @brief 공지사항 관련 URL */
+		"/api/notice/{noticeId}",
+		"/api/notice",
+		"/api/notice/comment/{noticeCommentId}",
+		"/api/notice/{noticeId}/comment",
+
+		/** @brief 개선요청 관련 URL */
+		"/api/improvement/comment/{improvementCommentId}",
+		"/api/improvement/{improvementId}/comment",
+		"/api/improvement/{improvementId}",
+		"/api/improvement",
+	};
+
 	/* Admin 접근 권한 */
 	private static final String[] PERMIT_ADMIN_URLS = new String[] {
 		// Test Endpoints
@@ -102,6 +128,18 @@ public class SecurityConfig {
 
 		"/api/admin/**",
 		"/api/inquiries/answers/**",
+	};
+
+	private static final String[] ADMIN_POST_URLS = {
+		"/api/notice"
+	};
+
+	private static final String[] ADMIN_PUT_URLS = {
+		"/api/notice/{noticeId}"
+	};
+
+	private static final String[] ADMIN_DELETE_URLS = {
+		"/api/notice/{noticeId}"
 	};
 
 	/* member 접근 권한 */
@@ -187,19 +225,11 @@ public class SecurityConfig {
 		// 경로별 인가 작업
 		http.authorizeHttpRequests(authorizeRequests ->
 			authorizeRequests
-				.requestMatchers(PERMIT_ALL_URLS).permitAll()
+				.requestMatchers(HttpMethod.GET, PUBLIC_GET_URLS).permitAll() // 전체 접근 가능한 endpoint
 				.requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-				.requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAnyAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.DELETE, "/api/categories/**")
-				.hasAnyAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll() // 게시글 상세 조회
-				.requestMatchers(HttpMethod.GET, "/api/board").permitAll() // 게시글 목록 조회
-				.requestMatchers(HttpMethod.GET, "/api/board/comment/{boardCommentId}")
-				.permitAll() // 게시판 댓글 상세 조회
-				.requestMatchers(HttpMethod.GET, "/api/board/{boardId}/comment").permitAll()
-
+				.requestMatchers(HttpMethod.POST, ADMIN_POST_URLS).hasAuthority(MemberRole.ADMIN.name())
+				.requestMatchers(HttpMethod.PUT, ADMIN_PUT_URLS).hasAuthority(MemberRole.ADMIN.name())
+				.requestMatchers(HttpMethod.DELETE, ADMIN_DELETE_URLS).hasAuthority(MemberRole.ADMIN.name()) // 관리자만 접근 가능한 endpoint
 				.anyRequest().authenticated()                   // 나머지 요청은 모두 허용
 		);
 
