@@ -36,12 +36,16 @@ import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
+import org.myteam.server.news.newsCommentMember.domain.NewsCommentMember;
+import org.myteam.server.news.newsCommentMember.repository.NewsCommentMemberRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
 import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
 import org.myteam.server.news.newsCountMember.repository.NewsCountMemberRepository;
 import org.myteam.server.news.newsReply.domain.NewsReply;
 import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
+import org.myteam.server.news.newsReplyMember.domain.NewsReplyMember;
+import org.myteam.server.news.newsReplyMember.repository.NewsReplyMemberRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
 import org.myteam.server.upload.service.S3Service;
@@ -78,6 +82,10 @@ public abstract class IntegrationTestSupport {
 	protected MemberActivityRepository memberActivityRepository;
 	@Autowired
 	protected NewsCountMemberRepository newsCountMemberRepository;
+	@Autowired
+	protected NewsCommentMemberRepository newsCommentMemberRepository;
+	@Autowired
+	protected NewsReplyMemberRepository newsReplyMemberRepository;
 	@Autowired
 	protected InquiryService inquiryService;
 	@Autowired
@@ -127,7 +135,9 @@ public abstract class IntegrationTestSupport {
 		matchRepository.deleteAllInBatch();
 		teamRepository.deleteAllInBatch();
 		inquiryRepository.deleteAllInBatch();
+		newsReplyMemberRepository.deleteAllInBatch();
 		newsReplyRepository.deleteAllInBatch();
+		newsCommentMemberRepository.deleteAllInBatch();
 		newsCommentRepository.deleteAllInBatch();
 		newsCountMemberRepository.deleteAllInBatch();
 		newsCountRepository.deleteAllInBatch();
@@ -210,6 +220,24 @@ public abstract class IntegrationTestSupport {
 				.comment(comment)
 				.ip("1.1.1.1")
 				.imgUrl("www.test.com")
+				.build()
+		);
+	}
+
+	protected NewsCommentMember createNewsCommentMember(Member member, NewsComment newsComment) {
+		return newsCommentMemberRepository.save(
+			NewsCommentMember.builder()
+				.member(member)
+				.newsComment(newsComment)
+				.build()
+		);
+	}
+
+	protected NewsReplyMember createNewsReplyMember(Member member, NewsReply newsReply) {
+		return newsReplyMemberRepository.save(
+			NewsReplyMember.builder()
+				.member(member)
+				.newsReply(newsReply)
 				.build()
 		);
 	}

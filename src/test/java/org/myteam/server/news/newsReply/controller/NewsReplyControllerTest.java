@@ -223,4 +223,36 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
 			.andExpect(jsonPath("$.msg").value("뉴스 대댓글 삭제 성공"));
 	}
+
+	@DisplayName("뉴스 대댓글 추천을 추가한다.")
+	@Test
+	@WithMockUser
+	void recommendTest() throws Exception {
+		// given
+		// when // then
+		mockMvc.perform(
+				patch("/api/news/reply/recommend/{newsCommentId}", 1)
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("뉴스 대댓글 추천 성공"));
+	}
+
+	@DisplayName("뉴스 추천을 삭제한다.")
+	@Test
+	@WithMockUser
+	void recommendCancelTest() throws Exception {
+		// given
+		// when // then
+		mockMvc.perform(
+				delete("/api/news/reply/recommend/{newsCommentId}", 1)
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("뉴스 대댓글 추천 삭제 성공"));
+	}
 }

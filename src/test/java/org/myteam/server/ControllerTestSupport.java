@@ -12,6 +12,10 @@ import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.news.newsComment.controller.NewsCommentController;
 import org.myteam.server.news.newsComment.service.NewsCommentReadService;
 import org.myteam.server.news.newsComment.service.NewsCommentService;
+import org.myteam.server.news.newsCount.controller.NewsCountController;
+import org.myteam.server.news.newsCount.service.NewsCountService;
+import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
+import org.myteam.server.news.newsCountMember.service.NewsCountMemberService;
 import org.myteam.server.news.newsReply.controller.NewsReplyController;
 import org.myteam.server.news.newsReply.service.NewsReplyReadService;
 import org.myteam.server.news.newsReply.service.NewsReplyService;
@@ -29,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	NewsController.class,
 	NewsCommentController.class,
 	NewsReplyController.class,
+	NewsCountController.class,
 	MatchController.class,
 	MatchPredictionController.class
 })
@@ -49,6 +54,12 @@ public abstract class ControllerTestSupport {
 	protected NewsReplyService newsReplyService;
 	@MockBean
 	protected NewsReplyReadService newsReplyReadService;
+	@MockBean
+	protected NewsCountService newsCountService;
+	@MockBean
+	protected NewsCountMemberReadService newsCountMemberReadService;
+	@MockBean
+	protected NewsCountMemberService newsCountMemberService;
 	@MockBean
 	protected MemberService memberService;
 	@MockBean
