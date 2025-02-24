@@ -87,6 +87,10 @@ public class SecurityConfig {
 		//뉴스
 		"/api/news",
 		"/api/news/{newId}",
+		"/api/news/comment",
+		"/api/news/comment/{newsCommentId}",
+		"/api/news/reply",
+		"/api/news/reply/{newReplyId}",
 
 		// 아이디-비밀번호 찾기
 		"/api/me/find-id/**",
