@@ -20,7 +20,7 @@ public class NewsReplyMemberReadService {
 	public void confirmExistMember(Long newsId, UUID memberId) {
 		newsReplyMemberRepository.findByNewsReplyIdAndMemberPublicId(newsId, memberId)
 			.ifPresent(member -> {
-				throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_NEWS);
+				throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_NEWS_REPLY);
 			});
 	}
 

@@ -88,7 +88,7 @@ public class NewsReplyController {
 	) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
-			"뉴스 댓글 추천 성공",
+			"뉴스 대댓글 추천 성공",
 			newsReplyService.recommend(newsReplyId)));
 	}
 
