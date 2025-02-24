@@ -2,15 +2,9 @@ package org.myteam.server;
 
 import org.myteam.server.match.match.controller.MatchController;
 import org.myteam.server.match.match.service.MatchReadService;
-import org.myteam.server.match.matchComment.controller.MatchCommentController;
-import org.myteam.server.match.matchComment.service.MatchCommentReadService;
-import org.myteam.server.match.matchComment.service.MatchCommentService;
 import org.myteam.server.match.matchPrediction.controller.MatchPredictionController;
 import org.myteam.server.match.matchPrediction.service.MatchPredictionReadService;
 import org.myteam.server.match.matchPrediction.service.MatchPredictionService;
-import org.myteam.server.match.matchReply.controller.MatchReplyController;
-import org.myteam.server.match.matchReply.service.MatchReplyReadService;
-import org.myteam.server.match.matchReply.service.MatchReplyService;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.news.news.controller.NewsController;
@@ -36,9 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	NewsCommentController.class,
 	NewsReplyController.class,
 	MatchController.class,
-	MatchPredictionController.class,
-	MatchCommentController.class,
-	MatchReplyController.class
+	MatchPredictionController.class
 })
 @MockBean(JpaMetamodelMappingContext.class)
 public abstract class ControllerTestSupport {
@@ -67,14 +59,6 @@ public abstract class ControllerTestSupport {
 	protected MatchPredictionReadService matchPredictionReadService;
 	@MockBean
 	protected MatchPredictionService matchPredictionService;
-	@MockBean
-	protected MatchCommentReadService matchCommentReadService;
-	@MockBean
-	protected MatchCommentService matchCommentService;
-	@MockBean
-	protected MatchReplyReadService matchReplyReadService;
-	@MockBean
-	protected MatchReplyService matchReplyService;
 
 }
 

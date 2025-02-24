@@ -3,15 +3,12 @@ package org.myteam.server.news.newsComment.repository;
 import static java.util.Optional.*;
 import static org.myteam.server.news.newsComment.domain.QNewsComment.*;
 import static org.myteam.server.news.newsCommentMember.domain.QNewsCommentMember.*;
-import static org.myteam.server.news.newsReply.domain.QNewsReply.*;
-import static org.myteam.server.news.newsReplyMember.domain.QNewsReplyMember.*;
 
 import java.util.List;
 import java.util.UUID;
 
 import org.myteam.server.news.newsComment.dto.repository.NewsCommentDto;
 import org.myteam.server.news.newsComment.dto.repository.NewsCommentMemberDto;
-import org.myteam.server.news.newsCommentMember.domain.QNewsCommentMember;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -78,7 +76,7 @@ public class NewsCommentQueryRepository {
 	private BooleanExpression existsNewsCommentMember(UUID memberId) {
 		return JPAExpressions.selectOne()
 			.from(newsCommentMember)
-			.where(newsCommentMember.newsComment.id.eq(newsReply.id)
+			.where(newsCommentMember.newsComment.id.eq(newsComment.id)
 				.and(newsCommentMember.member.publicId.eq(memberId)))
 			.exists();
 	}

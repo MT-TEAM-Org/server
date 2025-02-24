@@ -16,12 +16,8 @@ import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.match.repository.MatchRepository;
-import org.myteam.server.match.matchComment.domain.MatchComment;
-import org.myteam.server.match.matchComment.repository.MatchCommentRepository;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPrediction.repository.MatchPredictionRepository;
-import org.myteam.server.match.matchReply.domain.MatchReply;
-import org.myteam.server.match.matchReply.repository.MatchReplyRepository;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.match.team.repository.TeamRepository;
@@ -90,10 +86,6 @@ public abstract class IntegrationTestSupport {
 	protected InquiryAnswerRepository inquiryAnswerRepository;
 	@Autowired
 	protected MatchPredictionRepository matchPredictionRepository;
-	@Autowired
-	protected MatchCommentRepository matchCommentRepository;
-	@Autowired
-	protected MatchReplyRepository matchReplyRepository;
 
 	/**
 	 * ================== Service ========================
@@ -131,8 +123,6 @@ public abstract class IntegrationTestSupport {
 
 	@AfterEach
 	void tearDown() {
-		matchReplyRepository.deleteAllInBatch();
-		matchCommentRepository.deleteAllInBatch();
 		matchPredictionRepository.deleteAllInBatch();
 		matchRepository.deleteAllInBatch();
 		teamRepository.deleteAllInBatch();
@@ -163,6 +153,9 @@ public abstract class IntegrationTestSupport {
 
 		given(securityReadService.getMember())
 			.willReturn(savedMember);
+
+		given(securityReadService.getAuthenticatedPublicId())
+			.willReturn(member.getPublicId());
 
 		return savedMember;
 	}
@@ -245,29 +238,5 @@ public abstract class IntegrationTestSupport {
 			.home(home)
 			.away(away)
 			.build());
-	}
-
-	protected MatchComment createMatchComment(Match match, Member member, String comment) {
-		return matchCommentRepository.save(
-			MatchComment.builder()
-				.match(match)
-				.member(member)
-				.comment(comment)
-				.ip("1.1.1.1")
-				.imgUrl("www.test.com")
-				.build()
-		);
-	}
-
-	protected MatchReply createMatchReply(MatchComment matchComment, Member member, String comment) {
-		return matchReplyRepository.save(
-			MatchReply.builder()
-				.matchComment(matchComment)
-				.member(member)
-				.comment(comment)
-				.ip("1.1.1.1")
-				.imgUrl("www.test.com")
-				.build()
-		);
 	}
 }
