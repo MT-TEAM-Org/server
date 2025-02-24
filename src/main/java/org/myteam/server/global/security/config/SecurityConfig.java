@@ -224,13 +224,16 @@ public class SecurityConfig {
 
 		// 경로별 인가 작업
 		http.authorizeHttpRequests(authorizeRequests ->
-			authorizeRequests
-				.requestMatchers(HttpMethod.GET, PUBLIC_GET_URLS).permitAll() // 전체 접근 가능한 endpoint
-				.requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.POST, ADMIN_POST_URLS).hasAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.PUT, ADMIN_PUT_URLS).hasAuthority(MemberRole.ADMIN.name())
-				.requestMatchers(HttpMethod.DELETE, ADMIN_DELETE_URLS).hasAuthority(MemberRole.ADMIN.name()) // 관리자만 접근 가능한 endpoint
-				.anyRequest().authenticated()                   // 나머지 요청은 모두 허용
+				authorizeRequests
+						.requestMatchers(PERMIT_ALL_URLS).permitAll()
+						.requestMatchers(HttpMethod.GET, PUBLIC_GET_URLS).permitAll() // 전체 접근 가능한 endpoint
+
+						.requestMatchers(PERMIT_ADMIN_URLS).hasAnyAuthority(MemberRole.ADMIN.name())
+						.requestMatchers(HttpMethod.POST, ADMIN_POST_URLS).hasAuthority(MemberRole.ADMIN.name())
+						.requestMatchers(HttpMethod.PUT, ADMIN_PUT_URLS).hasAuthority(MemberRole.ADMIN.name())
+						.requestMatchers(HttpMethod.DELETE, ADMIN_DELETE_URLS).hasAuthority(MemberRole.ADMIN.name()) // 관리자만 접근 가능한 endpoint
+
+						.anyRequest().authenticated()                   // 나머지 요청은 모두 허용
 		);
 
 		return http.build();
