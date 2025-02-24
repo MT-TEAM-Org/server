@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.BoardComment;
-import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.dto.reponse.BoardCommentListResponse;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.repository.BoardCommentQueryRepository;
@@ -32,12 +31,10 @@ public class BoardCommentReadService {
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_COMMENT_NOT_FOUND));
     }
 
-    public BoardCommentListResponse findByBoardId(Long boardId, BoardOrderType orderType,
-                                                  CustomUserDetails userDetails) {
+    public BoardCommentListResponse findByBoardId(Long boardId, CustomUserDetails userDetails) {
 
         List<BoardCommentResponse> list = boardCommentQueryRepository.getBoardCommentList(
                 boardId,
-                orderType,
                 userDetails
         );
 
