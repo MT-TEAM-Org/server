@@ -11,7 +11,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.dto.reponse.BoardReplyResponse;
@@ -36,8 +35,8 @@ public class BoardCommentQueryRepository {
         // 추천수가 높은 상위 3개 댓글 조회
         List<BoardCommentResponse> topComments = getBestCommentList(boardId);
 
-        // 상위 3개를 제외한 나머지 댓글 조회 (최신순 정렬)
-        List<BoardCommentResponse> otherComments = queryFactory
+        // 댓글 조회 (최신순 정렬, 같다면 댓글 가나다순)
+        List<BoardCommentResponse> commentList = queryFactory
                 .select(Projections.constructor(BoardCommentResponse.class,
                         boardComment.id,
                         boardComment.board.id,
@@ -52,17 +51,14 @@ public class BoardCommentQueryRepository {
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended")
                 ))
                 .from(boardComment)
-                .where(isBoardEqualTo(boardId)
-                        .and(boardComment.id.notIn(topComments.stream()
-                                .map(BoardCommentResponse::getBoardCommentId)
-                                .collect(Collectors.toList())))) // 상위 3개 제외
-                .orderBy(boardComment.createDate.desc(), boardComment.comment.asc()) // 최신순 정렬, 같다면 댓글 가나다순
+                .where(isBoardEqualTo(boardId))
+                .orderBy(boardComment.createDate.desc(), boardComment.comment.asc())
                 .fetch();
 
-        // 최종 리스트: 추천 Top 3 + 최신순 나머지 댓글
+        // 최종 리스트: 추천 Top 3 + 댓글
         List<BoardCommentResponse> finalList = new ArrayList<>();
         finalList.addAll(topComments);
-        finalList.addAll(otherComments);
+        finalList.addAll(commentList);
 
         finalList.forEach(comment -> {
             boolean isRecommended = false;
