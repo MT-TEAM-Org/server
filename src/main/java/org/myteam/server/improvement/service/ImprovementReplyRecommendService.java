@@ -58,7 +58,7 @@ public class ImprovementReplyRecommendService {
     }
 
     /**
-     * 게시판 대댓글 추천 생성
+     * 개선요청 대댓글 추천 생성
      */
     private void recommend(ImprovementReply improvementReply, Member member) {
         ImprovementReplyRecommend improvementReplyRecommend = ImprovementReplyRecommend.createImprovementReplyRecommend(improvementReply, member);
@@ -66,7 +66,7 @@ public class ImprovementReplyRecommendService {
     }
 
     /**
-     * 게시판 대댓글 추천수 증가
+     * 개선요청 대댓글 추천수 증가
      */
     private void addRecommendCount(Long improvementReplyId) {
         ImprovementReply reply = improvementReplyRecommendReadService.findById(improvementReplyId);
@@ -74,7 +74,7 @@ public class ImprovementReplyRecommendService {
     }
 
     /**
-     * 게시판 대댓글 추천소 감소
+     * 개선요청 대댓글 추천소 감소
      */
     private void minusRecommendCount(Long improvementReplyId) {
         ImprovementReply reply = improvementReplyRecommendReadService.findById(improvementReplyId);

@@ -59,7 +59,7 @@ public class NoticeCommentRecommendService {
     }
 
     /**
-     * 게시판 댓글 추천 생성
+     * 공지사항 댓글 추천 생성
      */
     private void recommend(NoticeComment noticeComment, Member member) {
         NoticeCommentRecommend recommend = NoticeCommentRecommend.createNoticeCommentRecommend(noticeComment, member);
@@ -67,7 +67,7 @@ public class NoticeCommentRecommendService {
     }
 
     /**
-     * 게시판 댓글 추천수 증가
+     * 공지사항 댓글 추천수 증가
      */
     private void addRecommendCount(Long noticeCommentId) {
         NoticeComment noticeComment = noticeCommentRecommendReadService.findById(noticeCommentId);
@@ -75,7 +75,7 @@ public class NoticeCommentRecommendService {
     }
 
     /**
-     * 게시판 댓글 추천소 감소
+     * 공지사항 댓글 추천소 감소
      */
     private void minusRecommendCount(Long noticeCommentId) {
         NoticeComment noticeComment = noticeCommentRecommendReadService.findById(noticeCommentId);
