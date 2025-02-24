@@ -25,6 +25,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.newsCommentId(1L)
 			.comment("대댓글 테스트")
+			.imgUrl("www.test.com")
 			.build();
 
 		// when // then
@@ -48,6 +49,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// given
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.comment("대댓글 테스트")
+			.imgUrl("www.test.com")
 			.build();
 
 		// when // then
@@ -71,6 +73,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// given
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.newsCommentId(1L)
+			.imgUrl("www.test.com")
 			.build();
 
 		// when // then
