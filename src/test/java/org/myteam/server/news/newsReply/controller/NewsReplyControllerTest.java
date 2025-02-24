@@ -25,6 +25,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.newsCommentId(1L)
 			.comment("대댓글 테스트")
+			.imgUrl("www.test.com")
 			.build();
 
 		// when // then
@@ -48,6 +49,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// given
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.comment("대댓글 테스트")
+			.imgUrl("www.test.com")
 			.build();
 
 		// when // then
@@ -71,6 +73,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// given
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.newsCommentId(1L)
+			.imgUrl("www.test.com")
 			.build();
 
 		// when // then
@@ -219,5 +222,37 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
 			.andExpect(jsonPath("$.msg").value("뉴스 대댓글 삭제 성공"));
+	}
+
+	@DisplayName("뉴스 대댓글 추천을 추가한다.")
+	@Test
+	@WithMockUser
+	void recommendTest() throws Exception {
+		// given
+		// when // then
+		mockMvc.perform(
+				patch("/api/news/reply/recommend/{newsCommentId}", 1)
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("뉴스 대댓글 추천 성공"));
+	}
+
+	@DisplayName("뉴스 추천을 삭제한다.")
+	@Test
+	@WithMockUser
+	void recommendCancelTest() throws Exception {
+		// given
+		// when // then
+		mockMvc.perform(
+				delete("/api/news/reply/recommend/{newsCommentId}", 1)
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("뉴스 대댓글 추천 삭제 성공"));
 	}
 }

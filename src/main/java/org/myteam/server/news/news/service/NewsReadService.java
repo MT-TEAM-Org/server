@@ -1,8 +1,12 @@
 package org.myteam.server.news.news.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
@@ -11,6 +15,8 @@ import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.repository.NewsQueryRepository;
 import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsCount.service.NewsCountReadService;
+import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
+import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +31,8 @@ public class NewsReadService {
 	private final NewsQueryRepository newsQueryRepository;
 	private final NewsRepository newsRepository;
 	private final NewsCountReadService newsCountReadService;
+	private final NewsCountMemberReadService newsCountMemberReadService;
+	private final SecurityReadService securityReadService;
 
 	public NewsListResponse findAll(NewsServiceRequest newsServiceRequest) {
 		Page<NewsDto> newsPagingList = newsQueryRepository.getNewsList(newsServiceRequest);
@@ -33,9 +41,14 @@ public class NewsReadService {
 	}
 
 	public NewsResponse findOne(Long newsId) {
+		UUID publicId = securityReadService.getAuthenticatedPublicId();
+
+		boolean recommendYn = publicId != null && newsCountMemberReadService.confirmRecommendMember(newsId, publicId);
+
 		return NewsResponse.createResponse(
 			findById(newsId),
-			newsCountReadService.findByNewsId(newsId)
+			newsCountReadService.findByNewsId(newsId),
+			recommendYn
 		);
 	}
 

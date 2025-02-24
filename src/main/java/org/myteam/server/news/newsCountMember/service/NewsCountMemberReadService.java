@@ -24,4 +24,9 @@ public class NewsCountMemberReadService {
 			});
 	}
 
+	public boolean confirmRecommendMember(Long newsId, UUID memberId) {
+		return newsCountMemberRepository.findByNewsIdAndMemberPublicId(newsId, memberId)
+			.isPresent();
+	}
+
 }

@@ -9,6 +9,8 @@ import org.myteam.server.news.newsReply.dto.service.request.NewsReplySaveService
 import org.myteam.server.news.newsReply.dto.service.request.NewsReplyUpdateServiceRequest;
 import org.myteam.server.news.newsReply.dto.service.response.NewsReplyResponse;
 import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
+import org.myteam.server.news.newsReplyMember.service.NewsReplyMemberReadService;
+import org.myteam.server.news.newsReplyMember.service.NewsReplyMemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,8 @@ public class NewsReplyService {
 	private final NewsReplyReadService newsReplyReadService;
 	private final NewsCommentReadService newsCommentReadService;
 	private final SecurityReadService securityReadService;
+	private final NewsReplyMemberReadService newsReplyMemberReadService;
+	private final NewsReplyMemberService newsReplyMemberService;
 
 	public NewsReplyResponse save(NewsReplySaveServiceRequest newsReplySaveServiceRequest) {
 		NewsComment newsComment = newsCommentReadService.findById(newsReplySaveServiceRequest.getNewsCommentId());
@@ -30,8 +34,8 @@ public class NewsReplyService {
 
 		return NewsReplyResponse.createResponse(
 			newsReplyRepository.save(
-				NewsReply.createNewsReply(newsComment, member, newsReplySaveServiceRequest.getComment(),
-					newsReplySaveServiceRequest.getIp())), member
+				NewsReply.createEntity(newsComment, member, newsReplySaveServiceRequest.getComment(),
+					newsReplySaveServiceRequest.getIp(), newsReplySaveServiceRequest.getImgUrl())), member
 		);
 	}
 
@@ -40,7 +44,7 @@ public class NewsReplyService {
 		NewsReply newsReply = newsReplyReadService.findById(newsReplyUpdateServiceRequest.getNewsReplyId());
 
 		newsReply.confirmMember(member);
-		newsReply.updateComment(newsReplyUpdateServiceRequest.getComment());
+		newsReply.update(newsReplyUpdateServiceRequest.getComment(), newsReplyUpdateServiceRequest.getImgUrl());
 
 		return newsReply.getId();
 	}
@@ -52,6 +56,32 @@ public class NewsReplyService {
 		newsReply.confirmMember(member);
 
 		newsReplyRepository.deleteById(newsReplyId);
+		return newsReply.getId();
+	}
+
+	public Long recommend(Long newsReplyId) {
+		Member member = securityReadService.getMember();
+		NewsReply newsReply = newsReplyReadService.findByIdLock(newsReplyId);
+
+		newsReplyMemberReadService.confirmExistMember(newsReplyId, member.getPublicId());
+
+		newsReplyMemberService.save(newsReplyId);
+
+		newsReply.addRecommendCount();
+
+		return newsReply.getId();
+	}
+
+	public Long cancelRecommend(Long newsReplyId) {
+		Member member = securityReadService.getMember();
+		NewsReply newsReply = newsReplyReadService.findByIdLock(newsReplyId);
+
+		newsReplyMemberReadService.confirmExistMember(newsReplyId, member.getPublicId());
+
+		newsReplyMemberService.deleteByNewsReplyIdMemberId(newsReplyId);
+
+		newsReply.minusRecommendCount();
+
 		return newsReply.getId();
 	}
 }

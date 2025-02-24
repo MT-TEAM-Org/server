@@ -2,15 +2,9 @@ package org.myteam.server;
 
 import org.myteam.server.match.match.controller.MatchController;
 import org.myteam.server.match.match.service.MatchReadService;
-import org.myteam.server.match.matchComment.controller.MatchCommentController;
-import org.myteam.server.match.matchComment.service.MatchCommentReadService;
-import org.myteam.server.match.matchComment.service.MatchCommentService;
 import org.myteam.server.match.matchPrediction.controller.MatchPredictionController;
 import org.myteam.server.match.matchPrediction.service.MatchPredictionReadService;
 import org.myteam.server.match.matchPrediction.service.MatchPredictionService;
-import org.myteam.server.match.matchReply.controller.MatchReplyController;
-import org.myteam.server.match.matchReply.service.MatchReplyReadService;
-import org.myteam.server.match.matchReply.service.MatchReplyService;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.news.news.controller.NewsController;
@@ -18,6 +12,10 @@ import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.news.newsComment.controller.NewsCommentController;
 import org.myteam.server.news.newsComment.service.NewsCommentReadService;
 import org.myteam.server.news.newsComment.service.NewsCommentService;
+import org.myteam.server.news.newsCount.controller.NewsCountController;
+import org.myteam.server.news.newsCount.service.NewsCountService;
+import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
+import org.myteam.server.news.newsCountMember.service.NewsCountMemberService;
 import org.myteam.server.news.newsReply.controller.NewsReplyController;
 import org.myteam.server.news.newsReply.service.NewsReplyReadService;
 import org.myteam.server.news.newsReply.service.NewsReplyService;
@@ -35,10 +33,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	NewsController.class,
 	NewsCommentController.class,
 	NewsReplyController.class,
+	NewsCountController.class,
 	MatchController.class,
-	MatchPredictionController.class,
-	MatchCommentController.class,
-	MatchReplyController.class
+	MatchPredictionController.class
 })
 @MockBean(JpaMetamodelMappingContext.class)
 public abstract class ControllerTestSupport {
@@ -58,6 +55,12 @@ public abstract class ControllerTestSupport {
 	@MockBean
 	protected NewsReplyReadService newsReplyReadService;
 	@MockBean
+	protected NewsCountService newsCountService;
+	@MockBean
+	protected NewsCountMemberReadService newsCountMemberReadService;
+	@MockBean
+	protected NewsCountMemberService newsCountMemberService;
+	@MockBean
 	protected MemberService memberService;
 	@MockBean
 	protected MemberJpaRepository memberJpaRepository;
@@ -67,14 +70,6 @@ public abstract class ControllerTestSupport {
 	protected MatchPredictionReadService matchPredictionReadService;
 	@MockBean
 	protected MatchPredictionService matchPredictionService;
-	@MockBean
-	protected MatchCommentReadService matchCommentReadService;
-	@MockBean
-	protected MatchCommentService matchCommentService;
-	@MockBean
-	protected MatchReplyReadService matchReplyReadService;
-	@MockBean
-	protected MatchReplyService matchReplyService;
 
 }
 

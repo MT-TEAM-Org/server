@@ -26,6 +26,8 @@ public enum ErrorCode {
     MEMBER_NOT_EQUALS(HttpStatus.BAD_REQUEST, "Member Not Equals"),
     NO_MEMBER_RECOMMEND_RECORD(HttpStatus.BAD_REQUEST, "No Member Recommend Record"),
     ALREADY_MEMBER_RECOMMEND_NEWS(HttpStatus.BAD_REQUEST, "Member Already Recommend News"),
+    ALREADY_MEMBER_RECOMMEND_NEWS_COMMENT(HttpStatus.BAD_REQUEST, "Member Already Recommend News Comment"),
+    ALREADY_MEMBER_RECOMMEND_NEWS_REPLY(HttpStatus.BAD_REQUEST, "Member Already Recommend News Reply"),
     INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "Phone number is invalid"),
     INVALID_GENDER_TYPE(HttpStatus.BAD_REQUEST, "Gender Type allow M or F"),
     INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "BIRTHDATE length must be 6"),

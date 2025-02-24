@@ -2,6 +2,8 @@ package org.myteam.server.news.newsReply.dto.repository;
 
 import java.time.LocalDateTime;
 
+import org.myteam.server.news.RecommendYN;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,14 +24,21 @@ public class NewsReplyDto {
 	private String ip;
 	@Schema(description = "뉴스 대댓글 작성날짜")
 	private LocalDateTime createTime;
+	@Schema(description = "뉴스 대댓글 추천 여부")
+	private int recommendCount;
+	@Schema(description = "뉴스 대댓글 추천 여부")
+	private RecommendYN recommendYN;
 
 	public NewsReplyDto(Long newsReplyId, Long newsCommentId, NewsReplyMemberDto member, String comment,
-		String ip, LocalDateTime createTime) {
+		String ip, LocalDateTime createTime, int recommendCount, boolean recommend) {
 		this.newsReplyId = newsReplyId;
 		this.newsCommentId = newsCommentId;
 		this.member = member;
 		this.comment = comment;
 		this.ip = ip;
 		this.createTime = createTime;
+		this.recommendCount = recommendCount;
+		this.recommendYN = RecommendYN.createRecommendYN(recommend);
 	}
+
 }

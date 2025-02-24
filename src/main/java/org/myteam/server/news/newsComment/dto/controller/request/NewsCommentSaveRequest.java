@@ -18,11 +18,14 @@ public class NewsCommentSaveRequest {
 	@Schema(description = "댓글")
 	@NotNull(message = "뉴스 댓글은 필수입니다.")
 	private String comment;
+	@Schema(description = "사진 URL (있을 시)")
+	private String imgUrl;
 
 	@Builder
-	public NewsCommentSaveRequest(Long newsId, String comment) {
+	public NewsCommentSaveRequest(Long newsId, String comment, String imgUrl) {
 		this.newsId = newsId;
 		this.comment = comment;
+		this.imgUrl = imgUrl;
 	}
 
 	public NewsCommentSaveServiceRequest toServiceRequest(String ip) {
@@ -30,6 +33,7 @@ public class NewsCommentSaveRequest {
 			.newsId(newsId)
 			.comment(comment)
 			.ip(ip)
+			.imgUrl(imgUrl)
 			.build();
 	}
 }

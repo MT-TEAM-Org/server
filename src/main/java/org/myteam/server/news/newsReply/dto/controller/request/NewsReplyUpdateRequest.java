@@ -18,17 +18,21 @@ public class NewsReplyUpdateRequest {
 	@Schema(description = "뉴스 대댓글 내용 ID")
 	@NotNull(message = "뉴스 대댓글 내용은 필수입니다.")
 	private String comment;
+	@Schema(description = "뉴스 대댓글 이미지 (삭제면 null)")
+	private String imgUrl;
 
 	@Builder
-	public NewsReplyUpdateRequest(Long newsReplyId, String comment) {
+	public NewsReplyUpdateRequest(Long newsReplyId, String comment, String imgUrl) {
 		this.newsReplyId = newsReplyId;
 		this.comment = comment;
+		this.imgUrl = imgUrl;
 	}
 
 	public NewsReplyUpdateServiceRequest toServiceRequest() {
 		return NewsReplyUpdateServiceRequest.builder()
 			.newsReplyId(newsReplyId)
 			.comment(comment)
+			.imgUrl(imgUrl)
 			.build();
 	}
 }
