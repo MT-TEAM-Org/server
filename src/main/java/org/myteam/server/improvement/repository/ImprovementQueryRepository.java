@@ -1,0 +1,101 @@
+package org.myteam.server.improvement.repository;
+
+import static java.util.Optional.ofNullable;
+import static org.myteam.server.member.entity.QMember.member;
+import static org.myteam.server.improvement.domain.QImprovement.improvement;
+import static org.myteam.server.improvement.domain.QImprovementCount.improvementCount;
+
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.myteam.server.improvement.domain.ImprovementOrderType;
+import org.myteam.server.improvement.domain.ImprovementSearchType;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Slf4j
+@Repository
+@RequiredArgsConstructor
+public class ImprovementQueryRepository {
+
+    private final JPAQueryFactory queryFactory;
+
+    /**
+     * 개선요청 목록 조회
+     */
+    public Page<ImprovementDto> getImprovementList(ImprovementOrderType orderType,
+                                                   ImprovementSearchType searchType, String search, Pageable pageable) {
+        List<ImprovementDto> content = queryFactory
+                .select(Projections.constructor(ImprovementDto.class,
+                        improvement.id,
+                        improvement.title,
+                        improvement.createdIP,
+                        improvement.imgUrl,
+                        improvement.improvementStatus,
+                        member.nickname,
+                        improvementCount.commentCount,
+                        improvementCount.recommendCount,
+                        improvement.createDate,
+                        improvement.lastModifiedDate
+                ))
+                .from(improvement)
+                .join(improvementCount).on(improvementCount.improvement.id.eq(improvement.id))
+                .join(member).on(member.eq(improvement.member))
+                .fetchJoin()
+                .where(isSearchTypeLikeTo(searchType, search))
+                .orderBy(isOrderByEqualToOrderCategory(orderType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = getTotalImprovementCount(searchType, search);
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    private BooleanExpression isSearchTypeLikeTo(ImprovementSearchType searchType, String search) {
+        if (search == null || search.isEmpty()) {
+            return null;
+        }
+
+        return switch (searchType) {
+            case TITLE -> improvement.title.like("%" + search + "%");
+            case CONTENT -> improvement.content.like("%" + search + "%");
+            case TITLE_CONTENT -> improvement.title.like("%" + search + "%")
+                    .or(improvement.content.like("%" + search + "%"));
+            case NICKNAME -> improvement.member.nickname.like("%" + search + "%");
+            default -> null;
+        };
+    }
+
+    private OrderSpecifier<?> isOrderByEqualToOrderCategory(ImprovementOrderType orderType) {
+        // default 최신순
+        ImprovementOrderType improvementOrderType = Optional.ofNullable(orderType).orElse(ImprovementOrderType.CREATE);
+
+        return switch (improvementOrderType) {
+            case CREATE -> improvement.createDate.desc();
+            case RECOMMEND -> improvementCount.recommendCount.desc();
+            case COMMENT -> improvementCount.commentCount.desc();
+        };
+    }
+
+    private long getTotalImprovementCount(ImprovementSearchType searchType, String search) {
+        return ofNullable(
+                queryFactory
+                        .select(improvement.count())
+                        .from(improvement)
+                        .where(isSearchTypeLikeTo(searchType, search))
+                        .fetchOne()
+        ).orElse(0L);
+    }
+}
