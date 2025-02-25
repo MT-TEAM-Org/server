@@ -34,11 +34,15 @@ public class NewsResponse {
 	private LocalDateTime postDate;
 	@Schema(description = "개인 추천 여부 (YES: 추천, NO: 추천X")
 	private RecommendYN recommendYN;
+	@Schema(description = "출처")
+	private String source;
+	@Schema(description = "본문")
+	private String content;
 
 	@Builder
 	public NewsResponse(Long id, NewsCategory category, String title, String thumbImg, int recommendCount,
 		int commentCount,
-		int viewCount, LocalDateTime postDate, RecommendYN recommendYN) {
+		int viewCount, LocalDateTime postDate, RecommendYN recommendYN, String source, String content) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
@@ -48,6 +52,8 @@ public class NewsResponse {
 		this.viewCount = viewCount;
 		this.postDate = postDate;
 		this.recommendYN = recommendYN;
+		this.source = source;
+		this.content = content;
 	}
 
 	public static NewsResponse createResponse(News news, NewsCount newsCount, boolean recommendYn) {
@@ -61,6 +67,8 @@ public class NewsResponse {
 			.commentCount(newsCount.getCommentCount())
 			.viewCount(newsCount.getViewCount())
 			.recommendYN(RecommendYN.createRecommendYN(recommendYn))
+			.source(news.getSource())
+			.content(news.getContent())
 			.build();
 	}
 }

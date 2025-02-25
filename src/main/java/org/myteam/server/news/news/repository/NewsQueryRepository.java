@@ -39,6 +39,7 @@ public class NewsQueryRepository {
 				news.category,
 				news.title,
 				news.thumbImg,
+				news.content,
 				news.postDate
 			))
 			.from(news)
