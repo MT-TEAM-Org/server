@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.dto.CertificationCertifyRequest;
 import org.myteam.server.common.certification.dto.CertificationEmailRequest;
 import org.myteam.server.common.certification.service.CertificationService;
+import org.myteam.server.common.mail.domain.EmailType;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ public class CertificationController {
     @PostMapping("/send")
     public ResponseEntity<?> sendCertificationEmail(@Valid @RequestBody CertificationEmailRequest certificationEmailRequest, BindingResult bindingResult) {
         log.info("send-certification email: {}", certificationEmailRequest.getEmail());
-        certificationService.send(certificationEmailRequest.getEmail());
+        certificationService.send(certificationEmailRequest.getEmail(), EmailType.CERTIFICATION);
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "인증 코드 이메일 전송 성공", null), HttpStatus.OK);
     }
 

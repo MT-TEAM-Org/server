@@ -90,18 +90,12 @@ public class MyInfoController {
 
     @PostMapping("/find-password")
     public ResponseEntity<?> resetPassword(@RequestParam String email, HttpSession session) {
-        String certifiedEmail = (String) session.getAttribute("certifiedEmail");
-
-        if (certifiedEmail == null || !certifiedEmail.equals(email)) {
-            throw new PlayHiveException(ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT);
-        }
-
-        String password = memberReadService.findPassword(email);
+        memberService.generateTemporaryPassword(email, session);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
-                "비밀번호 찾기 성공",
-                password
+                "랜덤 비밀번호 생성 성공",
+                null
         ));
     }
 }

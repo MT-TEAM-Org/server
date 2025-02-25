@@ -43,9 +43,6 @@ public class Member extends Base {
     @Column(nullable = false, length = 60) // 패스워드 인코딩(BCrypt)
     private String password; // 비밀번호
 
-    @Column(nullable = false)
-    private String encodedPassword;
-
     @Column(length = 11)
     private String tel;
 
@@ -75,10 +72,9 @@ public class Member extends Base {
     private int birthDay;
 
     @Builder
-    public Member(String email, String password, String encodedPassword, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
+    public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
         this.email = email;
         this.password = password;
-        this.encodedPassword = encodedPassword;
         this.tel = tel;
         this.nickname = nickname;
         this.role = role;
@@ -88,34 +84,30 @@ public class Member extends Base {
     }
 
     @Builder
-    public Member(MemberSaveRequest memberSaveRequest, PasswordEncoder passwordEncoder, String encodedPassword) {
+    public Member(MemberSaveRequest memberSaveRequest, PasswordEncoder passwordEncoder) {
         this.email = memberSaveRequest.getEmail();
         this.password = passwordEncoder.encode(memberSaveRequest.getPassword());
         this.tel = memberSaveRequest.getTel();
         this.nickname = memberSaveRequest.getNickname();
-        this.encodedPassword = encodedPassword;
     }
 
     // 전체 업데이트 메서드
-    public void update(MemberUpdateRequest memberUpdateRequest, String encodedPassword, PasswordEncoder passwordEncoder) {
+    public void update(MemberUpdateRequest memberUpdateRequest, PasswordEncoder passwordEncoder) {
         // this.email = memberUpdateRequest.getEmail();
         this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
         this.tel = memberUpdateRequest.getTel();
         this.nickname = memberUpdateRequest.getNickname();
-        this.encodedPassword = encodedPassword;
     }
 
     // 전체 업데이트 메서드
-    public void update(String password, String encodedPassword, String tel, String nickname) {
+    public void update(String password, String tel, String nickname) {
         this.password = password;
-        this.encodedPassword = encodedPassword;
         this.tel = tel;
         this.nickname = nickname;
     }
 
-    public void updatePassword(String password, String encodedPassword) {
+    public void updatePassword(String password) {
         this.password = password;
-        this.encodedPassword = encodedPassword; // 비밀번호 변경 시 암호화 필요
     }
 
     public void updateEmail(String email) {
