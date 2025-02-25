@@ -56,11 +56,11 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 3L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
+					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -101,12 +101,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀6", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀5", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀4", NewsCategory.ESPORTS, "www.test.com")
+					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀6", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀5", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀4", NewsCategory.ESPORTS, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -151,12 +151,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀11", NewsCategory.FOOTBALL, "www.test.com"),
-					tuple("기사타이틀10", NewsCategory.FOOTBALL, "www.test.com"),
-					tuple("기사타이틀9", NewsCategory.FOOTBALL, "www.test.com"),
-					tuple("기사타이틀8", NewsCategory.FOOTBALL, "www.test.com")
+					tuple("기사타이틀11", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀10", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀9", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀8", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -187,12 +187,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
+					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -224,9 +224,9 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 1L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -242,8 +242,9 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		NewsResponse newsResponse = newsReadService.findOne(news.getId());
 
 		assertThat(newsResponse)
-			.extracting("title", "category", "thumbImg", "recommendCount", "commentCount", "viewCount")
-			.contains("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", 10, 10, 10);
+			.extracting("title", "category", "thumbImg", "recommendCount", "commentCount", "viewCount", "source",
+				"content")
+			.contains("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", 10, 10, 10, "www.test.com", "뉴스본문");
 	}
 
 }

@@ -219,6 +219,8 @@ public abstract class IntegrationTestSupport {
 			.category(category)
 			.thumbImg("www.test.com")
 			.postDate(LocalDateTime.now())
+			.source("www.test.com")
+			.content("뉴스본문")
 			.build());
 
 		NewsCount newsCount = NewsCount.builder()
@@ -233,7 +235,6 @@ public abstract class IntegrationTestSupport {
 
 		return savedNews;
 	}
-
 
 	protected NewsCountMember createNewsCountMember(Member member, News news) {
 		return newsCountMemberRepository.save(
