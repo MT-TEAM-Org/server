@@ -37,7 +37,6 @@ public class CertificationController {
 
     @PostMapping("/certify-code")
     public ResponseEntity<?> certifyCode(@Valid @RequestBody CertificationCertifyRequest certificationCertifyRequest,
-                                         HttpSession session,
                                          BindingResult bindingResult) {
         String code = certificationCertifyRequest.getCode(); // 인증 코드
         String email = certificationCertifyRequest.getEmail(); // 이메일
@@ -45,8 +44,6 @@ public class CertificationController {
 
         if (isValid) {
             log.info("certify email: {} success", email);
-
-            session.setAttribute("certifiedEmail", email);
             return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "인증 코드 확인", null), HttpStatus.OK);
         } else {
             log.info("certify code failed");

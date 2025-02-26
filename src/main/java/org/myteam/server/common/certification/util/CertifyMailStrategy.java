@@ -17,11 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class CertifyMailStrategy extends AbstractMailSender {
-    private static final int EXPIRATION_MINUTES = 5; // 유효 시간 (5분)
-    private final Map<String, CertificationCode> codeStorage = new ConcurrentHashMap<>();
+    private final CertifyStorage certifyStorage;
 
-    public CertifyMailStrategy(JavaMailSender javaMailSender) {
+    public CertifyMailStrategy(JavaMailSender javaMailSender, CertifyStorage certifyStorage) {
         super(javaMailSender);
+        this.certifyStorage = certifyStorage;
     }
 
     @Override
@@ -31,32 +31,30 @@ public class CertifyMailStrategy extends AbstractMailSender {
 
     @Override
     protected String getBody(String email) {
-        CertificationCode certificationCode = createNumber();
-        codeStorage.put(email, certificationCode);
+        CertificationCode certificationCode = certifyStorage.putCertificationCode(email);
         return buildEmailContent(certificationCode.getCode(), certificationCode.getExpirationTime());
-    }
-
-    // 인증번호를 생성한다.
-    private CertificationCode createNumber() {
-        int code = (int) (Math.random() * 900000) + 100000; // 6자리 인증 코드
-        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(EXPIRATION_MINUTES);
-        return new CertificationCode(String.valueOf(code), expirationTime);
     }
 
     // 인증번호가 유효한지 검사한다.
     @Override
     public boolean verify(String email, String inputCode) {
-        CertificationCode storedCode = codeStorage.get(email);
-
-        if (storedCode == null || LocalDateTime.now().isAfter(storedCode.getExpirationTime())) {
-            return false; // 코드가 없거나 만료된 경우
-        }
-
         log.debug("검증 중.......");
+        CertificationCode storedCode = certifyStorage.getCertificationCode(email);
         log.debug("stored code {}", storedCode.getCode());
         log.debug("inputCode {}", inputCode);
 
-        return Objects.equals(storedCode.getCode(), inputCode); // 코드가 일치하면 유효
+        boolean isValid = Objects.equals(storedCode.getCode(), inputCode); // 코드가 일치하면 유효
+
+        if (isValid) {
+            try {
+                certifyStorage.deleteCertificationCode(email);
+            } catch (Exception e) {
+                log.error("❌ 인증 코드 삭제 실패 - email: {}", email, e);
+            }
+            certifyStorage.putCertifiedEmail(email);
+        }
+
+        return isValid;
     }
 
     // 메일 내용을 작성한다.
@@ -71,22 +69,5 @@ public class CertifyMailStrategy extends AbstractMailSender {
         body += "인증 코드는 유효 기간은 5분이며 " + expirationTimeStr + "까지 유효합니다.";
         body += "</p>";
         return body;
-    }
-
-    // 만료된 코드 제거
-    @Scheduled(fixedRate = 60000) // 1분마다 실행
-    public void clearExpiredCodes() {
-        log.debug("만료된 코드 제거 로직 START");
-
-        LocalDateTime now = LocalDateTime.now();
-        codeStorage.entrySet().removeIf(entry -> now.isAfter(entry.getValue().getExpirationTime()));
-
-        log.debug("만료된 코드 제거 로직 END");
-    }
-
-    // codeStorage 내용 출력
-    public void print() {
-        log.debug("codeStorage 내용 출력");
-        log.debug(codeStorage.toString());
     }
 }
