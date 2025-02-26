@@ -7,12 +7,15 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 @Slf4j
 @Component
 public class TemporaryPasswordMailStrategy extends AbstractMailSender {
 
+    private final int PASSWORD_LENGTH = 10;
+    private final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private final MemberJpaRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -36,14 +39,19 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
     }
 
     private String generateRandomPassword(String email) {
-        int length = 10;
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*";
-        SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder();
-
-        for (int i = 0; i < length; i++) {
-            password.append(chars.charAt(random.nextInt(chars.length())));
+        SecureRandom random;
+        try {
+            random = SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            log.warn("SecureRandom.getInstanceStrong() 사용 불가, 기본 SecureRandom 사용");
+            random = new SecureRandom();
         }
+
+        StringBuilder password = new StringBuilder(PASSWORD_LENGTH);
+        for (int i = 0; i < PASSWORD_LENGTH; i++) {
+            password.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
+        }
+
         String tempPassword = password.toString();
         log.info("랜덤 비밀번호 생성: {}", tempPassword);
 
