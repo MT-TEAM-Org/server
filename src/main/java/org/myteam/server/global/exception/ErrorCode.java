@@ -18,6 +18,7 @@ public enum ErrorCode {
     KAFKA_TOPIC_DELETE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "Failed to delete the Kafka topic."),
 
     // 400 Bad Request
+    INVALID_EMAIL(HttpStatus.BAD_REQUEST, "Invalid email request"),
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "Invalid password"),
     UNSUPPORTED_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "Not Supported OAuth2 provider"),
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "Invalid parameter value"),
@@ -59,6 +60,7 @@ public enum ErrorCode {
     BAN_USER(HttpStatus.FORBIDDEN, "You are banned from this service."),
 
     // 404 Not Found
+    NOT_FOUND_CERTIFICATION_CODE(HttpStatus.NOT_FOUND, "인증코드 없음"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Category not found"),

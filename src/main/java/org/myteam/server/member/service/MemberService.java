@@ -6,6 +6,7 @@ import static org.myteam.server.global.exception.ErrorCode.*;
 import java.util.Optional;
 
 import jakarta.servlet.http.HttpSession;
+import org.myteam.server.common.certification.util.CertifyStorage;
 import org.myteam.server.common.mail.domain.EmailType;
 import org.myteam.server.common.mail.service.MailStrategy;
 import org.myteam.server.common.mail.util.MailStrategyFactory;
@@ -46,6 +47,7 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final AESCryptoUtil crypto;
 	private final MailStrategyFactory mailStrategyFactory;
+	private final CertifyStorage certifyStorage;
 
 	/**
 	 * 회원 가입
@@ -195,10 +197,11 @@ public class MemberService {
 		memberJpaRepository.delete(member);
 	}
 
-	public void generateTemporaryPassword(String email, HttpSession session) {
-		String certifiedEmail = (String) session.getAttribute("certifiedEmail");
+	public void generateTemporaryPassword(String email) {
+		log.info("랜덤 비번 생성 시도: {}", email);
+		boolean isValid = certifyStorage.isCertified(email);
 
-		if (certifiedEmail == null || !certifiedEmail.equals(email)) {
+		if (!isValid) {
 			throw new PlayHiveException(ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT);
 		}
 

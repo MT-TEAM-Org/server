@@ -89,8 +89,8 @@ public class MyInfoController {
     }
 
     @PostMapping("/find-password")
-    public ResponseEntity<?> resetPassword(@RequestParam String email, HttpSession session) {
-        memberService.generateTemporaryPassword(email, session);
+    public ResponseEntity<?> resetPassword(@RequestParam String email) {
+        memberService.generateTemporaryPassword(email);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
