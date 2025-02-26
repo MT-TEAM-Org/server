@@ -104,7 +104,7 @@ slack:
     url: test
 
 minio:
-  url: test
+  url: http://localhost:9000
   access-key: test
   secret-key: test
   region: test

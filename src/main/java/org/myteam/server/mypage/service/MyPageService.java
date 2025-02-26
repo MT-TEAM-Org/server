@@ -36,9 +36,8 @@ public class MyPageService {
         }
 
         String password = passwordEncoder.encode(request.getPassword());
-        String encodedPwd = cryptoUtil.createEncodedPwd(request.getPassword());
 
-        member.update(password, encodedPwd, request.getTel(), request.getNickname());
+        member.update(password, request.getTel(), request.getNickname());
 
         if (request.getBirthDate() != null) {
             memberValidator.validateBirthDate(request.getBirthDate());

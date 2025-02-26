@@ -2,22 +2,35 @@ package org.myteam.server.common.certification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.common.certification.util.CertifyMailSender;
-import org.springframework.stereotype.Service;
+import org.myteam.server.common.certification.util.CertifyMailStrategy;
+import org.myteam.server.common.mail.domain.EmailType;
+import org.myteam.server.common.mail.service.MailStrategy;
+import org.myteam.server.common.mail.util.MailStrategyFactory;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class CertificationService {
-    private final CertifyMailSender certifyMailSender;
+    private final MailStrategyFactory mailStrategyFactory;
 
-    public void send(String email) {
-        certifyMailSender.send(email);
+    public void send(String email, EmailType type) {
+        log.info("{} 메일 전송 시작 - email: {}", type.name(), email);
+        MailStrategy strategy = mailStrategyFactory.getStrategy(type);
+        strategy.send(email);
     }
 
     public boolean certify(String email, String certificationCode) {
-        certifyMailSender.print();
-        return certifyMailSender.isCodeValid(email, certificationCode);
+        log.info("이메일 인증 코드 검증 - email: {}", email);
+
+        MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.CERTIFICATION);
+
+        if (strategy instanceof CertifyMailStrategy certifyMailStrategy) {
+            return certifyMailStrategy.verify(email, certificationCode);
+        }
+        throw new PlayHiveException(ErrorCode.NOT_SUPPORT_TYPE);
     }
 
     public String generateCertificationUrl(String email, String certificationCode) {

@@ -105,13 +105,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User createNewMember(OAuth2Response oAuth2Response, String providerId) {
         log.debug("Creating new member for providerId: {}", providerId);
         String password = PasswordUtil.generateRandomPassword();
-        String encodedPassword = aesCryptoUtil.createEncodedPwd(password);
 
         UUID publicId = UUID.randomUUID();
         Member newMember = Member.builder()
                 .email(oAuth2Response.getEmail())
                 .password(password)
-                .encodedPassword(encodedPassword)
                 .role(USER)
                 .tel(oAuth2Response.getTel())
                 .nickname(oAuth2Response.getNickname())

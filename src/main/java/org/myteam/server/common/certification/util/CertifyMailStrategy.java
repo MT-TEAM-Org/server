@@ -1,14 +1,8 @@
 package org.myteam.server.common.certification.util;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.domain.CertificationCode;
-import org.myteam.server.common.mail.MailSender;
-import org.myteam.server.global.exception.PlayHiveException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
+import org.myteam.server.common.mail.service.AbstractMailSender;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,39 +13,27 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.myteam.server.global.exception.ErrorCode.INTERNAL_SERVER_ERROR;
-import static org.myteam.server.global.exception.ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT;
-
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class CertifyMailSender implements MailSender {
-
-    @Value("${SENDER_EMAIL}")
-    private String senderEmail;
-    private final JavaMailSender javaMailSender;
+public class CertifyMailStrategy extends AbstractMailSender {
     private static final int EXPIRATION_MINUTES = 5; // 유효 시간 (5분)
     private final Map<String, CertificationCode> codeStorage = new ConcurrentHashMap<>();
 
-    // 메일을 보낸다
+    public CertifyMailStrategy(JavaMailSender javaMailSender) {
+        super(javaMailSender);
+    }
+
     @Override
-    public void send(String email) {
-        log.info("Sending email to {}", email);
+    protected String getSubject() {
+        return "이메일 인증 코드";
+    }
 
-        try {
-            // 인증 코드 생성
-            CertificationCode certificationCode = createNumber();
-            codeStorage.put(email, certificationCode); // 이메일별로 인증 코드 저장
-
-            // 이메일 생성 및 발송
-            MimeMessage message = createMail(email, certificationCode.getCode());
-            javaMailSender.send(message);
-            log.info("certificationCode ExpirationTime : {}", certificationCode.getExpirationTime());
-        } catch (MailException e) {
-            log.error("이메일 전송 중 에러가 발생하였습니다." + e.getMessage());
-            throw new PlayHiveException(UNAUTHORIZED_EMAIL_ACCOUNT, e.getMessage());
-        }
+    @Override
+    protected String getBody(String email) {
+        CertificationCode certificationCode = createNumber();
+        codeStorage.put(email, certificationCode);
+        return buildEmailContent(certificationCode.getCode(), certificationCode.getExpirationTime());
     }
 
     // 인증번호를 생성한다.
@@ -61,28 +43,9 @@ public class CertifyMailSender implements MailSender {
         return new CertificationCode(String.valueOf(code), expirationTime);
     }
 
-    // 메일 내용을 생성한다.
-    private MimeMessage createMail(String email, String code) {
-        MimeMessage message = javaMailSender.createMimeMessage();
-
-        try {
-            message.setFrom(senderEmail);
-            message.setRecipients(MimeMessage.RecipientType.TO, email);
-            message.setSubject("이메일 인증");
-
-            // 이메일 본문
-            String body = buildEmailContent(code, codeStorage.get(email).getExpirationTime());
-            message.setText(body, "UTF-8", "html");
-        } catch (MessagingException e) {
-            log.error("이메일 생성 중 에러가 발생하였습니다. 에러 메시지 : {}", e.getMessage());
-            throw new PlayHiveException(INTERNAL_SERVER_ERROR, e.getMessage());
-        }
-
-        return message;
-    }
-
     // 인증번호가 유효한지 검사한다.
-    public boolean isCodeValid(String email, String inputCode) {
+    @Override
+    public boolean verify(String email, String inputCode) {
         CertificationCode storedCode = codeStorage.get(email);
 
         if (storedCode == null || LocalDateTime.now().isAfter(storedCode.getExpirationTime())) {

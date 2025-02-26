@@ -21,8 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.myteam.server.global.exception.ErrorCode.NO_PERMISSION;
-import static org.myteam.server.global.exception.ErrorCode.RESOURCE_NOT_FOUND;
+import static org.myteam.server.global.exception.ErrorCode.*;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_PREFIX;
 
 @Service
@@ -33,10 +32,8 @@ public class MemberReadService {
     private final MemberRepository memberRepository;
     private final MemberJpaRepository memberJpaRepository;
     private final SecurityReadService securityReadService;
-    private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    private final AESCryptoUtil crypto;
 
     public Member findById(UUID publicId) {
         Member member = memberRepository.findByPublicId(publicId)
@@ -47,6 +44,11 @@ public class MemberReadService {
         }
 
         return member;
+    }
+
+    public Member findByEmail(String email) {
+        return memberJpaRepository.findByEmail(email)
+                .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
     }
 
     public ProfileResponse getProfile() {
@@ -124,16 +126,5 @@ public class MemberReadService {
         List<Member> memberList = memberJpaRepository.findByTel(phoneNumber);
 
         return FindIdResponse.createResponse(memberList);
-    }
-
-    public String findPassword(String email) {
-        Member member = memberJpaRepository.findByEmail(email)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.PHONE_NUMBER_NOT_FOUND));
-
-        String encodedPassword = member.getEncodedPassword();
-
-        String originPassword = crypto.findOriginPwd(encodedPassword);
-
-        return originPassword;
     }
 }

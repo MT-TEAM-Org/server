@@ -5,6 +5,10 @@ import static org.myteam.server.global.exception.ErrorCode.*;
 
 import java.util.Optional;
 
+import jakarta.servlet.http.HttpSession;
+import org.myteam.server.common.mail.domain.EmailType;
+import org.myteam.server.common.mail.service.MailStrategy;
+import org.myteam.server.common.mail.util.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.controller.response.MemberResponse;
@@ -41,6 +45,7 @@ public class MemberService {
 
 	private final PasswordEncoder passwordEncoder;
 	private final AESCryptoUtil crypto;
+	private final MailStrategyFactory mailStrategyFactory;
 
 	/**
 	 * 회원 가입
@@ -61,7 +66,7 @@ public class MemberService {
 		String encryptedPwd = crypto.createEncodedPwd(memberSaveRequest.getPassword());
 
 		// 2. 패스워드인코딩 + 회원 가입
-		Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder, encryptedPwd));
+		Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
 		member.updateStatus(MemberStatus.ACTIVE);
 
 		// ✅ 3. MemberActivity 생성 및 연관 관계 설정
@@ -82,9 +87,7 @@ public class MemberService {
 			throw new PlayHiveException(NO_PERMISSION);
 		}
 
-		String encodedPwd = crypto.createEncodedPwd(memberUpdateRequest.getPassword());
-
-		member.update(memberUpdateRequest, encodedPwd, passwordEncoder);
+		member.update(memberUpdateRequest, passwordEncoder);
 
 		memberJpaRepository.save(member);
 		log.info("회원 정보 수정 완료: {}", member.getPublicId());
@@ -151,9 +154,8 @@ public class MemberService {
 			throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");
 
 		String password = passwordEncoder.encode(passwordChangeRequest.getNewPassword());
-		String encodedPwd = crypto.createEncodedPwd(passwordChangeRequest.getNewPassword());
 
-		findMember.updatePassword(password, encodedPwd); // 비밀번호 변경
+		findMember.updatePassword(password); // 비밀번호 변경
 	}
 
 	@Transactional
@@ -191,5 +193,18 @@ public class MemberService {
 			.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
 		memberJpaRepository.delete(member);
+	}
+
+	public void generateTemporaryPassword(String email, HttpSession session) {
+		String certifiedEmail = (String) session.getAttribute("certifiedEmail");
+
+		if (certifiedEmail == null || !certifiedEmail.equals(email)) {
+			throw new PlayHiveException(ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT);
+		}
+
+		log.info("메일 전송 시작 - email: {}", email);
+		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.TEMPORARY_PASSWORD);
+		strategy.send(email);
+		log.info("임시 비밀번호 완료");
 	}
 }
