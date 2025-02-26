@@ -31,7 +31,7 @@ public class NewsCommentDto {
 	@Schema(description = "뉴스 댓글 베스트 여부")
 	private BestYN bestYN;
 
-	public NewsCommentDto(Long newsCommentId, Long newsId, NewsCommentMemberDto memberDto, String comment, String ip, LocalDateTime createTime, int recommendCount, boolean recommend, String bestYN) {
+	public NewsCommentDto(Long newsCommentId, Long newsId, NewsCommentMemberDto memberDto, String comment, String ip, LocalDateTime createTime, int recommendCount, boolean recommend, BestYN bestYN) {
 		this.newsCommentId = newsCommentId;
 		this.newsId = newsId;
 		this.memberDto = memberDto;
@@ -40,6 +40,6 @@ public class NewsCommentDto {
 		this.createTime = createTime;
 		this.recommendCount = recommendCount;
 		this.recommendYN = RecommendYN.createRecommendYN(recommend);
-		this.bestYN = BestYN.YES;
+		this.bestYN = bestYN;
 	}
 }

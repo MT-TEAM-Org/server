@@ -26,7 +26,7 @@ public class NewsCommentMemberReadServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1", 10);
 
 		createNewsCommentMember(member, newsComment);
 

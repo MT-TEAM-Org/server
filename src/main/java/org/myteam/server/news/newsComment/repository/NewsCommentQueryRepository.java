@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class NewsCommentQueryRepository {
 
 	private static final int BEST_COMMENT_COUNT = 3;
-	private static final int FIRST_PAGE = 1;
+	private static final int FIRST_PAGE = 0;
 
 	private final JPAQueryFactory queryFactory;
 

@@ -53,7 +53,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
 
 		NewsCommentUpdateServiceRequest newsCommentUpdateServiceRequest = NewsCommentUpdateServiceRequest.builder()
 			.newsCommentId(newsComment.getId())
@@ -64,8 +64,8 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		Long updatedCommentId = newsCommentService.update(newsCommentUpdateServiceRequest);
 
 		assertThat(newsCommentRepository.findById(updatedCommentId).get())
-			.extracting("id", "news.id", "member.publicId", "comment", "ip", "imgUrl")
-			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com");
+			.extracting("id", "news.id", "member.publicId", "comment", "ip", "imgUrl", "recommendCount")
+			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com", 10);
 	}
 
 	@DisplayName("뉴스댓글을 삭제한다.")
@@ -75,7 +75,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
 		Long deletedCommentId = newsCommentService.delete(newsComment.getId());
 
 		assertAll(

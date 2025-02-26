@@ -245,7 +245,7 @@ public abstract class IntegrationTestSupport {
 		);
 	}
 
-	protected NewsComment createNewsComment(News news, Member member, String comment) {
+	protected NewsComment createNewsComment(News news, Member member, String comment, int recommendCount) {
 		return newsCommentRepository.save(
 			NewsComment.builder()
 				.news(news)
@@ -253,6 +253,7 @@ public abstract class IntegrationTestSupport {
 				.comment(comment)
 				.ip("1.1.1.1")
 				.imgUrl("www.test.com")
+				.recommendCount(recommendCount)
 				.build()
 		);
 	}
