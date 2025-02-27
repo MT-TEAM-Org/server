@@ -236,6 +236,29 @@ public abstract class IntegrationTestSupport {
 		return savedNews;
 	}
 
+	protected News createNewsWithPostDate(int index, NewsCategory category, int count, LocalDateTime postTime) {
+		News savedNews = newsRepository.save(News.builder()
+			.title("기사타이틀" + index)
+			.category(category)
+			.thumbImg("www.test.com")
+			.postDate(postTime)
+			.source("www.test.com")
+			.content("뉴스본문")
+			.build());
+
+		NewsCount newsCount = NewsCount.builder()
+			.recommendCount(count)
+			.commentCount(count)
+			.viewCount(count)
+			.build();
+
+		newsCount.updateNews(savedNews);
+
+		newsCountRepository.save(newsCount);
+
+		return savedNews;
+	}
+
 	protected NewsCountMember createNewsCountMember(Member member, News news) {
 		return newsCountMemberRepository.save(
 			NewsCountMember.builder()
