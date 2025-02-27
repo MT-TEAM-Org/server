@@ -25,7 +25,7 @@ public class BoardReadService {
     private final BoardRepository boardRepository;
     private final BoardQueryRepository boardQueryRepository;
 
-    public Board findById(long boardId) {
+    public Board findById(Long boardId) {
         return boardRepository.findById(boardId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
     }
@@ -51,7 +51,6 @@ public class BoardReadService {
                 boardServiceRequest.getPage(),
                 boardServiceRequest.getSize()
         );
-
 
         Page<BoardDto> myBoardList = boardQueryRepository.getMyBoardList(
                 boardServiceRequest.getOrderType(),

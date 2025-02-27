@@ -2,6 +2,12 @@ package org.myteam.server.board.controller;
 
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +18,7 @@ import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
+import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.util.ClientUtils;
@@ -31,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
+@Tag(name = "게시판 CRUD API", description = "게시글 생성, 수정, 상세 조회, 삭제 API")
 public class BoardController {
 
     private final BoardService boardService;
@@ -39,6 +47,12 @@ public class BoardController {
     /**
      * 게시글 생성
      */
+    @Operation(summary = "게시글 생성", description = "게시글을 생성합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시글 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<ResponseDto<BoardResponse>> saveBoard(
             @Valid @RequestBody final BoardRequest boardRequest,
@@ -51,6 +65,13 @@ public class BoardController {
     /**
      * 게시글 수정
      */
+    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시글 수정 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "작성자나 관리자만 수정 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardResponse>> updateBoard(
             @PathVariable final Long boardId, @Valid @RequestBody final BoardRequest boardRequest) {
@@ -61,6 +82,14 @@ public class BoardController {
     /**
      * 게시글 삭제
      */
+    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시글 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "작성자나 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "s3 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{boardId}")
     public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable final Long boardId) {
         boardService.deleteBoard(boardId);
@@ -70,6 +99,11 @@ public class BoardController {
     /**
      * 게시글 상세 조회
      */
+    @Operation(summary = "게시글 상세 조회", description = "게시글을 상세 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시글 상세 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{boardId}")
     public ResponseEntity<ResponseDto<BoardResponse>> getBoard(@PathVariable final Long boardId,
                                                                @AuthenticationPrincipal final CustomUserDetails userDetails) {
@@ -80,6 +114,11 @@ public class BoardController {
     /**
      * 게시글 목록 조회
      */
+    @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "게시글 목록 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping
     public ResponseEntity<ResponseDto<BoardListResponse>> getBoardList(
             @ModelAttribute @Valid BoardSearchRequest request) {
@@ -90,6 +129,11 @@ public class BoardController {
     /**
      * 내가 쓴 게시글 목록 조회 (테스트용)
      */
+    @Operation(summary = "내가 쓴 게시글 목록 조회 (테스트용)", description = "내가 쓴 게시글 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "내가 쓴 게시글 목록 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/my")
     public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
             @ModelAttribute @Valid BoardSearchRequest request,
