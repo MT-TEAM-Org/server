@@ -40,7 +40,7 @@ public class BoardRecommendController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "게시글 추천 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "게시글, 회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "이미 추천되었음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/{boardId}")
@@ -56,7 +56,7 @@ public class BoardRecommendController {
     @Operation(summary = "게시글 추천 삭제", description = "게시글 추천을 취소합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "게시글 추천 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @DeleteMapping("/{boardId}")
     public ResponseEntity<ResponseDto<Void>> deleteBoard(@PathVariable Long boardId) {
@@ -71,7 +71,7 @@ public class BoardRecommendController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "게시판 댓글 추천 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "게시판 댓글, 회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시판 댓글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "이미 추천되었음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/comment/{boardCommentId}")
@@ -87,7 +87,7 @@ public class BoardRecommendController {
     @Operation(summary = "게시판 댓글 추천 삭제", description = "게시판 댓글의 추천을 취소합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "게시판 댓글 추천 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시판 댓글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @DeleteMapping("/comment/{boardCommentId}")
     public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long boardCommentId) {
@@ -119,6 +119,7 @@ public class BoardRecommendController {
     @Operation(summary = "게시판 대댓글 추천 삭제", description = "게시판 대댓글의 추천을 취소합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "게시판 대댓글 추천 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "회원, 게시판 대댓글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @DeleteMapping("/reply/{boardReplyId}")
