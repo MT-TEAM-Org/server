@@ -1,11 +1,18 @@
 package org.myteam.server.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.dto.AuthRequest;
 import org.myteam.server.auth.dto.AuthResponse;
+import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.member.controller.response.MemberResponse;
@@ -34,6 +41,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 @RestController
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
+@Tag(name = "인증 API", description = "회원가입 및 로그인 관련 API")
 public class AuthTestController {
 
     private final AuthenticationManager authenticationManager;
@@ -41,11 +49,15 @@ public class AuthTestController {
     private final MemberJpaRepository memberRepository;
     private final MemberService memberService;
 
+    @Operation(summary = "회원가입", description = "사용자가 회원가입을 진행합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = ResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "입력값 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @PostMapping("/create")
     public ResponseEntity<ResponseDto<MemberResponse>> create(@RequestBody @Valid MemberSaveRequest memberSaveRequest,
-                                    BindingResult bindingResult,
-                                    HttpServletResponse httpServletResponse
-    ) {
+                                                              HttpServletResponse httpServletResponse) {
         log.info("MyInfoController create 메서드 실행");
         MemberResponse response = memberService.create(memberSaveRequest);
 
@@ -62,6 +74,12 @@ public class AuthTestController {
         ));
     }
 
+    @Operation(summary = "로그인", description = "사용자가 로그인하여 액세스 토큰을 발급받습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "JSON 파싱 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @PostMapping("/login")
     public ResponseEntity<ResponseDto<AuthResponse>> login(@RequestBody AuthRequest request) {
         log.info("🔐 로그인 요청 - email: {}", request.getEmail());

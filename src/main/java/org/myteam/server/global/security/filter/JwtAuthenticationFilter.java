@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.entity.Refresh;
 import org.myteam.server.auth.repository.RefreshJpaRepository;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
@@ -65,7 +67,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return authenticationManager.authenticate(authToken);
         } catch (IOException e) {
             log.error("로그인 요청 JSON 파싱 오류", e);
-            throw new RuntimeException(e);
+            throw new PlayHiveException(ErrorCode.JSON_PARSING_ERROR);
         }
     }
 

@@ -1,10 +1,17 @@
 package org.myteam.server.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.domain.Tokens;
 import org.myteam.server.auth.service.ReIssueService;
+import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +28,7 @@ import static org.myteam.server.global.util.domain.DomainUtil.extractDomain;
  */
 @Slf4j
 @RestController
+@Tag(name = "토큰 재발급 API", description = "Access Token 및 Refresh Token 재발급 API")
 public class ReIssueController {
     private final ReIssueService reIssueService;
     public final static String TOKEN_REISSUE_PATH = "/reissue";
@@ -31,6 +39,12 @@ public class ReIssueController {
     }
 
     // TODO_ : 만료시간이 지난 토큰은 주기적으로 삭제하는 스케쥴러 개발 필요
+    @Operation(summary = "토큰 재발급", description = "만료된 Access Token을 Refresh Token을 이용하여 재발급합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
+            @ApiResponse(responseCode = "401", description = "Refresh Token이 유효하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping(TOKEN_REISSUE_PATH)
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         log.info("ReIssueController reissue START");

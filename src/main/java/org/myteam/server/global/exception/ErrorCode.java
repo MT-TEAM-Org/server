@@ -10,9 +10,12 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PlayHive Server Error"),
     API_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "API Server Error"),
     IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "File I/O operation failed"),
+    JSON_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "JSON Parsing error"),
     ENCRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during encryption."),
     DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred during decryption."),
     NOT_SUPPORT_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "This email type is not supported"),
+    SEND_EMAIL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Occur error during send email"),
+    CREATE_EMAIL_ACCOUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Occur error during create email"),
 
     // 503 Service Unavailable
     KAFKA_TOPIC_DELETE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "Failed to delete the Kafka topic."),

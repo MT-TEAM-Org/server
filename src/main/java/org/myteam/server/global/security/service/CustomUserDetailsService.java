@@ -1,6 +1,8 @@
 package org.myteam.server.global.security.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
@@ -40,6 +42,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         log.warn("사용자를 찾을수 없습니다.");
-        throw new UsernameNotFoundException(username);
+        throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
     }
 }
