@@ -42,7 +42,7 @@ public abstract class AbstractMailSender implements MailStrategy {
             log.info("이메일 전송 완료 - email: {}", email);
         } catch (MailException e) {
             log.error("이메일 전송 중 에러 발생: {}", e.getMessage());
-            throw new PlayHiveException(ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT);
+            throw new PlayHiveException(ErrorCode.SEND_EMAIL_ERROR);
         }
     }
 
@@ -57,7 +57,7 @@ public abstract class AbstractMailSender implements MailStrategy {
             helper.setText(body, true);
         } catch (MessagingException e) {
             log.error("이메일 생성 중 에러 발생: {}", e.getMessage());
-            throw new PlayHiveException(ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new PlayHiveException(ErrorCode.CREATE_EMAIL_ACCOUNT_ERROR);
         }
         return message;
     }

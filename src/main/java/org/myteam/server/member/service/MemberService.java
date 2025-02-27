@@ -65,8 +65,6 @@ public class MemberService {
 			throw new PlayHiveException(USER_ALREADY_EXISTS);
 		}
 
-		String encryptedPwd = crypto.createEncodedPwd(memberSaveRequest.getPassword());
-
 		// 2. 패스워드인코딩 + 회원 가입
 		Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
 		member.updateStatus(MemberStatus.ACTIVE);
