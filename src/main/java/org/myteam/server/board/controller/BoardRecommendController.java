@@ -119,7 +119,8 @@ public class BoardRecommendController {
     @Operation(summary = "게시판 대댓글 추천 삭제", description = "게시판 대댓글의 추천을 취소합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "게시판 대댓글 추천 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "게시판 대댓글, 회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원, 게시판 대댓글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @DeleteMapping("/reply/{boardReplyId}")
     public ResponseEntity<ResponseDto<Void>> deleteReply(@PathVariable Long boardReplyId) {
