@@ -125,21 +125,4 @@ public class BoardController {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 목록 조회",
                 boardReadService.getBoardList(request.toServiceRequest())));
     }
-
-    /**
-     * 내가 쓴 게시글 목록 조회 (테스트용)
-     */
-    @Operation(summary = "내가 쓴 게시글 목록 조회 (테스트용)", description = "내가 쓴 게시글 목록을 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "내가 쓴 게시글 목록 조회 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/my")
-    public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoardList(
-            @ModelAttribute @Valid BoardSearchRequest request,
-            @AuthenticationPrincipal final CustomUserDetails userDetails) {
-
-        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "내가 쓴 게시글 목록 조회",
-                boardReadService.getMyBoardList(request.toServiceRequest(), userDetails.getPublicId())));
-    }
 }

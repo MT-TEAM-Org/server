@@ -4,11 +4,11 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
-import org.myteam.server.board.dto.request.BoardServiceRequest;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.mypage.dto.request.MyBoardServiceRequest;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberModifyResponse;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
 import org.springframework.stereotype.Service;
@@ -46,8 +46,8 @@ public class MyPageReadService {
         return MemberModifyResponse.createResponse(member);
     }
 
-    public BoardListResponse getMemberPosts(BoardServiceRequest boardServiceRequest) {
+    public BoardListResponse getMemberPosts(MyBoardServiceRequest myBoardServiceRequest) {
         Member member = securityReadService.getMember();
-        return boardReadService.getMyBoardList(boardServiceRequest, member.getPublicId());
+        return boardReadService.getMyBoardList(myBoardServiceRequest, member.getPublicId());
     }
 }

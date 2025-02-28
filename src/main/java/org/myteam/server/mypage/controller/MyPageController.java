@@ -12,22 +12,28 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
-import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
 import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
 import org.myteam.server.inquiry.dto.response.InquiryDetailsResponse;
-import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
+import org.myteam.server.mypage.dto.request.MyBoardSearchRequest;
 import org.myteam.server.mypage.dto.request.MyPageRequest.MyPageUpdateRequest;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberModifyResponse;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
 import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.mypage.service.MyPageService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -43,6 +49,7 @@ public class MyPageController {
 
     /**
      * 마이페이지 회원 정보 보여주기
+     *
      * @return
      */
     @Operation(summary = "마이페이지 회원 정보 조회", description = "로그인한 사용자의 정보를 조회합니다.")
@@ -64,6 +71,7 @@ public class MyPageController {
 
     /**
      * 마이페이지 회원 정보 수정 목록 보여주기
+     *
      * @return
      */
     @Operation(summary = "회원 정보 수정 페이지 조회", description = "회원 정보 수정 시 필요한 정보를 조회합니다.")
@@ -85,6 +93,7 @@ public class MyPageController {
 
     /**
      * 마이페이지 회원 정보 수정
+     *
      * @param myPageUpdateRequest
      * @return
      */
@@ -108,7 +117,8 @@ public class MyPageController {
 
     /**
      * 내가 쓴 게시글
-     * @param boardSearchRequest
+     *
+     * @param myBoardSearchRequest
      * @return
      */
     @Operation(summary = "내가 작성한 게시글 조회", description = "사용자가 작성한 게시글 목록을 조회합니다.")
@@ -119,8 +129,8 @@ public class MyPageController {
     })
     @GetMapping("/board")
     public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoard(
-            @Valid @ModelAttribute BoardSearchRequest boardSearchRequest) {
-        BoardListResponse memberPosts = myPageReadService.getMemberPosts(boardSearchRequest.toServiceRequest());
+            @Valid @ModelAttribute MyBoardSearchRequest myBoardSearchRequest) {
+        BoardListResponse memberPosts = myPageReadService.getMemberPosts(myBoardSearchRequest.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -136,6 +146,7 @@ public class MyPageController {
 
     /**
      * 문의 내역 목록 조회
+     *
      * @param request
      * @return
      */
