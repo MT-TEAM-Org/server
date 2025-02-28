@@ -62,7 +62,7 @@ public class ImprovementController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "개선 요청 수정 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "작성자나 관리자만 수정 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "작성자나 관리자만 수정 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "해당 개선 요청이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -83,7 +83,7 @@ public class ImprovementController {
     @Operation(summary = "개선 요청 삭제", description = "기존의 개선 요청을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "개선 요청 삭제 성공"),
-            @ApiResponse(responseCode = "403", description = "작성자나 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "작성자나 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "해당 개선 요청이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
