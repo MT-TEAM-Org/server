@@ -32,16 +32,19 @@ public class Match extends Base {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Team awayTeam;
 
+	private String place;
+
 	@Enumerated(EnumType.STRING)
 	private MatchCategory category;
 
 	private LocalDateTime startTime;
 
 	@Builder
-	public Match(Long id, Team homeTeam, Team awayTeam, MatchCategory category, LocalDateTime startTime) {
+	public Match(Long id, Team homeTeam, Team awayTeam, String place, MatchCategory category, LocalDateTime startTime) {
 		this.id = id;
 		this.homeTeam = homeTeam;
 		this.awayTeam = awayTeam;
+		this.place = place;
 		this.category = category;
 		this.startTime = startTime;
 	}
