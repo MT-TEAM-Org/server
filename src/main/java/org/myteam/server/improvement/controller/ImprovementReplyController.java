@@ -56,7 +56,7 @@ public class ImprovementReplyController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "개선 요청 대댓글 수정 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "작성자 또는 관리자만 수정 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "작성자 또는 관리자만 수정 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "멤버를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "해당 개선 요청 대댓글 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -77,7 +77,7 @@ public class ImprovementReplyController {
     @Operation(summary = "개선 요청 대댓글 삭제", description = "특정 개선 요청의 대댓글을 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "개선 요청 대댓글 삭제 성공"),
-            @ApiResponse(responseCode = "403", description = "작성자 또는 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "작성자 또는 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "멤버를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "해당 개선 요청 대댓글 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
