@@ -159,6 +159,7 @@ public class BoardQueryRepository {
                         member.publicId,
                         member.nickname,
                         boardCount.commentCount,
+                        boardCount.recommendCount,
                         board.createDate,
                         board.lastModifiedDate
                 ))
