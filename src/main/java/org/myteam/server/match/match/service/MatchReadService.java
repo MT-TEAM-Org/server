@@ -33,7 +33,7 @@ public class MatchReadService {
 	public MatchScheduleListResponse findSchedulesBetweenDate(MatchCategory matchCategory) {
 		LocalDate today = LocalDate.now();
 		LocalDateTime startOfDay = today.atStartOfDay();
-		LocalDateTime endTime = today.plusDays(1).atTime(LocalTime.of(6, 0));
+		LocalDateTime endTime = today.plusWeeks(1).atTime(LocalTime.of(6, 0));
 
 		return MatchScheduleListResponse.createResponse(
 			matchQueryRepository.findSchedulesBetweenDate(startOfDay, endTime, matchCategory)
