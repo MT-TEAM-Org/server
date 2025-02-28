@@ -12,6 +12,7 @@ import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.mypage.dto.request.MyBoardServiceRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,21 +43,21 @@ public class BoardReadService {
         return BoardListResponse.createResponse(PageCustomResponse.of(boardPagingList));
     }
 
-    public BoardListResponse getMyBoardList(BoardServiceRequest boardServiceRequest, UUID publicId) {
+    public BoardListResponse getMyBoardList(MyBoardServiceRequest myBoardServiceRequest, UUID publicId) {
         log.info("내 게시글 조회: {} orderType: {}  searchType: {}, search: {}, page: {}, size: {}",
                 publicId,
-                boardServiceRequest.getOrderType(),
-                boardServiceRequest.getSearchType(),
-                boardServiceRequest.getSearch(),
-                boardServiceRequest.getPage(),
-                boardServiceRequest.getSize()
+                myBoardServiceRequest.getOrderType(),
+                myBoardServiceRequest.getSearchType(),
+                myBoardServiceRequest.getSearch(),
+                myBoardServiceRequest.getPage(),
+                myBoardServiceRequest.getSize()
         );
 
         Page<BoardDto> myBoardList = boardQueryRepository.getMyBoardList(
-                boardServiceRequest.getOrderType(),
-                boardServiceRequest.getSearchType(),
-                boardServiceRequest.getSearch(),
-                boardServiceRequest.toPageable(),
+                myBoardServiceRequest.getOrderType(),
+                myBoardServiceRequest.getSearchType(),
+                myBoardServiceRequest.getSearch(),
+                myBoardServiceRequest.toPageable(),
                 publicId
         );
         return BoardListResponse.createResponse(PageCustomResponse.of(myBoardList));
