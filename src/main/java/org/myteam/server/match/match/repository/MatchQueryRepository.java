@@ -29,7 +29,7 @@ public class MatchQueryRepository {
 			)
 			.fetch();
 	}
-	//
+
 	private BooleanExpression isBetweenDate(LocalDateTime startOfDay, LocalDateTime endTime) {
 		return match.startTime.between(startOfDay, endTime);
 	}

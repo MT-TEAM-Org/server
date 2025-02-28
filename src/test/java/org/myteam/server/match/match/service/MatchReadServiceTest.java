@@ -57,7 +57,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 			);
 	}
 
-	@DisplayName("이전날짜나 다음날 새벽 6시 이후의 경기는 조회되지 않는다.")
+	@DisplayName("이전날짜나 일주일 이후의 경기는 조회되지 않는다.")
 	@Test
 	void findSchedulesBetweenDateTest2() {
 		Team team1 = createTeam(1, TeamCategory.FOOTBALL);
@@ -67,7 +67,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDate.now().minusDays(1).atStartOfDay());
 		createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
 		createMatch(team3, team1, MatchCategory.FOOTBALL,
-			LocalDate.now().plusDays(1).atTime(LocalTime.of(7, 0)));
+			LocalDate.now().plusWeeks(1).atTime(LocalTime.of(7, 0)));
 
 		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
 			.extracting(
