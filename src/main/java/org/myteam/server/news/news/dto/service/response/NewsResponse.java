@@ -2,7 +2,6 @@ package org.myteam.server.news.news.dto.service.response;
 
 import java.time.LocalDateTime;
 
-import org.myteam.server.news.RecommendYN;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.newsCount.domain.NewsCount;
@@ -32,8 +31,8 @@ public class NewsResponse {
 	private int viewCount;
 	@Schema(description = "뉴스 계시 날짜")
 	private LocalDateTime postDate;
-	@Schema(description = "개인 추천 여부 (YES: 추천, NO: 추천X")
-	private RecommendYN recommendYN;
+	@Schema(description = "개인 추천 여부")
+	private boolean isRecommend;
 	@Schema(description = "출처")
 	private String source;
 	@Schema(description = "본문")
@@ -42,7 +41,7 @@ public class NewsResponse {
 	@Builder
 	public NewsResponse(Long id, NewsCategory category, String title, String thumbImg, int recommendCount,
 		int commentCount,
-		int viewCount, LocalDateTime postDate, RecommendYN recommendYN, String source, String content) {
+		int viewCount, LocalDateTime postDate, boolean isRecommend, String source, String content) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
@@ -51,12 +50,12 @@ public class NewsResponse {
 		this.commentCount = commentCount;
 		this.viewCount = viewCount;
 		this.postDate = postDate;
-		this.recommendYN = recommendYN;
+		this.isRecommend = isRecommend;
 		this.source = source;
 		this.content = content;
 	}
 
-	public static NewsResponse createResponse(News news, NewsCount newsCount, boolean recommendYn) {
+	public static NewsResponse createResponse(News news, NewsCount newsCount, boolean isRecommend) {
 		return NewsResponse.builder()
 			.id(news.getId())
 			.category(news.getCategory())
@@ -66,7 +65,7 @@ public class NewsResponse {
 			.recommendCount(newsCount.getRecommendCount())
 			.commentCount(newsCount.getCommentCount())
 			.viewCount(newsCount.getViewCount())
-			.recommendYN(RecommendYN.createRecommendYN(recommendYn))
+			.isRecommend(isRecommend)
 			.source(news.getSource())
 			.content(news.getContent())
 			.build();

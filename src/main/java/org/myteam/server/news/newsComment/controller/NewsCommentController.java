@@ -2,10 +2,13 @@ package org.myteam.server.news.newsComment.controller;
 
 import static org.myteam.server.global.web.response.ResponseStatus.*;
 
+import java.util.List;
+
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.news.newsComment.dto.controller.request.NewsCommentRequest;
 import org.myteam.server.news.newsComment.dto.controller.request.NewsCommentSaveRequest;
 import org.myteam.server.news.newsComment.dto.controller.request.NewsCommentUpdateRequest;
+import org.myteam.server.news.newsComment.dto.repository.NewsCommentDto;
 import org.myteam.server.news.newsComment.dto.service.response.NewsCommentListResponse;
 import org.myteam.server.news.newsComment.dto.service.response.NewsCommentResponse;
 import org.myteam.server.news.newsComment.service.NewsCommentReadService;
@@ -55,6 +58,17 @@ public class NewsCommentController {
 			"뉴스 댓글 조회 성공",
 			newsCommentReadService.findByNewsId(newsCommentRequest.toServiceRequest())));
 	}
+
+	@Operation(summary = "뉴스 베스트 댓글 목록 조회 API", description = "뉴스 베스트 댓글을 조회합니다.")
+	@GetMapping("/best/{newsId}")
+	public ResponseEntity<ResponseDto<List<NewsCommentDto>>> findBestByNewsId(
+		@PathVariable Long newsId) {
+		return ResponseEntity.ok(new ResponseDto<>(
+			SUCCESS.name(),
+			"뉴스 베스트 댓글 조회 성공",
+			newsCommentReadService.findBestByNewsId(newsId)));
+	}
+
 
 	@Operation(summary = "뉴스 댓글 수정 API", description = "뉴스 댓글을 수정합니다.")
 	@PatchMapping

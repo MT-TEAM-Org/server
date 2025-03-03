@@ -1,5 +1,7 @@
 package org.myteam.server.news.newsComment.service;
 
+import java.util.List;
+
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
@@ -35,6 +37,10 @@ public class NewsCommentReadService {
 		);
 
 		return NewsCommentListResponse.createResponse(PageCustomResponse.of(list));
+	}
+
+	public List<NewsCommentDto> findBestByNewsId(Long newsId) {
+		return newsCommentQueryRepository.getNewsBestCommentList(newsId, securityReadService.getAuthenticatedPublicId());
 	}
 
 	public NewsComment findById(Long newsCommentId) {
