@@ -115,6 +115,23 @@ class NewsCommentControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.msg").value("뉴스 댓글 조회 성공"));
 	}
 
+	@DisplayName("뉴스 베스트댓글 목록을 조회한다.")
+	@Test
+	@WithMockUser
+	void findBestByNewsIdTest() throws Exception {
+		//given
+
+		// when // then
+		mockMvc.perform(
+				get("/api/news/comment/best/{newsId}", 1L)
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("뉴스 베스트 댓글 조회 성공"));
+	}
+
 	@DisplayName("뉴스목록을 조회시 뉴스ID는 필수이다.")
 	@Test
 	@WithMockUser

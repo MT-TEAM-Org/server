@@ -75,7 +75,7 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 			() -> assertThat(pageInfo)
 				.extracting("currentPage", "totalPage", "totalElement")
 				.containsExactlyInAnyOrder(
-					1, 1, 4L
+					1, 1, 2L
 				),
 			() -> assertThat(newsCommentList)
 				.extracting("newsCommentId", "newsId", "memberDto.publicId", "memberDto.nickName", "comment")
@@ -85,13 +85,48 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 						"뉴스 댓글 테스트2"),
 					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getPublicId(),
 						"test",
-						"뉴스 댓글 테스트1"),
-					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getPublicId(),
-						"test",
-						"뉴스 댓글 테스트1"),
+						"뉴스 댓글 테스트1")
+				)
+		);
+	}
+
+	@DisplayName("뉴스ID로 베스트 댓글리스트를 조회한다.")
+	@Test
+	void findBestByNewsIdTest() {
+		News news = createNews(1, NewsCategory.BASEBALL, 10);
+		Member member1 = createMember(1);
+		Member member2 = createMember(1);
+
+		NewsComment newsComment1 = createNewsComment(news, member1, "뉴스 댓글 테스트1", 10);
+		NewsComment newsComment2 = createNewsComment(news, member2, "뉴스 댓글 테스트2", 20);
+
+		NewsCommentServiceRequest newsCommentServiceRequest = NewsCommentServiceRequest.builder()
+			.newsId(news.getId())
+			.page(1)
+			.size(10)
+			.build();
+
+		NewsCommentListResponse newsCommentListResponse = newsCommentReadService.findByNewsId(
+			newsCommentServiceRequest);
+
+		List<NewsCommentDto> newsCommentList = newsCommentListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsCommentListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 2L
+				),
+			() -> assertThat(newsCommentList)
+				.extracting("newsCommentId", "newsId", "memberDto.publicId", "memberDto.nickName", "comment")
+				.contains(
 					Tuple.tuple(newsComment2.getId(), newsComment2.getNews().getId(), newsComment2.getMember().getPublicId(),
 						"test",
-						"뉴스 댓글 테스트2")
+						"뉴스 댓글 테스트2"),
+					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getPublicId(),
+						"test",
+						"뉴스 댓글 테스트1")
 				)
 		);
 	}
