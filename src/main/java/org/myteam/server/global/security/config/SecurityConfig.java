@@ -83,13 +83,6 @@ public class SecurityConfig {
 		// 문의하기
 		"/api/inquiry",
 
-		//뉴스
-		"/api/news",
-		"/api/news/{newId}",
-		"/api/news/comment",
-		"/api/news/comment/{newsCommentId}",
-		"/api/news/reply",
-		"/api/news/reply/{newReplyId}",
 
 		// 아이디-비밀번호 찾기
 		"/api/me/find-id/**",
@@ -119,6 +112,19 @@ public class SecurityConfig {
 		"/api/improvement/{improvementId}/comment",
 		"/api/improvement/{improvementId}",
 		"/api/improvement",
+
+		//뉴스
+		"/api/news",
+		"/api/news/{newId}",
+		"/api/news/comment",
+		"/api/news/comment/{newsCommentId}",
+		"/api/news/reply",
+		"/api/news/reply/{newReplyId}",
+
+		//경기일정
+		"/api/match/schedule/{matchCategory}",
+		"/api/match/{matchId}",
+		"/api/match/prediction/{matchId}"
 	};
 
 	/* Admin 접근 권한 */
