@@ -43,8 +43,7 @@ public class NewsCommentQueryRepository {
 				newsComment.ip,
 				newsComment.createDate,
 				newsComment.recommendCount,
-				existsNewsCommentMember(memberId),
-				Expressions.constant(false)
+				existsNewsCommentMember(memberId)
 			))
 			.from(newsComment)
 			.where(
@@ -72,8 +71,7 @@ public class NewsCommentQueryRepository {
 				newsComment.ip,
 				newsComment.createDate,
 				newsComment.recommendCount,
-				existsNewsCommentMember(memberId),
-				Expressions.constant(false)
+				existsNewsCommentMember(memberId)
 			))
 			.from(newsComment)
 			.where(
