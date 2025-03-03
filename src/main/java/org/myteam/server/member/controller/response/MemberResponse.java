@@ -28,7 +28,6 @@ public class MemberResponse {
 
     private MemberStatus status;
 
-    @JsonIgnore
     private UUID publicId;
 
     public MemberResponse() {
