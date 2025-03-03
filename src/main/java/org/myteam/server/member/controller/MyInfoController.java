@@ -78,13 +78,17 @@ public class MyInfoController {
             @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<?> get(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ResponseDto<MemberResponse>> get(@AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info("MyInfoController get 메서드 실행");
         log.info("publicId : {}", userDetails.getPublicId());
 
         UUID publicId = userDetails.getPublicId();
         MemberResponse response = memberReadService.getByPublicId(publicId);
-        return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "로그인 회원 정보 조회 성공", response), HttpStatus.OK);
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "로그인 회원 정보 조회 성공",
+                response
+        ));
     }
 
     @Operation(summary = "비밀번호 변경", description = "로그인한 사용자의 비밀번호를 변경합니다.")
