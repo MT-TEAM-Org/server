@@ -4,6 +4,7 @@ import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.repository.OrderType;
+import org.myteam.server.news.news.repository.TimePeriod;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -28,12 +29,17 @@ public class NewsRequest extends PageInfoRequest {
 	@Schema(description = "검색할 뉴스 내용", example = "검색할 뉴스 제목")
 	private String content;
 
+	@Schema(description = "날짜 조건", example = "DAILY(일별), WEEKLY(주별), MONTHLY(월별), YEARLY(년별)")
+	private TimePeriod timePeriod;
+
 	@Builder
-	public NewsRequest(NewsCategory category, OrderType orderType, String content, int page, int size) {
+	public NewsRequest(NewsCategory category, OrderType orderType, String content, TimePeriod timePeriod, int page,
+		int size) {
 		super(page, size);
 		this.category = category;
 		this.orderType = orderType;
 		this.content = content;
+		this.timePeriod = timePeriod;
 	}
 
 	public NewsServiceRequest toServiceRequest() {
@@ -41,6 +47,7 @@ public class NewsRequest extends PageInfoRequest {
 			.category(category)
 			.orderType(orderType)
 			.content(content)
+			.timePeriod(timePeriod)
 			.size(getSize())
 			.page(getPage())
 			.build();

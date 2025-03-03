@@ -29,7 +29,7 @@ public class NewsReplyMemberServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1", 10);
 		NewsReply newsReply = createNewsReply(newsComment, member, "뉴스 대댓글 테스트1");
 
 		newsReplyMemberService.save(newsReply.getId());
@@ -46,7 +46,7 @@ public class NewsReplyMemberServiceTest extends IntegrationTestSupport {
 	void deleteByNewsIdMemberIdTest() {
 		News news = createNews(1, NewsCategory.FOOTBALL, 10);
 		Member member = createMember(1);
-		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1", 10);
 		NewsReply newsReply = createNewsReply(newsComment, member, "뉴스 대댓글 테스트1");
 
 		NewsReplyMember newsCommentMember = createNewsReplyMember(member, newsReply);

@@ -32,13 +32,13 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
 
 		NewsComment findNewsComment = newsCommentReadService.findById(newsComment.getId());
 
 		assertThat(findNewsComment)
-			.extracting("id", "news.id", "member.publicId", "comment")
-			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 테스트");
+			.extracting("id", "news.id", "member.publicId", "comment", "recommendCount")
+			.contains(newsComment.getId(), news.getId(), member.getPublicId(), "뉴스 댓글 테스트", 10);
 	}
 
 	@DisplayName("뉴스 댓글 ID로 조회시 조회하지 않으면 예외가 발생한다.")
@@ -56,8 +56,8 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 		Member member1 = createMember(1);
 		Member member2 = createMember(1);
 
-		NewsComment newsComment1 = createNewsComment(news, member1, "뉴스 댓글 테스트1");
-		NewsComment newsComment2 = createNewsComment(news, member2, "뉴스 댓글 테스트2");
+		NewsComment newsComment1 = createNewsComment(news, member1, "뉴스 댓글 테스트1", 10);
+		NewsComment newsComment2 = createNewsComment(news, member2, "뉴스 댓글 테스트2", 20);
 
 		NewsCommentServiceRequest newsCommentServiceRequest = NewsCommentServiceRequest.builder()
 			.newsId(news.getId())
@@ -80,12 +80,53 @@ public class NewsCommentReadServiceTest extends IntegrationTestSupport {
 			() -> assertThat(newsCommentList)
 				.extracting("newsCommentId", "newsId", "memberDto.publicId", "memberDto.nickName", "comment")
 				.contains(
-					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getPublicId(),
-						"test",
-						"뉴스 댓글 테스트1"),
 					Tuple.tuple(newsComment2.getId(), newsComment2.getNews().getId(), newsComment2.getMember().getPublicId(),
 						"test",
-						"뉴스 댓글 테스트2")
+						"뉴스 댓글 테스트2"),
+					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getPublicId(),
+						"test",
+						"뉴스 댓글 테스트1")
+				)
+		);
+	}
+
+	@DisplayName("뉴스ID로 베스트 댓글리스트를 조회한다.")
+	@Test
+	void findBestByNewsIdTest() {
+		News news = createNews(1, NewsCategory.BASEBALL, 10);
+		Member member1 = createMember(1);
+		Member member2 = createMember(1);
+
+		NewsComment newsComment1 = createNewsComment(news, member1, "뉴스 댓글 테스트1", 10);
+		NewsComment newsComment2 = createNewsComment(news, member2, "뉴스 댓글 테스트2", 20);
+
+		NewsCommentServiceRequest newsCommentServiceRequest = NewsCommentServiceRequest.builder()
+			.newsId(news.getId())
+			.page(1)
+			.size(10)
+			.build();
+
+		NewsCommentListResponse newsCommentListResponse = newsCommentReadService.findByNewsId(
+			newsCommentServiceRequest);
+
+		List<NewsCommentDto> newsCommentList = newsCommentListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsCommentListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 2L
+				),
+			() -> assertThat(newsCommentList)
+				.extracting("newsCommentId", "newsId", "memberDto.publicId", "memberDto.nickName", "comment")
+				.contains(
+					Tuple.tuple(newsComment2.getId(), newsComment2.getNews().getId(), newsComment2.getMember().getPublicId(),
+						"test",
+						"뉴스 댓글 테스트2"),
+					Tuple.tuple(newsComment1.getId(), newsComment1.getNews().getId(), newsComment1.getMember().getPublicId(),
+						"test",
+						"뉴스 댓글 테스트1")
 				)
 		);
 	}

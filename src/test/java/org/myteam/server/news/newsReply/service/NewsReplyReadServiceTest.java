@@ -33,7 +33,7 @@ public class NewsReplyReadServiceTest extends IntegrationTestSupport {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
 
-		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트");
+		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
 
 		NewsReply newsReply = createNewsReply(newsComment, member, "뉴스 대댓글 테스트");
 
@@ -59,7 +59,7 @@ public class NewsReplyReadServiceTest extends IntegrationTestSupport {
 		Member member1 = createMember(1);
 		Member member2 = createMember(1);
 
-		NewsComment newsComment1 = createNewsComment(news, member1, "뉴스 댓글 테스트1");
+		NewsComment newsComment1 = createNewsComment(news, member1, "뉴스 댓글 테스트1", 10);
 
 		NewsReply newsReply1 = createNewsReply(newsComment1, member1, "뉴스 대댓글 테스트1");
 		NewsReply newsReply2 = createNewsReply(newsComment1, member2, "뉴스 대댓글 테스트2");

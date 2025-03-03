@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 @Repository
 @RequiredArgsConstructor
 public class NewsCommentQueryRepository {
+
+	private static final int BEST_COMMENT_COUNT = 3;
 
 	private final JPAQueryFactory queryFactory;
 
@@ -53,8 +55,31 @@ public class NewsCommentQueryRepository {
 			.fetch();
 
 		long total = getTotalNewsCount(newsId);
-
 		return new PageImpl<>(content, pageable, total);
+	}
+
+	public List<NewsCommentDto> getNewsBestCommentList(Long newsId, UUID memberId) {
+		return queryFactory
+			.select(Projections.constructor(NewsCommentDto.class,
+				newsComment.id,
+				newsComment.news.id,
+				Projections.constructor(NewsCommentMemberDto.class,
+					newsComment.member.publicId,
+					newsComment.member.nickname
+				),
+				newsComment.comment,
+				newsComment.ip,
+				newsComment.createDate,
+				newsComment.recommendCount,
+				existsNewsCommentMember(memberId)
+			))
+			.from(newsComment)
+			.where(
+				isNewsEqualTo(newsId)
+			)
+			.orderBy(newsComment.recommendCount.desc())
+			.limit(BEST_COMMENT_COUNT)
+			.fetch();
 	}
 
 	private long getTotalNewsCount(Long newsId) {

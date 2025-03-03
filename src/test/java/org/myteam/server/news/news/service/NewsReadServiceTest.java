@@ -3,6 +3,7 @@ package org.myteam.server.news.news.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,7 @@ import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
 import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.repository.OrderType;
+import org.myteam.server.news.news.repository.TimePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class NewsReadServiceTest extends IntegrationTestSupport {
@@ -56,11 +58,11 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 3L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
+					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -101,12 +103,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀6", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀5", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀4", NewsCategory.ESPORTS, "www.test.com")
+					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀6", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀5", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀4", NewsCategory.ESPORTS, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -151,12 +153,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀11", NewsCategory.FOOTBALL, "www.test.com"),
-					tuple("기사타이틀10", NewsCategory.FOOTBALL, "www.test.com"),
-					tuple("기사타이틀9", NewsCategory.FOOTBALL, "www.test.com"),
-					tuple("기사타이틀8", NewsCategory.FOOTBALL, "www.test.com")
+					tuple("기사타이틀11", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀10", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀9", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀8", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -187,12 +189,152 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com"),
-					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
+					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+				)
+		);
+	}
+
+	@DisplayName("일별 전체 목록을 조회한다.")
+	@Test
+	void findAllDailyTest() {
+		createNewsWithPostDate(1, NewsCategory.BASEBALL, 10, LocalDateTime.now().minusHours(1));
+		createNewsWithPostDate(2, NewsCategory.BASEBALL, 14, LocalDateTime.now().minusDays(2));
+		createNewsWithPostDate(3, NewsCategory.ESPORTS, 15, LocalDateTime.now().minusHours(1));
+		createNewsWithPostDate(4, NewsCategory.BASEBALL, 12, LocalDateTime.now().minusDays(2));
+
+		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
+			.orderType(OrderType.DATE)
+			.page(1)
+			.size(10)
+			.timePeriod(TimePeriod.DAILY)
+			.build();
+
+		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
+
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 2L
+				),
+			() -> assertThat(newsList)
+				.extracting("title", "category", "thumbImg", "content")
+				.containsExactly(
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+				)
+		);
+	}
+
+	@DisplayName("주별 전체 목록을 조회한다.")
+	@Test
+	void findAllWeeklyTest() {
+		createNewsWithPostDate(1, NewsCategory.BASEBALL, 10, LocalDateTime.now().minusDays(2));
+		createNewsWithPostDate(2, NewsCategory.BASEBALL, 14, LocalDateTime.now().minusDays(7));
+		createNewsWithPostDate(3, NewsCategory.ESPORTS, 15, LocalDateTime.now().minusDays(1));
+		createNewsWithPostDate(4, NewsCategory.BASEBALL, 12, LocalDateTime.now().minusDays(7));
+
+		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
+			.orderType(OrderType.DATE)
+			.page(1)
+			.size(10)
+			.timePeriod(TimePeriod.WEEKLY)
+			.build();
+
+		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
+
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 2L
+				),
+			() -> assertThat(newsList)
+				.extracting("title", "category", "thumbImg", "content")
+				.containsExactly(
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+				)
+		);
+	}
+
+	@DisplayName("월별 전체 목록을 조회한다.")
+	@Test
+	void findAllMonthlyTest() {
+		createNewsWithPostDate(1, NewsCategory.BASEBALL, 10, LocalDateTime.now().minusDays(10));
+		createNewsWithPostDate(2, NewsCategory.BASEBALL, 14, LocalDateTime.now().minusMonths(1));
+		createNewsWithPostDate(3, NewsCategory.ESPORTS, 15, LocalDateTime.now().minusDays(12));
+		createNewsWithPostDate(4, NewsCategory.BASEBALL, 12, LocalDateTime.now().minusMonths(7));
+
+		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
+			.orderType(OrderType.DATE)
+			.page(1)
+			.size(10)
+			.timePeriod(TimePeriod.MONTHLY)
+			.build();
+
+		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
+
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 2L
+				),
+			() -> assertThat(newsList)
+				.extracting("title", "category", "thumbImg", "content")
+				.containsExactly(
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문")
+				)
+		);
+	}
+
+	@DisplayName("년별 전체 목록을 조회한다.")
+	@Test
+	void findAllYearlyTest() {
+		createNewsWithPostDate(1, NewsCategory.BASEBALL, 10, LocalDateTime.now().minusMonths(10));
+		createNewsWithPostDate(2, NewsCategory.BASEBALL, 14, LocalDateTime.now().minusYears(1));
+		createNewsWithPostDate(3, NewsCategory.ESPORTS, 15, LocalDateTime.now().minusMonths(11));
+		createNewsWithPostDate(4, NewsCategory.BASEBALL, 12, LocalDateTime.now().minusYears(1));
+
+		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
+			.orderType(OrderType.DATE)
+			.page(1)
+			.size(10)
+			.timePeriod(TimePeriod.YEARLY)
+			.build();
+
+		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
+
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 2L
+				),
+			() -> assertThat(newsList)
+				.extracting("title", "category", "thumbImg", "content")
+				.containsExactly(
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -224,9 +366,9 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 1L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg")
+				.extracting("title", "category", "thumbImg", "content")
 				.containsExactly(
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com")
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
 				)
 		);
 	}
@@ -242,8 +384,9 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		NewsResponse newsResponse = newsReadService.findOne(news.getId());
 
 		assertThat(newsResponse)
-			.extracting("title", "category", "thumbImg", "recommendCount", "commentCount", "viewCount")
-			.contains("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", 10, 10, 10);
+			.extracting("title", "category", "thumbImg", "recommendCount", "commentCount", "viewCount", "source",
+				"content")
+			.contains("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", 10, 10, 10, "www.test.com", "뉴스본문");
 	}
 
 }

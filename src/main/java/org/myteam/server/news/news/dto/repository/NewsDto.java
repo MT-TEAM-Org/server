@@ -20,14 +20,17 @@ public class NewsDto {
 	private String title;
 	@Schema(description = "뉴스 썸네일 이미지")
 	private String thumbImg;
+	@Schema(description = "뉴스 본문")
+	private String content;
 	@Schema(description = "뉴스 계시 날짜")
 	private LocalDateTime postDate;
 
-	public NewsDto(Long id, NewsCategory category, String title, String thumbImg, LocalDateTime postDate) {
+	public NewsDto(Long id, NewsCategory category, String title, String thumbImg, String content, LocalDateTime postDate) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
 		this.thumbImg = thumbImg;
+		this.content = content;
 		this.postDate = postDate;
 	}
 }

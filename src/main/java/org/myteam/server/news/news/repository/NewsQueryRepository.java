@@ -4,6 +4,8 @@ import static java.util.Optional.*;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.myteam.server.news.news.domain.NewsCategory;
@@ -31,6 +33,7 @@ public class NewsQueryRepository {
 		NewsCategory category = newsServiceRequest.getCategory();
 		OrderType orderType = newsServiceRequest.getOrderType();
 		String content = newsServiceRequest.getContent();
+		TimePeriod timePeriod = newsServiceRequest.getTimePeriod();
 		Pageable pageable = newsServiceRequest.toPageable();
 
 		List<NewsDto> contents = queryFactory
@@ -39,13 +42,15 @@ public class NewsQueryRepository {
 				news.category,
 				news.title,
 				news.thumbImg,
+				news.content,
 				news.postDate
 			))
 			.from(news)
 			.join(newsCount).on(newsCount.news.id.eq(news.id))
 			.where(
 				isCategoryEqualTo(category),
-				isTitleLikeTo(content)
+				isTitleLikeTo(content),
+				isPostDateAfter(timePeriod)
 			)
 			.orderBy(isOrderByEqualToOrderType(orderType))
 			.offset(pageable.getOffset())
@@ -70,6 +75,16 @@ public class NewsQueryRepository {
 		).orElse(0L);
 	}
 
+	private LocalDateTime calculateFromDate(TimePeriod timePeriod) {
+		LocalDateTime now = LocalDateTime.now();
+		return switch (timePeriod) {
+			case DAILY -> now.minusDays(1);
+			case WEEKLY -> now.minusWeeks(1);
+			case MONTHLY -> now.minusMonths(1);
+			case YEARLY -> now.minusYears(1);
+		};
+	}
+
 	private OrderSpecifier<?> isOrderByEqualToOrderType(OrderType orderType) {
 		return switch (orderType) {
 			case DATE -> news.postDate.desc();
@@ -84,5 +99,9 @@ public class NewsQueryRepository {
 
 	private BooleanExpression isTitleLikeTo(String content) {
 		return content != null ? news.title.like("%"+content+"%") : null;
+	}
+
+	private BooleanExpression isPostDateAfter(TimePeriod timePeriod) {
+		return timePeriod != null ? news.postDate.after(calculateFromDate(timePeriod)) : null;
 	}
 }
