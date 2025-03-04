@@ -30,7 +30,6 @@ public class BoardRequest {
     /**
      * 내용
      */
-    @NotBlank(message = "내용을 입력해주세요")
     private String content;
     /**
      * 출처 링크
