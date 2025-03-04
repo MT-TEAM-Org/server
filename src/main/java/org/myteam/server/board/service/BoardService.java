@@ -53,6 +53,7 @@ public class BoardService {
     private final BoardCommentReadService boardCommentReadService;
     private final BoardReplyReadService boardReplyReadService;
 
+    private final BoardCountService boardCountService;
     private final S3Service s3Service;
 
     /**
@@ -117,6 +118,8 @@ public class BoardService {
             UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
             isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
         }
+
+        boardCountService.addViewCount(boardId);
 
         return BoardResponse.createResponse(board, boardCount, isRecommended);
     }
