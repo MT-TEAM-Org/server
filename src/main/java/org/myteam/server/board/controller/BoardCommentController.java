@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.dto.reponse.BoardCommentListResponse;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.dto.request.BoardCommentSaveRequest;
-import org.myteam.server.board.dto.request.BoardCommentUpdateRequest;
 import org.myteam.server.board.service.BoardCommentReadService;
 import org.myteam.server.board.service.BoardCommentService;
 import org.myteam.server.global.exception.ErrorResponse;
@@ -74,7 +73,7 @@ public class BoardCommentController {
     })
     @PutMapping("/comment/{boardCommentId}")
     public ResponseEntity<ResponseDto<BoardCommentResponse>> updateBoardComment(@PathVariable Long boardCommentId,
-                                                                                @RequestBody @Valid BoardCommentUpdateRequest request) {
+                                                                                @RequestBody @Valid BoardCommentSaveRequest request) {
         return ResponseEntity.ok(
                 new ResponseDto<>(SUCCESS.name(), "게시판 댓글 수정 성공", boardCommentService.update(boardCommentId, request)));
     }

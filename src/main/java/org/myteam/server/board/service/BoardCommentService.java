@@ -8,7 +8,6 @@ import org.myteam.server.board.domain.BoardComment;
 import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.board.dto.reponse.BoardCommentResponse;
 import org.myteam.server.board.dto.request.BoardCommentSaveRequest;
-import org.myteam.server.board.dto.request.BoardCommentUpdateRequest;
 import org.myteam.server.board.repository.BoardCommentRecommendRepository;
 import org.myteam.server.board.repository.BoardCommentRepository;
 import org.myteam.server.board.repository.BoardReplyRecommendRepository;
@@ -67,7 +66,7 @@ public class BoardCommentService {
      * 게시판 댓글 수정
      */
     @Transactional
-    public BoardCommentResponse update(Long boardCommentId, BoardCommentUpdateRequest request) {
+    public BoardCommentResponse update(Long boardCommentId, BoardCommentSaveRequest request) {
         Member member = securityReadService.getMember();
         BoardComment boardComment = boardCommentReadService.findById(boardCommentId);
 
