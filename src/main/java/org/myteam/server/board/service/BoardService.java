@@ -119,8 +119,6 @@ public class BoardService {
             isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
         }
 
-        boardCountService.addViewCount(boardId);
-
         return BoardResponse.createResponse(board, boardCount, isRecommended);
     }
 
