@@ -1,6 +1,8 @@
 package org.myteam.server.notice.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +11,6 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.util.ClientUtils;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 public record NoticeResponse() {
 
@@ -79,7 +78,6 @@ public record NoticeResponse() {
     public static final class NoticeDto {
         private Long id;
         private String title;
-        private String createdIp;
         private String thumbnail;
         private UUID publicId;
         private String nickname;
