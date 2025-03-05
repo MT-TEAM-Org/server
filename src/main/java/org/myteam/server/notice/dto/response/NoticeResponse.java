@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
+import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -39,7 +40,7 @@ public record NoticeResponse() {
                     .noticeId(notice.getId())
                     .publicId(notice.getMember().getPublicId())
                     .nickname(notice.getMember().getNickname())
-                    .clientIp(notice.getCreatedIP())
+                    .clientIp(ClientUtils.maskIp(notice.getCreatedIP()))
                     .title(notice.getTitle())
                     .content(notice.getContent())
                     .imgUrl(notice.getImgUrl())

@@ -8,6 +8,7 @@ import org.myteam.server.board.dto.reponse.BoardReplyResponse;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.inquiry.domain.InquiryReply;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -71,7 +72,7 @@ public class InquiryReplyResponse {
                               String mentionedNickname, LocalDateTime createDate, LocalDateTime lastModifiedDate) {
         this.inquiryReplyId = inquiryReplyId;
         this.inquiryCommentId = inquiryCommentId;
-        this.createdIp = createdIp;
+        this.createdIp = ClientUtils.maskIp(createdIp);
         this.publicId = publicId;
         this.nickname = nickname;
         this.imageUrl = imageUrl;

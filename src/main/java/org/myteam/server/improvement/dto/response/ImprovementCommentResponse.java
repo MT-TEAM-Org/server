@@ -7,6 +7,7 @@ import org.myteam.server.improvement.domain.ImprovementReply;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.notice.domain.NoticeReply;
 import org.myteam.server.notice.dto.response.NoticeCommentResponse;
+import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,7 @@ public record ImprovementCommentResponse() {
     public static final class ImprovementCommentSaveResponse {
         private Long improvementCommentId;
         private Long improvementId;
+        @Setter
         private String createdIp;
         private UUID publicId;
         private String nickname;
@@ -40,7 +42,7 @@ public record ImprovementCommentResponse() {
             return ImprovementCommentSaveResponse.builder()
                     .improvementCommentId(improvementComment.getId())
                     .improvementId(improvementComment.getImprovement().getId())
-                    .createdIp(improvementComment.getCreatedIp())
+                    .createdIp(ClientUtils.maskIp(improvementComment.getCreatedIp()))
                     .publicId(member.getPublicId())
                     .nickname(member.getNickname())
                     .imageUrl(improvementComment.getImageUrl())
@@ -80,7 +82,7 @@ public record ImprovementCommentResponse() {
             return ImprovementReplyResponse.builder()
                     .improvementReplyId(improvementReply.getId())
                     .improvementCommentId(improvementReply.getImprovementComment().getId())
-                    .createdIp(improvementReply.getCreatedIp())
+                    .createdIp(ClientUtils.maskIp(improvementReply.getCreatedIp()))
                     .publicId(member.getPublicId())
                     .nickname(member.getNickname())
                     .imageUrl(improvementReply.getImageUrl())

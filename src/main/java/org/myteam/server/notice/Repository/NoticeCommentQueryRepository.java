@@ -14,6 +14,7 @@ import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.notice.dto.response.NoticeCommentResponse.*;
 import org.myteam.server.notice.service.NoticeCommentRecommendReadService;
 import org.myteam.server.notice.service.NoticeReplyRecommendReadService;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -55,6 +56,7 @@ public class NoticeCommentQueryRepository {
                 UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
                 isRecommended = noticeCommentRecommendReadService.isRecommended(comment.getNoticeCommentId(), loginUser);
             }
+            comment.setCreatedIp(ClientUtils.maskIp(comment.getCreatedIp()));
             comment.setRecommended(isRecommended);
             comment.setNoticeReplyList(getRepliesForComments(comment.getNoticeCommentId(), userDetails));
         });
@@ -91,6 +93,7 @@ public class NoticeCommentQueryRepository {
                 UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
                 isRecommended = noticeReplyRecommendReadService.isRecommended(reply.getNoticeReplyId(), loginUser);
             }
+            reply.setCreatedIp(ClientUtils.maskIp(reply.getCreatedIp()));
             reply.setRecommended(isRecommended);
         });
 

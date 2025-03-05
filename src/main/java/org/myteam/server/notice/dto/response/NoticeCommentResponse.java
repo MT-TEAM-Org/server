@@ -5,6 +5,7 @@ import lombok.*;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.notice.domain.NoticeComment;
 import org.myteam.server.notice.domain.NoticeReply;
+import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +21,7 @@ public record NoticeCommentResponse() {
     public static final class NoticeCommentSaveResponse {
         private Long noticeCommentId;
         private Long noticeId;
+        @Setter
         private String createdIp;
         private UUID publicId;
         private String nickname;
@@ -38,7 +40,7 @@ public record NoticeCommentResponse() {
             return NoticeCommentSaveResponse.builder()
                     .noticeCommentId(noticeComment.getId())
                     .noticeId(noticeComment.getNotice().getId())
-                    .createdIp(noticeComment.getCreatedIp())
+                    .createdIp(ClientUtils.maskIp(noticeComment.getCreatedIp()))
                     .publicId(member.getPublicId())
                     .nickname(member.getNickname())
                     .imageUrl(noticeComment.getImageUrl())
@@ -78,7 +80,7 @@ public record NoticeCommentResponse() {
             return NoticeReplyResponse.builder()
                     .noticeReplyId(noticeReply.getId())
                     .noticeCommentId(noticeReply.getNoticeComment().getId())
-                    .createdIp(noticeReply.getCreatedIp())
+                    .createdIp(ClientUtils.maskIp(noticeReply.getCreatedIp()))
                     .publicId(member.getPublicId())
                     .nickname(member.getNickname())
                     .imageUrl(noticeReply.getImageUrl())
