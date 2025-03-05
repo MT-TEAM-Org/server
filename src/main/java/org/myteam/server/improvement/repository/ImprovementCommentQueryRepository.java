@@ -16,6 +16,7 @@ import org.myteam.server.improvement.dto.response.ImprovementCommentResponse.*;
 import org.myteam.server.improvement.service.ImprovementCommentRecommendReadService;
 import org.myteam.server.improvement.service.ImprovementReplyRecommendReadService;
 import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -60,6 +61,7 @@ public class ImprovementCommentQueryRepository {
                 UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
                 isRecommended = improvementCommentRecommendReadService.isRecommended(comment.getImprovementCommentId(), loginUser);
             }
+            comment.setCreatedIp(ClientUtils.maskIp(comment.getCreatedIp()));
             comment.setRecommended(isRecommended);
             comment.setImprovementReplyList(getRepliesForComments(comment.getImprovementCommentId(), userDetails));
         });
@@ -96,6 +98,7 @@ public class ImprovementCommentQueryRepository {
                 UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
                 isRecommended = improvementReplyRecommendReadService.isRecommended(reply.getImprovementReplyId(), loginUser);
             }
+            reply.setCreatedIp(ClientUtils.maskIp(reply.getCreatedIp()));
             reply.setRecommended(isRecommended);
         });
 

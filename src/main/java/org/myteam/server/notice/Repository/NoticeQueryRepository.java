@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -55,6 +56,10 @@ public class NoticeQueryRepository {
                 .fetch();
 
         long total = getTotalNoticeCount(searchType, search);
+
+        content.forEach(noticeDto -> {
+            noticeDto.setCreatedIp(ClientUtils.maskIp(noticeDto.getCreatedIp()));
+        });
 
         return new PageImpl<>(content, pageable, total);
     }

@@ -9,6 +9,7 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.domain.ImprovementStatus;
+import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public record ImprovementResponse() {
                     .noticeId(improvement.getId())
                     .publicId(improvement.getMember().getPublicId())
                     .nickname(improvement.getMember().getNickname())
-                    .clientIp(improvement.getCreatedIP())
+                    .clientIp(ClientUtils.maskIp(improvement.getCreatedIP()))
                     .title(improvement.getTitle())
                     .content(improvement.getContent())
                     .imgUrl(improvement.getImgUrl())

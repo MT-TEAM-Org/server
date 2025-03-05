@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.myteam.server.inquiry.domain.InquiryComment;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,7 +49,7 @@ public class InquiryCommentResponse {
         return InquiryCommentResponse.builder()
                 .inquiryCommentId(inquiryComment.getId())
                 .inquiryId(inquiryComment.getInquiry().getId())
-                .createdIp(inquiryComment.getCreatedIp())
+                .createdIp(ClientUtils.maskIp(inquiryComment.getCreatedIp()))
                 .publicId(member.getPublicId())
                 .nickname(member.getNickname())
                 .imageUrl(inquiryComment.getImageUrl())

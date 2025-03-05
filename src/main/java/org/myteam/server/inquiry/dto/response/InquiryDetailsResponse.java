@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
+import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -27,7 +28,7 @@ public class InquiryDetailsResponse {
         this.inquiryId = inquiry.getId();
         this.publicID = inquiry.getMember().getPublicId();
         this.nickname = inquiry.getMember().getNickname();
-        this.clientIp = inquiry.getClientIp();
+        this.clientIp = ClientUtils.maskIp(inquiry.getClientIp());
         this.content = inquiry.getContent();
         this.createdAt = inquiry.getCreatedAt();
         this.commentCount = inquiryCount.getCommentCount();
