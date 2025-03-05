@@ -10,6 +10,7 @@ import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.util.ClientUtils;
 
 @Getter
 @Setter
@@ -87,7 +88,7 @@ public class BoardResponse {
         this.boardId = board.getId();
         this.publicId = board.getMember().getPublicId();
         this.nickname = board.getMember().getNickname();
-        this.clientIp = board.getCreatedIp();
+        this.clientIp = ClientUtils.maskIp(board.getCreatedIp());
         this.title = board.getTitle();
         this.content = board.getContent();
         this.link = board.getLink();

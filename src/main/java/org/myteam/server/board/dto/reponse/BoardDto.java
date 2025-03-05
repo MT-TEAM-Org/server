@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.util.ClientUtils;
 
 @Getter
 @NoArgsConstructor
@@ -72,7 +73,7 @@ public class BoardDto {
         this.categoryType = categoryType;
         this.id = id;
         this.title = title;
-        this.createdIp = createdIp;
+        this.createdIp = ClientUtils.maskIp(createdIp);
         this.thumbnail = thumbnail;
         this.publicId = publicId;
         this.nickname = nickname;

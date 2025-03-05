@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.util.ClientUtils;
 
 @Getter
 @NoArgsConstructor
@@ -75,7 +76,7 @@ public class BoardReplyResponse {
                               String mentionedNickname, LocalDateTime createDate, LocalDateTime lastModifiedDate) {
         this.boardCommentId = boardCommentId;
         this.boardReplyId = boardReplyId;
-        this.createdIp = createdIp;
+        this.createdIp = ClientUtils.maskIp(createdIp);
         this.publicId = publicId;
         this.nickname = nickname;
         this.imageUrl = imageUrl;

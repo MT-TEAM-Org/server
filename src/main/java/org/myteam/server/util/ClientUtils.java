@@ -28,4 +28,14 @@ public class ClientUtils {
 
         return ip;
     }
+
+    /**
+     * IP 뒷자리 마스크 처리
+     */
+    public static String maskIp(String ip) {
+        if (ip == null || !ip.matches("\\d+\\.\\d+\\.\\d+\\.\\d+")) {
+            return ip;
+        }
+        return ip.replaceAll("(\\d+\\.\\d+\\.)(\\d+)(\\.)(\\d+)", "$1***$3**");
+    }
 }
