@@ -35,7 +35,7 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET}
       AES_SECRET_KEY: ${AES_SECRET_KEY}
       AES_IV: ${AES_IV}
-      TZ=Asia/Seoul
+      TZ: ${TZ}
     restart: always
 
   #  zookeeper:
