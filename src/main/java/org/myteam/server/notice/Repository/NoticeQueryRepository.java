@@ -1,24 +1,22 @@
 package org.myteam.server.notice.Repository;
 
 import static java.util.Optional.ofNullable;
-import static org.myteam.server.notice.domain.QNoticeCount.noticeCount;
-import static org.myteam.server.notice.domain.QNotice.notice;
 import static org.myteam.server.member.entity.QMember.member;
+import static org.myteam.server.notice.domain.QNotice.notice;
+import static org.myteam.server.notice.domain.QNoticeCount.noticeCount;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
-import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Slf4j
 @Repository
@@ -36,7 +34,6 @@ public class NoticeQueryRepository {
                 .select(Projections.constructor(NoticeDto.class,
                         notice.id,
                         notice.title,
-                        notice.createdIP,
                         notice.imgUrl,
                         member.publicId,
                         member.nickname,
@@ -56,10 +53,6 @@ public class NoticeQueryRepository {
                 .fetch();
 
         long total = getTotalNoticeCount(searchType, search);
-
-        content.forEach(noticeDto -> {
-            noticeDto.setCreatedIp(ClientUtils.maskIp(noticeDto.getCreatedIp()));
-        });
 
         return new PageImpl<>(content, pageable, total);
     }
@@ -87,5 +80,27 @@ public class NoticeQueryRepository {
                         .where(isSearchTypeLikeTo(searchType, search))
                         .fetchOne()
         ).orElse(0L);
+    }
+
+    public List<NoticeDto> getFixNotice() {
+        return queryFactory
+                .select(Projections.constructor(NoticeDto.class,
+                        notice.id,
+                        notice.title,
+                        notice.imgUrl,
+                        member.publicId,
+                        member.nickname,
+                        noticeCount.commentCount,
+                        noticeCount.recommendCount,
+                        notice.createDate,
+                        notice.lastModifiedDate
+                ))
+                .from(notice)
+                .join(noticeCount).on(noticeCount.notice.id.eq(notice.id))
+                .join(member).on(member.eq(notice.member))
+                .fetchJoin()
+                .orderBy(notice.createDate.desc())
+                .limit(2)
+                .fetch();
     }
 }
