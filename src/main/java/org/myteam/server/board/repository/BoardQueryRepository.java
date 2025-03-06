@@ -124,13 +124,14 @@ public class BoardQueryRepository {
         ).orElse(0L);
     }
 
-    private OrderSpecifier<?> isOrderByEqualToOrderCategory(BoardOrderType orderType) {
+    private OrderSpecifier<?>[] isOrderByEqualToOrderCategory(BoardOrderType orderType) {
         // default 최신순
         BoardOrderType boardOrderType = Optional.ofNullable(orderType).orElse(BoardOrderType.CREATE);
         return switch (boardOrderType) {
-            case CREATE -> board.createDate.desc();
-            case RECOMMEND -> boardCount.recommendCount.desc();
-            case COMMENT -> boardCount.commentCount.desc();
+            case CREATE -> new OrderSpecifier<?>[]{board.createDate.desc(), board.title.asc(), board.id.desc()};
+            case RECOMMEND -> new OrderSpecifier<?>[]{boardCount.recommendCount.desc(),
+                    boardCount.commentCount.add(boardCount.viewCount).desc(), board.title.asc(), board.id.desc()};
+            case COMMENT -> new OrderSpecifier<?>[]{boardCount.commentCount.desc(), board.title.asc(), board.id.desc()};
         };
     }
 
