@@ -46,7 +46,7 @@ public class NewsCountController {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 추천 삭제 성공",
-			newsCountService.recommendNews(newsId)));
+			newsCountService.cancelRecommendNews(newsId)));
 	}
 
 }
