@@ -32,9 +32,6 @@ public class BoardCommentQueryRepository {
 
     public List<BoardCommentResponse> getBoardCommentList(Long boardId, CustomUserDetails userDetails) {
 
-        // 추천수가 높은 상위 3개 댓글 조회
-        List<BoardCommentResponse> topComments = getBestCommentList(boardId);
-
         // 댓글 조회 (최신순 정렬, 같다면 댓글 가나다순)
         List<BoardCommentResponse> commentList = queryFactory
                 .select(Projections.constructor(BoardCommentResponse.class,
@@ -57,7 +54,6 @@ public class BoardCommentQueryRepository {
 
         // 최종 리스트: 추천 Top 3 + 댓글
         List<BoardCommentResponse> finalList = new ArrayList<>();
-        finalList.addAll(topComments);
         finalList.addAll(commentList);
 
         finalList.forEach(comment -> {
@@ -77,7 +73,7 @@ public class BoardCommentQueryRepository {
     /**
      * 베스트 댓글 목록 조회
      */
-    private List<BoardCommentResponse> getBestCommentList(Long boardId) {
+    public List<BoardCommentResponse> getBestCommentList(Long boardId) {
         return queryFactory
                 .select(Projections.constructor(BoardCommentResponse.class,
                         boardComment.id,

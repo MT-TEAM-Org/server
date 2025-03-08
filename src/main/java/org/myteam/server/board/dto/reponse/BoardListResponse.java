@@ -15,6 +15,9 @@ public class BoardListResponse {
      * 공지사항
      */
     private List<NoticeDto> noticeList;
+    /**
+     * 게시글 목록
+     */
     private PageCustomResponse<BoardDto> list;
 
     @Builder

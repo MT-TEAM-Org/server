@@ -40,11 +40,14 @@ public class BoardQueryRepository {
                                        BoardOrderType orderType,
                                        BoardSearchType searchType, String search, Pageable pageable) {
 
+        List<Long> hotBoardIdList = getHotBoardList(boardType, categoryType);
+
         List<BoardDto> content = queryFactory
                 .select(Projections.constructor(BoardDto.class,
                         board.boardType,
                         board.categoryType,
                         board.id,
+                        board.id.in(hotBoardIdList).as("isHot"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -204,5 +207,24 @@ public class BoardQueryRepository {
                         .where(member.publicId.eq(publicId), isSearchTypeLikeTo(searchType, search))
                         .fetchOne()
         ).orElse(0L);
+    }
+
+    /**
+     * 핫 게시글 ID 목록 조회
+     */
+    private List<Long> getHotBoardList(BoardType boardType, CategoryType categoryType) {
+        // 추천순 내림차순 -> 조회수 + 댓글수 내림차순 -> 제목 오름차순 -> id 내림차순
+        return queryFactory
+                .select(board.id)
+                .from(board)
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
+                .where(isBoardTypeEqualTo(boardType), isCategoryEqualTo(categoryType))
+                .orderBy(
+                        boardCount.recommendCount.desc(),
+                        boardCount.viewCount.add(boardCount.commentCount).asc(),
+                        board.title.asc(), board.id.desc()
+                )
+                .limit(10)
+                .fetch();
     }
 }

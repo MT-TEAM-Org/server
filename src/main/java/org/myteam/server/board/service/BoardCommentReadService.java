@@ -37,8 +37,9 @@ public class BoardCommentReadService {
                 boardId,
                 userDetails
         );
-
-        return BoardCommentListResponse.createResponse(list);
+        BoardCommentListResponse response = BoardCommentListResponse.createResponse(list);
+        response.setBestComment(boardCommentQueryRepository.getBestCommentList(boardId));
+        return response;
     }
 
     public BoardCommentResponse findByIdWithReply(Long boardCommentId, CustomUserDetails userDetails) {
