@@ -45,6 +45,7 @@ public class BoardQueryRepository {
                         board.boardType,
                         board.categoryType,
                         board.id,
+                        board.id.in(getHotBoardList()).as("isHot"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -154,6 +155,7 @@ public class BoardQueryRepository {
                         board.boardType,
                         board.categoryType,
                         board.id,
+                        board.id.in(getHotBoardList()).as("isHot"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -193,7 +195,6 @@ public class BoardQueryRepository {
 
     /**
      * 내가 쓴 게시글 총 개수
-     * TODO :: 검색에서 댓글 검색 댓글 작업 후 추가 예정
      */
     private long getTotalMyBoardCount(BoardSearchType searchType, String search, UUID publicId) {
         return ofNullable(
@@ -204,5 +205,23 @@ public class BoardQueryRepository {
                         .where(member.publicId.eq(publicId), isSearchTypeLikeTo(searchType, search))
                         .fetchOne()
         ).orElse(0L);
+    }
+
+    /**
+     * 핫 게시글 ID 목록 조회
+     */
+    private List<Long> getHotBoardList() {
+        // 전체 게시글 기준 추천순 내림차순 -> 조회수 + 댓글수 내림차순 -> 제목 오름차순 -> id 오름차순
+        return queryFactory
+                .select(board.id)
+                .from(board)
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
+                .orderBy(
+                        boardCount.recommendCount.desc(),
+                        boardCount.viewCount.add(boardCount.commentCount).desc(),
+                        board.title.asc(), board.id.asc()
+                )
+                .limit(10)
+                .fetch();
     }
 }
