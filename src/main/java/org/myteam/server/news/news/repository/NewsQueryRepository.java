@@ -57,21 +57,22 @@ public class NewsQueryRepository {
 			.limit(pageable.getPageSize())
 			.fetch();
 
-		long total = getTotalNewsCount(category, content);
+		long total = getTotalNewsCount(category, content, timePeriod);
 
 		return new PageImpl<>(contents, pageable, total);
 	}
 
-	private long getTotalNewsCount(NewsCategory category, String content) {
+	private long getTotalNewsCount(NewsCategory category, String content, TimePeriod timePeriod) {
 		return ofNullable(
-			queryFactory
-				.select(news.count())
-				.from(news)
-				.where(
-					isCategoryEqualTo(category),
-					isTitleLikeTo(content)
-				)
-				.fetchOne()
+				queryFactory
+						.select(news.count())
+						.from(news)
+						.where(
+								isCategoryEqualTo(category),
+								isTitleLikeTo(content),
+								isPostDateAfter(timePeriod)
+						)
+						.fetchOne()
 		).orElse(0L);
 	}
 
