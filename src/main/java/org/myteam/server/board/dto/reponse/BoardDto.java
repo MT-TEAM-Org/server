@@ -1,5 +1,7 @@
 package org.myteam.server.board.dto.reponse;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -71,7 +73,8 @@ public class BoardDto {
      * 댓글 검색 시 결과
      */
     @Setter
-    private BoardCommentSearchDto boardCommentSearchDto;
+    @JsonInclude(Include.NON_EMPTY)
+    private BoardCommentSearchDto boardCommentSearchList;
 
     public BoardDto(BoardType boardType, CategoryType categoryType, Long id, boolean isHot, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,

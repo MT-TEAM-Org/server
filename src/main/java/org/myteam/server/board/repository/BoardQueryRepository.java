@@ -76,7 +76,7 @@ public class BoardQueryRepository {
                 BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
 
                 if (commentSearch != null) {
-                    boardDto.setBoardCommentSearchDto(commentSearch);
+                    boardDto.setBoardCommentSearchList(commentSearch);
                 }
             });
         }
