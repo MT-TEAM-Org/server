@@ -1,5 +1,8 @@
 package org.myteam.server.board.dto.reponse;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -24,6 +27,12 @@ public class BoardDto {
      * 게시글 ID
      */
     private Long id;
+    /**
+     * Hot 여부
+     */
+    @Setter
+    @JsonProperty("isHot")
+    private boolean isHot;
     /**
      * 게시글 제목
      */
@@ -64,14 +73,16 @@ public class BoardDto {
      * 댓글 검색 시 결과
      */
     @Setter
-    private BoardCommentSearchDto boardCommentSearchDto;
+    @JsonInclude(Include.NON_EMPTY)
+    private BoardCommentSearchDto boardCommentSearchList;
 
-    public BoardDto(BoardType boardType, CategoryType categoryType, Long id, String title,
+    public BoardDto(BoardType boardType, CategoryType categoryType, Long id, boolean isHot, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,
                     Integer recommendCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.boardType = boardType;
         this.categoryType = categoryType;
         this.id = id;
+        this.isHot = isHot;
         this.title = title;
         this.createdIp = ClientUtils.maskIp(createdIp);
         this.thumbnail = thumbnail;
