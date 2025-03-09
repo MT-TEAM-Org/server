@@ -8,6 +8,7 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.report.domain.ReportType;
@@ -21,6 +22,8 @@ import org.myteam.server.util.slack.service.SlackService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final MemberReadService memberReadService;
+    private final SecurityReadService securityReadService;
     private final RedisService redisService;
     private final SlackService slackService;
     private final ReportedContentValidatorFactory reportedContentValidatorFactory;
@@ -47,7 +51,7 @@ public class ReportService {
         }
 
         // 신고한 사용자와 신고 대상 가져오기
-        Member reporter = memberReadService.findById(request.getReportPublicId());
+        Member reporter = securityReadService.getMember();
         Member reported = memberReadService.findById(request.getReportedPublicId());
 
         // 자신의 게시글 신고 금지
@@ -66,6 +70,11 @@ public class ReportService {
 
         if (!validator.isValid(request.getReportedContentId())) {
             throw new PlayHiveException(ErrorCode.REPORTED_CONTENT_NOT_FOUND);
+        }
+
+        UUID contentOwnerPublicId = validator.getOwnerPublicId(request.getReportedContentId());
+        if (request.getReportType() != ReportType.NEWS && reporter.getPublicId().equals(contentOwnerPublicId)) {
+            throw new PlayHiveException(ErrorCode.INVALID_REPORT_CONTENT_OWNER);
         }
 
         // 신고 생성

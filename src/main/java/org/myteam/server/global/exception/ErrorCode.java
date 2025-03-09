@@ -40,7 +40,8 @@ public enum ErrorCode {
     INVALID_BIRTH_DAY(HttpStatus.BAD_REQUEST, "Day is not allowed"),
     INVALID_IMPROVEMENT_STATUS(HttpStatus.BAD_REQUEST, "Improvement status is invalid"),
     INVALID_REPORT_MEMBER(HttpStatus.BAD_REQUEST, "Reported user and report user is same"),
-    INVALID_REPORT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 신고 유형입니다."),
+    INVALID_REPORT_TYPE(HttpStatus.BAD_REQUEST, "Not Invalid report Type"),
+    INVALID_REPORT_CONTENT_OWNER(HttpStatus.BAD_REQUEST, "This content is not author"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),

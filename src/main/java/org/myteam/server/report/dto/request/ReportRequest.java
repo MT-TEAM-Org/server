@@ -19,9 +19,6 @@ public record ReportRequest() {
     @NoArgsConstructor
     @AllArgsConstructor
     public static final class ReportSaveRequest {
-        @NotNull(message = "신고자의 Public ID는 필수 입력 값입니다.")
-        private UUID reportPublicId;
-
         @NotNull(message = "신고 대상자의 Public ID는 필수 입력 값입니다.")
         private UUID reportedPublicId;
 
