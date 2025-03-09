@@ -36,8 +36,9 @@ public class Report extends BaseTime {
     @JoinColumn(name = "reported_id", nullable = false) // 신고된 사람
     private Member reported;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReportReason> reasons = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private BanReason reason;
 
     private String reportIp;
 
@@ -49,36 +50,25 @@ public class Report extends BaseTime {
     private Long reportedContentId; // 신고된 대상 ID (게시글 ID, 댓글 ID 등)
 
     @Builder
-    public Report(Member reporter, Member reported, List<BanReason> reasons, String reportIp, ReportType reportType, Long reportedContentId) {
+    public Report(Member reporter, Member reported, BanReason reason, String reportIp, ReportType reportType, Long reportedContentId) {
         this.reporter = reporter;
         this.reported = reported;
+        this.reason = reason;
         this.reportIp = reportIp;
         this.reportType = reportType;
         this.reportedContentId = reportedContentId;
-
-        if (reasons != null) {
-            this.reasons = reasons.stream()
-                    .map(reason -> new ReportReason(this, reason))
-                    .collect(Collectors.toList());
-        }
     }
 
     public static Report createReport(Member reporter, Member reported, String reportIp,
-                                      ReportType reportType, Long reportedContentId, List<BanReason> reasons) {
+                                      ReportType reportType, Long reportedContentId, BanReason reasons) {
         return Report.builder()
                 .reporter(reporter)
                 .reported(reported)
                 .reportIp(reportIp)
                 .reportType(reportType)
                 .reportedContentId(reportedContentId)
-                .reasons(reasons)
+                .reason(reasons)
                 .build();
     }
-
-    public void addReason(ReportReason reason) {
-        this.reasons.add(reason);
-        reason.setReport(this);
-    }
-
 
 }

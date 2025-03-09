@@ -119,7 +119,7 @@ public class ReportService {
                 report.getReported().getPublicId(),
                 report.getReportType(),
                 report.getReportedContentId(),
-                report.getReasons(),
+                report.getReason(),
                 reportIp
         );
 

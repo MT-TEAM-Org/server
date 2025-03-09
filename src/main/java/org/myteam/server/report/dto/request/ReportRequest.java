@@ -31,7 +31,7 @@ public record ReportRequest() {
         @NotNull(message = "신고된 컨텐츠 ID는 필수 입력 값입니다.")
         private Long reportedContentId;
 
-        @NotNull(message = "신고 사유(BanReason)는 최소 하나 이상 선택해야 합니다.")
-        private List<BanReason> reasons;
+        @NotNull(message = "신고 사유(BanReason)는 선택해야 합니다.")
+        private BanReason reasons;
     }
 }

@@ -26,7 +26,7 @@ public record ReportResponse() {
         private UUID reportedPublicId; // 신고 대상자의 publicId
         private ReportType reportType; // 신고 유형 (예: COMMENT, POST, USER)
         private Long reportedContentId; // 신고된 컨텐츠 ID (예: 댓글 ID, 게시글 ID)
-        private List<BanReason> reasons; // 신고 사유 목록
+        private BanReason reason; // 신고 사유 목록
         private LocalDateTime createdAt; // 신고 생성 시간
         private String createdIp; // 신고 요청자의 IP 주소
 
@@ -37,10 +37,7 @@ public record ReportResponse() {
                     .reportedPublicId(report.getReported().getPublicId())
                     .reportType(report.getReportType())
                     .reportedContentId(report.getReportedContentId())
-                    .reasons(report.getReasons().stream()
-                            .map(ReportReason::getReason)
-                            .collect(Collectors.toList())
-                    )
+                    .reason(report.getReason())
                     .createdAt(report.getCreateDate())
                     .createdIp(report.getReportIp())
                     .build();

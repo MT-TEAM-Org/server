@@ -35,8 +35,9 @@ public class ReportQueryRepository {
                         report.reported.publicId.as("reportedPublicId"),
                         report.reportType,
                         report.reportedContentId,
-                        report.reportIp,
-                        report.createDate
+                        report.reason,
+                        report.createDate,
+                        report.reportIp
                 ))
                 .from(report)
                 .join(member).on(member.eq(report.reporter))
@@ -45,11 +46,6 @@ public class ReportQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        content.forEach(reportDto -> {
-            List<BanReason> reasons = getReportReasons(reportDto.getReportId());
-            reportDto.setReasons(reasons);
-        });
 
         long total = getTotalReportCount();
 
@@ -65,8 +61,9 @@ public class ReportQueryRepository {
                         report.reported.publicId.as("reportedPublicId"),
                         report.reportType,
                         report.reportedContentId,
-                        report.reportIp,
-                        report.createDate
+                        report.reason,
+                        report.createDate,
+                        report.reportIp
                 ))
                 .from(report)
                 .join(member).on(member.eq(report.reporter))
@@ -76,11 +73,6 @@ public class ReportQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        content.forEach(reportDto -> {
-            List<BanReason> reasons = getReportReasons(reportDto.getReportId());
-            reportDto.setReasons(reasons);
-        });
 
         long total = getTotalReportCountByType(reportType);
 
@@ -98,8 +90,9 @@ public class ReportQueryRepository {
                         report.reported.publicId,
                         report.reportType,
                         report.reportedContentId,
-                        report.reportIp,
-                        report.createDate
+                        report.reason,
+                        report.createDate,
+                        report.reportIp
                 ))
                 .from(report)
                 .leftJoin(report.reporter, member)
@@ -125,8 +118,9 @@ public class ReportQueryRepository {
                         report.reported.publicId,
                         report.reportType,
                         report.reportedContentId,
-                        report.reportIp,
-                        report.createDate
+                        report.reason,
+                        report.createDate,
+                        report.reportIp
                 ))
                 .from(report)
                 .leftJoin(report.reporter, member)
@@ -139,14 +133,6 @@ public class ReportQueryRepository {
 
         long total = getTotalReportCountByReporter(reporterPublicId);
         return new PageImpl<>(content, pageable, total);
-    }
-
-    private List<BanReason> getReportReasons(Long reportId) {
-        return queryFactory
-                .select(reportReason.reason)
-                .from(reportReason)
-                .where(reportReason.report.id.eq(reportId))
-                .fetch();
     }
 
     private long getTotalReportCount() {
