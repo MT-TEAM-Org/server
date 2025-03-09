@@ -8,7 +8,6 @@ spring:
     username: playhive
     password: ${DB_PASSWORD}
 
-
   jpa:
     show-sql: false
     properties:
@@ -26,6 +25,12 @@ spring:
       #  validate Entity 와 테이블이 정상 매핑 되었는지 확인
       #  none 기존테이블을 더 이상 건드리지 않음.
     open-in-view: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+      port: ${REDIS_PORT}
 
 logging:
   level:

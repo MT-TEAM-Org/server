@@ -58,4 +58,8 @@ public class NewsReadService {
 			.orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_NOT_FOUND));
 	}
 
+	public boolean existsById(Long id) {
+		return newsRepository.existsById(id);
+	}
+
 }

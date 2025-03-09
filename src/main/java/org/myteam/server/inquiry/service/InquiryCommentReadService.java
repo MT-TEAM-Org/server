@@ -43,4 +43,8 @@ public class InquiryCommentReadService {
 
         return response;
     }
+
+    public boolean existsById(Long id) {
+        return inquiryCommentRepository.existsById(id);
+    }
 }

@@ -73,4 +73,8 @@ public class BoardReadService {
     public int getMyBoardListCount(UUID memberPublicId) {
         return boardQueryRepository.getMyBoard(memberPublicId);
     }
+
+    public boolean existsById(Long id) {
+        return boardRepository.existsById(id);
+    }
 }

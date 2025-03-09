@@ -53,4 +53,8 @@ public class NewsCommentReadService {
 			.orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_COMMENT_NOT_FOUND));
 	}
 
+	public boolean existsById(Long id) {
+		return newsCommentRepository.existsById(id);
+	}
+
 }
