@@ -22,21 +22,21 @@ public class InquirySearchRequest extends PageInfoRequest {
 
     private InquirySearchType searchType;
 
-    private String keyword;
+    private String search;
 
     @Builder
-    public InquirySearchRequest(InquiryOrderType orderType, InquirySearchType searchType, String keyword, int page, int size) {
+    public InquirySearchRequest(InquiryOrderType orderType, InquirySearchType searchType, String search, int page, int size) {
         super(page, size);
         this.orderType = orderType;
         this.searchType = searchType;
-        this.keyword = keyword;
+        this.search = search;
     }
 
     public InquiryServiceRequest toServiceRequest() {
         return InquiryServiceRequest.builder()
                 .orderType(orderType)
                 .searchType(searchType)
-                .content(keyword)
+                .content(search)
                 .size(getSize())
                 .page(getPage())
                 .build();

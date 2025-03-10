@@ -25,14 +25,14 @@ public class InquiryFindRequest extends PageInfoServiceRequest {
 
     private InquirySearchType searchType;
 
-    private String keyword;
+    private String search;
 
     @Builder
-    public InquiryFindRequest(UUID memberPublicId, InquiryOrderType orderType, InquirySearchType searchType, String keyword, int page, int size) {
+    public InquiryFindRequest(UUID memberPublicId, InquiryOrderType orderType, InquirySearchType searchType, String search, int page, int size) {
         super(page, size);
         this.memberPublicId = memberPublicId;
         this.orderType = orderType;
         this.searchType = searchType;
-        this.keyword = keyword;
+        this.search = search;
     }
 }
