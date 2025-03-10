@@ -132,4 +132,24 @@ public class ImprovementController {
                 improvementReadService.getImprovementList(request.toServiceRequest())
         ));
     }
+
+    /**
+     * 개선요청 상태 업데이트(관리자)
+     */
+    @Operation(summary = "개선 요청 삭제", description = "기존의 개선 요청을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "개선 요청 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "작성자나 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/{improvementId}")
+    public ResponseEntity<ResponseDto<Void>> updateImprovementStatus(@PathVariable Long improvementId) {
+        improvementService.updateImprovementStatus(improvementId);
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "개선요청 상태 업데이트 성공",
+                null
+        ));
+    }
 }
