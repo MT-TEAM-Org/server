@@ -49,7 +49,7 @@ public class InquiryReadService {
                 inquirySearchRequest.getMemberPublicId(),
                 inquirySearchRequest.getOrderType(),
                 inquirySearchRequest.getSearchType(),
-                inquirySearchRequest.getKeyword(),
+                inquirySearchRequest.getSearch(),
                 inquirySearchRequest.toPageable()
         );
 
