@@ -13,6 +13,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
@@ -21,6 +22,8 @@ import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardCommentSearchDto;
 import org.myteam.server.board.dto.reponse.BoardDto;
+import org.myteam.server.home.dto.HotBoardDto;
+import org.myteam.server.home.dto.NewBoardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +48,7 @@ public class BoardQueryRepository {
                         board.boardType,
                         board.categoryType,
                         board.id,
-                        board.id.in(getHotBoardList()).as("isHot"),
+                        board.id.in(getHotBoardIdList()).as("isHot"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -155,7 +158,7 @@ public class BoardQueryRepository {
                         board.boardType,
                         board.categoryType,
                         board.id,
-                        board.id.in(getHotBoardList()).as("isHot"),
+                        board.id.in(getHotBoardIdList()).as("isHot"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -210,7 +213,7 @@ public class BoardQueryRepository {
     /**
      * 핫 게시글 ID 목록 조회
      */
-    private List<Long> getHotBoardList() {
+    private List<Long> getHotBoardIdList() {
         // 전체 게시글 기준 추천순 내림차순 -> 조회수 + 댓글수 내림차순 -> 제목 오름차순 -> id 오름차순
         return queryFactory
                 .select(board.id)
@@ -223,5 +226,58 @@ public class BoardQueryRepository {
                 )
                 .limit(10)
                 .fetch();
+    }
+
+    /**
+     * 실시간 최신 게시글 목록
+     */
+    public List<NewBoardDto> getNewBoardList() {
+        return queryFactory
+                .select(Projections.fields(NewBoardDto.class,
+                        board.id,
+                        board.boardType,
+                        board.title,
+                        boardCount.commentCount,
+                        board.id.in(getHotBoardIdList()).as("isHot")
+                ))
+                .from(board)
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
+                .orderBy(
+                        board.createDate.desc(),
+                        board.title.asc(),
+                        board.id.asc()
+                )
+                .limit(10)
+                .fetch();
+    }
+
+    /**
+     * 실시간 HOT 게시글 목록
+     */
+    public List<HotBoardDto> getHotBoardList() {
+        List<HotBoardDto> hotBoardList = queryFactory
+                .select(Projections.fields(HotBoardDto.class,
+                        board.boardType,
+                        board.id,
+                        board.title,
+                        boardCount.commentCount,
+                        board.id.in(getHotBoardIdList()).as("isHot")
+                ))
+                .from(board)
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
+                .orderBy(
+                        boardCount.recommendCount.desc(),
+                        boardCount.viewCount.add(boardCount.commentCount).desc(),
+                        board.title.asc(),
+                        board.id.asc()
+                )
+                .limit(10)
+                .fetch();
+
+        // 순위를 부여
+        AtomicInteger rankCounter = new AtomicInteger(1);
+        hotBoardList.forEach(dto -> dto.setRank(rankCounter.getAndIncrement()));
+
+        return hotBoardList;
     }
 }

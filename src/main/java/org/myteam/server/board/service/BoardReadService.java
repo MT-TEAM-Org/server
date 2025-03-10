@@ -13,6 +13,9 @@ import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.home.dto.HomeBoardListResponse;
+import org.myteam.server.home.dto.HotBoardDto;
+import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.mypage.dto.request.MyBoardServiceRequest;
 import org.myteam.server.notice.Repository.NoticeQueryRepository;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
@@ -76,5 +79,11 @@ public class BoardReadService {
 
     public boolean existsById(Long id) {
         return boardRepository.existsById(id);
+    }
+
+    public HomeBoardListResponse getHomeBoardList() {
+        List<HotBoardDto> hotBoardList = boardQueryRepository.getHotBoardList();
+        List<NewBoardDto> newBoardList = boardQueryRepository.getNewBoardList();
+        return HomeBoardListResponse.createResponse(hotBoardList, newBoardList);
     }
 }
