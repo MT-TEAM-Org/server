@@ -63,4 +63,8 @@ public class BoardCommentReadService {
     public List<BoardComment> findAllByBoardId(Long boardId) {
         return boardCommentRepository.findAllByBoardId(boardId);
     }
+
+    public boolean existsById(Long id) {
+        return boardCommentRepository.existsById(id);
+    }
 }

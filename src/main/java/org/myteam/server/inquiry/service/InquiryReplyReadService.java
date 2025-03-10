@@ -27,4 +27,8 @@ public class InquiryReplyReadService {
     public List<InquiryReply> findByBoardCommentId(Long inquiryCommentId) {
         return inquiryReplyRepository.findByInquiryCommentId(inquiryCommentId);
     }
+
+    public boolean existsById(Long id) {
+        return inquiryReplyRepository.existsById(id);
+    }
 }

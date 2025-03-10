@@ -96,6 +96,12 @@ spring:
           starttls:
             enable: true
 
+  data:
+    redis:
+      host: localhost
+      password: test
+      port: 6379
+
 
 SENDER_EMAIL: test@test.com
 

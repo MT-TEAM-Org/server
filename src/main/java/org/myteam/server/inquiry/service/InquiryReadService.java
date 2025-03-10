@@ -95,4 +95,8 @@ public class InquiryReadService {
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.INQUIRY_NOT_FOUND));
         return inquiry;
     }
+
+    public boolean existsById(Long id) {
+        return inquiryRepository.existsById(id);
+    }
 }

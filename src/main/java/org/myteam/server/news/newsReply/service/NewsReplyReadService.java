@@ -50,4 +50,8 @@ public class NewsReplyReadService {
 			.orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_REPLY_NOT_FOUND));
 	}
 
+	public boolean existsById(Long id) {
+		return newsReplyRepository.existsById(id);
+	}
+
 }

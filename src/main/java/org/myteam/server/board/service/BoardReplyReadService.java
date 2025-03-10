@@ -28,4 +28,8 @@ public class BoardReplyReadService {
     public List<BoardReply> findAllByBoardCommentId(Long boardCommentId) {
         return boardReplyRepository.findAllByBoardCommentId(boardCommentId);
     }
+
+    public boolean existsById(Long id) {
+        return boardReplyRepository.existsById(id);
+    }
 }

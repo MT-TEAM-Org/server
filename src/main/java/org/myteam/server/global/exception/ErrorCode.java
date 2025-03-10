@@ -39,6 +39,9 @@ public enum ErrorCode {
     INVALID_BIRTH_MONTH(HttpStatus.BAD_REQUEST, "Month is between 1 and 12"),
     INVALID_BIRTH_DAY(HttpStatus.BAD_REQUEST, "Day is not allowed"),
     INVALID_IMPROVEMENT_STATUS(HttpStatus.BAD_REQUEST, "Improvement status is invalid"),
+    INVALID_REPORT_MEMBER(HttpStatus.BAD_REQUEST, "Reported user and report user is same"),
+    INVALID_REPORT_TYPE(HttpStatus.BAD_REQUEST, "Not Invalid report Type"),
+    INVALID_REPORT_CONTENT_OWNER(HttpStatus.BAD_REQUEST, "This content is not author"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -61,6 +64,7 @@ public enum ErrorCode {
     POST_AUTHOR_MISMATCH(HttpStatus.FORBIDDEN,
             "You are not the author of this post. Only the author can modify or delete it."),
     BAN_USER(HttpStatus.FORBIDDEN, "You are banned from this service."),
+    REPORT_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "5분 내 최대 3번까지 신고할 수 있습니다. 다시 시도 가능: {ttl}초 후"),
 
     // 404 Not Found
     NOT_FOUND_CERTIFICATION_CODE(HttpStatus.NOT_FOUND, "인증코드 없음"),
@@ -107,6 +111,8 @@ public enum ErrorCode {
     MATCH_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Match Comment not found"),
     MATCH_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "Match Reply not found"),
     MATCH_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "Match Count not found"),
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "Report not found"),
+    REPORTED_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Report Content not found"),
 
 
     // 409 Conflict,
@@ -124,5 +130,12 @@ public enum ErrorCode {
     ErrorCode(HttpStatus status, String msg) {
         this.status = status;
         this.msg = msg;
+    }
+
+    /**
+     * 동적인 메시지 생성 (예: TTL 값을 포함)
+     */
+    public String getFormattedMessage(Object... args) {
+        return String.format(this.msg.replace("{ttl}", "%s"), args);
     }
 }
