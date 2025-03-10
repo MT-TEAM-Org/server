@@ -23,14 +23,16 @@ public class ImprovementCommentRecommendReadService {
     private final ImprovementCommentRepository improvementCommentRepository;
 
     public void confirmExistImprovementCommentRecommend(Long improvementCommentId, UUID memberPublicId) {
-        improvementCommentRecommendRepository.findByImprovementCommentIdAndMemberPublicId(improvementCommentId, memberPublicId)
+        improvementCommentRecommendRepository
+                .findByImprovementCommentIdAndMemberPublicId(improvementCommentId, memberPublicId)
                 .ifPresent(member -> {
                     throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_COMMENT);
                 });
     }
 
     public boolean isAlreadyRecommended(Long improvementCommentId, UUID publicId) {
-        if (!improvementCommentRecommendRepository.findByImprovementCommentIdAndMemberPublicId(improvementCommentId, publicId)
+        if (!improvementCommentRecommendRepository
+                .findByImprovementCommentIdAndMemberPublicId(improvementCommentId, publicId)
                 .isPresent()) {
             throw new PlayHiveException(ErrorCode.NO_MEMBER_RECOMMEND_RECORD);
         }
@@ -38,7 +40,8 @@ public class ImprovementCommentRecommendReadService {
     }
 
     public boolean isRecommended(Long improvementCommentId, UUID publicId) {
-        return improvementCommentRecommendRepository.findByImprovementCommentIdAndMemberPublicId(improvementCommentId, publicId)
+        return improvementCommentRecommendRepository
+                .findByImprovementCommentIdAndMemberPublicId(improvementCommentId, publicId)
                 .isPresent();
     }
 
