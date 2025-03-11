@@ -123,6 +123,7 @@ public class SecurityConfig {
             "/api/news/reply/{newReplyId}",
 
             //경기일정
+            "/api/match/schedule",
             "/api/match/schedule/{matchCategory}",
             "/api/match/{matchId}",
             "/api/match/prediction/{matchId}",
