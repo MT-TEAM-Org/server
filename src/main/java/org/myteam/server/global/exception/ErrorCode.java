@@ -93,6 +93,7 @@ public enum ErrorCode {
     NEWS_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment not found"),
     NEWS_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "News Reply not found"),
     NEWS_COUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "News Count not found"),
+    NEWS_COMMENT_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "News Comment Recommend not found"),
 
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "Board not found"),
     BOARD_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Recommend not found"),
