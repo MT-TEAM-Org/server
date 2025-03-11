@@ -72,8 +72,8 @@ public class ImprovementCommentService {
         ImprovementComment improvementComment = improvementCommentReadService.findById(improvementCommentId);
 
         improvementComment.verifyNoticeCommentAuthor(member);
-        if (!MediaUtils.verifyImageUrlAndRequestImageUrl(improvementComment.getImageUrl(), request.getImageUrl())) {
-            s3Service.deleteFile(MediaUtils.getImagePath(request.getImageUrl()));
+        if (MediaUtils.verifyImageUrlAndRequestImageUrl(improvementComment.getImageUrl(), request.getImageUrl())) {
+            s3Service.deleteFile(MediaUtils.getImagePath(improvementComment.getImageUrl()));
         }
 
         improvementComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));

@@ -13,6 +13,7 @@ import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
 import org.myteam.server.improvement.repository.ImprovementQueryRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class ImprovementReadService {
     private final MemberRepository memberRepository;
     private final ImprovementRecommendReadService improvementRecommendReadService;
     private final ImprovementQueryRepository improvementQueryRepository;
+    private final SecurityReadService securityReadService;
 
     public Improvement findById(Long improvementId) {
         return improvementRepository.findById(improvementId)
@@ -39,7 +41,7 @@ public class ImprovementReadService {
     /**
      * 개선요청 상세 조회
      */
-    public ImprovementSaveResponse getImprovement(Long improvementId, CustomUserDetails userDetails) {
+    public ImprovementSaveResponse getImprovement(Long improvementId) {
         log.info("개선요청: {} 상세 조회 호출", improvementId);
 
         Improvement improvement = findById(improvementId);
@@ -47,9 +49,10 @@ public class ImprovementReadService {
 
         boolean isRecommended = false;
 
-        if (userDetails != null) {
-            UUID memberPublicId = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
-            isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(), memberPublicId);
+        UUID loginUserUUID = securityReadService.getAuthenticatedPublicId();
+
+        if (loginUserUUID != null) {
+            isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(), loginUserUUID);
         }
 
         log.info("개선요청 상세 조회 성공: {}", improvementId);

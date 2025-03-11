@@ -108,12 +108,11 @@ public class ImprovementCommentController {
             @ApiResponse(responseCode = "404", description = "개선요청 댓글 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/comment/{improvementCommentId}")
-    public ResponseEntity<ResponseDto<ImprovementCommentSaveResponse>> getImprovementComment(@PathVariable Long improvementCommentId,
-                                                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ResponseDto<ImprovementCommentSaveResponse>> getImprovementComment(@PathVariable Long improvementCommentId) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "개선요청 댓글 조회 성공",
-                improvementCommentReadService.findByIdWithReply(improvementCommentId, userDetails)));
+                improvementCommentReadService.findByIdWithReply(improvementCommentId)));
     }
 
     /**
@@ -127,12 +126,11 @@ public class ImprovementCommentController {
     })
     @GetMapping("/{improvementId}/comment")
     public ResponseEntity<ResponseDto<ImprovementCommentListResponse>> getImprovementComments(@PathVariable Long improvementId,
-                                                                                              @ModelAttribute ImprovementOrderType orderType,
-                                                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                                                                              @ModelAttribute ImprovementOrderType orderType) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "개선요청 댓글 목록 조회 성공",
-                improvementCommentReadService.findByImprovementId(improvementId, orderType, userDetails)
+                improvementCommentReadService.findByImprovementId(improvementId, orderType)
         ));
     }
 }

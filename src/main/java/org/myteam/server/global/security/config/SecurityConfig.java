@@ -143,7 +143,8 @@ public class SecurityConfig {
     };
 
     private static final String[] ADMIN_POST_URLS = {
-            "/api/notice"
+            "/api/notice",
+            "/api/improvement/{improvementId}"
     };
 
     private static final String[] ADMIN_PUT_URLS = {

@@ -34,7 +34,7 @@ public class ImprovementCommentQueryRepository {
 
     public List<ImprovementCommentSaveResponse> getImprovementCommentList(Long improvementId,
                                                                           ImprovementOrderType improvementOrderType,
-                                                                          CustomUserDetails userDetails) {
+                                                                          UUID loginUser) {
         List<ImprovementCommentSaveResponse> list = queryFactory
                 .select(Projections.constructor(ImprovementCommentSaveResponse.class,
                         improvementComment.id,
@@ -57,19 +57,18 @@ public class ImprovementCommentQueryRepository {
         list.forEach(comment -> {
             boolean isRecommended = false;
 
-            if (userDetails != null) {
-                UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+            if (loginUser != null) {
                 isRecommended = improvementCommentRecommendReadService.isRecommended(comment.getImprovementCommentId(), loginUser);
             }
             comment.setCreatedIp(ClientUtils.maskIp(comment.getCreatedIp()));
             comment.setRecommended(isRecommended);
-            comment.setImprovementReplyList(getRepliesForComments(comment.getImprovementCommentId(), userDetails));
+            comment.setImprovementReplyList(getRepliesForComments(comment.getImprovementCommentId(), loginUser));
         });
 
         return list;
     }
 
-    public List<ImprovementReplyResponse> getRepliesForComments(Long improvementCommentId, CustomUserDetails userDetails) {
+    public List<ImprovementReplyResponse> getRepliesForComments(Long improvementCommentId, UUID loginUser) {
         List<ImprovementReplyResponse> replies = queryFactory
                 .select(Projections.fields(ImprovementReplyResponse.class,
                         improvementReply.improvementComment.id.as("improvementCommentId"),
@@ -94,8 +93,7 @@ public class ImprovementCommentQueryRepository {
         replies.forEach(reply -> {
             boolean isRecommended = false;
 
-            if (userDetails != null) {
-                UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+            if (loginUser != null) {
                 isRecommended = improvementReplyRecommendReadService.isRecommended(reply.getImprovementReplyId(), loginUser);
             }
             reply.setCreatedIp(ClientUtils.maskIp(reply.getCreatedIp()));

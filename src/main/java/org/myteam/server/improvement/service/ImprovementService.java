@@ -53,7 +53,7 @@ public class ImprovementService {
         Member member = securityReadService.getMember();
 
         Improvement improvement = improvementReadService.findById(improvementId);
-        if (improvement.getMember().getPublicId() != member.getPublicId()) {
+        if (!improvement.getMember().getPublicId().equals(member.getPublicId())) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -89,7 +89,7 @@ public class ImprovementService {
         Member member = securityReadService.getMember();
 
         Improvement improvement = improvementReadService.findById(improvementId);
-        if (improvement.getMember().getPublicId() != member.getPublicId()) {
+        if (!improvement.getMember().getPublicId().equals(member.getPublicId())) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 

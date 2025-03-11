@@ -15,6 +15,7 @@ import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.*;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
+import org.myteam.server.improvement.service.ImprovementCountService;
 import org.myteam.server.improvement.service.ImprovementReadService;
 import org.myteam.server.improvement.service.ImprovementService;
 import org.myteam.server.util.ClientUtils;
@@ -33,6 +34,7 @@ public class ImprovementController {
 
     private final ImprovementService improvementService;
     private final ImprovementReadService improvementReadService;
+    private final ImprovementCountService improvementCountService;
 
     /**
      * 개선목록 생성
@@ -106,9 +108,9 @@ public class ImprovementController {
             @ApiResponse(responseCode = "404", description = "해당 개선 요청이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{improvementId}")
-    public ResponseEntity<ResponseDto<ImprovementSaveResponse>> getImprovement(@PathVariable Long improvementId,
-                                                                          @AuthenticationPrincipal final CustomUserDetails userDetails) {
-        ImprovementSaveResponse response = improvementReadService.getImprovement(improvementId, userDetails);
+    public ResponseEntity<ResponseDto<ImprovementSaveResponse>> getImprovement(@PathVariable Long improvementId) {
+        improvementCountService.addViewCount(improvementId);
+        ImprovementSaveResponse response = improvementReadService.getImprovement(improvementId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "개선목록 조회 성공",
@@ -130,6 +132,26 @@ public class ImprovementController {
                 SUCCESS.name(),
                 "개선목록 목록 조회",
                 improvementReadService.getImprovementList(request.toServiceRequest())
+        ));
+    }
+
+    /**
+     * 개선요청 상태 업데이트(관리자)
+     */
+    @Operation(summary = "개선 요청 삭제", description = "기존의 개선 요청을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "개선 요청 삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "작성자나 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/{improvementId}")
+    public ResponseEntity<ResponseDto<Void>> updateImprovementStatus(@PathVariable Long improvementId) {
+        improvementService.updateImprovementStatus(improvementId);
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "개선요청 상태 업데이트 성공",
+                null
         ));
     }
 }
