@@ -1,6 +1,5 @@
 package org.myteam.server.inquiry.repository;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -10,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.domain.QInquiry;
-import org.myteam.server.inquiry.dto.response.InquiryResponse;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.inquiry.domain.QInquiry.*;
 import static org.myteam.server.inquiry.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.inquiry.domain.QInquiryCount.*;
@@ -33,21 +31,19 @@ public class InquiryQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Page<InquiryResponse> getInquiryList(UUID memberPublicId,
-                                                InquiryOrderType orderType,
-                                                InquirySearchType searchType,
-                                                String keyword,
-                                                Pageable pageable) {
+    public Page<InquirySaveResponse> getInquiryList(UUID memberPublicId,
+                                                                    InquiryOrderType orderType,
+                                                                    InquirySearchType searchType,
+                                                                    String keyword,
+                                                                    Pageable pageable) {
         // 정렬 조건 설정
-//        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(orderType, inquiry);
-//        log.info("정렬 조건: {}", orderSpecifier);
 
         // 검색 조건
         log.info("검색조건: {}&&{}", isMemberEqualTo(memberPublicId), getSearchCondition(searchType, keyword));
 
         // 문의 리스트 조회
-        List<InquiryResponse> inquiries = queryFactory
-                .select(Projections.constructor(InquiryResponse.class,
+        List<InquirySaveResponse> inquiries = queryFactory
+                .select(Projections.constructor(InquirySaveResponse.class,
                         inquiry.id,
                         inquiry.content,
                         inquiry.clientIp,
@@ -61,9 +57,8 @@ public class InquiryQueryRepository {
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
                 .join(member).on(member.publicId.eq(memberPublicId))
                 .where(
-//                        isMemberEqualTo(memberPublicId),
-                        getSearchCondition(searchType, keyword)
-//                        getOrderType(orderType)
+                        getSearchCondition(searchType, keyword),
+                        getOrderType(orderType)
                 )
                 .orderBy(inquiry.createdAt.desc())
                 .offset(pageable.getOffset())

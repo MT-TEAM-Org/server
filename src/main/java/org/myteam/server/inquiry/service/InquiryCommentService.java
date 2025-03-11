@@ -2,18 +2,13 @@ package org.myteam.server.inquiry.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.domain.BoardComment;
-import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.chat.domain.BadWordFilter;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryComment;
 import org.myteam.server.inquiry.domain.InquiryReply;
-import org.myteam.server.inquiry.dto.request.InquiryCommentRequest;
-import org.myteam.server.inquiry.dto.request.InquiryCommentUpdateRequest;
-import org.myteam.server.inquiry.dto.response.InquiryCommentResponse;
+import org.myteam.server.inquiry.dto.request.InquiryCommentRequest.*;
+import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.*;
 import org.myteam.server.inquiry.repository.InquiryCommentRepository;
 import org.myteam.server.inquiry.repository.InquiryReplyRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
@@ -24,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -40,7 +34,6 @@ public class InquiryCommentService {
     private final InquiryCommentReadService inquiryCommentReadService;
     private final S3Service s3Service;
     private final InquiryReplyReadService inquiryReplyReadService;
-    private final InquiryReplyService inquiryReplyService;
     private final InquiryReplyRepository inquiryReplyRepository;
     private final InquiryRepository inquiryRepository;
 
@@ -51,7 +44,7 @@ public class InquiryCommentService {
      * @param createdIp
      * @return
      */
-    public InquiryCommentResponse save(Long inquiryId, InquiryCommentRequest request, String createdIp) {
+    public InquiryCommentSaveResponse save(Long inquiryId, InquiryCommentSaveRequest request, String createdIp) {
         Inquiry inquiry = inquiryReadService.findInquiryById(inquiryId);
         Member member = securityReadService.getMember();
 
@@ -67,7 +60,7 @@ public class InquiryCommentService {
             inquiryRepository.save(inquiry);
         }
 
-        return InquiryCommentResponse.createResponse(inquiryComment, member);
+        return InquiryCommentSaveResponse.createResponse(inquiryComment, member);
     }
 
     /**
@@ -76,17 +69,19 @@ public class InquiryCommentService {
      * @param request
      * @return
      */
-    public InquiryCommentResponse update(Long inquiryCommentId, InquiryCommentUpdateRequest request) {
+    public InquiryCommentSaveResponse update(Long inquiryCommentId, InquiryCommentUpdateRequest request) {
         Member member = securityReadService.getMember();
         InquiryComment inquiryComment = inquiryCommentReadService.findById(inquiryCommentId);
 
         inquiryComment.verifyInquiryCommentAuthor(member);
-        verifyInquiryCommentImageAndRequestImage(inquiryComment.getImageUrl(), request.getImageUrl());
+        if (MediaUtils.verifyImageUrlAndRequestImageUrl(inquiryComment.getImageUrl(), request.getImageUrl())) {
+            s3Service.deleteFile(MediaUtils.getImagePath(inquiryComment.getImageUrl()));
+        }
 
         inquiryComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));
         inquiryCommentRepository.save(inquiryComment);
 
-        return InquiryCommentResponse.createResponse(inquiryComment, member);
+        return InquiryCommentSaveResponse.createResponse(inquiryComment, member);
     }
 
     /**
@@ -116,14 +111,5 @@ public class InquiryCommentService {
             inquiryReplyRepository.delete(inquiryReply);
         }
         return inquiryReplyList.size();
-    }
-
-    /**
-     * 기존 이미지와 요청 이미지가 같지 않으면 삭제
-     */
-    private void verifyInquiryCommentImageAndRequestImage(String inquiryCommentImageUrl, String requestImageUrl) {
-        if (!inquiryCommentImageUrl.equals(requestImageUrl)) {
-            s3Service.deleteFile(MediaUtils.getImagePath(requestImageUrl));
-        }
     }
 }

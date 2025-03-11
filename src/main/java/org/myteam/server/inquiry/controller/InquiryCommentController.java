@@ -12,10 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.inquiry.dto.request.InquiryCommentRequest;
-import org.myteam.server.inquiry.dto.request.InquiryCommentUpdateRequest;
-import org.myteam.server.inquiry.dto.response.InquiryCommentListResponse;
-import org.myteam.server.inquiry.dto.response.InquiryCommentResponse;
+import org.myteam.server.inquiry.dto.request.InquiryCommentRequest.*;
+import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.*;
 import org.myteam.server.inquiry.service.InquiryCommentReadService;
 import org.myteam.server.inquiry.service.InquiryCommentService;
 import org.myteam.server.util.ClientUtils;
@@ -37,7 +35,7 @@ public class InquiryCommentController {
     /**
      * 문의 내역 댓글 생성
      * @param inquiryId
-     * @param inquiryCommentRequest
+     * @param inquiryCommentSaveRequest
      * @param request
      * @return
      */
@@ -49,13 +47,13 @@ public class InquiryCommentController {
             @ApiResponse(responseCode = "500", description = "S3 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/{inquiryId}/comment")
-    public ResponseEntity<ResponseDto<InquiryCommentResponse>> saveInquiryComment(
-            @PathVariable Long inquiryId,
-            @RequestBody @Valid InquiryCommentRequest inquiryCommentRequest, HttpServletRequest request) {
+    public ResponseEntity<ResponseDto<InquiryCommentSaveResponse>> saveInquiryComment(@PathVariable Long inquiryId,
+                                                                                   @RequestBody @Valid InquiryCommentSaveRequest inquiryCommentSaveRequest,
+                                                                                   HttpServletRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "문의내역 댓글 저장 성공",
-                inquiryCommentService.save(inquiryId, inquiryCommentRequest, ClientUtils.getRemoteIP(request))
+                inquiryCommentService.save(inquiryId, inquiryCommentSaveRequest, ClientUtils.getRemoteIP(request))
         ));
     }
 
@@ -74,8 +72,8 @@ public class InquiryCommentController {
             @ApiResponse(responseCode = "500", description = "S3 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PutMapping("/comment/{inquiryCommentId}")
-    public ResponseEntity<ResponseDto<InquiryCommentResponse>> updateInquiryComment(@PathVariable Long inquiryCommentId,
-                                                                                    @Valid @RequestBody InquiryCommentUpdateRequest request) {
+    public ResponseEntity<ResponseDto<InquiryCommentSaveResponse>> updateInquiryComment(@PathVariable Long inquiryCommentId,
+                                                                                     @Valid @RequestBody InquiryCommentUpdateRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "문의내역 댓글 수정 성공",
@@ -136,7 +134,7 @@ public class InquiryCommentController {
             @ApiResponse(responseCode = "404", description = "문의 내역 댓글 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/comment/{inquiryCommentId}")
-    public ResponseEntity<ResponseDto<InquiryCommentResponse>> getInquiryComment(@PathVariable Long inquiryCommentId) {
+    public ResponseEntity<ResponseDto<InquiryCommentSaveResponse>> getInquiryComment(@PathVariable Long inquiryCommentId) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "문의사항 댓글 조회 성공",

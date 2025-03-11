@@ -6,20 +6,12 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.InquiryCount;
-import org.myteam.server.inquiry.dto.request.InquirySearchRequest;
-import org.myteam.server.inquiry.dto.request.InquiryServiceRequest;
-import org.myteam.server.inquiry.dto.response.InquiriesListResponse;
-import org.myteam.server.inquiry.dto.response.InquiryDetailsResponse;
-import org.myteam.server.inquiry.dto.response.InquiryResponse;
+import org.myteam.server.inquiry.dto.request.InquiryRequest.*;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
-import org.myteam.server.global.page.request.PageInfoRequest;
-import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
-import org.myteam.server.inquiry.dto.request.InquiryFindRequest;
-import org.myteam.server.inquiry.dto.response.InquiryResponse;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -39,34 +31,22 @@ public class InquiryReadService {
 
     /**
      * 검색 + 정렬 기능
-     * @param inquirySearchRequest
+     * @param inquiryServiceRequest
      * @return
      */
-    public InquiriesListResponse getInquiriesByMember(InquiryFindRequest inquirySearchRequest) {
-        log.info("내 문의내역 조회: {}", inquirySearchRequest.getMemberPublicId());
-
-        Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
-                inquirySearchRequest.getMemberPublicId(),
-                inquirySearchRequest.getOrderType(),
-                inquirySearchRequest.getSearchType(),
-                inquirySearchRequest.getSearch(),
-                inquirySearchRequest.toPageable()
-        );
-
-        return InquiriesListResponse.createResponse(PageCustomResponse.of(inquiryResponses));
-    }
-
     public InquiriesListResponse getInquiriesByMember(InquiryServiceRequest inquiryServiceRequest) {
         Member member = securityReadService.getMember();
-        log.info("내 문의내역 조회: {}", member.getPublicId());
+        log.info("내 문의내역 조회: {} 요청", member.getPublicId());
 
-        Page<InquiryResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
+        Page<InquirySaveResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
                 member.getPublicId(),
                 inquiryServiceRequest.getOrderType(),
                 inquiryServiceRequest.getSearchType(),
-                inquiryServiceRequest.getContent(),
+                inquiryServiceRequest.getSearch(),
                 inquiryServiceRequest.toPageable()
         );
+
+        log.info("내 문의내역: {} 조회 성공", member.getPublicId());
 
         return InquiriesListResponse.createResponse(PageCustomResponse.of(inquiryResponses));
     }
@@ -84,8 +64,17 @@ public class InquiryReadService {
      * 문의 내역 상세 조회
      */
     public InquiryDetailsResponse getInquiryById(final Long inquiryId) {
+        Member member = securityReadService.getMember();
+        log.info("요청 멤버: {}, 조회 문의내역: {} 요청", member.getPublicId(), inquiryId);
+
         Inquiry inquiry = findInquiryById(inquiryId);
+        if (!inquiry.getMember().getPublicId().equals(member.getPublicId())) {
+            throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
         InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiry.getId());
+
+        log.info("요청 멤버: {}, 조회 문의내역: {} 성공", member.getPublicId(), inquiryId);
 
         return InquiryDetailsResponse.createResponse(inquiry, inquiryCount);
     }

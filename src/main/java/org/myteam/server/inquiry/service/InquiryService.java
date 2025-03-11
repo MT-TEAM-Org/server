@@ -65,6 +65,7 @@ public class InquiryService {
      * @param inquiryId
      */
     public void deleteInquiry(final Long inquiryId) {
+        log.info("문의내역: {} 삭제 요청", inquiryId);
         Member member = securityReadService.getMember();
         Inquiry inquiry = inquiryReadService.findInquiryById(inquiryId);
 
@@ -72,6 +73,8 @@ public class InquiryService {
 
         inquiryCountRepository.deleteByInquiryId(inquiry.getId());
         inquiryRepository.delete(inquiry);
+
+        log.info("문의내역: {} 삭제", inquiryId);
     }
 
     private Inquiry makeInquiry(String content, String clientIP, Optional<Member> member) {
