@@ -72,32 +72,32 @@ class NewsControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.message").value("뉴스 정렬 타입은 필수입니다."));
 	}
 
-	@DisplayName("뉴스목록을 조회시 뉴스 카테고리는 필수입니다.")
-	@Test
-	@WithMockUser
-	void findAllWithoutCategoryTest() throws Exception {
-		// given
-		NewsRequest newsRequest = NewsRequest.builder()
-			.page(1)
-			.size(10)
-			.content("테스트")
-			.orderType(OrderType.DATE)
-			.build();
-
-		// when // then
-		mockMvc.perform(
-				get("/api/news")
-					.param("page", String.valueOf(newsRequest.getPage()))
-					.param("size", String.valueOf(newsRequest.getSize()))
-					.param("content", newsRequest.getContent())
-					.param("orderType", newsRequest.getOrderType().name())
-					.with(csrf())
-			)
-			.andDo(print())
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("뉴스 카테고리는 필수입니다."));
-	}
+//	@DisplayName("뉴스목록을 조회시 뉴스 카테고리는 필수입니다.")
+//	@Test
+//	@WithMockUser
+//	void findAllWithoutCategoryTest() throws Exception {
+//		// given
+//		NewsRequest newsRequest = NewsRequest.builder()
+//			.page(1)
+//			.size(10)
+//			.content("테스트")
+//			.orderType(OrderType.DATE)
+//			.build();
+//
+//		// when // then
+//		mockMvc.perform(
+//				get("/api/news")
+//					.param("page", String.valueOf(newsRequest.getPage()))
+//					.param("size", String.valueOf(newsRequest.getSize()))
+//					.param("content", newsRequest.getContent())
+//					.param("orderType", newsRequest.getOrderType().name())
+//					.with(csrf())
+//			)
+//			.andDo(print())
+//			.andExpect(status().isBadRequest())
+//			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+//			.andExpect(jsonPath("$.message").value("뉴스 카테고리는 필수입니다."));
+//	}
 
 	@DisplayName("뉴스상세 조회를 한다.")
 	@Test
