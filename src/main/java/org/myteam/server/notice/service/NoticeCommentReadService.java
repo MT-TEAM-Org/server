@@ -61,4 +61,8 @@ public class NoticeCommentReadService {
 
         return response;
     }
+
+    public int getCommentCountByMemberPublicId(UUID publicId) {
+        return noticeCommentQueryRepository.getCommentCountByPublicId(publicId);
+    }
 }

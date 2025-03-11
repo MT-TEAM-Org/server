@@ -57,6 +57,15 @@ public class NewsReplyQueryRepository {
 		return new PageImpl<>(content, pageable, total);
 	}
 
+	public int getReplyCountByPublicId(UUID publicId) {
+		return queryFactory
+				.select(newsReply.count())
+				.from(newsReply)
+				.where(newsReply.member.publicId.eq(publicId))
+				.fetchOne()
+				.intValue();
+	}
+
 	private long getTotalNewsCount(Long newsCommentId) {
 		return ofNullable(
 			queryFactory

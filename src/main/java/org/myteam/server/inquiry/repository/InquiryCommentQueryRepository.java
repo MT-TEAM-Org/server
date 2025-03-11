@@ -1,5 +1,6 @@
 package org.myteam.server.inquiry.repository;
 
+import static org.myteam.server.inquiry.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.inquiry.domain.QInquiryReply.inquiryReply;
 
 import com.querydsl.core.types.Projections;
@@ -10,6 +11,7 @@ import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -39,6 +41,24 @@ public class InquiryCommentQueryRepository {
                 .fetch();
 
         return replies;
+    }
+
+    public int getCommentCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(inquiryComment.count())
+                .from(inquiryComment)
+                .where(inquiryComment.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
+    }
+
+    public int getReplyCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(inquiryReply.count())
+                .from(inquiryReply)
+                .where(inquiryReply.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
     }
 
     private BooleanExpression isInquiryCommentEqualTo(Long inquiryCommentId) {

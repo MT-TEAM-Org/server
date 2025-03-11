@@ -25,11 +25,11 @@ public class MyPageService {
     private final SecurityReadService securityReadService;
     private final MemberJpaRepository memberJpaRepository;
     private final MemberValidator memberValidator;
-    private final AESCryptoUtil cryptoUtil;
     private final PasswordEncoder passwordEncoder;
 
     public void updateMemberInfo(MyPageUpdateRequest request) {
         Member member = securityReadService.getMember();
+        log.info("회원 정보: {} 수정 요청", member.getPublicId());
 
         if (!member.verifyOwnEmail(request.getEmail())) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
@@ -50,6 +50,6 @@ public class MyPageService {
         }
 
         memberJpaRepository.save(member);
-        log.info("저장되었습니다.");
+        log.info("회원 정보: {} 수정 성공", member.getPublicId());
     }
 }

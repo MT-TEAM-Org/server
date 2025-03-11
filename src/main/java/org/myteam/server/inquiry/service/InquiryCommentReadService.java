@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -49,5 +50,9 @@ public class InquiryCommentReadService {
 
     public boolean existsById(Long id) {
         return inquiryCommentRepository.existsById(id);
+    }
+
+    public int getCommentCountByMemberPublicId(UUID publicId) {
+        return inquiryCommentQueryRepository.getCommentCountByPublicId(publicId);
     }
 }

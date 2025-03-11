@@ -1,8 +1,11 @@
 package org.myteam.server.board.service;
 
 import java.util.List;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.BoardReply;
+import org.myteam.server.board.repository.BoardCommentQueryRepository;
 import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardReplyReadService {
 
     private final BoardReplyRepository boardReplyRepository;
+    private final BoardCommentQueryRepository boardCommentQueryRepository;
 
     public BoardReply findById(Long boardReplyId) {
         return boardReplyRepository.findById(boardReplyId)
@@ -31,5 +35,9 @@ public class BoardReplyReadService {
 
     public boolean existsById(Long id) {
         return boardReplyRepository.existsById(id);
+    }
+
+    public int getReplyCountByMemberPublicId(UUID publicId) {
+        return boardCommentQueryRepository.getReplyCountByPublicId(publicId);
     }
 }

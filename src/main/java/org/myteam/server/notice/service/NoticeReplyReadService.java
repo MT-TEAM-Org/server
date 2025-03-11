@@ -3,12 +3,14 @@ package org.myteam.server.notice.service;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.notice.Repository.NoticeCommentQueryRepository;
 import org.myteam.server.notice.Repository.NoticeReplyRepository;
 import org.myteam.server.notice.domain.NoticeReply;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +18,7 @@ import java.util.List;
 public class NoticeReplyReadService {
 
     private final NoticeReplyRepository noticeReplyRepository;
+    private final NoticeCommentQueryRepository noticeCommentQueryRepository;
 
     public NoticeReply findById(Long noticeReplyId) {
         return noticeReplyRepository.findById(noticeReplyId)
@@ -24,5 +27,9 @@ public class NoticeReplyReadService {
 
     public List<NoticeReply> findByNoticeCommentId(Long noticeCommentId) {
         return noticeReplyRepository.findByNoticeCommentId(noticeCommentId);
+    }
+
+    public int getReplyCountByMemberPublicId(UUID publicId) {
+        return noticeCommentQueryRepository.getReplyCountByPublicId(publicId);
     }
 }

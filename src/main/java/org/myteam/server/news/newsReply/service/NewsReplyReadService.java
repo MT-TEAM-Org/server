@@ -54,4 +54,8 @@ public class NewsReplyReadService {
 		return newsReplyRepository.existsById(id);
 	}
 
+	public int getReplyCountByMemberPublicId(UUID publicId) {
+		return newsReplyQueryRepository.getReplyCountByPublicId(publicId);
+	}
+
 }

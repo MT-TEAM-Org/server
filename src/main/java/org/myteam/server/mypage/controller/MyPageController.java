@@ -104,7 +104,9 @@ public class MyPageController {
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/modify")
-    public ResponseEntity<ResponseDto<String>> updateMyInfo(@RequestBody MyPageUpdateRequest myPageUpdateRequest) {
+    public ResponseEntity<ResponseDto<String>> updateMyInfo(
+            @RequestBody MyPageUpdateRequest myPageUpdateRequest
+    ) {
         myPageService.updateMemberInfo(myPageUpdateRequest);
 
         return ResponseEntity.ok(new ResponseDto<>(
@@ -128,7 +130,8 @@ public class MyPageController {
     })
     @GetMapping("/board")
     public ResponseEntity<ResponseDto<BoardListResponse>> getMyBoard(
-            @Valid @ModelAttribute MyBoardSearchRequest myBoardSearchRequest) {
+            @Valid @ModelAttribute MyBoardSearchRequest myBoardSearchRequest
+    ) {
         BoardListResponse memberPosts = myPageReadService.getMemberPosts(myBoardSearchRequest.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
@@ -159,8 +162,7 @@ public class MyPageController {
     public ResponseEntity<ResponseDto<InquiriesListResponse>> getMyInquiry(
             @Valid @ModelAttribute InquirySearchRequest request
     ) {
-        InquiriesListResponse inquiriesListResponse = inquiryReadService
-                .getInquiriesByMember(request.toServiceRequest());
+        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(request.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
