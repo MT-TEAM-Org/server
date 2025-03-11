@@ -58,11 +58,11 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 3L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 12),
+					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 14),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 10)
 				)
 		);
 	}
@@ -103,12 +103,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀6", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀5", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀4", NewsCategory.ESPORTS, "www.test.com", "뉴스본문")
+					tuple("기사타이틀7", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 15),
+					tuple("기사타이틀6", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 30),
+					tuple("기사타이틀5", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 20),
+					tuple("기사타이틀4", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 12)
 				)
 		);
 	}
@@ -153,12 +153,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀11", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀10", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀9", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀8", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문")
+					tuple("기사타이틀11", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문", 14),
+					tuple("기사타이틀10", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문", 13),
+					tuple("기사타이틀9", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문", 12),
+					tuple("기사타이틀8", NewsCategory.FOOTBALL, "www.test.com", "뉴스본문", 11)
 				)
 		);
 	}
@@ -189,12 +189,12 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 4L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+					tuple("기사타이틀4", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 12),
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 15),
+					tuple("기사타이틀2", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 14),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 10)
 				)
 		);
 	}
@@ -226,10 +226,10 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 2L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 15),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 10)
 				)
 		);
 	}
@@ -261,10 +261,10 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 2L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 15),
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 10)
 				)
 		);
 	}
@@ -296,10 +296,10 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 2L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문")
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 10),
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 15)
 				)
 		);
 	}
@@ -331,10 +331,10 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 2L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문"),
-					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문")
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 10),
+					tuple("기사타이틀3", NewsCategory.ESPORTS, "www.test.com", "뉴스본문", 15)
 				)
 		);
 	}
@@ -366,9 +366,9 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 1L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content")
+				.extracting("title", "category", "thumbImg", "content", "commentCount")
 				.containsExactly(
-					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문")
+					tuple("기사타이틀1", NewsCategory.BASEBALL, "www.test.com", "뉴스본문", 10)
 				)
 		);
 	}
