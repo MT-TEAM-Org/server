@@ -32,10 +32,10 @@ public class InquiryQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     public Page<InquirySaveResponse> getInquiryList(UUID memberPublicId,
-                                                                    InquiryOrderType orderType,
-                                                                    InquirySearchType searchType,
-                                                                    String keyword,
-                                                                    Pageable pageable) {
+                                                    InquiryOrderType orderType,
+                                                    InquirySearchType searchType,
+                                                    String keyword,
+                                                    Pageable pageable) {
         // 정렬 조건 설정
 
         // 검색 조건
@@ -66,7 +66,7 @@ public class InquiryQueryRepository {
                 .fetch();
 
         // 전체 개수 조회
-        long total = getInquiryCount(memberPublicId, searchType, keyword);
+        long total = getInquiryCount(memberPublicId, searchType, keyword, orderType);
 
         return new PageImpl<>(inquiries, pageable, total);
     }
@@ -83,13 +83,15 @@ public class InquiryQueryRepository {
 
     private long getInquiryCount(UUID memberPublicId,
                                  InquirySearchType searchType,
-                                 String keyword) {
+                                 String keyword,
+                                 InquiryOrderType orderType) {
         return Optional.ofNullable(queryFactory
                 .select(inquiry.count())
                 .from(inquiry)
                 .where(
                         isMemberEqualTo(memberPublicId),
-                        getSearchCondition(searchType, keyword)
+                        getSearchCondition(searchType, keyword),
+                        getOrderType(orderType)
                 )
                 .fetchOne()
         ).orElse(0L);
