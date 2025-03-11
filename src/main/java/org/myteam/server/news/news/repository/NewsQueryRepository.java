@@ -43,6 +43,7 @@ public class NewsQueryRepository {
 				news.title,
 				news.thumbImg,
 				news.content,
+				newsCount.commentCount,
 				news.postDate
 			))
 			.from(news)
