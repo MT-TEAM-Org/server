@@ -19,7 +19,6 @@ import lombok.Setter;
 public class NewsRequest extends PageInfoRequest {
 
 	@Schema(description = "뉴스 카테고리", example = "BASEBALL, FOOTBALL, ESPORTS")
-	@NotNull(message = "뉴스 카테고리는 필수입니다.")
 	private NewsCategory category;
 
 	@Schema(description = "뉴스 정렬 타입", example = "DATE(날짜순), COMMENT(댓글순), VIEW(조회순)")
