@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.inquiry.dto.request.InquiryRequest;
+import org.myteam.server.inquiry.dto.request.InquiryRequest.*;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,7 @@ public class InquiryController {
 
     /**
      * 문의 내역 생성
-     * @param inquiryRequest
+     * @param inquirySaveRequest
      * @param request
      * @return
      */
@@ -41,10 +41,10 @@ public class InquiryController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
-    public ResponseEntity<ResponseDto<String>> createInquiry(@Valid @RequestBody InquiryRequest inquiryRequest,
+    public ResponseEntity<ResponseDto<String>> createInquiry(@Valid @RequestBody InquirySaveRequest inquirySaveRequest,
                                                              HttpServletRequest request) {
         String clientIp = ClientUtils.getRemoteIP(request);
-        String content = inquiryService.createInquiry(inquiryRequest.getContent(), clientIp);
+        String content = inquiryService.createInquiry(inquirySaveRequest.getContent(), clientIp);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
