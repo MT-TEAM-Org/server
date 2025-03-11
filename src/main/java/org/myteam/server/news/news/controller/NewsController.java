@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class NewsController {
 
 	private final NewsReadService newsReadService;
+	private final NewsCountService newsCountService;
 
 	@Operation(summary = "뉴스 목록 조회 API", description = "뉴스의 목록을 조회합니다.")
 	@GetMapping
@@ -46,6 +47,7 @@ public class NewsController {
 		@Parameter(description = "뉴스 ID")
 		Long newsId
 	) {
+		newsCountService.addViewCount(newsId);
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 상세 조회 성공",
