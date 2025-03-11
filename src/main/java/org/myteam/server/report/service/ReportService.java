@@ -54,6 +54,9 @@ public class ReportService {
         Member reporter = securityReadService.getMember();
         Member reported = memberReadService.findById(request.getReportedPublicId());
 
+        log.info("✅ [신고 요청] 신고자: {}, 대상: {}, 타입: {}, content: {}, 사유: {}",
+                reporter.getPublicId(), reported.getPublicId(), request.getReportType(), request.getReportedContentId(), request.getReasons());
+
         // 자신의 게시글 신고 금지
         if (reporter.equals(reported)) {
             throw new PlayHiveException(ErrorCode.INVALID_REPORT_MEMBER);
@@ -64,15 +67,18 @@ public class ReportService {
 
         ReportedContentValidator validator = reportedContentValidatorFactory.getValidator(domainType);
 
+        // 신고 타입이 맞지 않음
         if (validator == null) {
             throw new PlayHiveException(ErrorCode.INVALID_REPORT_TYPE);
         }
 
+        // 신고하는 게시글이 존재하지 않음.
         if (!validator.isValid(request.getReportedContentId())) {
             throw new PlayHiveException(ErrorCode.REPORTED_CONTENT_NOT_FOUND);
         }
 
         UUID contentOwnerPublicId = validator.getOwnerPublicId(request.getReportedContentId());
+        // 신고 대상자와 컨텐츠 작성자가 일치하지 않음
         if (request.getReportType() != ReportType.NEWS && reporter.getPublicId().equals(contentOwnerPublicId)) {
             throw new PlayHiveException(ErrorCode.INVALID_REPORT_CONTENT_OWNER);
         }
@@ -105,6 +111,7 @@ public class ReportService {
      * 신고 삭제
      */
     public void deleteReport(Long reportId) {
+        log.info("🗑️ [신고 삭제 요청] 신고 ID: {}", reportId);
         if (!reportRepository.existsById(reportId)) {
             throw new PlayHiveException(ErrorCode.REPORT_NOT_FOUND);
         }
