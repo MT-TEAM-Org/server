@@ -130,7 +130,11 @@ public class SecurityConfig {
 
             /** @brief 게임 할인, 이벤트 관련 URL */
             "api/game/event",
-            "api/game/discount"
+            "api/game/discount",
+
+            /** @brief 홈 메인*/
+            "/api/home/new",
+            "/api/home/hot"
     };
 
     /* Admin 접근 권한 */
