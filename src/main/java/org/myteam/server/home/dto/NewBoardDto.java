@@ -8,7 +8,7 @@ import org.myteam.server.board.domain.BoardType;
 
 @Getter
 @NoArgsConstructor
-public class NewBoardResponse {
+public class NewBoardDto {
     /**
      * 게시글 ID
      */
@@ -32,7 +32,7 @@ public class NewBoardResponse {
     @JsonProperty("isHot")
     private boolean isHot;
 
-    public NewBoardResponse(Long id, BoardType boardType, String title, Integer commentCount, boolean isHot) {
+    public NewBoardDto(Long id, BoardType boardType, String title, Integer commentCount, boolean isHot) {
         this.id = id;
         this.boardType = boardType;
         this.title = title;
