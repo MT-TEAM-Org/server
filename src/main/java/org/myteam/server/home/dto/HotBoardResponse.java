@@ -8,7 +8,7 @@ import org.myteam.server.board.domain.BoardType;
 
 @Getter
 @NoArgsConstructor
-public class HotBoardDto {
+public class HotBoardResponse {
     /**
      * 순위
      */
@@ -37,7 +37,8 @@ public class HotBoardDto {
     @JsonProperty("isHot")
     private boolean isHot;
 
-    public HotBoardDto(Integer rank, BoardType boardType, Long id, String title, Integer commentCount, boolean isHot) {
+    public HotBoardResponse(Integer rank, BoardType boardType, Long id, String title, Integer commentCount,
+                            boolean isHot) {
         this.rank = rank;
         this.boardType = boardType;
         this.id = id;

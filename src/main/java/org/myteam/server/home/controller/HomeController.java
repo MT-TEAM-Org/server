@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.home.dto.HomeBoardListResponse;
+import org.myteam.server.home.dto.HotBoardResponse;
+import org.myteam.server.home.dto.NewBoardResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,15 +28,28 @@ public class HomeController {
     private final BoardReadService boardReadService;
 
     /**
-     * 실시간 HOT, 최신 게시글 목록 조회
+     * 실시간 HOT 게시글 목록 조회
      */
-    @Operation(summary = "실시간 HOT, 최신 게시글 목록 조회", description = "실시간 HOT 게시글, 실시간 최신 게시글 목록을 조회합니다.")
+    @Operation(summary = "실시간 HOT 게시글 목록 조회", description = "실시간 HOT 게시글 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "실시간 HOT, 최신 게시글 목록 조회 성공")
+            @ApiResponse(responseCode = "200", description = "실시간 HOT 게시글 목록 조회 성공")
     })
-    @GetMapping("/board")
-    public ResponseEntity<ResponseDto<HomeBoardListResponse>> getHomeBoard() {
-        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "실시간 HOT, 최신 게시글 목록 조회 성공",
-                boardReadService.getHomeBoardList()));
+    @GetMapping("/hot")
+    public ResponseEntity<ResponseDto<List<HotBoardResponse>>> getHomeHotList() {
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "실시간 HOT 게시글 목록 조회 성공",
+                boardReadService.getHotBoardList()));
+    }
+
+    /**
+     * 실시간 최신 게시글 목록 조회
+     */
+    @Operation(summary = "실시간 최신 게시글 목록 조회", description = "실시간 최신 게시글 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "실시간 최신 게시글 목록 조회 성공")
+    })
+    @GetMapping("/new")
+    public ResponseEntity<ResponseDto<List<NewBoardResponse>>> getHomeNewList() {
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "실시간 최신 게시글 목록 조회 성공",
+                boardReadService.getNewBoardList()));
     }
 }

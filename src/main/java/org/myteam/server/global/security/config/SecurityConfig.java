@@ -132,7 +132,8 @@ public class SecurityConfig {
             "api/game/discount",
 
             /** @brief 홈 메인*/
-            "/api/home/board"
+            "/api/home/new",
+            "/api/home/hot"
     };
 
     /* Admin 접근 권한 */

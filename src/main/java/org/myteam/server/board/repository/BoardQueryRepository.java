@@ -22,8 +22,8 @@ import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardCommentSearchDto;
 import org.myteam.server.board.dto.reponse.BoardDto;
-import org.myteam.server.home.dto.HotBoardDto;
-import org.myteam.server.home.dto.NewBoardDto;
+import org.myteam.server.home.dto.HotBoardResponse;
+import org.myteam.server.home.dto.NewBoardResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -231,9 +231,9 @@ public class BoardQueryRepository {
     /**
      * 실시간 최신 게시글 목록
      */
-    public List<NewBoardDto> getNewBoardList() {
+    public List<NewBoardResponse> getNewBoardList() {
         return queryFactory
-                .select(Projections.fields(NewBoardDto.class,
+                .select(Projections.fields(NewBoardResponse.class,
                         board.id,
                         board.boardType,
                         board.title,
@@ -254,9 +254,9 @@ public class BoardQueryRepository {
     /**
      * 실시간 HOT 게시글 목록
      */
-    public List<HotBoardDto> getHotBoardList() {
-        List<HotBoardDto> hotBoardList = queryFactory
-                .select(Projections.fields(HotBoardDto.class,
+    public List<HotBoardResponse> getHotBoardList() {
+        List<HotBoardResponse> hotBoardList = queryFactory
+                .select(Projections.fields(HotBoardResponse.class,
                         board.boardType,
                         board.id,
                         board.title,
