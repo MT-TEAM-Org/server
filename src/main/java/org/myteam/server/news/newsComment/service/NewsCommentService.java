@@ -1,5 +1,7 @@
 package org.myteam.server.news.newsComment.service;
 
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.news.domain.News;
@@ -83,7 +85,9 @@ public class NewsCommentService {
 		Member member = securityReadService.getMember();
 		NewsComment newsComment = newsCommentReadService.findByIdLock(newsCommentId);
 
-		newsCommentMemberReadService.confirmExistMember(newsCommentId, member.getPublicId());
+		if (!newsCommentMemberReadService.confirmRecommendMember(newsCommentId, member.getPublicId())) {
+			throw new PlayHiveException(ErrorCode.NEWS_COMMENT_RECOMMEND_NOT_FOUND);
+		}
 
 		newsCommentMemberService.deleteByNewsCommentIdMemberId(newsCommentId);
 
