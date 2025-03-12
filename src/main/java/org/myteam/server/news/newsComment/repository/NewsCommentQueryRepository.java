@@ -100,7 +100,9 @@ public class NewsCommentQueryRepository {
 	}
 
 	private BooleanExpression existsNewsCommentMember(UUID memberId) {
-		return JPAExpressions.selectOne()
+		return memberId == null
+			? Expressions.FALSE
+			: JPAExpressions.selectOne()
 			.from(newsCommentMember)
 			.where(newsCommentMember.newsComment.id.eq(newsComment.id)
 				.and(newsCommentMember.member.publicId.eq(memberId)))
