@@ -65,4 +65,8 @@ public class NoticeCommentReadService {
     public int getCommentCountByMemberPublicId(UUID publicId) {
         return noticeCommentQueryRepository.getCommentCountByPublicId(publicId);
     }
+
+    public List<NoticeCommentSaveResponse> findBestByNoticeId(Long noticeId) {
+        return noticeCommentQueryRepository.getNoticeBestCommentList(noticeId);
+    }
 }

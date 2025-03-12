@@ -20,6 +20,8 @@ import org.myteam.server.util.ClientUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
 @Slf4j
@@ -101,6 +103,24 @@ public class InquiryCommentController {
                 SUCCESS.name(),
                 "문의내역 댓글 삭제 성공",
                 null
+        ));
+    }
+
+    /**
+     * 문의내역 베스트 댓글 목록 조회
+     */
+    @Operation(summary = "문의내역 베스트 댓글 목록 조회 API", description = "문의내역 베스트 댓글을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "베스트 댓글 목록조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "문의내역 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @GetMapping("/{inquiryId}/best/comment")
+    public ResponseEntity<ResponseDto<List<InquiryCommentSaveResponse>>> findBestByInquiryId(@PathVariable Long inquiryId) {
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "개선요청 베스트 댓글 조회 성공",
+                inquiryCommentReadService.findBestByInquiryId(inquiryId)
         ));
     }
 

@@ -101,18 +101,21 @@ public class SecurityConfig {
             /** @brief 문의사항 관련 URL */
             "/api/inquiry/{inquiryId}/comment",
             "/api/inquiry/comment/{inquiryCommentId}",
+            "/api/inquiry/{inquiryId}/best/comment",
 
             /** @brief 공지사항 관련 URL */
             "/api/notice/{noticeId}",
             "/api/notice",
             "/api/notice/comment/{noticeCommentId}",
             "/api/notice/{noticeId}/comment",
+            "/api/notice/{noticeId}/best/comment",
 
             /** @brief 개선요청 관련 URL */
             "/api/improvement/comment/{improvementCommentId}",
             "/api/improvement/{improvementId}/comment",
             "/api/improvement/{improvementId}",
             "/api/improvement",
+            "/api/improvement/{improvementId}/best/comment",
 
             //뉴스
             "/api/news",

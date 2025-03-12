@@ -55,4 +55,8 @@ public class InquiryCommentReadService {
     public int getCommentCountByMemberPublicId(UUID publicId) {
         return inquiryCommentQueryRepository.getCommentCountByPublicId(publicId);
     }
+
+    public List<InquiryCommentSaveResponse> findBestByInquiryId(Long inquiryId) {
+        return inquiryCommentQueryRepository.getInquiryBestCommentList(inquiryId);
+    }
 }
