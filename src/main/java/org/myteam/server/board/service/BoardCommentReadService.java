@@ -67,4 +67,8 @@ public class BoardCommentReadService {
     public boolean existsById(Long id) {
         return boardCommentRepository.existsById(id);
     }
+
+    public int getCommentCountByMemberPublicId(UUID publicId) {
+        return boardCommentQueryRepository.getCommentCountByPublicId(publicId);
+    }
 }

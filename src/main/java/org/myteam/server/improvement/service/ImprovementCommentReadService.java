@@ -68,4 +68,8 @@ public class ImprovementCommentReadService {
         log.info("개선요청 댓글: {} 상세 조회 성공", improvementCommentId);
         return response;
     }
+
+    public int getCommentCountByMemberPublicId(UUID publicId) {
+        return improvementCommentQueryRepository.getCommentCountByPublicId(publicId);
+    }
 }

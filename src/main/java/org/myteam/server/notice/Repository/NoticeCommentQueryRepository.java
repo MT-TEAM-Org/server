@@ -100,6 +100,24 @@ public class NoticeCommentQueryRepository {
         return replies;
     }
 
+    public int getCommentCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(noticeComment.count())
+                .from(noticeComment)
+                .where(noticeComment.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
+    }
+
+    public int getReplyCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(noticeReply.count())
+                .from(noticeReply)
+                .where(noticeReply.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
+    }
+
     private BooleanExpression isNoticeEqualTo(Long noticeId) {
         return noticeComment.notice.id.eq(noticeId);
     }

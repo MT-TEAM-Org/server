@@ -1,6 +1,7 @@
 package org.myteam.server.news.newsComment.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -55,6 +56,10 @@ public class NewsCommentReadService {
 
 	public boolean existsById(Long id) {
 		return newsCommentRepository.existsById(id);
+	}
+
+	public int getCommentCountByMemberPublicId(UUID publicId) {
+		return newsCommentQueryRepository.getCommentCountByPublicId(publicId);
 	}
 
 }

@@ -103,6 +103,24 @@ public class ImprovementCommentQueryRepository {
         return replies;
     }
 
+    public int getCommentCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(improvementComment.count())
+                .from(improvementComment)
+                .where(improvementComment.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
+    }
+
+    public int getReplyCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(improvementReply.count())
+                .from(improvementReply)
+                .where(improvementReply.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
+    }
+
     private BooleanExpression isImprovementCommentEqualTo(Long improvementCommentId) {
         return improvementReply.improvementComment.id.eq(improvementCommentId);
     }

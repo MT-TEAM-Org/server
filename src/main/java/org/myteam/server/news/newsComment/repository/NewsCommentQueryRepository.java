@@ -3,6 +3,7 @@ package org.myteam.server.news.newsComment.repository;
 import static java.util.Optional.*;
 import static org.myteam.server.news.newsComment.domain.QNewsComment.*;
 import static org.myteam.server.news.newsCommentMember.domain.QNewsCommentMember.*;
+import static org.myteam.server.news.newsReply.domain.QNewsReply.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -81,6 +82,15 @@ public class NewsCommentQueryRepository {
 			.orderBy(newsComment.recommendCount.desc())
 			.limit(BEST_COMMENT_COUNT)
 			.fetch();
+	}
+
+	public int getCommentCountByPublicId(UUID publicId) {
+		return queryFactory
+				.select(newsComment.count())
+				.from(newsComment)
+				.where(newsComment.member.publicId.eq(publicId))
+				.fetchOne()
+				.intValue();
 	}
 
 	private long getTotalNewsCount(Long newsId) {

@@ -5,11 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.inquiry.domain.InquiryReply;
+import org.myteam.server.inquiry.repository.InquiryCommentQueryRepository;
 import org.myteam.server.inquiry.repository.InquiryReplyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -18,6 +20,7 @@ import java.util.List;
 public class InquiryReplyReadService {
 
     private final InquiryReplyRepository inquiryReplyRepository;
+    private final InquiryCommentQueryRepository inquiryCommentQueryRepository;
 
     public InquiryReply findById(Long inquiryReplyId) {
         return inquiryReplyRepository.findById(inquiryReplyId)
@@ -30,5 +33,9 @@ public class InquiryReplyReadService {
 
     public boolean existsById(Long id) {
         return inquiryReplyRepository.existsById(id);
+    }
+
+    public int getReplyCountByMemberPublicId(UUID publicId) {
+        return inquiryCommentQueryRepository.getReplyCountByPublicId(publicId);
     }
 }

@@ -133,6 +133,24 @@ public class BoardCommentQueryRepository {
         return replies;
     }
 
+    public int getCommentCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(boardComment.count())
+                .from(boardComment)
+                .where(boardComment.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
+    }
+
+    public int getReplyCountByPublicId(UUID publicId) {
+        return queryFactory
+                .select(boardReply.count())
+                .from(boardReply)
+                .where(boardReply.member.publicId.eq(publicId))
+                .fetchOne()
+                .intValue();
+    }
+
     private BooleanExpression isBoardCommentEqualTo(Long boardCommentId) {
         return boardReply.boardComment.id.eq(boardCommentId);
     }
