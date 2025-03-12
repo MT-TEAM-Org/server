@@ -2,6 +2,8 @@ package org.myteam.server.global.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.inquiry.service.InquiryCommentService;
+import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
