@@ -3,8 +3,10 @@ package org.myteam.server.inquiry.repository;
 import static org.myteam.server.inquiry.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.inquiry.domain.QInquiryReply.inquiryReply;
 
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.*;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InquiryCommentQueryRepository {
 
+    private final int BEST_COMMENT_COUNT = 3;
     private final JPAQueryFactory queryFactory;
 
     public List<InquiryReplyResponse> getRepliesForComments(Long inquiryCommentId) {
@@ -59,6 +62,32 @@ public class InquiryCommentQueryRepository {
                 .where(inquiryReply.member.publicId.eq(publicId))
                 .fetchOne()
                 .intValue();
+    }
+
+    public List<InquiryCommentSaveResponse> getInquiryBestCommentList(Long inquiryId) {
+        return queryFactory
+                .select(Projections.constructor(InquiryCommentSaveResponse.class,
+                        inquiryComment.id,
+                        inquiryComment.inquiry.id,
+                        inquiryComment.createdIp,
+                        inquiryComment.member.publicId,
+                        inquiryComment.member.nickname,
+                        inquiryComment.imageUrl,
+                        inquiryComment.recommendCount,
+                        inquiryComment.comment,
+                        inquiryComment.createDate
+                ))
+                .from(inquiryComment)
+                .where(
+                        isInquiryEqualTo(inquiryId)
+                )
+                .orderBy(inquiryComment.recommendCount.desc(), inquiryComment.createDate.desc())
+                .limit(BEST_COMMENT_COUNT)
+                .fetch();
+    }
+
+    private BooleanExpression isInquiryEqualTo(Long inquiryId) {
+        return inquiryComment.inquiry.id.eq(inquiryId);
     }
 
     private BooleanExpression isInquiryCommentEqualTo(Long inquiryCommentId) {

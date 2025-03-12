@@ -24,6 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NoticeCommentQueryRepository {
 
+    private static final int BEST_COMMENT_COUNT = 3;
+
     private final JPAQueryFactory queryFactory;
     private final MemberRepository memberRepository;
     private final NoticeCommentRecommendReadService noticeCommentRecommendReadService;
@@ -116,6 +118,30 @@ public class NoticeCommentQueryRepository {
                 .where(noticeReply.member.publicId.eq(publicId))
                 .fetchOne()
                 .intValue();
+    }
+
+    public List<NoticeCommentSaveResponse> getNoticeBestCommentList(Long noticeId) {
+        return queryFactory
+                .select(Projections.fields(NoticeCommentSaveResponse.class,
+                        noticeComment.id.as("noticeCommentId"),
+                        noticeComment.notice.id.as("noticeId"),
+                        noticeComment.createdIp,
+                        noticeComment.member.publicId,
+                        noticeComment.member.nickname,
+                        noticeComment.imageUrl,
+                        noticeComment.comment,
+                        noticeComment.recommendCount,
+                        noticeComment.createDate,
+                        noticeComment.lastModifiedDate,
+                        ExpressionUtils.as(Expressions.constant(false), "isRecommended")
+                ))
+                .from(noticeComment)
+                .where(
+                        isNoticeEqualTo(noticeId)
+                )
+                .orderBy(noticeComment.recommendCount.desc(), noticeComment.createDate.desc())
+                .limit(BEST_COMMENT_COUNT)
+                .fetch();
     }
 
     private BooleanExpression isNoticeEqualTo(Long noticeId) {

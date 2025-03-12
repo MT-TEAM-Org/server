@@ -10,12 +10,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.dto.response.ImprovementCommentResponse.*;
 import org.myteam.server.improvement.service.ImprovementCommentRecommendReadService;
 import org.myteam.server.improvement.service.ImprovementReplyRecommendReadService;
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.stereotype.Repository;
 
@@ -27,8 +25,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ImprovementCommentQueryRepository {
 
+    private static final int BEST_COMMENT_COUNT = 3;
+
     private final JPAQueryFactory queryFactory;
-    private final MemberRepository memberRepository;
     private final ImprovementCommentRecommendReadService improvementCommentRecommendReadService;
     private final ImprovementReplyRecommendReadService improvementReplyRecommendReadService;
 
@@ -119,6 +118,30 @@ public class ImprovementCommentQueryRepository {
                 .where(improvementReply.member.publicId.eq(publicId))
                 .fetchOne()
                 .intValue();
+    }
+
+    public List<ImprovementCommentSaveResponse> getImprovementBestCommentList(Long improvementId) {
+        return queryFactory
+                .select(Projections.constructor(ImprovementCommentSaveResponse.class,
+                        improvementComment.id,
+                        improvementComment.improvement.id,
+                        improvementComment.createdIp,
+                        improvementComment.member.publicId,
+                        improvementComment.member.nickname,
+                        improvementComment.imageUrl,
+                        improvementComment.comment,
+                        improvementComment.recommendCount,
+                        improvementComment.createDate,
+                        improvementComment.lastModifiedDate,
+                        ExpressionUtils.as(Expressions.constant(false), "isRecommended")
+                ))
+                .from(improvementComment)
+                .where(
+                        isImprovementEqualTo(improvementId)
+                )
+                .orderBy(improvementComment.recommendCount.desc(), improvementComment.createDate.desc())
+                .limit(BEST_COMMENT_COUNT)
+                .fetch();
     }
 
     private BooleanExpression isImprovementCommentEqualTo(Long improvementCommentId) {

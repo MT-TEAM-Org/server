@@ -25,7 +25,6 @@ import java.util.UUID;
 public class ImprovementCommentReadService {
 
     private final ImprovementCommentRepository improvementCommentRepository;
-    private final MemberRepository memberRepository;
     private final ImprovementCommentQueryRepository improvementCommentQueryRepository;
     private final ImprovementCommentRecommendReadService improvementCommentRecommendReadService;
     private final SecurityReadService securityReadService;
@@ -71,5 +70,9 @@ public class ImprovementCommentReadService {
 
     public int getCommentCountByMemberPublicId(UUID publicId) {
         return improvementCommentQueryRepository.getCommentCountByPublicId(publicId);
+    }
+
+    public List<ImprovementCommentSaveResponse> findBestByImprovementId(Long improvementId) {
+        return improvementCommentQueryRepository.getImprovementBestCommentList(improvementId);
     }
 }
