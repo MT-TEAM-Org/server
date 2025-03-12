@@ -70,6 +70,7 @@ public class NewsCommentQueryRepository {
 					newsComment.member.nickname
 				),
 				newsComment.comment,
+				newsComment.imgUrl,
 				newsComment.ip,
 				newsComment.createDate,
 				newsComment.recommendCount,
