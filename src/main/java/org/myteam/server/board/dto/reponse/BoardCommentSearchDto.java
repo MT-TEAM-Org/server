@@ -9,11 +9,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class BoardCommentSearchDto {
     /**
-     * 댓글 검색 시 결과
+     * 댓글 id
      */
     private Long boardCommentId;
     /**
-     * 댓글 검색 시 결과
+     * 댓글
      */
     private String comment;
+    /**
+     * 이미지
+     */
+    private String imageUrl;
 }
