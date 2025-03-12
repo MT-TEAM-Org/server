@@ -23,7 +23,7 @@ public class Inquiry {
     @NotNull(message = "문의 내용이 없으면 안됩니다.")
     private String content;
 
-    @ManyToOne(optional = true, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "public_id")
     private Member member;
 
