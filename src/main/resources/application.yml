@@ -5,3 +5,8 @@ spring:
   application:
     name: myteam-server
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
