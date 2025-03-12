@@ -272,6 +272,7 @@ public class SecurityConfig {
         configuration.addAllowedMethod("*");
         configuration.addAllowedOriginPattern(frontUrl); // TODO_ 추후 변경 해야함 배포시
         configuration.addAllowedOriginPattern("http://localhost:3000"); // TODO_ 추후 변경 해야함 배포시
+        configuration.addAllowedOriginPattern("https://main.dbbilwoxps3tu.amplifyapp.com");
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader(HEADER_AUTHORIZATION);
         configuration.addExposedHeader(REFRESH_TOKEN_KEY);
