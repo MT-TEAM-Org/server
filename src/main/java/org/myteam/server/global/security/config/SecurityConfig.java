@@ -121,6 +121,7 @@ public class SecurityConfig {
             "/api/news",
             "/api/news/{newId}",
             "/api/news/comment",
+            "/api/news/comment/best/{newsId}",
             "/api/news/comment/{newsCommentId}",
             "/api/news/reply",
             "/api/news/reply/{newReplyId}",
