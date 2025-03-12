@@ -27,6 +27,20 @@ public class PlayHiveExceptionController {
 			);
 	}
 
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(value = IllegalArgumentException.class)
+	public ResponseEntity<?> IllegalArgumentException(IllegalArgumentException e) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(
+				new ErrorResponse(
+					HttpStatus.BAD_REQUEST,
+					e.getMessage(),
+					null
+				)
+			);
+	}
+
 	/**
 	 * 데이터 제약 조건으로 인한 Exception
 	 **/
