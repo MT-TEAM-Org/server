@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.Repository.NoticeRecommendRepository;
+import org.myteam.server.notice.repository.NoticeRecommendRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeRecommend;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,7 @@ public class NoticeCountService {
     private final NoticeRecommendRepository noticeRecommendRepository;
 
     public void recommendNotice(Long noticeId) {
+        log.info("공지사항: {} 추천 요청", noticeId);
         Notice notice = noticeReadService.findById(noticeId);
         Member member = securityReadService.getMember();
 
@@ -31,9 +32,12 @@ public class NoticeCountService {
         recommend(notice, member);
 
         addRecommendCount(notice.getId());
+
+        log.info("공지사항: {} 추천 성공", noticeId);
     }
 
     public void deleteRecommendNotice(Long noticeId) {
+        log.info("개선요청: {} 삭제 요청", noticeId);
         Notice notice = noticeReadService.findById(noticeId);
         Member member = securityReadService.getMember();
 
@@ -42,6 +46,7 @@ public class NoticeCountService {
         noticeRecommendRepository.deleteByNoticeIdAndMemberPublicId(notice.getId(), member.getPublicId());
 
         minusRecommendCount(noticeId);
+        log.info("개선요청: {} 삭제 성공", noticeId);
     }
 
     /**

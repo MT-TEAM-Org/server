@@ -1,4 +1,4 @@
-package org.myteam.server.notice.Repository;
+package org.myteam.server.notice.repository;
 
 import static org.myteam.server.notice.domain.QNoticeComment.noticeComment;
 import static org.myteam.server.notice.domain.QNoticeReply.noticeReply;

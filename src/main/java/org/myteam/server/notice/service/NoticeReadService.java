@@ -8,9 +8,8 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.Repository.NoticeCountRepository;
-import org.myteam.server.notice.Repository.NoticeQueryRepository;
-import org.myteam.server.notice.Repository.NoticeRepository;
+import org.myteam.server.notice.repository.NoticeQueryRepository;
+import org.myteam.server.notice.repository.NoticeRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeServiceRequest;
@@ -20,11 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
-
-import org.myteam.server.notice.Repository.NoticeRepository;
-import org.myteam.server.notice.domain.Notice;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -37,6 +31,7 @@ public class NoticeReadService {
     private final MemberRepository memberRepository;
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeQueryRepository noticeQueryRepository;
+    private final SecurityReadService securityReadService;
 
     public Notice findById(Long noticeId) {
         return noticeRepository.findById(noticeId)
@@ -46,16 +41,16 @@ public class NoticeReadService {
     /**
      * 공지사항 상세 조회
      */
-    public NoticeSaveResponse getNotice(Long noticeId, CustomUserDetails userDetails) {
+    public NoticeSaveResponse getNotice(Long noticeId) {
         log.info("공지사항: {} 상세 조회 호출", noticeId);
 
         Notice notice = findById(noticeId);
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
+        UUID memberPublicId = securityReadService.getAuthenticatedPublicId();
 
         boolean isRecommended = false;
 
-        if (userDetails != null) {
-            UUID memberPublicId = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+        if (memberPublicId != null) {
             isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), memberPublicId);
         }
 

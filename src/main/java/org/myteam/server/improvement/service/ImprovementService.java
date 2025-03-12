@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.*;
@@ -12,6 +13,7 @@ import org.myteam.server.improvement.repository.ImprovementCountRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class ImprovementService {
     private final ImprovementRecommendReadService improvementRecommendReadService;
     private final ImprovementCountReadService improvementCountReadService;
     private final ImprovementReadService improvementReadService;
+    private final S3Service s3Service;
 
     /**
      * 개선요청 작성
@@ -55,6 +58,10 @@ public class ImprovementService {
         Improvement improvement = improvementReadService.findById(improvementId);
         if (!improvement.getMember().getPublicId().equals(member.getPublicId())) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
+        if (MediaUtils.verifyImageUrlAndRequestImageUrl(improvement.getImgUrl(), request.getImgUrl())) {
+            s3Service.deleteFile(improvement.getImgUrl());
         }
 
         improvement.updateImprovement(request.getTitle(), request.getContent(), request.getImgUrl());
@@ -91,6 +98,10 @@ public class ImprovementService {
         Improvement improvement = improvementReadService.findById(improvementId);
         if (!improvement.getMember().getPublicId().equals(member.getPublicId())) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
+        if (improvement.getImgUrl() != null) {
+            s3Service.deleteFile(improvement.getImgUrl());
         }
 
         improvementCountRepository.deleteByImprovementId(improvement.getId());

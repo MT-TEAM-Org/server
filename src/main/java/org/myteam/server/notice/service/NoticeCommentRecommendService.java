@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.Repository.NoticeCommentRecommendRepository;
+import org.myteam.server.notice.repository.NoticeCommentRecommendRepository;
 import org.myteam.server.notice.domain.NoticeComment;
 import org.myteam.server.notice.domain.NoticeCommentRecommend;
 import org.springframework.stereotype.Service;

@@ -3,7 +3,7 @@ package org.myteam.server.notice.service;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.notice.Repository.NoticeCountRepository;
+import org.myteam.server.notice.repository.NoticeCountRepository;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

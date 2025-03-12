@@ -1,4 +1,4 @@
-package org.myteam.server.notice.Repository;
+package org.myteam.server.notice.repository;
 
 import org.myteam.server.notice.domain.Notice;
 import org.springframework.data.jpa.repository.JpaRepository;

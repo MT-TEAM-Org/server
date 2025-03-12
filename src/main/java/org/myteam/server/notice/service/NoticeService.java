@@ -4,14 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.Repository.NoticeCountRepository;
-import org.myteam.server.notice.Repository.NoticeRepository;
+import org.myteam.server.notice.repository.NoticeCountRepository;
+import org.myteam.server.notice.repository.NoticeRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.dto.request.NoticeRequest.*;
 import org.myteam.server.notice.dto.response.NoticeResponse.*;
+import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class NoticeService {
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeReadService noticeReadService;
     private final NoticeCountReadService noticeCountReadService;
+    private final S3Service s3Service;
 
     /**
      * 공지사항 작성
@@ -80,6 +83,10 @@ public class NoticeService {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
+        if (MediaUtils.verifyImageUrlAndRequestImageUrl(notice.getImgUrl(), request.getImgUrl())) {
+            s3Service.deleteFile(notice.getImgUrl());
+        }
+
         notice.updateNotice(request.getTitle(), request.getContent(), request.getImgUrl());
         noticeRepository.save(notice);
 
@@ -105,6 +112,10 @@ public class NoticeService {
         Notice notice = noticeReadService.findById(noticeId);
         if (notice.getMember().getPublicId() != member.getPublicId()) {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        }
+
+        if (notice.getImgUrl() != null) {
+            s3Service.deleteFile(notice.getImgUrl());
         }
 
         noticeCountRepository.deleteByNoticeId(notice.getId());

@@ -68,7 +68,7 @@ public class ImprovementReplyService {
         improvementReply.verifyNoticeReplyAuthor(member);
         if (MediaUtils.verifyImageUrlAndRequestImageUrl(improvementReply.getImageUrl(), request.getImageUrl())) {
             // 기존 이미지와 요청 이미지가 같지 않으면 삭제
-            s3Service.deleteFile(MediaUtils.getImagePath(request.getImageUrl()));
+            s3Service.deleteFile(MediaUtils.getImagePath(improvementReply.getImageUrl()));
         }
 
         Member mentionedMember = request.getMentionedPublicId() != null ?
