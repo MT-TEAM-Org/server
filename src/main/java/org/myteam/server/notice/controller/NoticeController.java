@@ -17,6 +17,7 @@ import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.notice.dto.request.NoticeRequest.*;
 import org.myteam.server.notice.dto.response.NoticeResponse.*;
+import org.myteam.server.notice.service.NoticeCountService;
 import org.myteam.server.notice.service.NoticeReadService;
 import org.myteam.server.notice.service.NoticeService;
 import org.myteam.server.util.ClientUtils;
@@ -33,6 +34,7 @@ public class NoticeController {
 
     private final NoticeService noticeService;
     private final NoticeReadService noticeReadService;
+    private final NoticeCountService noticeCountService;
 
     /**
      * 공지사항 생성
@@ -107,9 +109,9 @@ public class NoticeController {
             @ApiResponse(responseCode = "404", description = "해당 공지사항이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{noticeId}")
-    public ResponseEntity<ResponseDto<NoticeSaveResponse>> getNotice(@PathVariable Long noticeId,
-                                                                     @AuthenticationPrincipal final CustomUserDetails userDetails) {
-        NoticeSaveResponse response = noticeReadService.getNotice(noticeId, userDetails);
+    public ResponseEntity<ResponseDto<NoticeSaveResponse>> getNotice(@PathVariable Long noticeId) {
+        noticeCountService.addViewCount(noticeId);
+        NoticeSaveResponse response = noticeReadService.getNotice(noticeId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "공지사항 조회 성공",

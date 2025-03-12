@@ -23,6 +23,7 @@ public class ImprovementCountService {
     private final ImprovementCountReadService improvementCountReadService;
 
     public void recommendImprovement(Long improvementId) {
+        log.info("개선요청: {} 추천 요청", improvementId);
         Improvement improvement = improvementReadService.findById(improvementId);
         Member member = securityReadService.getMember();
 
@@ -31,9 +32,11 @@ public class ImprovementCountService {
         recommend(improvement, member);
 
         addRecommendCount(improvement.getId());
+        log.info("개선요청: {} 추천 성공", improvementId);
     }
 
     public void deleteRecommendImprovement(Long improvementId) {
+        log.info("개선요청: {} 삭제 요청", improvementId);
         Improvement improvement = improvementReadService.findById(improvementId);
         Member member = securityReadService.getMember();
 
@@ -42,6 +45,7 @@ public class ImprovementCountService {
         improvementRecommendRepository.deleteByImprovementIdAndMemberPublicId(improvement.getId(), member.getPublicId());
 
         minusRecommendCount(improvementId);
+        log.info("개선요청: {} 삭제 성공", improvementId);
     }
 
     /**

@@ -7,8 +7,8 @@ import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.Repository.NoticeCommentRepository;
-import org.myteam.server.notice.Repository.NoticeReplyRepository;
+import org.myteam.server.notice.repository.NoticeCommentRepository;
+import org.myteam.server.notice.repository.NoticeReplyRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeComment;
 import org.myteam.server.notice.domain.NoticeReply;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service

@@ -7,15 +7,11 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.Repository.NoticeReplyRepository;
+import org.myteam.server.notice.repository.NoticeReplyRepository;
 import org.myteam.server.notice.domain.NoticeComment;
 import org.myteam.server.notice.domain.NoticeReply;
 import org.myteam.server.notice.dto.request.NoticeCommentRequest.*;
 import org.myteam.server.notice.dto.response.NoticeCommentResponse.*;
-import org.myteam.server.notice.service.NoticeCommentReadService;
-import org.myteam.server.notice.service.NoticeCountService;
-import org.myteam.server.notice.service.NoticeReplyReadService;
-import org.myteam.server.notice.service.NoticeReplyRecommendReadService;
 import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,9 +65,9 @@ public class NoticeReplyService {
         NoticeReply noticeReply = noticeReplyReadService.findById(noticeReplyId);
 
         noticeReply.verifyNoticeReplyAuthor(member);
-        if (!MediaUtils.verifyImageUrlAndRequestImageUrl(noticeReply.getImageUrl(), request.getImageUrl())) {
+        if (MediaUtils.verifyImageUrlAndRequestImageUrl(noticeReply.getImageUrl(), request.getImageUrl())) {
             // 기존 이미지와 요청 이미지가 같지 않으면 삭제
-            s3Service.deleteFile(MediaUtils.getImagePath(request.getImageUrl()));
+            s3Service.deleteFile(MediaUtils.getImagePath(noticeReply.getImageUrl()));
         }
 
         Member mentionedMember = request.getMentionedPublicId() != null ?

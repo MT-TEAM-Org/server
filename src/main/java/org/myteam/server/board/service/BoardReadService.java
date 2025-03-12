@@ -16,7 +16,7 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.mypage.dto.request.MyBoardServiceRequest;
-import org.myteam.server.notice.Repository.NoticeQueryRepository;
+import org.myteam.server.notice.repository.NoticeQueryRepository;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
