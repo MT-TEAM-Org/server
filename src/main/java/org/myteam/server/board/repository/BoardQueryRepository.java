@@ -9,6 +9,8 @@ import static org.myteam.server.member.entity.QMember.member;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +46,7 @@ public class BoardQueryRepository {
                                        BoardSearchType searchType, String search, Pageable pageable) {
 
         List<BoardDto> content = queryFactory
-                .select(Projections.constructor(BoardDto.class,
+                .selectDistinct(Projections.constructor(BoardDto.class,
                         board.boardType,
                         board.categoryType,
                         board.id,
@@ -73,7 +75,7 @@ public class BoardQueryRepository {
         long total = getTotalBoardCount(boardType, categoryType, searchType, search);
 
         // searchType이 COMMENT일 경우, 댓글 데이터 추가
-        if (searchType == BoardSearchType.COMMENT && search != null) {
+        if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
 
                 BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
@@ -88,21 +90,27 @@ public class BoardQueryRepository {
     }
 
     private BoardCommentSearchDto getSearchBoardComment(Long boardId, String search) {
-        return queryFactory
+        JPQLQuery<BoardCommentSearchDto> query = queryFactory
                 .select(Projections.fields(BoardCommentSearchDto.class,
                         boardComment.id.as("boardCommentId"),
-                        boardComment.comment
+                        boardComment.comment,
+                        boardComment.imageUrl
                 ))
                 .from(boardComment)
-                .where(boardComment.board.id.eq(boardId)
-                        .and(boardComment.comment.like("%" + search + "%")))
-                .orderBy(boardComment.createDate.desc(), boardComment.comment.asc())
+                .where(boardComment.board.id.eq(boardId));
+
+        // 검색어가 있을 경우 해당 검색어를 포함하는 댓글만 조회
+        if (search != null && !search.isEmpty()) {
+            query.where(boardComment.comment.like("%" + search + "%"));
+        }
+
+        return query.orderBy(boardComment.createDate.desc(), boardComment.comment.asc())
                 .fetchFirst();
     }
 
 
     private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search) {
-        if (searchType == null || search == null || search.isEmpty()) {
+        if (searchType == null) {
             return null;
         }
 
@@ -112,6 +120,18 @@ public class BoardQueryRepository {
             case TITLE_CONTENT -> board.title.like("%" + search + "%")
                     .or(board.content.like("%" + search + "%"));
             case NICKNAME -> board.member.nickname.like("%" + search + "%");
+            case COMMENT -> {
+                JPQLQuery<Long> subQuery = JPAExpressions
+                        .select(boardComment.board.id)
+                        .distinct()
+                        .from(boardComment);
+
+                if (search != null && !search.isEmpty()) {
+                    subQuery.where(boardComment.comment.like("%" + search + "%"));
+                }
+
+                yield board.id.in(subQuery);
+            }
             default -> null;
         };
     }
@@ -120,7 +140,7 @@ public class BoardQueryRepository {
                                     String search) {
         return ofNullable(
                 queryFactory
-                        .select(board.count())
+                        .select(board.countDistinct())
                         .from(board)
                         .where(isBoardTypeEqualTo(boardType), isCategoryEqualTo(categoryType),
                                 isSearchTypeLikeTo(searchType, search))
@@ -154,7 +174,7 @@ public class BoardQueryRepository {
                                          Pageable pageable, UUID publicId) {
 
         List<BoardDto> content = queryFactory
-                .select(Projections.constructor(BoardDto.class,
+                .selectDistinct(Projections.constructor(BoardDto.class,
                         board.boardType,
                         board.categoryType,
                         board.id,
@@ -181,6 +201,18 @@ public class BoardQueryRepository {
 
         long total = getTotalMyBoardCount(searchType, search, publicId);
 
+        // searchType이 COMMENT일 경우, 댓글 데이터 추가
+        if (searchType == BoardSearchType.COMMENT) {
+            content.forEach(boardDto -> {
+
+                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+
+                if (commentSearch != null) {
+                    boardDto.setBoardCommentSearchList(commentSearch);
+                }
+            });
+        }
+
         log.info("검색 완료 total: {}", total);
 
         return new PageImpl<>(content, pageable, total);
@@ -202,7 +234,7 @@ public class BoardQueryRepository {
     private long getTotalMyBoardCount(BoardSearchType searchType, String search, UUID publicId) {
         return ofNullable(
                 queryFactory
-                        .select(board.count())
+                        .select(board.countDistinct())
                         .from(board)
                         .join(member).on(member.eq(board.member))
                         .where(member.publicId.eq(publicId), isSearchTypeLikeTo(searchType, search))
