@@ -30,6 +30,7 @@ public record InquiryResponse() {
             return InquirySaveResponse.builder()
                     .id(inquiry.getId())
                     .content(inquiry.getContent())
+                    .clientIp(ClientUtils.maskIp(inquiry.getClientIp()))
                     .createdAt(inquiry.getCreatedAt())
                     .publicId(inquiry.getMember().getPublicId())
                     .nickname(inquiry.getMember().getNickname())
