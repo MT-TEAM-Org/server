@@ -21,8 +21,8 @@ import org.myteam.server.mypage.dto.response.MyPageResponse.MemberModifyResponse
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
 import org.myteam.server.news.newsComment.service.NewsCommentReadService;
 import org.myteam.server.news.newsReply.service.NewsReplyReadService;
-import org.myteam.server.notice.service.NoticeCommentReadService;
-import org.myteam.server.notice.service.NoticeReplyReadService;
+//import org.myteam.server.notice.service.NoticeCommentReadService;
+//import org.myteam.server.notice.service.NoticeReplyReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +43,8 @@ public class MyPageReadService {
     private final InquiryReplyReadService inquiryReplyReadService;
     private final NewsCommentReadService newsCommentReadService;
     private final NewsReplyReadService newsReplyReadService;
-    private final NoticeCommentReadService noticeCommentReadService;
-    private final NoticeReplyReadService noticeReplyReadService;
+//    private final NoticeCommentReadService noticeCommentReadService;
+//    private final NoticeReplyReadService noticeReplyReadService;
 
     private final InquiryReadService inquiryReadService;
 
@@ -93,8 +93,8 @@ public class MyPageReadService {
                 + inquiryCommentReadService.getCommentCountByMemberPublicId(publicId)
                 + inquiryReplyReadService.getReplyCountByMemberPublicId(publicId)
                 + newsCommentReadService.getCommentCountByMemberPublicId(publicId)
-                + newsReplyReadService.getReplyCountByMemberPublicId(publicId)
-                + noticeCommentReadService.getCommentCountByMemberPublicId(publicId)
-                + noticeReplyReadService.getReplyCountByMemberPublicId(publicId);
+                + newsReplyReadService.getReplyCountByMemberPublicId(publicId);
+//                + noticeCommentReadService.getCommentCountByMemberPublicId(publicId)
+//                + noticeReplyReadService.getReplyCountByMemberPublicId(publicId);
     }
 }

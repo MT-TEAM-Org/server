@@ -7,7 +7,6 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.improvement.domain.ImprovementComment;
 import org.myteam.server.improvement.repository.ImprovementCommentRecommendRepository;
 import org.myteam.server.improvement.repository.ImprovementCommentRepository;
-import org.myteam.server.notice.domain.NoticeComment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

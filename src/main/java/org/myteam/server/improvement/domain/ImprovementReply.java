@@ -9,7 +9,6 @@ import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.notice.domain.NoticeReply;
 
 @Getter
 @Entity

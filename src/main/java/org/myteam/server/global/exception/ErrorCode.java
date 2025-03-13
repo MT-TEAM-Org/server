@@ -42,6 +42,7 @@ public enum ErrorCode {
     INVALID_REPORT_MEMBER(HttpStatus.BAD_REQUEST, "Reported user and report user is same"),
     INVALID_REPORT_TYPE(HttpStatus.BAD_REQUEST, "Not Invalid report Type"),
     INVALID_REPORT_CONTENT_OWNER(HttpStatus.BAD_REQUEST, "This content is not author"),
+    LIMIT_COMMENT_DEPTH(HttpStatus.BAD_REQUEST, "더이상 대댓글을 작성할 수 없습니다."),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -67,6 +68,7 @@ public enum ErrorCode {
     REPORT_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "5분 내 최대 3번까지 신고할 수 있습니다. 다시 시도 가능: {ttl}초 후"),
 
     // 404 Not Found
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "부모 댓글 없음"),
     NOT_FOUND_CERTIFICATION_CODE(HttpStatus.NOT_FOUND, "인증코드 없음"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),

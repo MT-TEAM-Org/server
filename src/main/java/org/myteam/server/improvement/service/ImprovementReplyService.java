@@ -12,7 +12,6 @@ import org.myteam.server.improvement.repository.ImprovementReplyRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.domain.NoticeReply;
 import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

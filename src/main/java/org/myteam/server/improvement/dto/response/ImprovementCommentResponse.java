@@ -5,8 +5,6 @@ import lombok.*;
 import org.myteam.server.improvement.domain.ImprovementComment;
 import org.myteam.server.improvement.domain.ImprovementReply;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.notice.domain.NoticeReply;
-import org.myteam.server.notice.dto.response.NoticeCommentResponse;
 import org.myteam.server.util.ClientUtils;
 
 import java.time.LocalDateTime;

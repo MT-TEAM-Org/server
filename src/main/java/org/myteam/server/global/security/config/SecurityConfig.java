@@ -86,6 +86,8 @@ public class SecurityConfig {
             // 아이디-비밀번호 찾기
             "/api/me/find-id/**",
             "api/me/find-password",
+
+            "/api/notice-comments/**"
     };
 
     /**

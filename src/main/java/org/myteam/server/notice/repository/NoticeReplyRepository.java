@@ -1,13 +1,13 @@
-package org.myteam.server.notice.repository;
-
-import org.myteam.server.notice.domain.NoticeReply;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
-@Repository
-public interface NoticeReplyRepository extends JpaRepository<NoticeReply, Long> {
-
-    List<NoticeReply> findByNoticeCommentId(Long noticeCommentId);
-}
+//package org.myteam.server.notice.repository;
+//
+//import org.myteam.server.notice.domain.NoticeReply;
+//import org.springframework.data.jpa.repository.JpaRepository;
+//import org.springframework.stereotype.Repository;
+//
+//import java.util.List;
+//
+//@Repository
+//public interface NoticeReplyRepository extends JpaRepository<NoticeReply, Long> {
+//
+//    List<NoticeReply> findByNoticeCommentId(Long noticeCommentId);
+//}
