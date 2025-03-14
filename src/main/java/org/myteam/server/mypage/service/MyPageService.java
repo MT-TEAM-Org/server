@@ -37,7 +37,7 @@ public class MyPageService {
 
         String password = passwordEncoder.encode(request.getPassword());
 
-        member.update(password, request.getTel(), request.getNickname());
+        member.update(password, request.getTel(), request.getNickname(), request.getImageUrl());
 
         if (request.getBirthDate() != null) {
             memberValidator.validateBirthDate(request.getBirthDate());

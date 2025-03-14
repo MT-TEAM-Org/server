@@ -53,6 +53,7 @@ public record MyPageResponse() {
         private String nickname;
         private GenderType genderType;
         private String birthDate;
+        private String imageUrl;
 
         public static MemberModifyResponse createResponse(Member member) {
             StringBuilder birthDate = new StringBuilder();
@@ -68,6 +69,7 @@ public record MyPageResponse() {
                     .nickname(member.getNickname())
                     .genderType(member.getGenderType())
                     .birthDate(birthDate.toString())
+                    .imageUrl(member.getImgUrl())
                     .build();
         }
     }
