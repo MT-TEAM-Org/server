@@ -1,6 +1,7 @@
 package org.myteam.server.news.newsReply.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,10 +39,13 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 
 		NewsReplyResponse newsReplyResponse = newsReplyService.save(newsReplySaveServiceRequest);
 
-		assertThat(newsReplyRepository.findById(newsReplyResponse.getNewsReplyId()).get())
-			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip", "imgUrl")
-			.contains(newsReplyResponse.getNewsReplyId(), newsComment.getId(), member.getPublicId(), "대댓글 테스트",
-				"1.1.1.1", "www.test.com");
+		assertAll(
+			() -> assertThat(newsReplyRepository.findById(newsReplyResponse.getNewsReplyId()).get())
+				.extracting("id", "newsComment.id", "member.publicId", "comment", "ip", "imgUrl")
+				.contains(newsReplyResponse.getNewsReplyId(), newsComment.getId(), member.getPublicId(), "대댓글 테스트",
+					"1.1.1.1", "www.test.com"),
+			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getCommentCount()).isEqualTo(11)
+		);
 	}
 
 	@DisplayName("뉴스 대댓글을 수정한다.")
@@ -62,7 +66,8 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 
 		assertThat(newsReplyRepository.findById(updatedReplyId).get())
 			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip", "imgUrl")
-			.contains(newsReply.getId(), newsComment.getId(), member.getPublicId(), "뉴스 대댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com");
+			.contains(newsReply.getId(), newsComment.getId(), member.getPublicId(), "뉴스 대댓글 수정 테스트", "1.1.1.1",
+				"www.modifyTest.com");
 	}
 
 	@DisplayName("뉴스 대댓글을 삭제한다.")
@@ -75,9 +80,12 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 		NewsReply newsReply = createNewsReply(newsComment, member, "뉴스 대댓글 테스트");
 		Long deletedReplyId = newsReplyService.delete(newsReply.getId());
 
-		assertThatThrownBy(() -> newsReplyService.delete(deletedReplyId))
-			.isInstanceOf(PlayHiveException.class)
-			.hasMessage(ErrorCode.NEWS_REPLY_NOT_FOUND.getMsg());
+		assertAll(
+			() -> assertThatThrownBy(() -> newsReplyService.delete(deletedReplyId))
+				.isInstanceOf(PlayHiveException.class)
+				.hasMessage(ErrorCode.NEWS_REPLY_NOT_FOUND.getMsg()),
+			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getCommentCount()).isEqualTo(9)
+		);
 	}
 
 }
