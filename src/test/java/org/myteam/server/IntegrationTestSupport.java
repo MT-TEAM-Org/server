@@ -140,7 +140,7 @@ public abstract class IntegrationTestSupport {
 	protected BoardService boardService;
 	@Autowired
 	protected BoardReadService boardReadService;
-	@MockBean
+	@Autowired
 	protected MemberReadService memberReadService;
 	@Autowired
 	protected BoardCountReadService boardCountReadService;
