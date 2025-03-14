@@ -40,7 +40,7 @@ public class NewsCommentService {
 			NewsComment.createEntity(news, member, newsCommentSaveServiceRequest.getComment(),
 				newsCommentSaveServiceRequest.getIp(), newsCommentSaveServiceRequest.getImgUrl()));
 
-		newsCountService.addCommendCount(news.getId());
+		newsCountService.addCommentCount(news.getId());
 
 		return NewsCommentResponse.createResponse(newsComment, member);
 	}
@@ -63,7 +63,7 @@ public class NewsCommentService {
 
 		newsCommentRepository.deleteById(newsCommentId);
 
-		newsCountService.minusCommendCount(newsComment.getNews().getId());
+		newsCountService.minusCommentCount(newsComment.getNews().getId());
 
 		return newsComment.getId();
 	}

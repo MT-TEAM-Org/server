@@ -43,6 +43,7 @@ public enum ErrorCode {
     INVALID_REPORT_TYPE(HttpStatus.BAD_REQUEST, "Not Invalid report Type"),
     INVALID_REPORT_CONTENT_OWNER(HttpStatus.BAD_REQUEST, "This content is not author"),
     LIMIT_COMMENT_DEPTH(HttpStatus.BAD_REQUEST, "더이상 대댓글을 작성할 수 없습니다."),
+    NOT_SUPPORT_COMMENT_TYPE(HttpStatus.BAD_REQUEST, "This comment type is not supported"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),

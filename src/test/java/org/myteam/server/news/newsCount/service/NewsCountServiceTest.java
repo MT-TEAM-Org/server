@@ -184,7 +184,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 		for (int i = 0; i < threadCount; i++) {
 			executorService.execute(() -> {
 				try {
-					newsCountService.addCommendCount(news.getId());
+					newsCountService.addCommentCount(news.getId());
 				} finally {
 					countDownLatch.countDown();
 				}
@@ -227,7 +227,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 		for (int i = 0; i < threadCount; i++) {
 			executorService.execute(() -> {
 				try {
-					newsCountService.minusCommendCount(news.getId());
+					newsCountService.minusCommentCount(news.getId());
 				} finally {
 					countDownLatch.countDown();
 				}

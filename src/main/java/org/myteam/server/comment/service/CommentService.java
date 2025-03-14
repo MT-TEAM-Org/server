@@ -1,12 +1,15 @@
 package org.myteam.server.comment.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest.*;
 import org.myteam.server.comment.dto.response.CommentResponse.*;
+import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.util.CommentFactory;
 import org.myteam.server.global.exception.ErrorCode;
@@ -18,6 +21,10 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.upload.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,14 +39,25 @@ public class CommentService {
     private final S3Service s3Service;
     private final MemberJpaRepository memberJpaRepository;
     private final CommentReadService commentReadService;
+    private final CommentQueryRepository commentQueryRepository;
+    private Map<CommentType, CommentCountService> countServiceMap;
 
+    @PostConstruct
+    public void init(Map<String, CommentCountService> countServices) {
+        this.countServiceMap = countServices.entrySet().stream()
+                .collect(Collectors.toMap(entry ->
+                        CommentType.valueOf(
+                                entry.getKey().replace("CommentCountService", "").toUpperCase()
+                        ), Map.Entry::getValue)
+                );
+    }
 
     /**
      * 댓글 작성
      */
-    public CommentSaveResponse addComment(CommentSaveRequest request, String createdIp) {
+    public CommentSaveResponse addComment(Long contentId, CommentSaveRequest request, String createdIp) {
         log.info("댓글 작성 요청 - type: {}, contentId: {}, memberId: {}, parentId: {}",
-                request.getType(), request.getContentId(), securityReadService.getMember().getPublicId(), request.getParentId());
+                request.getType(), contentId, securityReadService.getMember().getPublicId(), request.getParentId());
 
         Member member = securityReadService.getMember();
         Member mentionedMember = memberJpaRepository.findByPublicId(request.getMentionedPublicId())
@@ -48,14 +66,19 @@ public class CommentService {
                     return new PlayHiveException(ErrorCode.USER_NOT_FOUND);
                 });
 
-        Comment comment = commentFactory.createComment(request.getType(), request.getContentId(), member, mentionedMember,
+        // 팩토리 패턴을 통해서 comment 생성
+        Comment comment = commentFactory.createComment(request.getType(), contentId, member, mentionedMember,
                 badWordFilter.filterMessage(request.getComment()), request.getImageUrl(), createdIp, request.getParentId());
 
         commentRepository.save(comment);
-        log.info("댓글 작성 완료 - commentId: {}, contentId: {}, 작성자: {}", comment.getId(), request.getContentId(), member.getPublicId());
+        log.info("댓글 작성 완료 - commentId: {}, contentId: {}, 작성자: {}", comment.getId(), contentId, member.getPublicId());
 
-        // TODO: 댓글 카운트 증가
-        // boardCountService.addCommentCount(board.getId());
+        // 댓글 카운트 증가
+        CommentCountService countService = countServiceMap.get(request.getType());
+        if (countService == null) {
+            throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+        }
+        countService.addCommentCount(contentId);
 
         // TODO: 추천 반영
 
@@ -99,7 +122,8 @@ public class CommentService {
     /**
      * 댓글 삭제
      */
-    public void deleteComment(Long commentId) {
+    public void deleteComment(Long contentId, CommentDeleteRequest request) {
+        Long commentId = request.getCommentId();
         Member member = securityReadService.getMember();
         Comment comment = commentReadService.findById(commentId);
 
@@ -109,7 +133,6 @@ public class CommentService {
             throw new PlayHiveException(ErrorCode.POST_AUTHOR_MISMATCH);
         }
 
-        // TODO: 대댓글 삭제 ? 근데 대댓글이 삭제 되는게 맞나? 일단 펜딩
         if (comment.getImageUrl() != null) {
             log.info("이미지 삭제 - commentId: {}, 이미지: {}", commentId, comment.getImageUrl());
             s3Service.deleteFile(MediaUtils.getImagePath(comment.getImageUrl()));
@@ -117,12 +140,26 @@ public class CommentService {
 
         // TODO: 댓글 추천 삭제
 
-        // 댓글 삭제
-        commentRepository.deleteById(commentId);
+        // 대댓글 + 부모 댓글 삭제
+        // 이미지 있는 댓글 조회
+        List<Comment> commentsWithImages = commentQueryRepository.findRepliesWithImages(commentId);
+
+        // S3에서 이미지 삭제
+        for (Comment reply : commentsWithImages) {
+            log.info("S3 이미지 삭제 - commentId: {}, 이미지: {}", reply.getId(), reply.getImageUrl());
+            s3Service.deleteFile(MediaUtils.getImagePath(reply.getImageUrl()));
+        }
+
+        int minusCount = commentQueryRepository.deleteReply(request.getCommentId());
+
         log.info("댓글 삭제 완료 - commentId: {}, 요청자: {}", commentId, member.getPublicId());
 
-        // TODO: 공지사항, 개선요청 .. 댓글 카운트 감소 어떻게 하지?
-        // boardCountService.minusCommentCount(boardComment.getBoard().getId(), minusCount + 1);
+        // 댓글 카운트 감소
+        CommentCountService countService = countServiceMap.get(request.getType());
+        if (countService == null) {
+            throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+        }
+        countService.minusCommentCount(contentId, minusCount);
     }
 }
 

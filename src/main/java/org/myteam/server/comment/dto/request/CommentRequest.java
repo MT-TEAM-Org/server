@@ -23,9 +23,6 @@ public record CommentRequest() {
         @NotNull(message = "댓글 유형(type)은 필수 입력 값입니다.")
         private CommentType type;
 
-        @NotNull(message = "콘텐츠 ID(contentId)는 필수 입력 값입니다.")
-        private Long contentId;
-
         @NotNull(message = "댓글 내용은 필수 입니다.")
         private String comment;
 
@@ -34,5 +31,18 @@ public record CommentRequest() {
         private Long parentId;
 
         private UUID mentionedPublicId;
+    }
+
+    @Data
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    public static final class CommentDeleteRequest {
+        @Schema(description = "댓글 유형", example = "NOTICE", allowableValues = {"NOTICE", "BOARD", "NEWS", "IMPROVEMENT", "INQUIRY"})
+        @NotNull(message = "댓글 유형(type)은 필수 입력 값입니다.")
+        private CommentType type;
+
+        @NotNull
+        private Long commentId;
     }
 }

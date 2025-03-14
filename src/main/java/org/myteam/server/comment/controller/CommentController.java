@@ -32,10 +32,10 @@ public class CommentController {
      */
     @PostMapping("/{contentId}/comment")
     public ResponseEntity<ResponseDto<CommentSaveResponse>> addComment(@PathVariable Long contentId,
-                                                  @Valid @RequestBody CommentSaveRequest request,
-                                                  HttpServletRequest httpServletRequest) {
+                                                                       @Valid @RequestBody CommentSaveRequest request,
+                                                                       HttpServletRequest httpServletRequest) {
 
-        CommentSaveResponse response = commentService.addComment(request, ClientUtils.getRemoteIP(httpServletRequest));
+        CommentSaveResponse response = commentService.addComment(contentId, request, ClientUtils.getRemoteIP(httpServletRequest));
         return ResponseEntity.ok(new ResponseDto<>(
                     SUCCESS.name(),
                     "댓글이 생성되었습니다.",
@@ -61,10 +61,11 @@ public class CommentController {
     /**
      * 댓글 삭제 API
      */
-    @DeleteMapping("/{commentId}")
-    public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long commentId) {
+    @DeleteMapping("/{contentId}/comment")
+    public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long contentId,
+                                                           @Valid @RequestBody CommentDeleteRequest request) {
 
-        commentService.deleteComment(commentId);
+        commentService.deleteComment(contentId, request);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "댓글이 삭제되었습니다.",
