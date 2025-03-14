@@ -15,13 +15,22 @@ import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentSaveServiceRequest;
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentUpdateServiceRequest;
 import org.myteam.server.news.newsComment.dto.service.response.NewsCommentResponse;
+import org.myteam.server.news.newsReply.dto.service.request.NewsReplySaveServiceRequest;
+import org.myteam.server.news.newsReply.dto.service.response.NewsReplyResponse;
+import org.myteam.server.news.newsReply.service.NewsReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
 
 public class NewsCommentServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private NewsCommentService newsCommentService;
+	@Autowired
+	private NewsReplyService newsReplyService;
+	@Autowired
+	private EntityManager entityManager;
 
 	@DisplayName("뉴스댓글을 저장한다.")
 	@Test
@@ -76,6 +85,18 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 		Member member = createMember(1);
 
 		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
+
+		NewsReplySaveServiceRequest newsReplySaveServiceRequest = NewsReplySaveServiceRequest.builder()
+			.newsCommentId(newsComment.getId())
+			.comment("대댓글 테스트")
+			.ip("1.1.1.1")
+			.imgUrl("www.test.com")
+			.build();
+
+		NewsReplyResponse newsReplyResponse = newsReplyService.save(newsReplySaveServiceRequest);
+
+		entityManager.clear();
+
 		Long deletedCommentId = newsCommentService.delete(newsComment.getId());
 
 		assertAll(

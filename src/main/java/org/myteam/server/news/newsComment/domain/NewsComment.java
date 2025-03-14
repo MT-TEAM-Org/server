@@ -1,15 +1,22 @@
 package org.myteam.server.news.newsComment.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.myteam.server.global.domain.Base;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
+import org.myteam.server.news.newsCommentMember.domain.NewsCommentMember;
+import org.myteam.server.news.newsReply.domain.NewsReply;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +44,12 @@ public class NewsComment extends Base {
 	private String imgUrl;
 
 	private int recommendCount;
+
+	@OneToMany(mappedBy = "newsComment", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<NewsCommentMember> newsCommentMemberList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "newsComment", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<NewsReply> newsReplyList = new ArrayList<>();
 
 	@Builder
 	public NewsComment(Long id, News news, Member member, String comment, String ip, String imgUrl,
