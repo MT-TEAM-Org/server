@@ -93,7 +93,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 			.imgUrl("www.test.com")
 			.build();
 
-		NewsReplyResponse newsReplyResponse = newsReplyService.save(newsReplySaveServiceRequest);
+		newsReplyService.save(newsReplySaveServiceRequest);
 
 		entityManager.clear();
 

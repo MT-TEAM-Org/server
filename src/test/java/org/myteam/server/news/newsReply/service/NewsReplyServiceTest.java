@@ -16,6 +16,9 @@ import org.myteam.server.news.newsReply.dto.service.request.NewsReplySaveService
 import org.myteam.server.news.newsReply.dto.service.request.NewsReplyUpdateServiceRequest;
 import org.myteam.server.news.newsReply.dto.service.response.NewsReplyResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
 
 public class NewsReplyServiceTest extends IntegrationTestSupport {
 
@@ -26,7 +29,8 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 	@Test
 	void saveTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
-		Member member = createMember(1);
+		Member mentionedMember = createMember(1);
+		Member member = createMember(2);
 		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트1", 10);
 
 		NewsReplySaveServiceRequest newsReplySaveServiceRequest = NewsReplySaveServiceRequest.builder()
@@ -34,21 +38,23 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 			.comment("대댓글 테스트")
 			.ip("1.1.1.1")
 			.imgUrl("www.test.com")
+			.mentionedPublicId(mentionedMember.getPublicId())
 			.build();
 
 		NewsReplyResponse newsReplyResponse = newsReplyService.save(newsReplySaveServiceRequest);
 
 		assertThat(newsReplyRepository.findById(newsReplyResponse.getNewsReplyId()).get())
-			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip", "imgUrl")
+			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip", "imgUrl", "mentionedMember.publicId")
 			.contains(newsReplyResponse.getNewsReplyId(), newsComment.getId(), member.getPublicId(), "대댓글 테스트",
-				"1.1.1.1", "www.test.com");
+				"1.1.1.1", "www.test.com", mentionedMember.getPublicId());
 	}
 
 	@DisplayName("뉴스 대댓글을 수정한다.")
 	@Test
 	void updateTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
-		Member member = createMember(1);
+		Member mentionedMember = createMember(1);
+		Member member = createMember(2);
 		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
 		NewsReply newsReply = createNewsReply(newsComment, member, "뉴스 대댓글 테스트");
 
@@ -56,13 +62,14 @@ public class NewsReplyServiceTest extends IntegrationTestSupport {
 			.newsReplyId(newsReply.getId())
 			.comment("뉴스 대댓글 수정 테스트")
 			.imgUrl("www.modifyTest.com")
+			.mentionedPublicId(mentionedMember.getPublicId())
 			.build();
 
 		Long updatedReplyId = newsReplyService.update(newsReplyUpdateServiceRequest);
 
 		assertThat(newsReplyRepository.findById(updatedReplyId).get())
-			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip", "imgUrl")
-			.contains(newsReply.getId(), newsComment.getId(), member.getPublicId(), "뉴스 대댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com");
+			.extracting("id", "newsComment.id", "member.publicId", "comment", "ip", "imgUrl", "mentionedMember.publicId")
+			.contains(newsReply.getId(), newsComment.getId(), member.getPublicId(), "뉴스 대댓글 수정 테스트", "1.1.1.1", "www.modifyTest.com", mentionedMember.getPublicId());
 	}
 
 	@DisplayName("뉴스 대댓글을 삭제한다.")

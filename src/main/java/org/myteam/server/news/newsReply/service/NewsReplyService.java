@@ -1,6 +1,9 @@
 package org.myteam.server.news.newsReply.service;
 
+import java.util.UUID;
+
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.service.NewsCommentReadService;
@@ -27,15 +30,19 @@ public class NewsReplyService {
 	private final SecurityReadService securityReadService;
 	private final NewsReplyMemberReadService newsReplyMemberReadService;
 	private final NewsReplyMemberService newsReplyMemberService;
+	private final MemberReadService memberReadService;
 
 	public NewsReplyResponse save(NewsReplySaveServiceRequest newsReplySaveServiceRequest) {
 		NewsComment newsComment = newsCommentReadService.findById(newsReplySaveServiceRequest.getNewsCommentId());
 		Member member = securityReadService.getMember();
 
+		Member mentionedMember = findMentionedMember(newsReplySaveServiceRequest.getMentionedPublicId());
+
 		return NewsReplyResponse.createResponse(
 			newsReplyRepository.save(
 				NewsReply.createEntity(newsComment, member, newsReplySaveServiceRequest.getComment(),
-					newsReplySaveServiceRequest.getIp(), newsReplySaveServiceRequest.getImgUrl())), member
+					newsReplySaveServiceRequest.getIp(), newsReplySaveServiceRequest.getImgUrl(), mentionedMember)),
+			member
 		);
 	}
 
@@ -45,6 +52,9 @@ public class NewsReplyService {
 
 		newsReply.confirmMember(member);
 		newsReply.update(newsReplyUpdateServiceRequest.getComment(), newsReplyUpdateServiceRequest.getImgUrl());
+
+		Member mentionedMember = findMentionedMember(newsReplyUpdateServiceRequest.getMentionedPublicId());
+		newsReply.updateMentionedMember(mentionedMember);
 
 		return newsReply.getId();
 	}
@@ -83,5 +93,12 @@ public class NewsReplyService {
 		newsReply.minusRecommendCount();
 
 		return newsReply.getId();
+	}
+
+	private Member findMentionedMember(UUID publicId) {
+		if (publicId != null) {
+			return memberReadService.findById(publicId);
+		}
+		return null;
 	}
 }

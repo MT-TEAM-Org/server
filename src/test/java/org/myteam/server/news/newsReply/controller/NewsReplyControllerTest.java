@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.ControllerTestSupport;
@@ -26,6 +28,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 			.newsCommentId(1L)
 			.comment("대댓글 테스트")
 			.imgUrl("www.test.com")
+			.mentionedPublicId(UUID.randomUUID())
 			.build();
 
 		// when // then
@@ -50,6 +53,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.comment("대댓글 테스트")
 			.imgUrl("www.test.com")
+			.mentionedPublicId(UUID.randomUUID())
 			.build();
 
 		// when // then
@@ -74,6 +78,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		NewsReplySaveRequest newsReplySaveRequest = NewsReplySaveRequest.builder()
 			.newsCommentId(1L)
 			.imgUrl("www.test.com")
+			.mentionedPublicId(UUID.randomUUID())
 			.build();
 
 		// when // then
@@ -146,6 +151,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		NewsReplyUpdateRequest newsCommentUpdateRequest = NewsReplyUpdateRequest.builder()
 			.newsReplyId(1L)
 			.comment("뉴스 대댓글 테스트")
+			.mentionedPublicId(UUID.randomUUID())
 			.build();
 
 		// when // then
@@ -169,6 +175,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// given
 		NewsReplyUpdateRequest newsCommentUpdateRequest = NewsReplyUpdateRequest.builder()
 			.comment("뉴스 대댓글 테스트")
+			.mentionedPublicId(UUID.randomUUID())
 			.build();
 
 		// when // then
@@ -192,6 +199,7 @@ class NewsReplyControllerTest extends ControllerTestSupport {
 		// given
 		NewsReplyUpdateRequest newsCommentUpdateRequest = NewsReplyUpdateRequest.builder()
 			.newsReplyId(1L)
+			.mentionedPublicId(UUID.randomUUID())
 			.build();
 
 		// when // then
