@@ -32,6 +32,7 @@ public record MyPageRequest() {
         private String nickname;
         private GenderType genderType;
         private String birthDate;
+        private String imageUrl;
     }
 
 }
