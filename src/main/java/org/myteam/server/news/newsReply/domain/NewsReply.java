@@ -4,6 +4,7 @@ import org.myteam.server.global.domain.Base;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.newsComment.domain.NewsComment;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
