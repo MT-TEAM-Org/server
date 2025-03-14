@@ -64,6 +64,7 @@ public class NewsCommentService {
 		newsCommentRepository.deleteById(newsCommentId);
 
 		newsCountService.minusCommendCount(newsComment.getNews().getId());
+		newsCountService.minusCommendCount(newsComment.getNews().getId(), newsComment.getNewsReplyList().size()); //대댓글의 삭제 숫자 만큼 마이너스
 
 		return newsComment.getId();
 	}

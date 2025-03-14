@@ -79,11 +79,9 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 
 	@DisplayName("뉴스댓글을 삭제한다.")
 	@Test
-	@Transactional
 	void deleteTest() {
 		News news = createNews(1, NewsCategory.BASEBALL, 10);
 		Member member = createMember(1);
-
 		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
 
 		NewsReplySaveServiceRequest newsReplySaveServiceRequest = NewsReplySaveServiceRequest.builder()

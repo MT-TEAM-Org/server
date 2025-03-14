@@ -55,6 +55,10 @@ public class NewsCount {
 		this.commentCount -= 1;
 	}
 
+	public void minusCommentCount(int count) {
+		this.commentCount -= count;
+	}
+
 	public void addViewCount() {
 		this.viewCount += 1;
 	}
