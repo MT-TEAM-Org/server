@@ -56,6 +56,10 @@ public class NewsCountService {
 		newsCountReadService.findByNewsIdLock(newsId).minusCommentCount();
 	}
 
+	public void minusCommendCount(Long newsId, int count) {
+		newsCountReadService.findByNewsIdLock(newsId).minusCommentCount(count);
+	}
+
 	public void addViewCount(Long newsId) {
 		newsCountReadService.findByNewsIdLock(newsId).addViewCount();
 	}

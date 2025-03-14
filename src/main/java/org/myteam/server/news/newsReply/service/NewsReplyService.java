@@ -4,6 +4,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.service.NewsCommentReadService;
+import org.myteam.server.news.newsCount.service.NewsCountService;
 import org.myteam.server.news.newsReply.domain.NewsReply;
 import org.myteam.server.news.newsReply.dto.service.request.NewsReplySaveServiceRequest;
 import org.myteam.server.news.newsReply.dto.service.request.NewsReplyUpdateServiceRequest;
@@ -27,10 +28,13 @@ public class NewsReplyService {
 	private final SecurityReadService securityReadService;
 	private final NewsReplyMemberReadService newsReplyMemberReadService;
 	private final NewsReplyMemberService newsReplyMemberService;
+	private final NewsCountService newsCountService;
 
 	public NewsReplyResponse save(NewsReplySaveServiceRequest newsReplySaveServiceRequest) {
 		NewsComment newsComment = newsCommentReadService.findById(newsReplySaveServiceRequest.getNewsCommentId());
 		Member member = securityReadService.getMember();
+
+		newsCountService.addCommendCount(newsComment.getNews().getId());
 
 		return NewsReplyResponse.createResponse(
 			newsReplyRepository.save(
@@ -56,6 +60,7 @@ public class NewsReplyService {
 		newsReply.confirmMember(member);
 
 		newsReplyRepository.deleteById(newsReplyId);
+		newsCountService.minusCommendCount(newsReply.getNewsComment().getNews().getId());
 		return newsReply.getId();
 	}
 
