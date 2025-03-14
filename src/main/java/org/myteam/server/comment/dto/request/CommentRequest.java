@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.global.page.request.PageInfoRequest;
 
 import java.util.UUID;
 
@@ -44,5 +45,18 @@ public record CommentRequest() {
 
         @NotNull
         private Long commentId;
+    }
+
+    @Data
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    public static final class CommentListRequest extends PageInfoRequest {
+        @Schema(description = "댓글 유형", example = "NOTICE", allowableValues = {"NOTICE", "BOARD", "NEWS", "IMPROVEMENT", "INQUIRY"})
+        @NotNull(message = "댓글 유형(type)은 필수 입력 값입니다.")
+        private CommentType type;
+
+        @NotNull
+        private Long contentId;
     }
 }

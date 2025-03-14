@@ -82,7 +82,7 @@ public class CommentService {
 
         // TODO: 추천 반영
 
-        return CommentSaveResponse.createResponse(comment, member, mentionedMember);
+        return CommentSaveResponse.createResponse(comment);
     }
 
     /**
@@ -116,7 +116,7 @@ public class CommentService {
 
         // TODO: 추천 반영
 
-        return CommentSaveResponse.createResponse(comment, member, mentionedMember);
+        return CommentSaveResponse.createResponse(comment);
     }
 
     /**

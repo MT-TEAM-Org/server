@@ -43,6 +43,9 @@ public abstract class Comment extends BaseTime {
     @Column(nullable = false)
     private int depth = 0;
 
+    @Column(name = "comment_type", insertable = false, updatable = false)
+    private String commentType;
+
     public Comment(Member member, Member mentionedMember, String comment, String imageUrl, String createdIp, Comment parent) {
         this.member = member;
         this.mentionedMember = mentionedMember;

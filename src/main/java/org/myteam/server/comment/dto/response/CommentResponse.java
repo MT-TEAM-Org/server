@@ -29,21 +29,23 @@ public record CommentResponse() {
         private boolean isRecommended; // 로그인한 사용자 게시글 댓글 추천 여부
         private int recommendCount; // 추천수
         private UUID mentionedPublicId; // 언급 된 사람
+        private String mentionedNickname; // 언급된 사람 닉네임
         private LocalDateTime createDate; // 작성 일시
         private LocalDateTime lastModifiedDate; // 수정 일시
         @Setter
         private List<CommentSaveResponse> replyList; // 대댓글 리스트
 
-        public static CommentSaveResponse createResponse(Comment comment, Member member, Member mentionedMember) {
+        public static CommentSaveResponse createResponse(Comment comment) {
             return CommentSaveResponse.builder()
                     .commentId(comment.getId())
                     .createdIp(ClientUtils.maskIp(comment.getCreatedIp()))
-                    .publicId(member.getPublicId())
-                    .nickname(member.getNickname())
+                    .publicId(comment.getMember().getPublicId())
+                    .nickname(comment.getMember().getNickname())
                     .imageUrl(comment.getImageUrl())
                     .comment(comment.getComment())
                     .recommendCount(comment.getRecommendCount())
-                    .mentionedPublicId(mentionedMember.getPublicId())
+                    .mentionedPublicId(comment.getMentionedMember().getPublicId())
+                    .mentionedNickname(comment.getMentionedMember().getNickname())
                     .createDate(comment.getCreateDate())
                     .lastModifiedDate(comment.getLastModifiedDate())
                     .build();
