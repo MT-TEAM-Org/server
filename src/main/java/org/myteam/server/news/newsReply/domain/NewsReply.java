@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -39,8 +40,12 @@ public class NewsReply extends Base {
 
 	private int recommendCount;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "mentioned_public_id")
+	private Member mentionedMember; // 대댓글 내용에 언급된 댓글 작성자
+
 	@Builder
-	public NewsReply(Long id, NewsComment newsComment, Member member, String comment, String ip, String imgUrl, int recommendCount) {
+	public NewsReply(Long id, NewsComment newsComment, Member member, String comment, String ip, String imgUrl, int recommendCount, Member mentionedMember) {
 		this.id = id;
 		this.newsComment = newsComment;
 		this.member = member;
@@ -48,6 +53,7 @@ public class NewsReply extends Base {
 		this.ip = ip;
 		this.imgUrl = imgUrl;
 		this.recommendCount = recommendCount;
+		this.mentionedMember = mentionedMember;
 	}
 
 	public void confirmMember(Member member) {
@@ -75,13 +81,18 @@ public class NewsReply extends Base {
 		this.imgUrl = imgUrl;
 	}
 
-	public static NewsReply createEntity(NewsComment newsComment, Member member, String comment, String ip, String imgUrl) {
+	public void updateMentionedMember(Member mentionedMember) {
+		this.mentionedMember = mentionedMember;
+	}
+
+	public static NewsReply createEntity(NewsComment newsComment, Member member, String comment, String ip, String imgUrl, Member mentionedMember) {
 		return NewsReply.builder()
 			.newsComment(newsComment)
 			.member(member)
 			.comment(comment)
 			.ip(ip)
 			.imgUrl(imgUrl)
+			.mentionedMember(mentionedMember)
 			.build();
 	}
 }

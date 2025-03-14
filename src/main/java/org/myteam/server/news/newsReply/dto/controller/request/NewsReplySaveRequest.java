@@ -1,5 +1,7 @@
 package org.myteam.server.news.newsReply.dto.controller.request;
 
+import java.util.UUID;
+
 import org.myteam.server.news.newsReply.dto.service.request.NewsReplySaveServiceRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,12 +22,15 @@ public class NewsReplySaveRequest {
 	private String comment;
 	@Schema(description = "뉴스 대댓글 이미지 (있을 시)")
 	private String imgUrl;
+	@Schema(description = "멘션한 사람 ID (있을 시)")
+	private UUID mentionedPublicId;
 
 	@Builder
-	public NewsReplySaveRequest(Long newsCommentId, String comment, String imgUrl) {
+	public NewsReplySaveRequest(Long newsCommentId, String comment, String imgUrl, UUID mentionedPublicId) {
 		this.newsCommentId = newsCommentId;
 		this.comment = comment;
 		this.imgUrl = imgUrl;
+		this.mentionedPublicId = mentionedPublicId;
 	}
 
 	public NewsReplySaveServiceRequest toServiceRequest(String ip) {
@@ -34,6 +39,7 @@ public class NewsReplySaveRequest {
 			.comment(comment)
 			.ip(ip)
 			.imgUrl(imgUrl)
+			.mentionedPublicId(mentionedPublicId)
 			.build();
 	}
 }
