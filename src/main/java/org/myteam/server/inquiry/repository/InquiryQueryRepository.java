@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.myteam.server.inquiry.domain.QInquiry.*;
-import static org.myteam.server.inquiry.domain.QInquiryComment.inquiryComment;
+//import static org.myteam.server.inquiry.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.inquiry.domain.QInquiryCount.*;
 import static org.myteam.server.member.entity.QMember.member;
 
@@ -56,7 +56,7 @@ public class InquiryQueryRepository {
                 .from(inquiry)
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
                 .join(member).on(member.publicId.eq(memberPublicId))
-                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
+//                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
                         getSearchCondition(searchType, keyword),
                         getOrderType(orderType)
@@ -91,7 +91,7 @@ public class InquiryQueryRepository {
                 .from(inquiry)
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
                 .join(member).on(member.publicId.eq(memberPublicId))
-                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
+//                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
                         getSearchCondition(searchType, keyword),
                         getOrderType(orderType)
@@ -118,7 +118,7 @@ public class InquiryQueryRepository {
 
         return switch (searchType) {
             case CONTENT -> inquiry.content.like("%" + search + "%");
-            case COMMENT -> inquiryComment.comment.like("%" + search + "%");
+//            case COMMENT -> inquiryComment.comment.like("%" + search + "%");
             default -> null;
         };
     }

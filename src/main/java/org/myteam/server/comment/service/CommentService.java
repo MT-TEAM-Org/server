@@ -1,6 +1,7 @@
 package org.myteam.server.comment.service;
 
 import jakarta.annotation.PostConstruct;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.service.BoardCountService;
@@ -19,6 +20,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.upload.service.S3Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,14 +44,59 @@ public class CommentService {
     private final CommentQueryRepository commentQueryRepository;
     private Map<CommentType, CommentCountService> countServiceMap;
 
-    @PostConstruct
-    public void init(Map<String, CommentCountService> countServices) {
+    @Autowired
+    public CommentService(Map<String, CommentCountService> countServices,
+                          CommentRepository commentRepository,
+                          CommentFactory commentFactory,
+                          SecurityReadService securityReadService,
+                          BadWordFilter badWordFilter,
+                          S3Service s3Service,
+                          MemberJpaRepository memberJpaRepository,
+                          CommentReadService commentReadService,
+                          CommentQueryRepository commentQueryRepository) {
+
+        this.commentRepository = commentRepository;
+        this.commentFactory = commentFactory;
+        this.securityReadService = securityReadService;
+        this.badWordFilter = badWordFilter;
+        this.s3Service = s3Service;
+        this.memberJpaRepository = memberJpaRepository;
+        this.commentReadService = commentReadService;
+        this.commentQueryRepository = commentQueryRepository;
+
+        log.info("등록된 CommentCountService Bean 목록: {}", countServices.keySet());
+
         this.countServiceMap = countServices.entrySet().stream()
-                .collect(Collectors.toMap(entry ->
-                        CommentType.valueOf(
-                                entry.getKey().replace("CommentCountService", "").toUpperCase()
-                        ), Map.Entry::getValue)
-                );
+                .peek(entry -> log.info("처리 중: Bean 이름={}, 변환 결과={}",
+                        entry.getKey(), convertBeanNameToEnum(entry.getKey())))
+                .collect(Collectors.toMap(
+                        entry -> {
+                            String convertedName = convertBeanNameToEnum(entry.getKey());
+                            try {
+                                return CommentType.valueOf(convertedName);
+                            } catch (IllegalArgumentException e) {
+                                log.error("잘못된 Bean 이름: {}, 변환 실패 (변환 값: {})", entry.getKey(), convertedName, e);
+                                throw e;
+                            }
+                        },
+                        Map.Entry::getValue
+                ));
+    }
+
+    private String convertBeanNameToEnum(String beanName) {
+        int startIdx = beanName.indexOf("CountService");
+        String typeName = beanName.substring(0, startIdx);
+        return toUpperSnakeCase(typeName);
+    }
+
+    /**
+     * PascalCase를 UPPER_SNAKE_CASE로 변환하는 유틸리티 메서드
+     * "BoardCommentCountService" -> "BOARD"
+     */
+    private String toUpperSnakeCase(String input) {
+        return input.replaceAll("([a-z])([A-Z])", "$1_$2")
+                .toUpperCase()
+                .replace("_COMMENT_COUNT_SERVICE", ""); // 불필요한 "_COMMENT_COUNT_SERVICE" 제거
     }
 
     /**
@@ -61,14 +108,15 @@ public class CommentService {
 
         Member member = securityReadService.getMember();
         Member mentionedMember = memberJpaRepository.findByPublicId(request.getMentionedPublicId())
-                .orElseThrow(() -> {
-                    log.error("댓글 작성 실패 - 멘션된 사용자({})를 찾을 수 없음", request.getMentionedPublicId());
-                    return new PlayHiveException(ErrorCode.USER_NOT_FOUND);
+                .orElseGet(() -> {
+                    log.error("멘션된 사용자({})를 찾을 수 없음", request.getMentionedPublicId());
+                    return null;
                 });
 
         // 팩토리 패턴을 통해서 comment 생성
         Comment comment = commentFactory.createComment(request.getType(), contentId, member, mentionedMember,
                 badWordFilter.filterMessage(request.getComment()), request.getImageUrl(), createdIp, request.getParentId());
+        System.out.println("comment: " + comment.getId() + " ");
 
         commentRepository.save(comment);
         log.info("댓글 작성 완료 - commentId: {}, contentId: {}, 작성자: {}", comment.getId(), contentId, member.getPublicId());

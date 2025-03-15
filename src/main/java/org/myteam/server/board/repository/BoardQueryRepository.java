@@ -2,7 +2,7 @@ package org.myteam.server.board.repository;
 
 import static java.util.Optional.ofNullable;
 import static org.myteam.server.board.domain.QBoard.board;
-import static org.myteam.server.board.domain.QBoardComment.boardComment;
+//import static org.myteam.server.board.domain.QBoardComment.boardComment;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.member.entity.QMember.member;
 
@@ -78,35 +78,35 @@ public class BoardQueryRepository {
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
 
-                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+//                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
 
-                if (commentSearch != null) {
-                    boardDto.setBoardCommentSearchList(commentSearch);
-                }
+//                if (commentSearch != null) {
+//                    boardDto.setBoardCommentSearchList(commentSearch);
+//                }
             });
         }
 
         return new PageImpl<>(content, pageable, total);
     }
 
-    private BoardCommentSearchDto getSearchBoardComment(Long boardId, String search) {
-        JPQLQuery<BoardCommentSearchDto> query = queryFactory
-                .select(Projections.fields(BoardCommentSearchDto.class,
-                        boardComment.id.as("boardCommentId"),
-                        boardComment.comment,
-                        boardComment.imageUrl
-                ))
-                .from(boardComment)
-                .where(boardComment.board.id.eq(boardId));
-
-        // 검색어가 있을 경우 해당 검색어를 포함하는 댓글만 조회
-        if (search != null && !search.isEmpty()) {
-            query.where(boardComment.comment.like("%" + search + "%"));
-        }
-
-        return query.orderBy(boardComment.createDate.desc(), boardComment.comment.asc())
-                .fetchFirst();
-    }
+//    private BoardCommentSearchDto getSearchBoardComment(Long boardId, String search) {
+//        JPQLQuery<BoardCommentSearchDto> query = queryFactory
+//                .select(Projections.fields(BoardCommentSearchDto.class,
+//                        boardComment.id.as("boardCommentId"),
+//                        boardComment.comment,
+//                        boardComment.imageUrl
+//                ))
+//                .from(boardComment)
+//                .where(boardComment.board.id.eq(boardId));
+//
+//        // 검색어가 있을 경우 해당 검색어를 포함하는 댓글만 조회
+//        if (search != null && !search.isEmpty()) {
+//            query.where(boardComment.comment.like("%" + search + "%"));
+//        }
+//
+//        return query.orderBy(boardComment.createDate.desc(), boardComment.comment.asc())
+//                .fetchFirst();
+//    }
 
 
     private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search) {
@@ -120,18 +120,19 @@ public class BoardQueryRepository {
             case TITLE_CONTENT -> board.title.like("%" + search + "%")
                     .or(board.content.like("%" + search + "%"));
             case NICKNAME -> board.member.nickname.like("%" + search + "%");
-            case COMMENT -> {
-                JPQLQuery<Long> subQuery = JPAExpressions
-                        .select(boardComment.board.id)
-                        .distinct()
-                        .from(boardComment);
+            case COMMENT -> null;
+//            {
+//                JPQLQuery<Long> subQuery = JPAExpressions
+//                        .select(boardComment.board.id)
+//                        .distinct()
+//                        .from(boardComment);
+//
+//                if (search != null && !search.isEmpty()) {
+//                    subQuery.where(boardComment.comment.like("%" + search + "%"));
+//                }
 
-                if (search != null && !search.isEmpty()) {
-                    subQuery.where(boardComment.comment.like("%" + search + "%"));
-                }
-
-                yield board.id.in(subQuery);
-            }
+//                yield board.id.in(subQuery);
+//            }
             default -> null;
         };
     }
@@ -205,11 +206,11 @@ public class BoardQueryRepository {
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
 
-                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+//                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
 
-                if (commentSearch != null) {
-                    boardDto.setBoardCommentSearchList(commentSearch);
-                }
+//                if (commentSearch != null) {
+//                    boardDto.setBoardCommentSearchList(commentSearch);
+//                }
             });
         }
 

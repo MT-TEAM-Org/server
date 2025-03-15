@@ -1,14 +1,10 @@
 package org.myteam.server.inquiry.util;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.service.BoardCommentReadService;
-import org.myteam.server.board.service.BoardReadService;
-import org.myteam.server.board.service.BoardReplyReadService;
 import org.myteam.server.inquiry.domain.Inquiry;
-import org.myteam.server.inquiry.service.InquiryCommentReadService;
+//import org.myteam.server.inquiry.service.InquiryCommentReadService;
 import org.myteam.server.inquiry.service.InquiryReadService;
-import org.myteam.server.inquiry.service.InquiryReplyReadService;
+//import org.myteam.server.inquiry.service.InquiryReplyReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.report.util.ReportedContentValidator;
 import org.springframework.stereotype.Component;
@@ -20,25 +16,28 @@ import java.util.UUID;
 public class InquiryReportedContentValidator implements ReportedContentValidator {
 
     private final InquiryReadService inquiryReadService;
-    private final InquiryCommentReadService inquiryCommentReadService;
-    private final InquiryReplyReadService inquiryReplyReadService;
+//    private final InquiryCommentReadService inquiryCommentReadService;
+//    private final InquiryReplyReadService inquiryReplyReadService;
 
     @Override
     public boolean isValid(Long reportedContentId) {
-        return inquiryReadService.existsById(reportedContentId) ||
-                inquiryCommentReadService.existsById(reportedContentId) ||
-                inquiryReplyReadService.existsById(reportedContentId);
+        return inquiryReadService.existsById(reportedContentId);
+//                inquiryCommentReadService.existsById(reportedContentId) ||
+//                inquiryReplyReadService.existsById(reportedContentId);
     }
 
     @Override
     public UUID getOwnerPublicId(Long reportedContentId) {
         if (inquiryReadService.existsById(reportedContentId)) {
             return inquiryReadService.findInquiryById(reportedContentId).getMember().getPublicId();
-        } else if (inquiryCommentReadService.existsById(reportedContentId)) {
-            return inquiryCommentReadService.findById(reportedContentId).getMember().getPublicId();
         } else {
-            return inquiryReplyReadService.findById(reportedContentId).getMember().getPublicId();
+            return null;
         }
+//        else if (inquiryCommentReadService.existsById(reportedContentId)) {
+//            return inquiryCommentReadService.findById(reportedContentId).getMember().getPublicId();
+//        } else {
+//            return inquiryReplyReadService.findById(reportedContentId).getMember().getPublicId();
+//        }
     }
 
     @Override

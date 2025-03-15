@@ -60,46 +60,47 @@ public class CommentQueryRepository {
      */
     public List<CommentSaveResponse> getCommentList(CommentType type, Long contentId, Pageable pageable) {
 
-        NumberExpression<Long> dynamicContentId = new CaseBuilder()
-                .when(comment1.commentType.eq("BOARD")).then(comment1.as(QBoardComment.class).board.id)
-                .when(comment1.commentType.eq("IMPROVEMENT")).then(comment1.as(QImprovementComment.class).improvement.id)
-                .when(comment1.commentType.eq("INQUIRY")).then(comment1.as(QInquiryComment.class).inquiry.id)
-                .when(comment1.commentType.eq("NEWS")).then(comment1.as(QNewsComment.class).news.id)
-                .when(comment1.commentType.eq("NOTICE")).then(comment1.as(QNoticeComment.class).notice.id)
-                .otherwise(Expressions.nullExpression());
-
-        List<CommentSaveResponse> comments = queryFactory
-                .select(Projections.constructor(CommentSaveResponse.class,
-                        comment1.id,
-                        comment1.createdIp,
-                        member.publicId,
-                        member.nickname,
-                        comment1.imageUrl,
-                        comment1.comment,
-                        comment1.recommendCount,
-                        comment1.mentionedMember.publicId,
-                        comment1.mentionedMember.nickname,
-                        comment1.createDate,
-                        comment1.lastModifiedDate,
-                        ExpressionUtils.as(Expressions.constant(false), "isRecommended") // 기본값 false
-                ))
-                .from(comment1)
-                .leftJoin(comment1.member, member) // 작성자 정보 조인
-                .leftJoin(comment1.mentionedMember, member) // 언급된 사용자 정보 조인
-                .where(
-                        dynamicContentId.eq(contentId), // ✅ 동적 contentId 매핑
-                        comment1.commentType.eq(type.name())  // ✅ `comment_type` 값으로 필터링
-                )
-                .orderBy(comment1.createDate.desc(), comment1.comment.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        for (CommentSaveResponse parentComment : comments) {
-            getCommentReply(parentComment);
-        }
-
-        return comments;
+//        NumberExpression<Long> dynamicContentId = new CaseBuilder()
+//                .when(comment1.commentType.eq("BOARD")).then(comment1.as(QBoardComment.class).board.id)
+//                .when(comment1.commentType.eq("IMPROVEMENT")).then(comment1.as(QImprovementComment.class).improvement.id)
+//                .when(comment1.commentType.eq("INQUIRY")).then(comment1.as(QInquiryComment.class).inquiry.id)
+//                .when(comment1.commentType.eq("NEWS")).then(comment1.as(QNewsComment.class).news.id)
+//                .when(comment1.commentType.eq("NOTICE")).then(comment1.as(QNoticeComment.class).notice.id)
+//                .otherwise(Expressions.nullExpression());
+//
+//        List<CommentSaveResponse> comments = queryFactory
+//                .select(Projections.constructor(CommentSaveResponse.class,
+//                        comment1.id,
+//                        comment1.createdIp,
+//                        member.publicId,
+//                        member.nickname,
+//                        comment1.imageUrl,
+//                        comment1.comment,
+//                        comment1.recommendCount,
+//                        comment1.mentionedMember.publicId,
+//                        comment1.mentionedMember.nickname,
+//                        comment1.createDate,
+//                        comment1.lastModifiedDate,
+//                        ExpressionUtils.as(Expressions.constant(false), "isRecommended") // 기본값 false
+//                ))
+//                .from(comment1)
+//                .leftJoin(comment1.member, member) // 작성자 정보 조인
+//                .leftJoin(comment1.mentionedMember, member) // 언급된 사용자 정보 조인
+//                .where(
+//                        dynamicContentId.eq(contentId), // ✅ 동적 contentId 매핑
+//                        comment1.commentType.eq(type.name())  // ✅ `comment_type` 값으로 필터링
+//                )
+//                .orderBy(comment1.createDate.desc(), comment1.comment.asc())
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .fetch();
+//
+//        for (CommentSaveResponse parentComment : comments) {
+//            getCommentReply(parentComment);
+//        }
+//
+//        return comments;
+        return null;
     }
 
     public void getCommentReply(CommentSaveResponse parentComment) {
@@ -135,40 +136,41 @@ public class CommentQueryRepository {
      */
     public List<CommentSaveResponse> getBestCommentList(CommentType type, Long contentId, Pageable pageable) {
 
-        NumberExpression<Long> dynamicContentId = new CaseBuilder()
-                .when(comment1.commentType.eq("BOARD")).then(comment1.as(QBoardComment.class).board.id)
-                .when(comment1.commentType.eq("IMPROVEMENT")).then(comment1.as(QImprovementComment.class).improvement.id)
-                .when(comment1.commentType.eq("INQUIRY")).then(comment1.as(QInquiryComment.class).inquiry.id)
-                .when(comment1.commentType.eq("NEWS")).then(comment1.as(QNewsComment.class).news.id)
-                .when(comment1.commentType.eq("NOTICE")).then(comment1.as(QNoticeComment.class).notice.id)
-                .otherwise(Expressions.nullExpression());
-
-        // ✅ 베스트 댓글 조회 (추천순 정렬)
-        List<CommentSaveResponse> bestComments = queryFactory
-                .select(Projections.constructor(CommentSaveResponse.class,
-                        comment1.id,
-                        comment1.createdIp,
-                        comment1.member.publicId,
-                        comment1.member.nickname,
-                        comment1.imageUrl,
-                        comment1.recommendCount,
-                        comment1.mentionedMember.publicId,
-                        comment1.mentionedMember.nickname,
-                        comment1.createDate,
-                        comment1.lastModifiedDate,
-                        ExpressionUtils.as(Expressions.constant(false), "isRecommended") // 기본값 false
-                ))
-                .from(comment1)
-                .leftJoin(comment1.member, member) // 작성자 정보 조인
-                .leftJoin(comment1.mentionedMember, member) // 언급된 사용자 정보 조인
-                .where(
-                        dynamicContentId.eq(contentId) // ✅ 동적 contentId 매핑
-                )
-                .orderBy(comment1.recommendCount.desc()) // ✅ 추천순 정렬
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        return bestComments;
+//        NumberExpression<Long> dynamicContentId = new CaseBuilder()
+//                .when(comment1.commentType.eq("BOARD")).then(comment1.as(QBoardComment.class).board.id)
+//                .when(comment1.commentType.eq("IMPROVEMENT")).then(comment1.as(QImprovementComment.class).improvement.id)
+//                .when(comment1.commentType.eq("INQUIRY")).then(comment1.as(QInquiryComment.class).inquiry.id)
+//                .when(comment1.commentType.eq("NEWS")).then(comment1.as(QNewsComment.class).news.id)
+//                .when(comment1.commentType.eq("NOTICE")).then(comment1.as(QNoticeComment.class).notice.id)
+//                .otherwise(Expressions.nullExpression());
+//
+//        // ✅ 베스트 댓글 조회 (추천순 정렬)
+//        List<CommentSaveResponse> bestComments = queryFactory
+//                .select(Projections.constructor(CommentSaveResponse.class,
+//                        comment1.id,
+//                        comment1.createdIp,
+//                        comment1.member.publicId,
+//                        comment1.member.nickname,
+//                        comment1.imageUrl,
+//                        comment1.recommendCount,
+//                        comment1.mentionedMember.publicId,
+//                        comment1.mentionedMember.nickname,
+//                        comment1.createDate,
+//                        comment1.lastModifiedDate,
+//                        ExpressionUtils.as(Expressions.constant(false), "isRecommended") // 기본값 false
+//                ))
+//                .from(comment1)
+//                .leftJoin(comment1.member, member) // 작성자 정보 조인
+//                .leftJoin(comment1.mentionedMember, member) // 언급된 사용자 정보 조인
+//                .where(
+//                        dynamicContentId.eq(contentId) // ✅ 동적 contentId 매핑
+//                )
+//                .orderBy(comment1.recommendCount.desc()) // ✅ 추천순 정렬
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize())
+//                .fetch();
+//
+//        return bestComments;
+        return null;
     }
 }

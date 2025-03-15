@@ -5,19 +5,19 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.domain.BoardComment;
+//import org.myteam.server.board.domain.BoardComment;
 import org.myteam.server.board.domain.BoardCount;
-import org.myteam.server.board.domain.BoardReply;
+//import org.myteam.server.board.domain.BoardReply;
 import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardResponse;
 import org.myteam.server.board.dto.request.BoardRequest;
-import org.myteam.server.board.repository.BoardCommentRecommendRepository;
-import org.myteam.server.board.repository.BoardCommentRepository;
+//import org.myteam.server.board.repository.BoardCommentRecommendRepository;
+//import org.myteam.server.board.repository.BoardCommentRepository;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRecommendRepository;
-import org.myteam.server.board.repository.BoardReplyRecommendRepository;
-import org.myteam.server.board.repository.BoardReplyRepository;
+//import org.myteam.server.board.repository.BoardReplyRecommendRepository;
+//import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -40,18 +40,18 @@ public class BoardService {
     private final BoardCountRepository boardCountRepository;
     private final BoardRecommendRepository boardRecommendRepository;
     private final MemberRepository memberRepository;
-    private final BoardCommentRecommendRepository boardCommentRecommendRepository;
-    private final BoardCommentRepository boardCommentRepository;
-    private final BoardReplyRecommendRepository boardReplyRecommendRepository;
-    private final BoardReplyRepository boardReplyRepository;
+//    private final BoardCommentRecommendRepository boardCommentRecommendRepository;
+//    private final BoardCommentRepository boardCommentRepository;
+//    private final BoardReplyRecommendRepository boardReplyRecommendRepository;
+//    private final BoardReplyRepository boardReplyRepository;
 
     private final SecurityReadService securityReadService;
     private final BoardReadService boardReadService;
     private final BoardCountReadService boardCountReadService;
     private final MemberReadService memberReadService;
     private final BoardRecommendReadService boardRecommendReadService;
-    private final BoardCommentReadService boardCommentReadService;
-    private final BoardReplyReadService boardReplyReadService;
+//    private final BoardCommentReadService boardCommentReadService;
+//    private final BoardReplyReadService boardReplyReadService;
 
     private final BoardCountService boardCountService;
     private final S3Service s3Service;
@@ -136,7 +136,7 @@ public class BoardService {
         verifyBoardAuthor(board, member);
 
         // 게시글 댓글, 대댓글 삭제
-        deleteBoardCommentAndBoardReply(board.getId());
+//        deleteBoardCommentAndBoardReply(board.getId());
         //게시글 추천 삭제
         boardRecommendRepository.deleteAllByBoardId(board.getId());
         // 게시글 카운트 삭제
@@ -145,45 +145,45 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-    /**
-     * 게시글 댓글 삭제
-     */
-    private void deleteBoardCommentAndBoardReply(Long boardId) {
-        List<BoardComment> boardCommentList = boardCommentReadService.findAllByBoardId(boardId);
-        if (!boardCommentList.isEmpty()) {
-            boardCommentList.forEach(boardComment -> {
-                // 게시글 대댓글 삭제
-                deleteBoardReply(boardComment.getId());
-                // 댓글 추천 삭제
-                boardCommentRecommendRepository.deleteByBoardCommentId(boardComment.getId());
-                if (boardComment.getImageUrl() != null) {
-                    // S3 이미지 삭제
-                    s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
-                }
-                // 댓글 삭제
-                boardCommentRepository.deleteById(boardComment.getId());
-            });
-        }
-    }
-
-    /**
-     * 게시글 대댓글 삭제
-     */
-    private void deleteBoardReply(Long boardCommentId) {
-        List<BoardReply> boardReplyList = boardReplyReadService.findAllByBoardCommentId(boardCommentId);
-        if (!boardReplyList.isEmpty()) {
-            boardReplyList.forEach(boardReply -> {
-                // 대댓글 추천 삭제
-                boardReplyRecommendRepository.deleteAllByBoardReplyId(boardReply.getId());
-                if (boardReply.getImageUrl() != null) {
-                    // 대댓글 이미지 삭제
-                    s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
-                }
-                // 대댓글 삭제
-                boardReplyRepository.delete(boardReply);
-            });
-        }
-    }
+//    /**
+//     * 게시글 댓글 삭제
+//     */
+//    private void deleteBoardCommentAndBoardReply(Long boardId) {
+//        List<BoardComment> boardCommentList = boardCommentReadService.findAllByBoardId(boardId);
+//        if (!boardCommentList.isEmpty()) {
+//            boardCommentList.forEach(boardComment -> {
+//                // 게시글 대댓글 삭제
+//                deleteBoardReply(boardComment.getId());
+//                // 댓글 추천 삭제
+//                boardCommentRecommendRepository.deleteByBoardCommentId(boardComment.getId());
+//                if (boardComment.getImageUrl() != null) {
+//                    // S3 이미지 삭제
+//                    s3Service.deleteFile(MediaUtils.getImagePath(boardComment.getImageUrl()));
+//                }
+//                // 댓글 삭제
+//                boardCommentRepository.deleteById(boardComment.getId());
+//            });
+//        }
+//    }
+//
+//    /**
+//     * 게시글 대댓글 삭제
+//     */
+//    private void deleteBoardReply(Long boardCommentId) {
+//        List<BoardReply> boardReplyList = boardReplyReadService.findAllByBoardCommentId(boardCommentId);
+//        if (!boardReplyList.isEmpty()) {
+//            boardReplyList.forEach(boardReply -> {
+//                // 대댓글 추천 삭제
+//                boardReplyRecommendRepository.deleteAllByBoardReplyId(boardReply.getId());
+//                if (boardReply.getImageUrl() != null) {
+//                    // 대댓글 이미지 삭제
+//                    s3Service.deleteFile(MediaUtils.getImagePath(boardReply.getImageUrl()));
+//                }
+//                // 대댓글 삭제
+//                boardReplyRepository.delete(boardReply);
+//            });
+//        }
+//    }
 
     /**
      * 게시글 수정

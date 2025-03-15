@@ -9,7 +9,7 @@ import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)  // 단일 테이블 전략 사용
 @DiscriminatorColumn(name = "comment_type") // 타입 구분 컬럼 추가
@@ -43,8 +43,6 @@ public abstract class Comment extends BaseTime {
     @Column(nullable = false)
     private int depth = 0;
 
-    @Column(name = "comment_type", insertable = false, updatable = false)
-    private String commentType;
 
     public Comment(Member member, Member mentionedMember, String comment, String imageUrl, String createdIp, Comment parent) {
         this.member = member;

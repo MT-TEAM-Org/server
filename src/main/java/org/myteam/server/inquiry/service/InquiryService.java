@@ -13,6 +13,7 @@ import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.repository.InquiryCountRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
@@ -36,6 +37,7 @@ public class InquiryService {
     private final SlackService slackService;
     private final SecurityReadService securityReadService;
     private final InquiryReadService inquiryReadService;
+    private final MemberJpaRepository memberJpaRepository;
 
     /**
      * 문의 내역 생성
@@ -44,7 +46,11 @@ public class InquiryService {
      * @return
      */
     public String createInquiry(String content, String clientIP) {
-        Optional<Member> member = securityReadService.getOptionalMember();
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
+        Optional<Member> member = null;
+        if (loginUser != null) {
+            member = memberJpaRepository.findByPublicId(loginUser);
+        }
 
         Inquiry inquiry = makeInquiry(content, clientIP, member);
         InquiryCount inquiryCount = InquiryCount.createCount(inquiry);
