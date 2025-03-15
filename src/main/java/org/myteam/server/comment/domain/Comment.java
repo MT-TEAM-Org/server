@@ -54,9 +54,10 @@ public abstract class Comment extends BaseTime {
         this.depth = (parent == null) ? 0 : parent.depth + 1;
     }
 
-    public void updateComment(String imageUrl, String comment) {
+    public void updateComment(String imageUrl, String comment, Member mentionedMember) {
         this.imageUrl = imageUrl;
         this.comment = comment;
+        this.mentionedMember = mentionedMember;
     }
 
     // 작성자 true
