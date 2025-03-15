@@ -12,7 +12,7 @@ import org.myteam.server.notice.domain.Notice;
 public class NoticeComment extends Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notice_id", nullable = false)
+    @JoinColumn(name = "notice_id")
     private Notice notice;
 
     @Builder

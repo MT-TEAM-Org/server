@@ -12,7 +12,7 @@ import org.myteam.server.member.entity.Member;
 public class InquiryComment extends Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inquiry_id", nullable = false)
+    @JoinColumn(name = "inquiry_id")
     private Inquiry inquiry;
 
     @Builder
@@ -22,7 +22,7 @@ public class InquiryComment extends Comment {
     }
 
     public static InquiryComment createComment(Inquiry inquiry, Member member, Member mentionedMember,
-                                               String imageUrl, String comment, String createdIp, Comment parent) {
+                                               String comment, String imageUrl, String createdIp, Comment parent) {
         return InquiryComment.builder()
                 .inquiry(inquiry)
                 .member(member)

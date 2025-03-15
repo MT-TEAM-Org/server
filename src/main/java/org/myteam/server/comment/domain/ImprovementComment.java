@@ -12,7 +12,7 @@ import org.myteam.server.member.entity.Member;
 public class ImprovementComment extends Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "improvement_id", nullable = false)
+    @JoinColumn(name = "improvement_id")
     private Improvement improvement;
 
     @Builder

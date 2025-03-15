@@ -12,7 +12,7 @@ import org.myteam.server.news.news.domain.News;
 public class NewsComment extends Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "news_id", nullable = false)
+    @JoinColumn(name = "news_id")
     private News news;
 
     @Builder

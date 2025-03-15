@@ -36,6 +36,8 @@ public record CommentResponse() {
         private List<CommentSaveResponse> replyList; // 대댓글 리스트
 
         public static CommentSaveResponse createResponse(Comment comment) {
+            UUID mentionedPublicId = comment.getMentionedMember() == null ? null : comment.getMentionedMember().getPublicId();
+            String mentionedNickname = comment.getMentionedMember() == null ? null : comment.getMentionedMember().getNickname();
             return CommentSaveResponse.builder()
                     .commentId(comment.getId())
                     .createdIp(ClientUtils.maskIp(comment.getCreatedIp()))
@@ -44,8 +46,8 @@ public record CommentResponse() {
                     .imageUrl(comment.getImageUrl())
                     .comment(comment.getComment())
                     .recommendCount(comment.getRecommendCount())
-                    .mentionedPublicId(comment.getMentionedMember().getPublicId())
-                    .mentionedNickname(comment.getMentionedMember().getNickname())
+                    .mentionedPublicId(mentionedPublicId)
+                    .mentionedNickname(mentionedNickname)
                     .createDate(comment.getCreateDate())
                     .lastModifiedDate(comment.getLastModifiedDate())
                     .build();

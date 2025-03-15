@@ -12,7 +12,7 @@ import org.myteam.server.member.entity.Member;
 public class BoardComment extends Comment{
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "board_id")
     private Board board;
 
     @Builder
