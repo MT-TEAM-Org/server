@@ -1,13 +1,11 @@
 package org.myteam.server.upload.service;
 
+import jakarta.validation.ValidationException;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.response.S3FileUploadResponse;
 import org.myteam.server.upload.domain.MediaType;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,11 +22,11 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 @RequiredArgsConstructor
 public class S3Service {
 
-    @Value("${minio.bucket}")
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
+    @Value("${aws.bucket}")
     private String bucket;
-    private final S3Client minioClient;
-    private final S3Presigner minioS3Presigner;
-    private final S3ConfigLocal s3ConfigLocal;
+    private final static String downloadUrl = "https://media.playhive.co.kr/";
 
     /**
      * Presigned URL 생성
@@ -59,18 +57,20 @@ public class S3Service {
             Duration expiration = Duration.ofMinutes(5);
 
             // PresignedPutObjectRequest 생성 (Presigner를 사용하여 Presigned URL을 생성)
-            PresignedPutObjectRequest presignedPutObjectRequest = minioS3Presigner.presignPutObject(
+            PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(
                     presignRequest -> presignRequest.putObjectRequest(putObjectRequest)
                             .signatureDuration(expiration)
             );
 
             S3FileUploadResponse response = S3FileUploadResponse.createResponse(
                     presignedPutObjectRequest.url().toString(),
-                    s3ConfigLocal.getMinioUrl() + "/" + bucket + "/" + uniqueFileName
+                    downloadUrl + uniqueFileName
             );
 
             return response;
+
         } catch (Exception e) {
+            log.error("S3 Presigned URL 생성 실패: {}", e.getMessage(), e);
             throw new RuntimeException("S3 URL 생성 실패");
         }
     }
@@ -90,9 +90,10 @@ public class S3Service {
                     .key(fileName)
                     .build();
 
-            minioClient.deleteObject(deleteObjectRequest);
+            s3Client.deleteObject(deleteObjectRequest);
             return true;
         } catch (S3Exception e) {
+            log.error("S3 파일 삭제 실패: {}", e.awsErrorDetails().errorMessage(), e);
             throw new RuntimeException("S3 URL 삭제 실패");
         }
     }
@@ -106,10 +107,16 @@ public class S3Service {
         String fileExtension = FilenameUtils.getExtension(fileName).toLowerCase();
 
         if (!isValidMimeType(contentType, fileExtension)) {
-            throw new PlayHiveException(ErrorCode.INVALID_MIME_TYPE);
+            String errorMsg = String.format("유효하지 않은 MIME 타입 또는 확장자입니다. contentType=%s, extension=%s", contentType,
+                    fileExtension);
+            log.warn(errorMsg);
+            throw new ValidationException(errorMsg);
         }
     }
 
+    /**
+     * 유효한 MIME 타입 및 확장자 체크
+     */
     private boolean isValidMimeType(String contentType, String fileExtension) {
         for (MediaType type : MediaType.values()) {
             if (type.getValue().equals(contentType)) {

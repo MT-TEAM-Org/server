@@ -66,7 +66,7 @@ import org.myteam.server.news.newsReplyMember.repository.NewsReplyMemberReposito
 import org.myteam.server.upload.config.S3ConfigAws;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
-import org.myteam.server.upload.service.AwsS3Service;
+import org.myteam.server.upload.service.LocalS3Service;
 import org.myteam.server.upload.service.S3Service;
 import org.myteam.server.util.slack.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,9 +165,9 @@ public abstract class IntegrationTestSupport {
     @MockBean
     protected S3Controller s3Controller;
     @MockBean
-    protected S3Service s3Service;
+    protected LocalS3Service localS3Service;
     @MockBean
-    protected AwsS3Service awsS3Service;
+    protected S3Service s3Service;
     @MockBean
     protected SlackService slackService;
 
@@ -195,240 +195,240 @@ public abstract class IntegrationTestSupport {
         memberJpaRepository.deleteAllInBatch();
     }
 
-	protected Member createMember(int index) {
-		Member member = Member.builder()
-			.email("test" + index + "@test.com")
-			.password("1234")
-			.tel("12345")
-			.nickname("test")
-			.role(MemberRole.USER)
-			.type(MemberType.LOCAL)
-			.publicId(UUID.randomUUID())
-			.status(MemberStatus.ACTIVE)
-			.build();
+    protected Member createMember(int index) {
+        Member member = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel("12345")
+                .nickname("test")
+                .role(MemberRole.USER)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
 
-		Member savedMember = memberJpaRepository.save(member);
+        Member savedMember = memberJpaRepository.save(member);
 
-		given(securityReadService.getMember())
-			.willReturn(savedMember);
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
 
-		given(securityReadService.getAuthenticatedPublicId())
-			.willReturn(member.getPublicId());
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
 
-		return savedMember;
-	}
+        return savedMember;
+    }
 
-	protected News createNews(int index, NewsCategory category, int count) {
-		News savedNews = newsRepository.save(News.builder()
-			.title("기사타이틀" + index)
-			.category(category)
-			.thumbImg("www.test.com")
-			.postDate(LocalDateTime.now())
-			.source("www.test.com")
-			.content("뉴스본문")
-			.build());
+    protected News createNews(int index, NewsCategory category, int count) {
+        News savedNews = newsRepository.save(News.builder()
+                .title("기사타이틀" + index)
+                .category(category)
+                .thumbImg("www.test.com")
+                .postDate(LocalDateTime.now())
+                .source("www.test.com")
+                .content("뉴스본문")
+                .build());
 
-		NewsCount newsCount = NewsCount.builder()
-			.recommendCount(count)
-			.commentCount(count)
-			.viewCount(count)
-			.build();
+        NewsCount newsCount = NewsCount.builder()
+                .recommendCount(count)
+                .commentCount(count)
+                .viewCount(count)
+                .build();
 
-		newsCount.updateNews(savedNews);
+        newsCount.updateNews(savedNews);
 
-		newsCountRepository.save(newsCount);
+        newsCountRepository.save(newsCount);
 
-		return savedNews;
-	}
+        return savedNews;
+    }
 
-	protected News createNewsWithPostDate(int index, NewsCategory category, int count, LocalDateTime postTime) {
-		News savedNews = newsRepository.save(News.builder()
-			.title("기사타이틀" + index)
-			.category(category)
-			.thumbImg("www.test.com")
-			.postDate(postTime)
-			.source("www.test.com")
-			.content("뉴스본문")
-			.build());
+    protected News createNewsWithPostDate(int index, NewsCategory category, int count, LocalDateTime postTime) {
+        News savedNews = newsRepository.save(News.builder()
+                .title("기사타이틀" + index)
+                .category(category)
+                .thumbImg("www.test.com")
+                .postDate(postTime)
+                .source("www.test.com")
+                .content("뉴스본문")
+                .build());
 
-		NewsCount newsCount = NewsCount.builder()
-			.recommendCount(count)
-			.commentCount(count)
-			.viewCount(count)
-			.build();
+        NewsCount newsCount = NewsCount.builder()
+                .recommendCount(count)
+                .commentCount(count)
+                .viewCount(count)
+                .build();
 
-		newsCount.updateNews(savedNews);
+        newsCount.updateNews(savedNews);
 
-		newsCountRepository.save(newsCount);
+        newsCountRepository.save(newsCount);
 
-		return savedNews;
-	}
+        return savedNews;
+    }
 
-	protected NewsCountMember createNewsCountMember(Member member, News news) {
-		return newsCountMemberRepository.save(
-			NewsCountMember.builder()
-				.news(news)
-				.member(member)
-				.build()
-		);
-	}
+    protected NewsCountMember createNewsCountMember(Member member, News news) {
+        return newsCountMemberRepository.save(
+                NewsCountMember.builder()
+                        .news(news)
+                        .member(member)
+                        .build()
+        );
+    }
 
-	protected NewsComment createNewsComment(News news, Member member, String comment, int recommendCount) {
-		return newsCommentRepository.save(
-			NewsComment.builder()
-				.news(news)
-				.member(member)
-				.comment(comment)
-				.ip("1.1.1.1")
-				.imgUrl("www.test.com")
-				.recommendCount(recommendCount)
-				.build()
-		);
-	}
+    protected NewsComment createNewsComment(News news, Member member, String comment, int recommendCount) {
+        return newsCommentRepository.save(
+                NewsComment.builder()
+                        .news(news)
+                        .member(member)
+                        .comment(comment)
+                        .ip("1.1.1.1")
+                        .imgUrl("www.test.com")
+                        .recommendCount(recommendCount)
+                        .build()
+        );
+    }
 
-	protected NewsReply createNewsReply(NewsComment newsComment, Member member, String comment) {
-		return newsReplyRepository.save(
-			NewsReply.builder()
-				.newsComment(newsComment)
-				.member(member)
-				.comment(comment)
-				.ip("1.1.1.1")
-				.imgUrl("www.test.com")
-				.build()
-		);
-	}
+    protected NewsReply createNewsReply(NewsComment newsComment, Member member, String comment) {
+        return newsReplyRepository.save(
+                NewsReply.builder()
+                        .newsComment(newsComment)
+                        .member(member)
+                        .comment(comment)
+                        .ip("1.1.1.1")
+                        .imgUrl("www.test.com")
+                        .build()
+        );
+    }
 
-	protected NewsCommentMember createNewsCommentMember(Member member, NewsComment newsComment) {
-		return newsCommentMemberRepository.save(
-			NewsCommentMember.builder()
-				.member(member)
-				.newsComment(newsComment)
-				.build()
-		);
-	}
+    protected NewsCommentMember createNewsCommentMember(Member member, NewsComment newsComment) {
+        return newsCommentMemberRepository.save(
+                NewsCommentMember.builder()
+                        .member(member)
+                        .newsComment(newsComment)
+                        .build()
+        );
+    }
 
-	protected NewsReplyMember createNewsReplyMember(Member member, NewsReply newsReply) {
-		return newsReplyMemberRepository.save(
-			NewsReplyMember.builder()
-				.member(member)
-				.newsReply(newsReply)
-				.build()
-		);
-	}
+    protected NewsReplyMember createNewsReplyMember(Member member, NewsReply newsReply) {
+        return newsReplyMemberRepository.save(
+                NewsReplyMember.builder()
+                        .member(member)
+                        .newsReply(newsReply)
+                        .build()
+        );
+    }
 
-	protected Team createTeam(int index, TeamCategory category) {
-		return teamRepository.save(Team.builder()
-			.name("테스트팀" + index)
-			.logo("www.test.com")
-			.category(category)
-			.build());
-	}
+    protected Team createTeam(int index, TeamCategory category) {
+        return teamRepository.save(Team.builder()
+                .name("테스트팀" + index)
+                .logo("www.test.com")
+                .category(category)
+                .build());
+    }
 
-	protected Match createMatch(Team homeTeam, Team awayTeam, MatchCategory category,
-		LocalDateTime startDate) {
-		return matchRepository.save(Match.builder()
-			.homeTeam(homeTeam)
-			.awayTeam(awayTeam)
-			.category(category)
-			.startTime(startDate)
-			.build());
-	}
+    protected Match createMatch(Team homeTeam, Team awayTeam, MatchCategory category,
+                                LocalDateTime startDate) {
+        return matchRepository.save(Match.builder()
+                .homeTeam(homeTeam)
+                .awayTeam(awayTeam)
+                .category(category)
+                .startTime(startDate)
+                .build());
+    }
 
-	protected MatchPrediction createMatchPrediction(Match match, int home, int away) {
-		return matchPredictionRepository.save(MatchPrediction.builder()
-			.match(match)
-			.home(home)
-			.away(away)
-			.build());
-	}
+    protected MatchPrediction createMatchPrediction(Match match, int home, int away) {
+        return matchPredictionRepository.save(MatchPrediction.builder()
+                .match(match)
+                .home(home)
+                .away(away)
+                .build());
+    }
 
-	protected Board createBoard(Member member, BoardType boardType, CategoryType categoryType, String title,
-		String content) {
+    protected Board createBoard(Member member, BoardType boardType, CategoryType categoryType, String title,
+                                String content) {
 
-		Board board = Board.builder()
-			.member(member)
-			.boardType(boardType)
-			.categoryType(categoryType)
-			.title(title)
-			.content(content)
-			.link("https://www.naver.com")
-			.createdIp("127.0.0.1")
-			.thumbnail("http://localhost:9000/devbucket/inage/1235.png")
-			.build();
+        Board board = Board.builder()
+                .member(member)
+                .boardType(boardType)
+                .categoryType(categoryType)
+                .title(title)
+                .content(content)
+                .link("https://www.naver.com")
+                .createdIp("127.0.0.1")
+                .thumbnail("http://localhost:9000/devbucket/inage/1235.png")
+                .build();
 
-		boardRepository.save(board);
+        boardRepository.save(board);
 
-		BoardCount boardCount = BoardCount.builder()
-			.board(board)
-			.recommendCount(0)
-			.commentCount(0)
-			.viewCount(0)
-			.build();
+        BoardCount boardCount = BoardCount.builder()
+                .board(board)
+                .recommendCount(0)
+                .commentCount(0)
+                .viewCount(0)
+                .build();
 
-		boardCountRepository.save(boardCount);
+        boardCountRepository.save(boardCount);
 
-		return board;
-	}
+        return board;
+    }
 
-	protected BoardRecommend createBoardRecommend(Board board, Member member) {
-		BoardRecommend recommend = BoardRecommend.builder()
-			.board(board)
-			.member(member)
-			.build();
-		boardRecommendRepository.save(recommend);
+    protected BoardRecommend createBoardRecommend(Board board, Member member) {
+        BoardRecommend recommend = BoardRecommend.builder()
+                .board(board)
+                .member(member)
+                .build();
+        boardRecommendRepository.save(recommend);
 
-		return recommend;
-	}
+        return recommend;
+    }
 
-	protected BoardComment createBoardComment(Board board, Member member, String comment) {
-		BoardComment boardComment = BoardComment.builder()
-			.board(board)
-			.member(member)
-			.imageUrl("http://localhost:9000/bucket/test.png")
-			.comment(comment)
-			.createdIp("127.0.0.1")
-			.recommendCount(0)
-			.build();
+    protected BoardComment createBoardComment(Board board, Member member, String comment) {
+        BoardComment boardComment = BoardComment.builder()
+                .board(board)
+                .member(member)
+                .imageUrl("http://localhost:9000/bucket/test.png")
+                .comment(comment)
+                .createdIp("127.0.0.1")
+                .recommendCount(0)
+                .build();
 
-		boardCommentRepository.save(boardComment);
+        boardCommentRepository.save(boardComment);
 
-		return boardComment;
-	}
+        return boardComment;
+    }
 
-	protected BoardCommentRecommend createBoardCommentRecommend(BoardComment boardComment, Member member) {
-		BoardCommentRecommend boardCommentRecommend = BoardCommentRecommend.builder()
-			.boardComment(boardComment)
-			.member(member)
-			.build();
-		boardCommentRecommendRepository.save(boardCommentRecommend);
+    protected BoardCommentRecommend createBoardCommentRecommend(BoardComment boardComment, Member member) {
+        BoardCommentRecommend boardCommentRecommend = BoardCommentRecommend.builder()
+                .boardComment(boardComment)
+                .member(member)
+                .build();
+        boardCommentRecommendRepository.save(boardCommentRecommend);
 
-		return boardCommentRecommend;
-	}
+        return boardCommentRecommend;
+    }
 
-	protected BoardReply createBoardReply(BoardComment boardComment, Member member, String comment,
-		Member mentionedMember) {
-		BoardReply boardReply = BoardReply.builder()
-			.boardComment(boardComment)
-			.member(member)
-			.imageUrl("http://localhost:9000/bucket/test.png")
-			.comment(comment)
-			.createdIp("127.0.0.1")
-			.recommendCount(0)
-			.mentionedMember(mentionedMember)
-			.build();
+    protected BoardReply createBoardReply(BoardComment boardComment, Member member, String comment,
+                                          Member mentionedMember) {
+        BoardReply boardReply = BoardReply.builder()
+                .boardComment(boardComment)
+                .member(member)
+                .imageUrl("http://localhost:9000/bucket/test.png")
+                .comment(comment)
+                .createdIp("127.0.0.1")
+                .recommendCount(0)
+                .mentionedMember(mentionedMember)
+                .build();
 
-		boardReplyRepository.save(boardReply);
+        boardReplyRepository.save(boardReply);
 
-		return boardReply;
-	}
+        return boardReply;
+    }
 
-	protected BoardReplyRecommend createBoardReplyRecommend(BoardReply boardReply, Member member) {
-		BoardReplyRecommend boardReplyRecommend = BoardReplyRecommend.builder()
-			.boardReply(boardReply)
-			.member(member)
-			.build();
-		boardReplyRecommendRepository.save(boardReplyRecommend);
+    protected BoardReplyRecommend createBoardReplyRecommend(BoardReply boardReply, Member member) {
+        BoardReplyRecommend boardReplyRecommend = BoardReplyRecommend.builder()
+                .boardReply(boardReply)
+                .member(member)
+                .build();
+        boardReplyRecommendRepository.save(boardReplyRecommend);
 
-		return boardReplyRecommend;
-	}
+        return boardReplyRecommend;
+    }
 }
