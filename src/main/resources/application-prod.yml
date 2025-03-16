@@ -2,12 +2,14 @@ spring:
   jackson:
     time-zone: Asia/Seoul
 
-  # TODO :: 운영 DB로 바꾸기
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_NAME}?useSSL=false&serverTimezone=Asia/Seoul
-    username: playhive
-    password: ${DB_PASSWORD}
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:tcp://localhost/~/phtest
+    username: sa
+    password:
+    h2:
+      console:
+        enabled: true
 
   jpa:
     show-sql: false
@@ -19,7 +21,7 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
       #  create	기존테이블을 삭제하고 다시 생성
       #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
       #  update	변경된 스키마 적용 (운영 DB 에서 사용X)
