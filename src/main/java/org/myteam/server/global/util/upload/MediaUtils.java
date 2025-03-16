@@ -3,7 +3,7 @@ package org.myteam.server.global.util.upload;
 public class MediaUtils {
 //    private static final String BUCKET_PREFIX = "devbucket/";
 
-    private static final String MEDIA_DOMAIN = "https://media.playhive.co.kr/";
+    private static final String MEDIA_DOMAIN = System.getenv("AWS_URL");
 
     public static String getImagePath(String url) {
         if (url == null || !url.contains(MEDIA_DOMAIN)) {

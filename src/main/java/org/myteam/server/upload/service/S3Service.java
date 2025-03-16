@@ -26,7 +26,8 @@ public class S3Service {
     private final S3Presigner s3Presigner;
     @Value("${aws.bucket}")
     private String bucket;
-    private final static String downloadUrl = "https://media.playhive.co.kr/";
+    @Value("${aws.url}")
+    private String downloadUrl;
 
     /**
      * Presigned URL 생성
