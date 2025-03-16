@@ -2,6 +2,7 @@ spring:
   jackson:
     time-zone: Asia/Seoul
 
+  # TODO :: 운영 DB로 바꾸기
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_NAME}?useSSL=false&serverTimezone=Asia/Seoul
@@ -50,12 +51,12 @@ slack:
   webhook:
     url: ${SLACK_WEBHOOK_URL}
 
-minio:
-  url: ${MINIO_URL}
-  access-key: ${MINIO_ACCESS_KEY}
-  secret-key: ${MINIO_SECRET_KEY}
-  region: ${MINIO_REGION}
-  bucket: ${MINIO_BUCKET}
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION}
+  bucket: ${AWS_BUCKET}
+  url: ${AWS_URL}
 
 playhive:
   control:

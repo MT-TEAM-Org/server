@@ -7,12 +7,12 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.repository.NoticeReplyRepository;
 import org.myteam.server.notice.domain.NoticeComment;
 import org.myteam.server.notice.domain.NoticeReply;
-import org.myteam.server.notice.dto.request.NoticeCommentRequest.*;
-import org.myteam.server.notice.dto.response.NoticeCommentResponse.*;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.notice.dto.request.NoticeCommentRequest.NoticeReplySaveRequest;
+import org.myteam.server.notice.dto.response.NoticeCommentResponse.NoticeReplyResponse;
+import org.myteam.server.notice.repository.NoticeReplyRepository;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ public class NoticeReplyService {
     private final NoticeCountService noticeCountService;
     private final NoticeReplyRecommendReadService noticeReplyRecommendReadService;
     private final NoticeReplyReadService noticeReplyReadService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
     private final NoticeReplyRepository noticeReplyRepository;
 
     /**
@@ -51,7 +51,8 @@ public class NoticeReplyService {
         log.info("공지사항 대댓글: {} 생성 성공", noticeCommentId);
 
         noticeCountService.addCommentCount(noticeComment.getNotice().getId());
-        boolean isRecommended = noticeReplyRecommendReadService.isRecommended(noticeReply.getId(), member.getPublicId());
+        boolean isRecommended = noticeReplyRecommendReadService.isRecommended(noticeReply.getId(),
+                member.getPublicId());
 
         return NoticeReplyResponse.createResponse(noticeReply, member, mentionedMember, isRecommended);
     }
@@ -73,12 +74,14 @@ public class NoticeReplyService {
         Member mentionedMember = request.getMentionedPublicId() != null ?
                 memberReadService.findById(request.getMentionedPublicId()) : null;
 
-        noticeReply.updateReply(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()), mentionedMember);
+        noticeReply.updateReply(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()),
+                mentionedMember);
         noticeReplyRepository.save(noticeReply);
 
         log.info("공지사항 대댓글: {} 수정 성공", noticeReplyId);
 
-        boolean isRecommended = noticeReplyRecommendReadService.isRecommended(noticeReply.getId(), member.getPublicId());
+        boolean isRecommended = noticeReplyRecommendReadService.isRecommended(noticeReply.getId(),
+                member.getPublicId());
 
         return NoticeReplyResponse.createResponse(noticeReply, member, mentionedMember, isRecommended);
     }

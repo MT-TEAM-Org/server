@@ -9,6 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.myteam.server.upload.controller.response.S3FileUploadResponse;
 import org.myteam.server.upload.domain.MediaType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -20,7 +21,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class S3Service {
+@Profile("prod")
+public class S3Service implements StorageService {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;

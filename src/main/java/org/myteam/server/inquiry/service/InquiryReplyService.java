@@ -6,13 +6,13 @@ import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.inquiry.domain.InquiryComment;
 import org.myteam.server.inquiry.domain.InquiryReply;
-import org.myteam.server.inquiry.dto.request.InquiryCommentRequest.*;
-import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.*;
+import org.myteam.server.inquiry.dto.request.InquiryCommentRequest.InquiryReplySaveRequest;
+import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.InquiryReplyResponse;
 import org.myteam.server.inquiry.repository.InquiryReplyRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +29,11 @@ public class InquiryReplyService {
     private final BadWordFilter badWordFilter;
     private final InquiryCountService inquiryCountService;
     private final InquiryReplyReadService inquiryReplyReadService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
 
     /**
      * 문의내역 대댓글 생성
+     *
      * @param inquiryCommentId
      * @param request
      * @param createdIp
@@ -48,7 +49,8 @@ public class InquiryReplyService {
                 memberReadService.findById(request.getMentionedPublicId()) : null;
 
         InquiryReply inquiryReply = InquiryReply.createInquiryReply(
-                inquiryComment, member, request.getImageUrl(), badWordFilter.filterMessage(request.getComment()), createdIp, mentionMember
+                inquiryComment, member, request.getImageUrl(), badWordFilter.filterMessage(request.getComment()),
+                createdIp, mentionMember
         );
         inquiryReplyRepository.save(inquiryReply);
         log.info("댓글: {}에 대한 대댓글: {} 생성", inquiryReply.getId());
@@ -60,6 +62,7 @@ public class InquiryReplyService {
 
     /**
      * 문의내역 대댓글 수정
+     *
      * @param inquiryReplyId
      * @param request
      * @return

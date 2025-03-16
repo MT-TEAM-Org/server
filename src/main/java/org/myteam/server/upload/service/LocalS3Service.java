@@ -11,6 +11,7 @@ import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.response.S3FileUploadResponse;
 import org.myteam.server.upload.domain.MediaType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -22,12 +23,13 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LocalS3Service {
+@Profile("dev")
+public class LocalS3Service implements StorageService {
 
-    @Value("${minio.bucket}")
-    private String bucket;
     private final S3Client minioClient;
     private final S3Presigner minioS3Presigner;
+    @Value("${minio.bucket}")
+    private String bucket;
     private final S3ConfigLocal s3ConfigLocal;
 
     /**

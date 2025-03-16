@@ -7,13 +7,13 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
-import org.myteam.server.improvement.dto.request.ImprovementRequest.*;
-import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
+import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSaveRequest;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementSaveResponse;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,7 @@ public class ImprovementService {
     private final ImprovementRecommendReadService improvementRecommendReadService;
     private final ImprovementCountReadService improvementCountReadService;
     private final ImprovementReadService improvementReadService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
 
     /**
      * 개선요청 작성
@@ -42,7 +42,8 @@ public class ImprovementService {
         ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
         improvementCountRepository.save(improvementCount);
 
-        boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(), member.getPublicId());
+        boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
+                member.getPublicId());
 
         log.info("개선요청 생성: {}", improvement.getId());
         return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended);
@@ -69,7 +70,8 @@ public class ImprovementService {
 
         ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
 
-        boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(), member.getPublicId());
+        boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
+                member.getPublicId());
         log.info("개선요청 수정: {}", improvement.getId());
         return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended);
     }

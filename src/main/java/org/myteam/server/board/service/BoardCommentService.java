@@ -17,7 +17,7 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +39,7 @@ public class BoardCommentService {
     private final BoardReplyRepository boardReplyRepository;
 
     private final BadWordFilter badWordFilter;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
 
     /**
      * 게시판 댓글 생성
