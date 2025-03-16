@@ -66,8 +66,7 @@ import org.myteam.server.news.newsReplyMember.repository.NewsReplyMemberReposito
 import org.myteam.server.upload.config.S3ConfigAws;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
-import org.myteam.server.upload.service.LocalS3Service;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.myteam.server.util.slack.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -160,14 +159,16 @@ public abstract class IntegrationTestSupport {
     @MockBean
     protected S3ConfigAws s3ConfigAws;
     @MockBean
+    protected StorageService storageService;
+    @MockBean
     @Qualifier("s3Presigner")
     protected S3Presigner s3Presigner;
     @MockBean
     protected S3Controller s3Controller;
-    @MockBean
-    protected LocalS3Service localS3Service;
-    @MockBean
-    protected S3Service s3Service;
+    //    @MockBean
+//    protected LocalS3Service localS3Service;
+//    @MockBean
+//    protected S3Service s3Service;
     @MockBean
     protected SlackService slackService;
 
