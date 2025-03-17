@@ -71,7 +71,7 @@ public class CommentReadService {
                 request.toServiceRequest().toPageable()
         );
 
-        log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", request.getContentId(), list.size());
+        log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
 
         return CommentSaveListResponse.createResponse(list);
     }
