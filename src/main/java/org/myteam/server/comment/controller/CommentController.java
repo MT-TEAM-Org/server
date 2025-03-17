@@ -98,7 +98,7 @@ public class CommentController {
     /**
      * 댓글 상세 조회
      */
-    @GetMapping("/{commentId}")
+    @GetMapping("/{commentId}/detail")
     public ResponseEntity<ResponseDto<CommentSaveResponse>> getCommentDetail(@PathVariable Long commentId) {
         CommentSaveResponse comment = commentReadService.getCommentDetail(commentId);
 
