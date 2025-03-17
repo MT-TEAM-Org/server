@@ -57,13 +57,6 @@ minio:
   region: ${MINIO_REGION}
   bucket: ${MINIO_BUCKET}
 
-aws:
-  access-key: ${AWS_ACCESS_KEY}
-  secret-key: ${AWS_SECRET_KEY}
-  region: ${AWS_REGION}
-  bucket: ${AWS_BUCKET}
-  url: ${AWS_URL}
-
 playhive:
   control:
     aesSecretKey: ${AES_SECRET_KEY}
