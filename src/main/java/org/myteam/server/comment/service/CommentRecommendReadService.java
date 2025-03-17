@@ -13,18 +13,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class CommentRecommendReadService {
 
-    private final CommentRecommendRepository boardCommentRecommendRepository;
+    private final CommentRecommendRepository commentRecommendRepository;
 
     public void confirmExistRecommend(Long commentId, UUID publicId) {
-        boardCommentRecommendRepository
+        commentRecommendRepository
                 .findByCommentIdAndMemberPublicId(commentId, publicId)
-                    .ifPresent(member -> {
-                        throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_COMMENT);
-                    });
+                .ifPresent(member -> {
+                    throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_COMMENT);
+                });
     }
 
     public boolean isAlreadyRecommended(Long commentId, UUID publicId) {
-        if (!boardCommentRecommendRepository
+        if (!commentRecommendRepository
                 .findByCommentIdAndMemberPublicId(commentId, publicId).isPresent()) {
             throw new PlayHiveException(ErrorCode.NO_MEMBER_RECOMMEND_RECORD);
         }
@@ -32,7 +32,7 @@ public class CommentRecommendReadService {
     }
 
     public boolean isRecommended(Long commentId, UUID publicId) {
-        return boardCommentRecommendRepository
+        return commentRecommendRepository
                 .findByCommentIdAndMemberPublicId(commentId, publicId).isPresent();
     }
 }

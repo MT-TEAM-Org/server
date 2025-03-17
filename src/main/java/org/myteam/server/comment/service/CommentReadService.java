@@ -1,6 +1,7 @@
 package org.myteam.server.comment.service;
 
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
@@ -14,8 +15,6 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -48,11 +47,10 @@ public class CommentReadService {
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
         if (loginUser != null) {
             for (CommentSaveResponse response : list) {
-                boolean isRecommend = commentRecommendReadService.isAlreadyRecommended(response.getCommentId(), loginUser);
+                boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(), loginUser);
                 response.setRecommended(isRecommend);
             }
         }
-
 
         return CommentSaveListResponse.createResponse(list);
     }
@@ -67,7 +65,7 @@ public class CommentReadService {
 
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
         if (loginUser != null) {
-            boolean isRecommend = commentRecommendReadService.isAlreadyRecommended(response.getCommentId(), loginUser);
+            boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(), loginUser);
             response.setRecommended(isRecommend);
         }
 
@@ -91,7 +89,8 @@ public class CommentReadService {
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
         if (loginUser != null) {
             for (CommentSaveResponse response : list) {
-                boolean isRecommend = commentRecommendReadService.isAlreadyRecommended(response.getCommentId(), loginUser);
+                boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(),
+                        loginUser);
                 response.setRecommended(isRecommend);
             }
         }
