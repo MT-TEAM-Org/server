@@ -1,10 +1,12 @@
 package org.myteam.server.comment.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
-import org.myteam.server.comment.dto.request.CommentRequest.*;
-import org.myteam.server.comment.dto.response.CommentResponse.*;
+import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
 import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.global.exception.ErrorCode;
@@ -12,8 +14,6 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -30,18 +30,18 @@ public class CommentReadService {
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
-    public CommentSaveListResponse getComments(CommentListRequest request) {
+    public CommentSaveListResponse getComments(Long contentId, CommentListRequest request) {
         log.info("댓글 목록 조회 요청 - type: {}, contentId: {}, page: {}, size: {}",
-                request.getType(), request.getContentId(),
+                request.getType(), contentId,
                 request.getPage(), request.getSize());
 
         List<CommentSaveResponse> list = commentQueryRepository.getCommentList(
                 request.getType(),
-                request.getContentId(),
+                contentId,
                 request.toServiceRequest().toPageable()
         );
 
-        log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", request.getContentId(), list.size());
+        log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
 
         return CommentSaveListResponse.createResponse(list);
     }

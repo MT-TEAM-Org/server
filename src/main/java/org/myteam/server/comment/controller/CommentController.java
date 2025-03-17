@@ -86,7 +86,7 @@ public class CommentController {
     @GetMapping("/{contentId}")
     public ResponseEntity<ResponseDto<CommentSaveListResponse>> getComments(@PathVariable Long contentId,
                                                                             @Valid @ModelAttribute CommentListRequest request) {
-        CommentSaveListResponse response = commentReadService.getComments(request);
+        CommentSaveListResponse response = commentReadService.getComments(contentId, request);
 
         return ResponseEntity.ok(new ResponseDto(
                 SUCCESS.name(),
