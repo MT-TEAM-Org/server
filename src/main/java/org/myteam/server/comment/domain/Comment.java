@@ -12,7 +12,7 @@ import org.myteam.server.member.entity.Member;
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)  // 단일 테이블 전략 사용
-@DiscriminatorColumn(name = "comment_type") // 타입 구분 컬럼 추가
+//@DiscriminatorColumn(name = "comment_type") // 타입 구분 컬럼 추가
 public abstract class Comment extends BaseTime {
 
     private static final int MAX_DEPTH = 3; // 최대 대댓글 깊이 제한
@@ -43,8 +43,12 @@ public abstract class Comment extends BaseTime {
     @Column(nullable = false)
     private int depth = 0;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CommentType commentType;
 
-    public Comment(Member member, Member mentionedMember, String comment, String imageUrl, String createdIp, Comment parent) {
+    public Comment(Member member, Member mentionedMember, String comment,
+                   String imageUrl, String createdIp, Comment parent, CommentType type) {
         this.member = member;
         this.mentionedMember = mentionedMember;
         this.comment = comment;
@@ -52,6 +56,7 @@ public abstract class Comment extends BaseTime {
         this.createdIp = createdIp;
         this.parent = parent;
         this.depth = (parent == null) ? 0 : parent.depth + 1;
+        this.commentType = type;
     }
 
     public void updateComment(String imageUrl, String comment, Member mentionedMember) {

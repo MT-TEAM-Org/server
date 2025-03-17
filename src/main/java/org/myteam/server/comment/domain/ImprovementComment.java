@@ -7,7 +7,7 @@ import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.member.entity.Member;
 
 @Entity
-@DiscriminatorValue("IMPROVEMENT")
+//@DiscriminatorValue("IMPROVEMENT")
 @NoArgsConstructor
 public class ImprovementComment extends Comment {
 
@@ -17,7 +17,7 @@ public class ImprovementComment extends Comment {
 
     @Builder
     public ImprovementComment(Member member, Member mentionedMember, String comment, String imageUrl, String createdIp, Comment parent, Improvement improvement) {
-        super(member, mentionedMember, comment, imageUrl, createdIp, parent);
+        super(member, mentionedMember, comment, imageUrl, createdIp, parent, CommentType.IMPROVEMENT);
         this.improvement = improvement;
     }
 

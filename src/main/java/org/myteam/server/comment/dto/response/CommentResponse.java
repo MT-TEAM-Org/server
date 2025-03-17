@@ -15,6 +15,7 @@ public record CommentResponse() {
     @Data
     @Builder
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static final class CommentSaveResponse {
         private Long commentId; // 댓글 id
