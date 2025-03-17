@@ -1,14 +1,19 @@
 package org.myteam.server.comment.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import org.myteam.server.comment.domain.Comment;
-import org.myteam.server.member.entity.Member;
-import org.myteam.server.util.ClientUtils;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.myteam.server.comment.domain.Comment;
+import org.myteam.server.util.ClientUtils;
 
 public record CommentResponse() {
 
@@ -17,6 +22,7 @@ public record CommentResponse() {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonInclude(Include.NON_EMPTY)
     public static final class CommentSaveResponse {
         private Long commentId; // 댓글 id
         // 댓글에 대한 게시글 id는 필요 없지 않을까?
@@ -37,8 +43,10 @@ public record CommentResponse() {
         private List<CommentSaveResponse> replyList; // 대댓글 리스트
 
         public static CommentSaveResponse createResponse(Comment comment) {
-            UUID mentionedPublicId = comment.getMentionedMember() == null ? null : comment.getMentionedMember().getPublicId();
-            String mentionedNickname = comment.getMentionedMember() == null ? null : comment.getMentionedMember().getNickname();
+            UUID mentionedPublicId =
+                    comment.getMentionedMember() == null ? null : comment.getMentionedMember().getPublicId();
+            String mentionedNickname =
+                    comment.getMentionedMember() == null ? null : comment.getMentionedMember().getNickname();
             return CommentSaveResponse.builder()
                     .commentId(comment.getId())
                     .createdIp(ClientUtils.maskIp(comment.getCreatedIp()))

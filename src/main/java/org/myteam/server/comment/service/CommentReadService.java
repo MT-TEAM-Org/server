@@ -12,7 +12,12 @@ import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.mypage.dto.request.MyCommentServiceRequest;
+import org.myteam.server.mypage.dto.response.MyCommentDto;
+import org.myteam.server.mypage.dto.response.MyCommentListResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,5 +103,22 @@ public class CommentReadService {
         log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
 
         return CommentSaveListResponse.createResponse(list);
+    }
+
+    /**
+     * 내가 쓴 댓글 목록 조회
+     */
+    public MyCommentListResponse getMyCommentList(MyCommentServiceRequest request) {
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
+        Page<MyCommentDto> list = commentQueryRepository.getMyCommentList(
+                loginUser,
+                request.getCommentType(),
+                request.getOrderType(),
+                request.getSearchType(),
+                request.getSearch(),
+                request.toPageable()
+        );
+
+        return MyCommentListResponse.createResponse(PageCustomResponse.of(list));
     }
 }

@@ -12,16 +12,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.BoardListResponse;
+import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.inquiry.dto.request.InquiryRequest.*;
-import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
+import org.myteam.server.inquiry.dto.request.InquiryRequest.InquirySearchRequest;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiriesListResponse;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiryDetailsResponse;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.mypage.dto.request.MyBoardSearchRequest;
+import org.myteam.server.mypage.dto.request.MyCommentSearchRequest;
 import org.myteam.server.mypage.dto.request.MyPageRequest.MyPageUpdateRequest;
+import org.myteam.server.mypage.dto.response.MyCommentListResponse;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberModifyResponse;
-import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
 import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.mypage.service.MyPageService;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +48,7 @@ public class MyPageController {
     private final MyPageService myPageService;
     private final InquiryReadService inquiryReadService;
     private final InquiryService inquiryService;
+    private final CommentReadService commentReadService;
 
     /**
      * 마이페이지 회원 정보 보여주기
@@ -142,9 +146,19 @@ public class MyPageController {
     }
 
     /**
-     * @TODO: 내가 쓴 댓글
+     * 내가 쓴 댓글 목록 조회
      */
-
+    @Operation(summary = "내가 쓴 댓글 목록 조회", description = "사용자가 작성한 댓글의 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "내가 쓴 댓글 목록 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/comment")
+    public ResponseEntity<ResponseDto<MyCommentListResponse>> getMyComment(
+            @Valid @ModelAttribute MyCommentSearchRequest request) {
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "내가 쓴 댓글 목록 조회 성공",
+                commentReadService.getMyCommentList(request.toServiceRequest())));
+    }
 
     /**
      * 문의 내역 목록 조회
@@ -162,7 +176,8 @@ public class MyPageController {
     public ResponseEntity<ResponseDto<InquiriesListResponse>> getMyInquiry(
             @Valid @ModelAttribute InquirySearchRequest request
     ) {
-        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(request.toServiceRequest());
+        InquiriesListResponse inquiriesListResponse = inquiryReadService.getInquiriesByMember(
+                request.toServiceRequest());
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
