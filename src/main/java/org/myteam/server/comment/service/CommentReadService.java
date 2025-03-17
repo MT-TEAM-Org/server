@@ -60,14 +60,14 @@ public class CommentReadService {
         return response;
     }
 
-    public CommentSaveListResponse getBestComments(CommentListRequest request) {
+    public CommentSaveListResponse getBestComments(Long contentId, CommentListRequest request) {
         log.info("베스트 댓글 목록 조회 요청 - type: {}, contentId: {}, page: {}, size: {}",
-                request.getType(), request.getContentId(),
+                request.getType(), contentId,
                 request.getPage(), request.getSize());
 
         List<CommentSaveResponse> list = commentQueryRepository.getBestCommentList(
                 request.getType(),
-                request.getContentId(),
+                contentId,
                 request.toServiceRequest().toPageable()
         );
 

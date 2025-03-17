@@ -56,7 +56,5 @@ public record CommentRequest() {
                 "INQUIRY"})
         @NotNull(message = "댓글 유형(type)은 필수 입력 값입니다.")
         private CommentType type;
-
-        private Long contentId;
     }
 }
