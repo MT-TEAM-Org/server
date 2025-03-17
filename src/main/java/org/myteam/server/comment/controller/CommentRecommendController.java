@@ -2,12 +2,15 @@ package org.myteam.server.comment.controller;
 
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.comment.service.CommentRecommendService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/comments/recommend")

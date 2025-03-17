@@ -15,6 +15,9 @@ public class CommentRecommendReadService {
 
     private final CommentRecommendRepository commentRecommendRepository;
 
+    /**
+     * 이미 추천한 상태인지 검사 (추천 시)
+     */
     public void confirmExistRecommend(Long commentId, UUID publicId) {
         commentRecommendRepository
                 .findByCommentIdAndMemberPublicId(commentId, publicId)
@@ -23,6 +26,9 @@ public class CommentRecommendReadService {
                 });
     }
 
+    /**
+     * 추천이 되어있는 상태인지 검사 (추천 삭제 시)
+     */
     public boolean isAlreadyRecommended(Long commentId, UUID publicId) {
         if (!commentRecommendRepository
                 .findByCommentIdAndMemberPublicId(commentId, publicId).isPresent()) {
@@ -31,6 +37,9 @@ public class CommentRecommendReadService {
         return true;
     }
 
+    /**
+     * 추천 여부 조회
+     */
     public boolean isRecommended(Long commentId, UUID publicId) {
         return commentRecommendRepository
                 .findByCommentIdAndMemberPublicId(commentId, publicId).isPresent();

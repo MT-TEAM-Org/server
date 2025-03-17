@@ -1,15 +1,17 @@
 package org.myteam.server.comment.service;
 
-import jakarta.annotation.PostConstruct;
-import lombok.NoArgsConstructor;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.CommentType;
-import org.myteam.server.comment.dto.request.CommentRequest.*;
-import org.myteam.server.comment.dto.response.CommentResponse.*;
+import org.myteam.server.comment.dto.request.CommentRequest.CommentDeleteRequest;
+import org.myteam.server.comment.dto.request.CommentRequest.CommentSaveRequest;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
 import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRecommendRepository;
 import org.myteam.server.comment.repository.CommentRepository;
@@ -24,11 +26,6 @@ import org.myteam.server.upload.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -98,8 +95,7 @@ public class CommentService {
     }
 
     /**
-     * PascalCase를 UPPER_SNAKE_CASE로 변환하는 유틸리티 메서드
-     * "BoardCommentCountService" -> "BOARD"
+     * PascalCase를 UPPER_SNAKE_CASE로 변환하는 유틸리티 메서드 "BoardCommentCountService" -> "BOARD"
      */
     private String toUpperSnakeCase(String input) {
         return input.replaceAll("([a-z])([A-Z])", "$1_$2")
@@ -123,7 +119,8 @@ public class CommentService {
 
         // 팩토리 패턴을 통해서 comment 생성
         Comment comment = commentFactory.createComment(request.getType(), contentId, member, mentionedMember,
-                badWordFilter.filterMessage(request.getComment()), request.getImageUrl(), createdIp, request.getParentId());
+                badWordFilter.filterMessage(request.getComment()), request.getImageUrl(), createdIp,
+                request.getParentId());
 
         commentRepository.save(comment);
         log.info("댓글 작성 완료 - commentId: {}, contentId: {}, 작성자: {}", comment.getId(), contentId, member.getPublicId());
