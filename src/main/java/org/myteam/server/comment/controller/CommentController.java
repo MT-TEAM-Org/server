@@ -5,21 +5,25 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.comment.domain.NoticeComment;
-import org.myteam.server.comment.dto.request.CommentRequest.*;
-import org.myteam.server.comment.dto.response.CommentResponse.*;
+import org.myteam.server.comment.dto.request.CommentRequest.CommentDeleteRequest;
+import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
+import org.myteam.server.comment.dto.request.CommentRequest.CommentSaveRequest;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.util.ClientUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -37,12 +41,13 @@ public class CommentController {
                                                                        @Valid @RequestBody CommentSaveRequest request,
                                                                        HttpServletRequest httpServletRequest) {
 
-        CommentSaveResponse response = commentService.addComment(contentId, request, ClientUtils.getRemoteIP(httpServletRequest));
+        CommentSaveResponse response = commentService.addComment(contentId, request,
+                ClientUtils.getRemoteIP(httpServletRequest));
         return ResponseEntity.ok(new ResponseDto<>(
-                    SUCCESS.name(),
-                    "댓글이 생성되었습니다.",
-                    response
-                ));
+                SUCCESS.name(),
+                "댓글이 생성되었습니다.",
+                response
+        ));
     }
 
     /**
@@ -78,8 +83,9 @@ public class CommentController {
     /**
      * 댓글 목록 조회 API
      */
-    @GetMapping
-    public ResponseEntity<ResponseDto<CommentSaveListResponse>> getComments(@Valid @ModelAttribute CommentListRequest request) {
+    @GetMapping("/{contentId}")
+    public ResponseEntity<ResponseDto<CommentSaveListResponse>> getComments(@PathVariable Long contentId,
+                                                                            @Valid @ModelAttribute CommentListRequest request) {
         CommentSaveListResponse response = commentReadService.getComments(request);
 
         return ResponseEntity.ok(new ResponseDto(
@@ -107,7 +113,8 @@ public class CommentController {
      * 베스트 댓글 목록 조회
      */
     @GetMapping("/best")
-    public ResponseEntity<ResponseDto<CommentSaveListResponse>> getBestComments(@Valid @ModelAttribute CommentListRequest request) {
+    public ResponseEntity<ResponseDto<CommentSaveListResponse>> getBestComments(
+            @Valid @ModelAttribute CommentListRequest request) {
         CommentSaveListResponse bestComments = commentReadService.getBestComments(request);
 
         return ResponseEntity.ok(new ResponseDto<>(
