@@ -14,7 +14,7 @@ import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.upload.controller.request.S3UploadRequest;
 import org.myteam.server.upload.controller.response.S3FileUploadResponse;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "S3 관련 API", description = "파일 업로드를 위한 S3 관련 API")
 public class S3Controller {
 
-    private final S3Service s3Service;
+    private final StorageService storageService;
 
     /**
      * Presigned URL 생성
@@ -46,7 +46,8 @@ public class S3Controller {
             @ModelAttribute S3UploadRequest request) {
 
         // Presigned URL 생성
-        S3FileUploadResponse response = s3Service.generatePresignedUrl(request.getFileName(), request.getContentType());
+        S3FileUploadResponse response = storageService.generatePresignedUrl(request.getFileName(),
+                request.getContentType());
 
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "Presigned URL 생성 성공", response));
     }
@@ -64,7 +65,9 @@ public class S3Controller {
     })
     @DeleteMapping("/delete")
     public ResponseEntity<ResponseDto<String>> deleteFile(@RequestParam String fileName) {
-        s3Service.deleteFile(fileName);
+
+        // S3 객체 삭제
+        storageService.deleteFile(fileName);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "파일 삭제 성공", null));
     }
 }

@@ -1,5 +1,6 @@
 package org.myteam.server.inquiry.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.BadWordFilter;
@@ -7,18 +8,17 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryComment;
 import org.myteam.server.inquiry.domain.InquiryReply;
-import org.myteam.server.inquiry.dto.request.InquiryCommentRequest.*;
-import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.*;
+import org.myteam.server.inquiry.dto.request.InquiryCommentRequest.InquiryCommentSaveRequest;
+import org.myteam.server.inquiry.dto.request.InquiryCommentRequest.InquiryCommentUpdateRequest;
+import org.myteam.server.inquiry.dto.response.InquiryCommentResponse.InquiryCommentSaveResponse;
 import org.myteam.server.inquiry.repository.InquiryCommentRepository;
 import org.myteam.server.inquiry.repository.InquiryReplyRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -32,13 +32,14 @@ public class InquiryCommentService {
     private final InquiryCommentRepository inquiryCommentRepository;
     private final InquiryCountService inquiryCountService;
     private final InquiryCommentReadService inquiryCommentReadService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
     private final InquiryReplyReadService inquiryReplyReadService;
     private final InquiryReplyRepository inquiryReplyRepository;
     private final InquiryRepository inquiryRepository;
 
     /**
      * 문의 내역 댓글 생성
+     *
      * @param inquiryId
      * @param request
      * @param createdIp
@@ -65,6 +66,7 @@ public class InquiryCommentService {
 
     /**
      * 문의내역 댓글 수정
+     *
      * @param inquiryCommentId
      * @param request
      * @return
@@ -86,6 +88,7 @@ public class InquiryCommentService {
 
     /**
      * 문의내역 댓글 삭제
+     *
      * @param inquiryCommentId
      */
     public void deleteInquiryComment(Long inquiryCommentId) {

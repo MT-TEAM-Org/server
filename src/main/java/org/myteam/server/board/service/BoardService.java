@@ -27,7 +27,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,8 +53,7 @@ public class BoardService {
     private final BoardCommentReadService boardCommentReadService;
     private final BoardReplyReadService boardReplyReadService;
 
-    private final BoardCountService boardCountService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
 
     /**
      * 게시글 작성

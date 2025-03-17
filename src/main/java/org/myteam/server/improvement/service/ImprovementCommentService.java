@@ -1,5 +1,6 @@
 package org.myteam.server.improvement.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.BadWordFilter;
@@ -7,22 +8,16 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementComment;
 import org.myteam.server.improvement.domain.ImprovementReply;
-import org.myteam.server.improvement.dto.request.ImprovementCommentRequest.*;
-import org.myteam.server.improvement.dto.response.ImprovementCommentResponse.*;
+import org.myteam.server.improvement.dto.request.ImprovementCommentRequest.ImprovementCommentSaveRequest;
+import org.myteam.server.improvement.dto.request.ImprovementCommentRequest.ImprovementCommentUpdateRequest;
+import org.myteam.server.improvement.dto.response.ImprovementCommentResponse.ImprovementCommentSaveResponse;
 import org.myteam.server.improvement.repository.ImprovementCommentRepository;
 import org.myteam.server.improvement.repository.ImprovementReplyRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.domain.Notice;
-import org.myteam.server.notice.domain.NoticeComment;
-import org.myteam.server.notice.domain.NoticeReply;
-import org.myteam.server.notice.dto.request.NoticeCommentRequest;
-import org.myteam.server.notice.dto.response.NoticeCommentResponse;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -37,7 +32,7 @@ public class ImprovementCommentService {
     private final ImprovementCountService improvementCountService;
     private final ImprovementRecommendReadService improvementRecommendReadService;
     private final ImprovementCommentReadService improvementCommentReadService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
     private final ImprovementCommentRecommendReadService improvementCommentRecommendReadService;
     private final ImprovementReplyRepository improvementReplyRepository;
     private final ImprovementReplyReadService improvementReplyReadService;
@@ -45,7 +40,8 @@ public class ImprovementCommentService {
     /**
      * 개선요청 댓글 생성
      */
-    public ImprovementCommentSaveResponse save(Long improvementId, ImprovementCommentSaveRequest request, String createdIp) {
+    public ImprovementCommentSaveResponse save(Long improvementId, ImprovementCommentSaveRequest request,
+                                               String createdIp) {
         log.info("개선요청: {}의 댓글 생성 시도", improvementId);
         Improvement improvement = improvementReadService.findById(improvementId);
         Member member = securityReadService.getMember();
@@ -56,7 +52,8 @@ public class ImprovementCommentService {
         improvementCommentRepository.save(improvementComment);
         improvementCountService.addCommentCount(improvement.getId());
 
-        boolean isRecommended = improvementRecommendReadService.isRecommended(improvementComment.getId(), member.getPublicId());
+        boolean isRecommended = improvementRecommendReadService.isRecommended(improvementComment.getId(),
+                member.getPublicId());
 
         log.info("개선요청: {}의 댓글 생성 성공", improvementId);
 
@@ -78,7 +75,8 @@ public class ImprovementCommentService {
 
         improvementComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));
 
-        boolean isRecommended = improvementCommentRecommendReadService.isRecommended(improvementComment.getId(), member.getPublicId());
+        boolean isRecommended = improvementCommentRecommendReadService.isRecommended(improvementComment.getId(),
+                member.getPublicId());
 
         log.info("개선요청: {}의 댓글 수정 성공", improvementCommentId);
 
@@ -115,7 +113,8 @@ public class ImprovementCommentService {
      * 대댓글 삭제
      */
     private int deleteImprovementReply(Long improvementCommentId) {
-        List<ImprovementReply> improvementReplyList = improvementReplyReadService.findByImprovementCommentId(improvementCommentId);
+        List<ImprovementReply> improvementReplyList = improvementReplyReadService.findByImprovementCommentId(
+                improvementCommentId);
         for (ImprovementReply improvementReply : improvementReplyList) {
             s3Service.deleteFile(MediaUtils.getImagePath(improvementReply.getImageUrl()));
             improvementReplyRepository.delete(improvementReply);

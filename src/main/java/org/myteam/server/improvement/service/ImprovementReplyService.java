@@ -6,14 +6,13 @@ import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.ImprovementComment;
 import org.myteam.server.improvement.domain.ImprovementReply;
-import org.myteam.server.improvement.dto.request.ImprovementCommentRequest.*;
-import org.myteam.server.improvement.dto.response.ImprovementCommentResponse.*;
+import org.myteam.server.improvement.dto.request.ImprovementCommentRequest.ImprovementReplySaveRequest;
+import org.myteam.server.improvement.dto.response.ImprovementCommentResponse.ImprovementReplyResponse;
 import org.myteam.server.improvement.repository.ImprovementReplyRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.domain.NoticeReply;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +29,14 @@ public class ImprovementReplyService {
     private final ImprovementCountService improvementCountService;
     private final ImprovementReplyRecommendReadService improvementReplyRecommendReadService;
     private final ImprovementReplyReadService improvementReplyReadService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
     private final ImprovementReplyRepository improvementReplyRepository;
 
     /**
      * 개선요청 대댓글 생성
      */
-    public ImprovementReplyResponse saveReply(Long improvementCommentId, ImprovementReplySaveRequest request, String createdIp) {
+    public ImprovementReplyResponse saveReply(Long improvementCommentId, ImprovementReplySaveRequest request,
+                                              String createdIp) {
         log.info("개선요청 대댓글: {} 생성 시도", improvementCommentId);
         Member member = securityReadService.getMember();
         ImprovementComment improvementComment = improvementCommentReadService.findById(improvementCommentId);
@@ -44,7 +44,8 @@ public class ImprovementReplyService {
         Member mentionedMember = request.getMentionedPublicId() != null ?
                 memberReadService.findById(request.getMentionedPublicId()) : null;
 
-        ImprovementReply improvementReply = ImprovementReply.createImprovementReply(improvementComment, member, request.getImageUrl(),
+        ImprovementReply improvementReply = ImprovementReply.createImprovementReply(improvementComment, member,
+                request.getImageUrl(),
                 badWordFilter.filterMessage(request.getComment()), createdIp, mentionedMember);
 
         improvementReplyRepository.save(improvementReply);
@@ -52,7 +53,8 @@ public class ImprovementReplyService {
         log.info("개선요청 대댓글: {} 생성 성공", improvementCommentId);
 
         improvementCountService.addCommentCount(improvementComment.getImprovement().getId());
-        boolean isRecommended = improvementReplyRecommendReadService.isRecommended(improvementReply.getId(), member.getPublicId());
+        boolean isRecommended = improvementReplyRecommendReadService.isRecommended(improvementReply.getId(),
+                member.getPublicId());
 
         return ImprovementReplyResponse.createResponse(improvementReply, member, mentionedMember, isRecommended);
     }
@@ -74,12 +76,14 @@ public class ImprovementReplyService {
         Member mentionedMember = request.getMentionedPublicId() != null ?
                 memberReadService.findById(request.getMentionedPublicId()) : null;
 
-        improvementReply.updateReply(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()), mentionedMember);
+        improvementReply.updateReply(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()),
+                mentionedMember);
         improvementReplyRepository.save(improvementReply);
 
         log.info("개선요청 대댓글: {} 수정 성공", improvementReplyId);
 
-        boolean isRecommended = improvementReplyRecommendReadService.isRecommended(improvementReply.getId(), member.getPublicId());
+        boolean isRecommended = improvementReplyRecommendReadService.isRecommended(improvementReply.getId(),
+                member.getPublicId());
 
         return ImprovementReplyResponse.createResponse(improvementReply, member, mentionedMember, isRecommended);
     }

@@ -1,24 +1,23 @@
 package org.myteam.server.notice.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.repository.NoticeCommentRepository;
-import org.myteam.server.notice.repository.NoticeReplyRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeComment;
 import org.myteam.server.notice.domain.NoticeReply;
-import org.myteam.server.notice.dto.request.NoticeCommentRequest.*;
-import org.myteam.server.notice.dto.response.NoticeCommentResponse.*;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.notice.dto.request.NoticeCommentRequest.NoticeCommentSaveRequest;
+import org.myteam.server.notice.dto.request.NoticeCommentRequest.NoticeCommentUpdateRequest;
+import org.myteam.server.notice.dto.response.NoticeCommentResponse.NoticeCommentSaveResponse;
+import org.myteam.server.notice.repository.NoticeCommentRepository;
+import org.myteam.server.notice.repository.NoticeReplyRepository;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -33,7 +32,7 @@ public class NoticeCommentService {
     private final NoticeCountService noticeCountService;
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeCommentReadService noticeCommentReadService;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
     private final NoticeCommentRecommendReadService noticeCommentRecommendReadService;
     private final NoticeReplyRepository noticeReplyRepository;
     private final NoticeReplyReadService noticeReplyReadService;
@@ -74,7 +73,8 @@ public class NoticeCommentService {
 
         noticeComment.updateComment(request.getImageUrl(), badWordFilter.filterMessage(request.getComment()));
 
-        boolean isRecommended = noticeCommentRecommendReadService.isRecommended(noticeComment.getId(), member.getPublicId());
+        boolean isRecommended = noticeCommentRecommendReadService.isRecommended(noticeComment.getId(),
+                member.getPublicId());
 
         log.info("공지사항 댓글: {} 수정 성공", noticeCommentId);
 
