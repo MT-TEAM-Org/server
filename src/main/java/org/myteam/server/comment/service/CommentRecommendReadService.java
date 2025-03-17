@@ -15,23 +15,24 @@ public class CommentRecommendReadService {
 
     private final CommentRecommendRepository boardCommentRecommendRepository;
 
-    public void confirmExistRecommend(Long boardCommentId, UUID publicId) {
-        boardCommentRecommendRepository.findByCommentIdAndMemberPublicId(boardCommentId, publicId)
-                .ifPresent(member -> {
-                    throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_COMMENT);
-                });
+    public void confirmExistRecommend(Long commentId, UUID publicId) {
+        boardCommentRecommendRepository
+                .findByCommentIdAndMemberPublicId(commentId, publicId)
+                    .ifPresent(member -> {
+                        throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_COMMENT);
+                    });
     }
 
-    public boolean isAlreadyRecommended(Long boardCommentId, UUID publicId) {
-        if (!boardCommentRecommendRepository.findByCommentIdAndMemberPublicId(boardCommentId, publicId)
-                .isPresent()) {
+    public boolean isAlreadyRecommended(Long commentId, UUID publicId) {
+        if (!boardCommentRecommendRepository
+                .findByCommentIdAndMemberPublicId(commentId, publicId).isPresent()) {
             throw new PlayHiveException(ErrorCode.NO_MEMBER_RECOMMEND_RECORD);
         }
         return true;
     }
 
-    public boolean isRecommended(Long boardCommentId, UUID publicId) {
-        return boardCommentRecommendRepository.findByCommentIdAndMemberPublicId(boardCommentId, publicId)
-                .isPresent();
+    public boolean isRecommended(Long commentId, UUID publicId) {
+        return boardCommentRecommendRepository
+                .findByCommentIdAndMemberPublicId(commentId, publicId).isPresent();
     }
 }

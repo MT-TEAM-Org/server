@@ -11,6 +11,7 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest.*;
 import org.myteam.server.comment.dto.response.CommentResponse.*;
 import org.myteam.server.comment.repository.CommentQueryRepository;
+import org.myteam.server.comment.repository.CommentRecommendRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.util.CommentFactory;
 import org.myteam.server.global.exception.ErrorCode;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,6 +44,8 @@ public class CommentService {
     private final MemberJpaRepository memberJpaRepository;
     private final CommentReadService commentReadService;
     private final CommentQueryRepository commentQueryRepository;
+    private final CommentRecommendReadService commentRecommendReadService;
+    private final CommentRecommendRepository commentRecommendRepository;
     private Map<CommentType, CommentCountService> countServiceMap;
 
     @Autowired
@@ -53,6 +57,8 @@ public class CommentService {
                           S3Service s3Service,
                           MemberJpaRepository memberJpaRepository,
                           CommentReadService commentReadService,
+                          CommentRecommendReadService commentRecommendReadService,
+                          CommentRecommendRepository commentRecommendRepository,
                           CommentQueryRepository commentQueryRepository) {
 
         this.commentRepository = commentRepository;
@@ -63,6 +69,8 @@ public class CommentService {
         this.memberJpaRepository = memberJpaRepository;
         this.commentReadService = commentReadService;
         this.commentQueryRepository = commentQueryRepository;
+        this.commentRecommendReadService = commentRecommendReadService;
+        this.commentRecommendRepository = commentRecommendRepository;
 
         log.info("등록된 CommentCountService Bean 목록: {}", countServices.keySet());
 
@@ -127,9 +135,12 @@ public class CommentService {
         }
         countService.addCommentCount(contentId);
 
-        // TODO: 추천 반영
+        boolean isRecommended = commentRecommendReadService.isRecommended(comment.getId(), member.getPublicId());
 
-        return CommentSaveResponse.createResponse(comment);
+        CommentSaveResponse response = CommentSaveResponse.createResponse(comment);
+        response.setRecommended(isRecommended);
+
+        return response;
     }
 
     /**
@@ -161,9 +172,12 @@ public class CommentService {
         commentRepository.save(comment);
         log.info("댓글 수정 완료 - commentId: {}, memberId: {}", commentId, member.getPublicId());
 
-        // TODO: 추천 반영
+        boolean isRecommended = commentRecommendReadService.isRecommended(comment.getId(), member.getPublicId());
 
-        return CommentSaveResponse.createResponse(comment);
+        CommentSaveResponse response = CommentSaveResponse.createResponse(comment);
+        response.setRecommended(isRecommended);
+
+        return response;
     }
 
     /**
@@ -185,11 +199,11 @@ public class CommentService {
             s3Service.deleteFile(MediaUtils.getImagePath(comment.getImageUrl()));
         }
 
-        // TODO: 댓글 추천 삭제
+        commentRecommendRepository.deleteByCommentIdAndMemberPublicId(comment.getId(), member.getPublicId());
 
         // 대댓글 + 부모 댓글 삭제
         // 이미지 있는 댓글 조회
-        List<Comment> commentsWithImages = commentQueryRepository.findRepliesWithImages(commentId);
+        List<Comment> commentsWithImages = getReply(commentId, member.getPublicId());
 
         // S3에서 이미지 삭제
         for (Comment reply : commentsWithImages) {
@@ -207,6 +221,15 @@ public class CommentService {
             throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
         }
         countService.minusCommentCount(contentId, minusCount);
+    }
+
+    private List<Comment> getReply(Long commentId, UUID loginUser) {
+        List<Comment> comments = commentQueryRepository.findRepliesWithImages(commentId);
+        for (Comment reply : comments) {
+            commentRecommendRepository.deleteByCommentIdAndMemberPublicId(reply.getId(), loginUser);
+        }
+
+        return comments;
     }
 }
 

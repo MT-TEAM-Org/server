@@ -15,6 +15,8 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class CommentReadService {
     private final CommentRepository commentRepository;
     private final CommentQueryRepository commentQueryRepository;
     private final SecurityReadService securityReadService;
+    private final CommentRecommendReadService commentRecommendReadService;
 
     public Comment findById(Long commentId) {
         return commentRepository.findById(commentId)
@@ -42,6 +45,14 @@ public class CommentReadService {
         );
 
         log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
+        if (loginUser != null) {
+            for (CommentSaveResponse response : list) {
+                boolean isRecommend = commentRecommendReadService.isAlreadyRecommended(response.getCommentId(), loginUser);
+                response.setRecommended(isRecommend);
+            }
+        }
+
 
         return CommentSaveListResponse.createResponse(list);
     }
@@ -53,6 +64,12 @@ public class CommentReadService {
 
         CommentSaveResponse response = CommentSaveResponse.createResponse(comment);
         commentQueryRepository.getCommentReply(response);
+
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
+        if (loginUser != null) {
+            boolean isRecommend = commentRecommendReadService.isAlreadyRecommended(response.getCommentId(), loginUser);
+            response.setRecommended(isRecommend);
+        }
 
         log.info("댓글 상세 조회 완료 - commentId: {}, 작성자: {}, 추천수: {}",
                 response.getCommentId(), response.getNickname(), response.getRecommendCount());
@@ -70,6 +87,14 @@ public class CommentReadService {
                 contentId,
                 request.toServiceRequest().toPageable()
         );
+
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
+        if (loginUser != null) {
+            for (CommentSaveResponse response : list) {
+                boolean isRecommend = commentRecommendReadService.isAlreadyRecommended(response.getCommentId(), loginUser);
+                response.setRecommended(isRecommend);
+            }
+        }
 
         log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
 
