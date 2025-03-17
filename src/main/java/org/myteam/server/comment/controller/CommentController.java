@@ -34,7 +34,7 @@ public class CommentController {
     private final CommentReadService commentReadService;
 
     /**
-     * 공지사항 댓글 작성 API
+     * 댓글 작성 API
      */
     @PostMapping("/{contentId}/comment")
     public ResponseEntity<ResponseDto<CommentSaveResponse>> addComment(@PathVariable Long contentId,

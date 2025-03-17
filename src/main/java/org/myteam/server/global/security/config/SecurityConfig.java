@@ -100,6 +100,11 @@ public class SecurityConfig {
             "/api/board/comment/{boardCommentId}", // 게시판 댓글 상세 조회
             "/api/board/{boardId}/comment",
 
+            /** @brief 홈 메인*/
+            "api/comments/{contentId}",
+            "api/comments/{commentId}/detail",
+            "/api/comments/{contentId}/best",
+
             /** @brief 문의사항 관련 URL */
             "/api/inquiry/{inquiryId}/comment",
             "/api/inquiry/comment/{inquiryCommentId}",
