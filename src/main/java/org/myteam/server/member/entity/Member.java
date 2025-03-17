@@ -51,7 +51,7 @@ public class Member extends Base {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MemberRole role = ADMIN;
+    private MemberRole role = USER;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

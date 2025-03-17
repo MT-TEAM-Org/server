@@ -116,32 +116,4 @@ public class CommentController {
                 bestComments
         ));
     }
-
-//    /**
-//     * 특정 공지사항의 댓글 목록 조회 API (페이징 적용)
-//     */
-//    @GetMapping("/{noticeId}")
-//    public ResponseEntity<Page<NoticeComment>> getNoticeComments(
-//            @PathVariable Long noticeId,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size) {
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createDate"));
-//        Page<NoticeComment> comments = commentService.getNoticeComments(noticeId, pageable);
-//        return ResponseEntity.ok(comments);
-//    }
-//
-//    /**
-//     * 내가 작성한 공지사항 댓글 조회 API
-//     */
-//    @GetMapping("/my-comments")
-//    public ResponseEntity<Page<NoticeComment>> getMyComments(
-//            @RequestParam UUID memberId,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size) {
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-//        Page<NoticeComment> comments = commentService.getMyNoticeComments(memberId, pageable);
-//        return ResponseEntity.ok(comments);
-//    }
 }

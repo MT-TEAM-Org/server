@@ -64,27 +64,6 @@ public class CommentQueryRepository {
     public List<CommentSaveResponse> getCommentList(CommentType type, Long contentId, Pageable pageable) {
         QMember mentionedMember = new QMember("mentionedMember");
 
-//        List<Tuple> debugResults = queryFactory
-//                .select(comment1.id, comment1.commentType, comment1.as(QInquiryComment.class).inquiry.id)
-//                .from(comment1)
-//                .fetch();
-//
-//        for (Tuple tuple : debugResults) {
-//            System.out.println("Comment ID: " + tuple.get(comment1.id)
-//                    + ", commentType: " + tuple.get(comment1.commentType)
-//                    + ", inquiryId: " + tuple.get(comment1.as(QInquiryComment.class).inquiry.id));
-//        }
-//
-//        NumberExpression<Long> dynamicContentId = new CaseBuilder()
-//                .when(comment1.commentType.eq(CommentType.BOARD)).then(comment1.boardId)
-//                .when(comment1.commentType.eq(CommentType.IMPROVEMENT)).then(comment1.improvementId)
-//                .when(comment1.commentType.eq(CommentType.INQUIRY)).then(comment1.inquiryId)
-//                .when(comment1.commentType.eq(CommentType.NEWS)).then(comment1.newsId)
-//                .when(comment1.commentType.eq(CommentType.NOTICE)).then(comment1.noticeId)
-//                .otherwise(Expressions.nullExpression());
-//
-//        System.out.println(dynamicContentId + " " + type + " " + contentId);
-
         List<CommentSaveResponse> comments = queryFactory
                 .select(Projections.fields(CommentSaveResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
@@ -153,43 +132,36 @@ public class CommentQueryRepository {
      * 베스트 댓글 목록 조회 (추천 수 기준 정렬)
      */
     public List<CommentSaveResponse> getBestCommentList(CommentType type, Long contentId, Pageable pageable) {
+        QMember mentionedMember = new QMember("mentionedMember");
 
-//        NumberExpression<Long> dynamicContentId = new CaseBuilder()
-//                .when(comment1.commentType.eq("BOARD")).then(comment1.as(QBoardComment.class).board.id)
-//                .when(comment1.commentType.eq("IMPROVEMENT")).then(comment1.as(QImprovementComment.class).improvement.id)
-//                .when(comment1.commentType.eq("INQUIRY")).then(comment1.as(QInquiryComment.class).inquiry.id)
-//                .when(comment1.commentType.eq("NEWS")).then(comment1.as(QNewsComment.class).news.id)
-//                .when(comment1.commentType.eq("NOTICE")).then(comment1.as(QNoticeComment.class).notice.id)
-//                .otherwise(Expressions.nullExpression());
-//
-//        // ✅ 베스트 댓글 조회 (추천순 정렬)
-//        List<CommentSaveResponse> bestComments = queryFactory
-//                .select(Projections.constructor(CommentSaveResponse.class,
-//                        comment1.id,
-//                        comment1.createdIp,
-//                        comment1.member.publicId,
-//                        comment1.member.nickname,
-//                        comment1.imageUrl,
-//                        comment1.recommendCount,
-//                        comment1.mentionedMember.publicId,
-//                        comment1.mentionedMember.nickname,
-//                        comment1.createDate,
-//                        comment1.lastModifiedDate,
-//                        ExpressionUtils.as(Expressions.constant(false), "isRecommended") // 기본값 false
-//                ))
-//                .from(comment1)
-//                .leftJoin(comment1.member, member) // 작성자 정보 조인
-//                .leftJoin(comment1.mentionedMember, member) // 언급된 사용자 정보 조인
-//                .where(
-//                        dynamicContentId.eq(contentId) // ✅ 동적 contentId 매핑
-//                )
-//                .orderBy(comment1.recommendCount.desc()) // ✅ 추천순 정렬
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        return bestComments;
-        return null;
+        // ✅ 베스트 댓글 조회 (추천순 정렬)
+        List<CommentSaveResponse> bestComments = queryFactory
+                .select(Projections.fields(CommentSaveResponse.class,
+                        ExpressionUtils.as(comment1.id, "commentId"),
+                        comment1.createdIp,
+                        member.publicId,
+                        member.nickname,
+                        comment1.imageUrl,
+                        comment1.comment,
+                        ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false
+                        comment1.recommendCount,
+                        ExpressionUtils.as(comment1.mentionedMember.publicId, "mentionedPublicId"),
+                        ExpressionUtils.as(comment1.mentionedMember.nickname, "mentionedNickname"),
+                        comment1.createDate,
+                        comment1.lastModifiedDate
+                ))
+                .from(comment1)
+                .leftJoin(comment1.member, member) // 작성자 정보 조인
+                .leftJoin(comment1.mentionedMember, mentionedMember) // 언급된 사용자 정보 조인
+                .where(
+                        isTypeAndIdEqualTo(type, contentId)
+                )
+                .orderBy(comment1.createDate.desc(), comment1.comment.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return bestComments;
     }
 
     private BooleanExpression isTypeAndIdEqualTo(CommentType type, Long contentId) {
