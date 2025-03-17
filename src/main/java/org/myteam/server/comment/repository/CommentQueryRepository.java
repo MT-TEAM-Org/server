@@ -2,6 +2,13 @@ package org.myteam.server.comment.repository;
 
 import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.member.entity.QMember.member;
+import static org.myteam.server.news.news.domain.QNews.news;
+
+import static org.myteam.server.notice.domain.QNotice.notice;
+import static org.myteam.server.improvement.domain.QImprovement.improvement;
+import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
+
+import static org.myteam.server.board.domain.QBoard.board;
 
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
@@ -20,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.domain.QBoard;
 import org.myteam.server.comment.domain.Comment;
@@ -31,6 +37,7 @@ import org.myteam.server.comment.domain.QInquiryComment;
 import org.myteam.server.comment.domain.QNewsComment;
 import org.myteam.server.comment.domain.QNoticeComment;
 import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.entity.QMember;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.PostResponse;
@@ -283,127 +290,375 @@ public class CommentQueryRepository {
     }
 
     // 게시글의 썸네일을 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: NEWS
+     * @brief: IMPROVEMENT
+     */
     private Expression<String> selectThumbnail() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.thumbnail)
-                        .from(QBoard.board)
+                    .then(JPAExpressions.select(board.thumbnail)
+                        .from(board)
                         .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(QBoard.board.id))
                         .where(QBoardComment.boardComment.id.eq(comment1.id)))
                 .when(comment1.commentType.eq(CommentType.NEWS))
-                .then(JPAExpressions.select(QNews.news.thumbImg)
-                        .from(QNews.news)
-                        .join(QNewsComment.newsComment).on(QNewsComment.newsComment.news.id.eq(QNews.news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id)))
+                    .then(JPAExpressions.select(news.thumbImg)
+                        .from(news)
+                        .join(QNewsComment.newsComment)
+                        .on(QNewsComment.newsComment.news.id.eq(QNews.news.id))
+                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.imgUrl)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.imgUrl)
+                        .from(improvement)
+                        .join(QImprovementComment.improvementComment)
+                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 
     // 게시글의 id를 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: NEWS
+     * @brief: IMPROVEMENT
+     * @brief: INQUIRY
+     */
     private Expression<Long> selectPostId() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.id)
-                        .from(QBoard.board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(QBoard.board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id)))
+                    .then(JPAExpressions.select(board.id)
+                        .from(board)
+                        .join(QBoardComment.boardComment)
+                        .on(QBoardComment.boardComment.board.id.eq(board.id))
+                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                    )
                 .when(comment1.commentType.eq(CommentType.NEWS))
-                .then(JPAExpressions.select(QNews.news.id)
-                        .from(QNews.news)
-                        .join(QNewsComment.newsComment).on(QNewsComment.newsComment.news.id.eq(QNews.news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id)))
+                    .then(JPAExpressions.select(news.id)
+                        .from(news)
+                        .join(QNewsComment.newsComment)
+                        .on(QNewsComment.newsComment.news.id.eq(news.id))
+                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.id)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.id)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                    .then(JPAExpressions.select(inquiry.id)
+                            .from(inquiry)
+                            .join(QInquiryComment.inquiryComment)
+                            .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
+                            .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 
     // 게시글의 제목을 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: NEWS
+     * @brief: IMPROVEMENT
+     */
     private Expression<String> selectTitle() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.title)
-                        .from(QBoard.board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(QBoard.board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id)))
+                    .then(JPAExpressions.select(board.title)
+                        .from(board)
+                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(board.id))
+                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                    )
                 .when(comment1.commentType.eq(CommentType.NEWS))
-                .then(JPAExpressions.select(QNews.news.title)
-                        .from(QNews.news)
-                        .join(QNewsComment.newsComment).on(QNewsComment.newsComment.news.id.eq(QNews.news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id)))
+                    .then(JPAExpressions.select(news.title)
+                        .from(news)
+                        .join(QNewsComment.newsComment).on(QNewsComment.newsComment.news.id.eq(news.id))
+                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.title)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.title)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 
     // 게시글의 게시판 타입을 가져오는 메서드
-    private Expression<BoardType> selectBoardType() {
+    /**
+     * @brief: BOARD
+     * @brief: NEWS
+     */
+    private Expression<Category> selectBoardType() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.boardType)
-                        .from(QBoard.board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(QBoard.board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id)))
-                .otherwise(Expressions.nullExpression());
+                    .then(JPAExpressions.select(board.boardType)
+                        .from(board)
+                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(board.id))
+                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NEWS))
+                    .then(JPAExpressions.select(news.category)
+                            .from(news)
+                            .join(QNewsComment.newsComment).on(QNewsComment.newsComment.news.id.eq(news.id))
+                            .where(QNewsComment.newsComment.id.eq(comment1.id))
+                    )
+                .otherwise(Expressions.constant(Category.UNKNOWN));
     }
 
     // 게시글의 카테고리 타입을 가져오는 메서드
+    /**
+     * @brief: BOARD
+     */
     private Expression<CategoryType> selectCategoryType() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.categoryType)
+                    .then(JPAExpressions.select(QBoard.board.categoryType)
                         .from(QBoard.board)
                         .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(QBoard.board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id)))
-                .otherwise(Expressions.nullExpression());
+                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                    )
+                .otherwise(Expressions.constant(CategoryType.UNKNOWN));
     }
 
     // 게시글의 댓글수를 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: NEWS @TODO: 뉴스 카운트 안되어있음
+     * @brief: IMPROVEMENT
+     * @brief: INQUIRY
+     */
     private Expression<Integer> selectCommentCount() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.boardCount.commentCount)
+                    .then(JPAExpressions.select(board.boardCount.commentCount)
                         .from(QBoard.board)
                         .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(QBoard.board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id)))
+                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                    )
+//                .when(comment1.commentType.eq(CommentType.NEWS))
+//                    .then(JPAExpressions.select(news.id)
+//                            .from(news)
+//                            .join(QNewsComment.newsComment)
+//                            .on(QNewsComment.newsComment.news.id.eq(news.id))
+//                            .where(QNewsComment.newsComment.id.eq(comment1.id))
+//                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.noticeCount.commentCount)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.improvementCount.commentCount)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                    .then(JPAExpressions.select(inquiry.inquiryCount.commentCount)
+                            .from(inquiry)
+                            .join(QInquiryComment.inquiryComment)
+                            .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
+                            .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.constant(0));
     }
 
     // 게시글 작성자의 createdIp를 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: IMPROVEMENT
+     * @brief: INQUIRY
+     */
     private Expression<String> selectCreatedIp() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.createdIp)
-                        .from(QBoard.board)
-                        .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id)))
+                    .then(JPAExpressions.select(board.createdIp)
+                        .from(board)
+                        .where(board.id.eq(comment1.as(QBoardComment.class).board.id))
+                    )
+//                .when(comment1.commentType.eq(CommentType.NEWS))
+////                    .then(JPAExpressions.select(news.id)
+////                            .from(news)
+////                            .join(QNewsComment.newsComment)
+////                            .on(QNewsComment.newsComment.news.id.eq(news.id))
+////                            .where(QNewsComment.newsComment.id.eq(comment1.id))
+////                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.createdIP)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.createdIP)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                    .then(JPAExpressions.select(inquiry.clientIp)
+                            .from(inquiry)
+                            .join(QInquiryComment.inquiryComment)
+                            .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
+                            .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 
     // 게시글 작성자의 publicId를 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: IMPROVEMENT
+     * @brief: INQUIRY
+     */
     private Expression<UUID> selectPublicId() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.member.publicId)
-                        .from(QBoard.board)
-                        .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id)))
+                    .then(JPAExpressions.select(QBoard.board.member.publicId)
+                            .from(QBoard.board)
+                            .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.member.publicId)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.member.publicId)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                    .then(JPAExpressions.select(inquiry.member.publicId)
+                            .from(inquiry)
+                            .join(QInquiryComment.inquiryComment)
+                            .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
+                            .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 
     // 게시글 작성자의 nickname을 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: IMPROVEMENT
+     * @brief: INQUIRY
+     */
     private Expression<String> selectNickname() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.member.nickname)
+                    .then(JPAExpressions.select(QBoard.board.member.nickname)
                         .from(QBoard.board)
-                        .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id)))
+                        .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.member.nickname)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.member.nickname)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                    .then(JPAExpressions.select(inquiry.member.nickname)
+                            .from(inquiry)
+                            .join(QInquiryComment.inquiryComment)
+                            .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
+                            .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 
     // 게시글의 createDate를 가져오는 메서드
+    /**
+     * @brief: BOARD
+     * @brief: NOTICE
+     * @brief: NEWS
+     * @brief: IMPROVEMENT
+     * @brief: INQUIRY
+     */
     private Expression<LocalDateTime> selectCreateDate() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.createDate)
+                    .then(JPAExpressions.select(QBoard.board.createDate)
                         .from(QBoard.board)
-                        .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id)))
+                        .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id))
+                    )
                 .when(comment1.commentType.eq(CommentType.NEWS))
-                .then(JPAExpressions.select(QNews.news.createDate)
+                    .then(JPAExpressions.select(QNews.news.createDate)
                         .from(QNews.news)
-                        .where(QNews.news.id.eq(comment1.as(QNewsComment.class).news.id)))
+                        .where(QNews.news.id.eq(comment1.as(QNewsComment.class).news.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.member.createDate)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.member.createDate)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                    .then(JPAExpressions.select(inquiry.member.createDate)
+                            .from(inquiry)
+                            .join(QInquiryComment.inquiryComment)
+                            .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
+                            .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 
@@ -411,13 +666,36 @@ public class CommentQueryRepository {
     private Expression<LocalDateTime> selectLastModifiedDate() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
-                .then(JPAExpressions.select(QBoard.board.lastModifiedDate)
-                        .from(QBoard.board)
-                        .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id)))
+                    .then(JPAExpressions.select(QBoard.board.lastModifiedDate)
+                            .from(QBoard.board)
+                            .where(QBoard.board.id.eq(comment1.as(QBoardComment.class).board.id))
+                    )
                 .when(comment1.commentType.eq(CommentType.NEWS))
-                .then(JPAExpressions.select(QNews.news.lastModifiedDate)
-                        .from(QNews.news)
-                        .where(QNews.news.id.eq(comment1.as(QNewsComment.class).news.id)))
+                    .then(JPAExpressions.select(QNews.news.lastModifiedDate)
+                            .from(QNews.news)
+                            .where(QNews.news.id.eq(comment1.as(QNewsComment.class).news.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.NOTICE))
+                    .then(JPAExpressions.select(notice.member.lastModifiedDate)
+                            .from(notice)
+                            .join(QNoticeComment.noticeComment)
+                            .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
+                            .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
+                    .then(JPAExpressions.select(improvement.member.lastModifiedDate)
+                            .from(improvement)
+                            .join(QImprovementComment.improvementComment)
+                            .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
+                            .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                    )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                    .then(JPAExpressions.select(inquiry.member.lastModifiedDate)
+                            .from(inquiry)
+                            .join(QInquiryComment.inquiryComment)
+                            .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
+                            .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                    )
                 .otherwise(Expressions.nullExpression());
     }
 

@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentSaveServiceRequest;
 import org.myteam.server.news.newsComment.dto.service.request.NewsCommentUpdateServiceRequest;
@@ -27,7 +27,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 	@Test
 	@Transactional
 	void saveTest() {
-		News news = createNews(1, NewsCategory.BASEBALL, 10);
+		News news = createNews(1, Category.BASEBALL, 10);
 		Member member = createMember(1);
 
 		NewsCommentSaveServiceRequest newsCommentSaveServiceRequest = NewsCommentSaveServiceRequest.builder()
@@ -50,7 +50,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 	@DisplayName("뉴스댓글을 수정한다.")
 	@Test
 	void updateTest() {
-		News news = createNews(1, NewsCategory.BASEBALL, 10);
+		News news = createNews(1, Category.BASEBALL, 10);
 		Member member = createMember(1);
 
 		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);
@@ -72,7 +72,7 @@ public class NewsCommentServiceTest extends IntegrationTestSupport {
 	@Test
 	@Transactional
 	void deleteTest() {
-		News news = createNews(1, NewsCategory.BASEBALL, 10);
+		News news = createNews(1, Category.BASEBALL, 10);
 		Member member = createMember(1);
 
 		NewsComment newsComment = createNewsComment(news, member, "뉴스 댓글 테스트", 10);

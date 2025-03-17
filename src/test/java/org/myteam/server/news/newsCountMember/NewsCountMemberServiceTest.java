@@ -7,9 +7,9 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
 import org.myteam.server.news.newsCountMember.service.NewsCountMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class NewsCountMemberServiceTest extends IntegrationTestSupport {
 	@DisplayName("사용자 추천 데이터를 추가한다.")
 	@Test
 	void saveTest() {
-		News news = createNews(1, NewsCategory.FOOTBALL, 10);
+		News news = createNews(1, Category.FOOTBALL, 10);
 		Member member = createMember(1);
 
 		newsCountMemberService.save(news.getId());
@@ -35,7 +35,7 @@ public class NewsCountMemberServiceTest extends IntegrationTestSupport {
 	@DisplayName("사용자 추천 데이터를 삭제한다.")
 	@Test
 	void deleteByNewsIdMemberIdTest() {
-		News news = createNews(1, NewsCategory.FOOTBALL, 10);
+		News news = createNews(1, Category.FOOTBALL, 10);
 		Member member = createMember(1);
 
 		NewsCountMember newsCountMember = createNewsCountMember(member, news);

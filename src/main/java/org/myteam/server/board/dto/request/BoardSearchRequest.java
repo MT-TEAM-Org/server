@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.request.PageInfoRequest;
 
 @Getter
@@ -17,7 +17,7 @@ import org.myteam.server.global.page.request.PageInfoRequest;
 public class BoardSearchRequest extends PageInfoRequest {
 
     @NotNull(message = "게시판 타입은 필수입니다")
-    private BoardType boardType;
+    private Category boardType;
 
     private CategoryType categoryType;
 
@@ -33,7 +33,7 @@ public class BoardSearchRequest extends PageInfoRequest {
     private String search;
 
     @Builder
-    public BoardSearchRequest(BoardType boardType, CategoryType categoryType, BoardOrderType orderType,
+    public BoardSearchRequest(Category boardType, CategoryType categoryType, BoardOrderType orderType,
                               BoardSearchType searchType, String search) {
         this.boardType = boardType;
         this.categoryType = categoryType;

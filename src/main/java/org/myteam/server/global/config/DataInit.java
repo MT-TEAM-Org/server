@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRepository;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
@@ -24,7 +24,6 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
@@ -89,12 +88,12 @@ public class DataInit implements CommandLineRunner {
         createImprovement(user);
         createInquiry(user);
 //        createNotice(admin);
-        createBoard(user, BoardType.BASEBALL, CategoryType.FREE, "title", "contetnt");
-        createNews(1, NewsCategory.BASEBALL, 0);
+        createBoard(user, Category.BASEBALL, CategoryType.FREE, "title", "contetnt");
+        createNews(1, Category.BASEBALL, 0);
 
         log.info("member data 초기화 완료");
     }
-    protected Board createBoard(Member member, BoardType boardType, CategoryType categoryType, String title,
+    protected Board createBoard(Member member, Category boardType, CategoryType categoryType, String title,
                                 String content) {
 
         Board board = Board.builder()
@@ -122,7 +121,7 @@ public class DataInit implements CommandLineRunner {
         return board;
     }
 
-    protected News createNews(int index, NewsCategory category, int count) {
+    protected News createNews(int index, Category category, int count) {
         News savedNews = newsRepository.save(News.builder()
                 .title("기사타이틀" + index)
                 .category(category)

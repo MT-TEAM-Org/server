@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.ControllerTestSupport;
-import org.myteam.server.news.news.domain.NewsCategory;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.news.news.dto.controller.request.NewsRequest;
 import org.myteam.server.news.news.repository.OrderType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,7 +26,7 @@ class NewsControllerTest extends ControllerTestSupport {
 			.size(10)
 			.content("테스트")
 			.orderType(OrderType.DATE)
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.build();
 
 		// when // then
@@ -54,7 +54,7 @@ class NewsControllerTest extends ControllerTestSupport {
 			.page(1)
 			.size(10)
 			.content("테스트")
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.build();
 
 		// when // then

@@ -13,7 +13,6 @@ import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
 //import org.myteam.server.board.domain.BoardReply;
 //import org.myteam.server.board.domain.BoardReplyRecommend;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 //import org.myteam.server.board.repository.BoardCommentRecommendRepository;
 //import org.myteam.server.board.repository.BoardCommentRepository;
@@ -29,8 +28,7 @@ import org.myteam.server.board.service.BoardRecommendReadService;
 //import org.myteam.server.board.service.BoardReplyRecommendService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.comment.repository.CommentRepository;
-import org.myteam.server.comment.service.CommentReadService;
-import org.myteam.server.comment.service.CommentService;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
@@ -60,7 +58,6 @@ import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsComment.domain.NewsComment;
 import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
@@ -177,10 +174,10 @@ public abstract class IntegrationTestSupport {
 	protected BoardCountService boardCountService;
 	@Autowired
 	protected InquiryService inquiryService;
-	@Autowired
-	protected CommentService commentService;
-	@Autowired
-	protected CommentReadService commentReadService;
+//	@Autowired
+//	protected CommentService commentService;
+//	@Autowired
+//	protected CommentReadService commentReadService;
 
 	/**
 	 * ================== Config ========================
@@ -266,7 +263,7 @@ public abstract class IntegrationTestSupport {
 		return savedMember;
 	}
 
-	protected News createNews(int index, NewsCategory category, int count) {
+	protected News createNews(int index, Category category, int count) {
 		News savedNews = newsRepository.save(News.builder()
 			.title("기사타이틀" + index)
 			.category(category)
@@ -289,7 +286,7 @@ public abstract class IntegrationTestSupport {
 		return savedNews;
 	}
 
-	protected News createNewsWithPostDate(int index, NewsCategory category, int count, LocalDateTime postTime) {
+	protected News createNewsWithPostDate(int index, Category category, int count, LocalDateTime postTime) {
 		News savedNews = newsRepository.save(News.builder()
 			.title("기사타이틀" + index)
 			.category(category)
@@ -390,8 +387,8 @@ public abstract class IntegrationTestSupport {
 			.build());
 	}
 
-	protected Board createBoard(Member member, BoardType boardType, CategoryType categoryType, String title,
-		String content) {
+	protected Board createBoard(Member member, Category boardType, CategoryType categoryType, String title,
+								String content) {
 
 		Board board = Board.builder()
 			.member(member)

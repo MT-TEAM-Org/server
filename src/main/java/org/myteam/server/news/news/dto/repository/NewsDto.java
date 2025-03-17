@@ -2,7 +2,7 @@ package org.myteam.server.news.news.dto.repository;
 
 import java.time.LocalDateTime;
 
-import org.myteam.server.news.news.domain.NewsCategory;
+import org.myteam.server.global.domain.Category;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -15,7 +15,7 @@ public class NewsDto {
 	@Schema(description = "뉴스 ID")
 	private Long id;
 	@Schema(description = "뉴스 카테고리")
-	private NewsCategory category;
+	private Category category;
 	@Schema(description = "뉴스 제목")
 	private String title;
 	@Schema(description = "뉴스 썸네일 이미지")
@@ -27,7 +27,7 @@ public class NewsDto {
 	@Schema(description = "뉴스 계시 날짜")
 	private LocalDateTime postDate;
 
-	public NewsDto(Long id, NewsCategory category, String title, String thumbImg, String content, int commentCount, LocalDateTime postDate) {
+	public NewsDto(Long id, Category category, String title, String thumbImg, String content, int commentCount, LocalDateTime postDate) {
 		this.id = id;
 		this.category = category;
 		this.title = title;

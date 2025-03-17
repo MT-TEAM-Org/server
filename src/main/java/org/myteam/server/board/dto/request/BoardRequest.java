@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.global.domain.Category;
 
 @Getter
 @NoArgsConstructor
@@ -16,7 +16,7 @@ public class BoardRequest {
      * 게시판 타입
      */
     @NotNull(message = "게시판 타입을 선택해주세요")
-    private BoardType boardType;
+    private Category boardType;
     /**
      * 카테고리 타입
      */

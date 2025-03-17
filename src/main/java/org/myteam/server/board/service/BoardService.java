@@ -1,6 +1,5 @@
 package org.myteam.server.board.service;
 
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +7,6 @@ import org.myteam.server.board.domain.Board;
 //import org.myteam.server.board.domain.BoardComment;
 import org.myteam.server.board.domain.BoardCount;
 //import org.myteam.server.board.domain.BoardReply;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardResponse;
 import org.myteam.server.board.dto.request.BoardRequest;
@@ -19,10 +17,10 @@ import org.myteam.server.board.repository.BoardRecommendRepository;
 //import org.myteam.server.board.repository.BoardReplyRecommendRepository;
 //import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.board.repository.BoardRepository;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
-import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
@@ -211,7 +209,7 @@ public class BoardService {
     /**
      * 게시판에 맞는 카테고리를 선택했는지 검사 ex) 전적 인증, 플레이팁은 e-sport 게시판에서만 사용
      */
-    private void verifyBoardTypeAndCategoryType(BoardType boardType, CategoryType categoryType) {
+    private void verifyBoardTypeAndCategoryType(Category boardType, CategoryType categoryType) {
         if (!boardType.isEsports()) {
             categoryType.confirmEsports();
         }

@@ -6,9 +6,9 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.global.domain.Category;
 
 @Getter
 @NoArgsConstructor
@@ -32,7 +32,7 @@ public class PostResponse {
     /**
      * 게시판 타입 (게시판일 경우만)
      */
-    private BoardType boardType;
+    private Category boardType;
     /**
      * 카테고리 타입 (게시판일 경우만)
      */
@@ -68,7 +68,7 @@ public class PostResponse {
     @JsonProperty("isHot")
     private boolean isHot;
 
-    public PostResponse(CommentType commentType, Long id, String thumbnail, String title, BoardType boardType,
+    public PostResponse(CommentType commentType, Long id, String thumbnail, String title, Category boardType,
                         CategoryType categoryType, String createdIp, UUID publicId, String nickname, int commentCount,
                         LocalDateTime createDate, LocalDateTime lastModifiedDate, boolean isHot) {
         this.commentType = commentType;

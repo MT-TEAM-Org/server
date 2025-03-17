@@ -12,9 +12,9 @@ import java.util.concurrent.Executors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
@@ -35,7 +35,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 	@Test
 	@Transactional
 	void recommendNewsTest() {
-		News news = createNews(1, NewsCategory.FOOTBALL, 10);
+		News news = createNews(1, Category.FOOTBALL, 10);
 		Member member = createMember(1);
 
 		// when
@@ -55,7 +55,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 	@Test
 	@Transactional
 	void cancelRecommendNewsTest() {
-		News news = createNews(1, NewsCategory.FOOTBALL, 10);
+		News news = createNews(1, Category.FOOTBALL, 10);
 		Member member = createMember(1);
 		NewsCountMember newsCountMember = createNewsCountMember(member, news);
 
@@ -82,7 +82,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		News news = News.builder()
 			.title("기사타이틀" + 1)
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.thumbImg("www.test.com")
 			.build();
 
@@ -124,7 +124,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		News news = News.builder()
 			.title("기사타이틀" + 1)
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.thumbImg("www.test.com")
 			.build();
 
@@ -167,7 +167,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		News news = News.builder()
 			.title("기사타이틀" + 1)
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.thumbImg("www.test.com")
 			.build();
 
@@ -209,7 +209,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		News news = News.builder()
 			.title("기사타이틀" + 1)
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.thumbImg("www.test.com")
 			.build();
 
@@ -252,7 +252,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		News news = News.builder()
 			.title("기사타이틀" + 1)
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.thumbImg("www.test.com")
 			.build();
 
@@ -294,7 +294,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 
 		News news = News.builder()
 			.title("기사타이틀" + 1)
-			.category(NewsCategory.FOOTBALL)
+			.category(Category.FOOTBALL)
 			.thumbImg("www.test.com")
 			.build();
 
