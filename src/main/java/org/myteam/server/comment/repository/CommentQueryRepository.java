@@ -83,6 +83,7 @@ public class CommentQueryRepository {
                 .leftJoin(comment1.member, member) // 작성자 정보 조인
                 .leftJoin(comment1.mentionedMember, mentionedMember) // 언급된 사용자 정보 조인
                 .where(
+                        comment1.parent.id.isNull(),
                         isTypeAndIdEqualTo(type, contentId)
                 )
                 .orderBy(comment1.createDate.desc(), comment1.comment.asc())
@@ -95,7 +96,6 @@ public class CommentQueryRepository {
         }
 
         return comments;
-//        return null;
     }
 
     public void getCommentReply(CommentSaveResponse parentComment) {
@@ -103,16 +103,16 @@ public class CommentQueryRepository {
 
         List<CommentSaveResponse> replies = queryFactory
                 .select(Projections.fields(CommentSaveResponse.class,
-                        comment1.id,
+                        ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
-                        comment1.member.publicId,
-                        comment1.member.nickname,
+                        member.publicId,
+                        member.nickname,
                         comment1.imageUrl,
                         comment1.comment,
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false
                         comment1.recommendCount,
-                        comment1.mentionedMember.publicId,
-                        comment1.mentionedMember.nickname,
+                        ExpressionUtils.as(comment1.mentionedMember.publicId, "mentionedPublicId"),
+                        ExpressionUtils.as(comment1.mentionedMember.nickname, "mentionedNickname"),
                         comment1.createDate,
                         comment1.lastModifiedDate
                 ))
@@ -120,6 +120,7 @@ public class CommentQueryRepository {
                 .leftJoin(comment1.member, member)
                 .leftJoin(comment1.mentionedMember, mentionedMember)
                 .where(
+                        comment1.parent.id.isNotNull(),
                         comment1.parent.id.eq(parentComment.getCommentId()) // 부모 댓글 기준 대댓글 조회
                 )
                 .orderBy(comment1.createDate.asc()) // 대댓글은 오래된 순으로 정렬
