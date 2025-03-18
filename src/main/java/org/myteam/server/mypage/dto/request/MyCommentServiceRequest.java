@@ -1,5 +1,6 @@
 package org.myteam.server.mypage.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ public class MyCommentServiceRequest extends PageInfoServiceRequest {
     /**
      * 댓글 타입
      */
+    @NotNull(message = "댓글 타입은 필수 입니다.")
     private CommentType commentType;
     /**
      * 정렬 타입
