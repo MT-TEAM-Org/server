@@ -1,27 +1,25 @@
 package org.myteam.server.improvement.repository;
 
 import static java.util.Optional.ofNullable;
-import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.improvement.domain.QImprovementCount.improvementCount;
+import static org.myteam.server.member.entity.QMember.member;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
-import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -40,8 +38,9 @@ public class ImprovementQueryRepository {
                         improvement.id,
                         improvement.title,
                         improvement.createdIP,
-                        improvement.imgUrl,
-                        improvement.improvementStatus,
+                        improvement.imgUrl.as("thumbnail"),
+                        improvement.improvementStatus.as("status"),
+                        member.publicId,
                         member.nickname,
                         improvementCount.commentCount,
                         improvementCount.recommendCount,
