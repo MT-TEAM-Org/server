@@ -68,11 +68,12 @@ public class CommentController {
     /**
      * 댓글 삭제 API
      */
-    @DeleteMapping("/{contentId}/comment")
+    @DeleteMapping("/{contentId}/comment/{commentId}")
     public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long contentId,
-                                                           @Valid @RequestBody CommentDeleteRequest request) {
+                                                           @PathVariable Long commentId,
+                                                           @Valid @ModelAttribute CommentDeleteRequest request) {
 
-        commentService.deleteComment(contentId, request);
+        commentService.deleteComment(contentId, commentId, request);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "댓글이 삭제되었습니다.",

@@ -180,8 +180,7 @@ public class CommentService {
     /**
      * 댓글 삭제
      */
-    public void deleteComment(Long contentId, CommentDeleteRequest request) {
-        Long commentId = request.getCommentId();
+    public void deleteComment(Long contentId, Long commentId, CommentDeleteRequest request) {
         Member member = securityReadService.getMember();
         Comment comment = commentReadService.findById(commentId);
 
@@ -208,7 +207,7 @@ public class CommentService {
             s3Service.deleteFile(MediaUtils.getImagePath(reply.getImageUrl()));
         }
 
-        int minusCount = commentQueryRepository.deleteReply(request.getCommentId());
+        int minusCount = commentQueryRepository.deleteReply(commentId);
 
         log.info("댓글 삭제 완료 - commentId: {}, 요청자: {}", commentId, member.getPublicId());
 
