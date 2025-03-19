@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.service.NewsReadService;
-import org.myteam.server.news.newsComment.service.NewsCommentReadService;
-import org.myteam.server.news.newsReply.service.NewsReplyReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.report.util.ReportedContentValidator;
 import org.springframework.stereotype.Component;
@@ -17,8 +15,6 @@ import java.util.UUID;
 public class NewsReportedContentValidator implements ReportedContentValidator {
 
     private final NewsReadService newsReadService;
-    private final NewsCommentReadService newsCommentReadService;
-    private final NewsReplyReadService newsReplyReadService;
 
     @Override
     public boolean isValid(Long reportedContentId) {
