@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.game.dto.response.GameDiscountListResponse;
 import org.myteam.server.game.dto.response.GameEventListResponse;
 import org.myteam.server.game.service.GameReadService;
 import org.myteam.server.global.exception.ErrorResponse;
@@ -44,20 +43,5 @@ public class GameController {
             @ModelAttribute @Valid PageInfoRequest pageInfoRequest) {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게임 이벤트 목록 조회 성공",
                 gameReadService.getGameEventList(pageInfoRequest.toServiceRequest())));
-    }
-
-    /**
-     * 게임 할인 목록 조회 API
-     */
-    @Operation(summary = "게임 할인 목록 조회", description = "게임 할인 목록을 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "게임 할인 목록 조회 성공"),
-            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-    })
-    @GetMapping("/discount")
-    public ResponseEntity<ResponseDto<GameDiscountListResponse>> getGameDiscountList(
-            @ModelAttribute @Valid PageInfoRequest pageInfoRequest) {
-        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게임 할인 목록 조회 성공",
-                gameReadService.getGameDiscountList(pageInfoRequest.toServiceRequest())));
     }
 }

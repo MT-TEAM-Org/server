@@ -1,8 +1,6 @@
 package org.myteam.server.game.service;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.game.dto.response.GameDiscountDto;
-import org.myteam.server.game.dto.response.GameDiscountListResponse;
 import org.myteam.server.game.dto.response.GameEventDto;
 import org.myteam.server.game.dto.response.GameEventListResponse;
 import org.myteam.server.game.repository.GameQueryRepository;
@@ -24,12 +22,5 @@ public class GameReadService {
                 pageInfoServiceRequest.toPageable()
         );
         return GameEventListResponse.createResponse(PageCustomResponse.of(gameEventList));
-    }
-
-    public GameDiscountListResponse getGameDiscountList(PageInfoServiceRequest pageInfoServiceRequest) {
-        Page<GameDiscountDto> gameDiscountList = gameQueryRepository.getGameDiscountList(
-                pageInfoServiceRequest.toPageable()
-        );
-        return GameDiscountListResponse.createResponse(PageCustomResponse.of(gameDiscountList));
     }
 }
