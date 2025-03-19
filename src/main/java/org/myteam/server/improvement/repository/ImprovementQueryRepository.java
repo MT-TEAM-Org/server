@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QImprovementComment;
@@ -83,7 +82,8 @@ public class ImprovementQueryRepository {
                     .where(
                             QComment.comment1.comment.like("%" + search + "%")
                                     .and(QComment.comment1.commentType.eq(CommentType.IMPROVEMENT))
-                                    .and(QComment.comment1.as(QImprovementComment.class).improvement.id.eq(improvement.id))
+                                    .and(QComment.comment1.as(QImprovementComment.class).improvement.id.eq(
+                                            improvement.id))
                     )
                     .exists();
             default -> null;
@@ -109,5 +109,26 @@ public class ImprovementQueryRepository {
                         .where(isSearchTypeLikeTo(searchType, search))
                         .fetchOne()
         ).orElse(0L);
+    }
+
+    public Long findPreviousImprovementId(Long improvementId) {
+        return queryFactory
+                .select(improvement.id)
+                .from(improvement)
+                .where(improvement.id.lt(improvementId))
+                .orderBy(improvement.id.desc()) // 가장 큰 ID (즉, 이전 글)
+                .limit(1)
+                .fetchOne();
+    }
+
+
+    public Long findNextImprovementId(Long improvementId) {
+        return queryFactory
+                .select(improvement.id)
+                .from(improvement)
+                .where(improvement.id.gt(improvementId))
+                .orderBy(improvement.id.asc()) // 가장 작은 ID (즉, 다음 글)
+                .limit(1)
+                .fetchOne();
     }
 }

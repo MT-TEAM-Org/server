@@ -14,6 +14,7 @@ import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeSaveRequest;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
 import org.myteam.server.notice.repository.NoticeCountRepository;
+import org.myteam.server.notice.repository.NoticeQueryRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
 import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final NoticeCountRepository noticeCountRepository;
+    private final NoticeQueryRepository noticeQueryRepository;
     private final SecurityReadService securityReadService;
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeReadService noticeReadService;
@@ -53,7 +55,11 @@ public class NoticeService {
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
         log.info("공지사항 생성: {}", notice.getId());
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended);
+
+        Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
+        Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
+
+        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId);
 
     }
 
@@ -98,7 +104,11 @@ public class NoticeService {
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
         log.info("공지사항 수정: {}", notice.getId());
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended);
+
+        Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
+        Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
+
+        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId);
     }
 
     /**

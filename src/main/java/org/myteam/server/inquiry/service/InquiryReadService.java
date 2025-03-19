@@ -1,15 +1,18 @@
 package org.myteam.server.inquiry.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.inquiry.domain.InquiryCount;
-import org.myteam.server.inquiry.dto.request.InquiryRequest.*;
-import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
-import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.inquiry.domain.InquiryCount;
+import org.myteam.server.inquiry.dto.request.InquiryRequest.InquiryServiceRequest;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiriesListResponse;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiryDetailsResponse;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquirySaveResponse;
+import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -17,8 +20,6 @@ import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class InquiryReadService {
 
     /**
      * 검색 + 정렬 기능
+     *
      * @param inquiryServiceRequest
      * @return
      */
@@ -48,7 +50,7 @@ public class InquiryReadService {
         );
 
         log.info("내 문의내역: {} 조회 성공", member.getPublicId());
-        inquiryResponses.getContent().forEach(response ->{
+        inquiryResponses.getContent().forEach(response -> {
             log.info("ip: {}, maskedIp:{}", response.getClientIp(), ClientUtils.maskIp(response.getClientIp()));
             response.setClientIp(ClientUtils.maskIp(response.getClientIp()));
         });
@@ -58,6 +60,7 @@ public class InquiryReadService {
 
     /**
      * 내 문의하기 수
+     *
      * @param memberPublicId
      * @return
      */
@@ -81,7 +84,10 @@ public class InquiryReadService {
 
         log.info("요청 멤버: {}, 조회 문의내역: {} 성공", member.getPublicId(), inquiryId);
 
-        return InquiryDetailsResponse.createResponse(inquiry, inquiryCount);
+        Long previousId = inquiryQueryRepository.findPreviousInquiryI(inquiry.getId());
+        Long nextId = inquiryQueryRepository.findNextInquiryId(inquiry.getId());
+
+        return InquiryDetailsResponse.createResponse(inquiry, inquiryCount, previousId, nextId);
     }
 
     public Inquiry findInquiryById(Long inquiryId) {

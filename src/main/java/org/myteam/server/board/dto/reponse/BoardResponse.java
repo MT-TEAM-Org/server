@@ -80,9 +80,17 @@ public class BoardResponse {
      * 수정 일시
      */
     private LocalDateTime lastModifiedDate;
+    /**
+     * 이전글
+     */
+    private Long previousId;
+    /**
+     * 다음글
+     */
+    private Long nextId;
 
     @Builder
-    public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended) {
+    public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended, Long previousId, Long nextId) {
         this.boardType = board.getBoardType();
         this.categoryType = board.getCategoryType();
         this.boardId = board.getId();
@@ -99,13 +107,18 @@ public class BoardResponse {
         this.viewCount = boardCount.getViewCount();
         this.createDate = board.getCreateDate();
         this.lastModifiedDate = board.getLastModifiedDate();
+        this.previousId = previousId;
+        this.nextId = nextId;
     }
 
-    public static BoardResponse createResponse(Board board, BoardCount boardCount, boolean isRecommended) {
+    public static BoardResponse createResponse(Board board, BoardCount boardCount, boolean isRecommended,
+                                               Long previousId, Long nextId) {
         return BoardResponse.builder()
                 .board(board)
                 .boardCount(boardCount)
                 .isRecommended(isRecommended)
+                .previousId(previousId)
+                .nextId(nextId)
                 .build();
     }
 }

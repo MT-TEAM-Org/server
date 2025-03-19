@@ -12,6 +12,7 @@ import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSaveRequest;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementSaveResponse;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
+import org.myteam.server.improvement.repository.ImprovementQueryRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ImprovementService {
     private final ImprovementRepository improvementRepository;
+    private final ImprovementQueryRepository improvementQueryRepository;
     private final ImprovementCountRepository improvementCountRepository;
     private final SecurityReadService securityReadService;
     private final ImprovementRecommendReadService improvementRecommendReadService;
@@ -49,7 +51,11 @@ public class ImprovementService {
                 member.getPublicId());
 
         log.info("개선요청 생성: {}", improvement.getId());
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended);
+
+        Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
+        Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
+
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId);
     }
 
     /**
@@ -76,7 +82,11 @@ public class ImprovementService {
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
         log.info("개선요청 수정: {}", improvement.getId());
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended);
+
+        Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
+        Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
+
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId);
     }
 
     /**

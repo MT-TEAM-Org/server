@@ -1,24 +1,24 @@
 package org.myteam.server.notice.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.repository.NoticeQueryRepository;
-import org.myteam.server.notice.repository.NoticeRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeServiceRequest;
-import org.myteam.server.notice.dto.response.NoticeResponse.*;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeListResponse;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
+import org.myteam.server.notice.repository.NoticeQueryRepository;
+import org.myteam.server.notice.repository.NoticeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -56,7 +56,10 @@ public class NoticeReadService {
 
         log.info("공지사항 상세 조회 성공: {}", noticeId);
 
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended);
+        Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
+        Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
+
+        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId);
     }
 
     /**

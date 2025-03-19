@@ -33,8 +33,17 @@ public record NoticeResponse() {
         private int viewCount; // 조회 수
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
+        /**
+         * 이전글
+         */
+        private Long previousId;
+        /**
+         * 다음글
+         */
+        private Long nextId;
 
-        public static NoticeSaveResponse createResponse(Notice notice, NoticeCount noticeCount, boolean isRecommended) {
+        public static NoticeSaveResponse createResponse(Notice notice, NoticeCount noticeCount, boolean isRecommended,
+                                                        Long previousId, Long nextId) {
             return NoticeSaveResponse.builder()
                     .noticeId(notice.getId())
                     .publicId(notice.getMember().getPublicId())
@@ -49,6 +58,8 @@ public record NoticeResponse() {
                     .viewCount(noticeCount.getViewCount())
                     .createdAt(notice.getCreateDate())
                     .modifiedAt(notice.getLastModifiedDate())
+                    .previousId(previousId)
+                    .nextId(nextId)
                     .build();
         }
     }

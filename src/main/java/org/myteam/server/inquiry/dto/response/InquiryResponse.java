@@ -1,13 +1,15 @@
 package org.myteam.server.inquiry.dto.response;
 
-import lombok.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.util.ClientUtils;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 public record InquiryResponse() {
 
@@ -70,9 +72,18 @@ public record InquiryResponse() {
         private String content; // 게시글 내용
         private LocalDateTime createdAt; // 작성일시
         private int commentCount; // 댓글 수
+        /**
+         * 이전글
+         */
+        private Long previousId;
+        /**
+         * 다음글
+         */
+        private Long nextId;
+
 
         @Builder
-        public InquiryDetailsResponse(Inquiry inquiry, InquiryCount inquiryCount) {
+        public InquiryDetailsResponse(Inquiry inquiry, InquiryCount inquiryCount, Long previousId, Long nextId) {
             this.inquiryId = inquiry.getId();
             this.publicID = inquiry.getMember().getPublicId();
             this.nickname = inquiry.getMember().getNickname();
@@ -80,12 +91,17 @@ public record InquiryResponse() {
             this.content = inquiry.getContent();
             this.createdAt = inquiry.getCreatedAt();
             this.commentCount = inquiryCount.getCommentCount();
+            this.previousId = previousId;
+            this.nextId = nextId;
         }
 
-        public static InquiryDetailsResponse createResponse(Inquiry inquiry, InquiryCount inquiryCount) {
+        public static InquiryDetailsResponse createResponse(Inquiry inquiry, InquiryCount inquiryCount, Long previousId,
+                                                            Long nextId) {
             return InquiryDetailsResponse.builder()
                     .inquiry(inquiry)
                     .inquiryCount(inquiryCount)
+                    .previousId(previousId)
+                    .nextId(nextId)
                     .build();
         }
     }

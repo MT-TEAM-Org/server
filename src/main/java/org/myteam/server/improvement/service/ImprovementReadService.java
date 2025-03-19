@@ -1,15 +1,17 @@
 package org.myteam.server.improvement.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
-import org.myteam.server.improvement.dto.request.ImprovementRequest.*;
-import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
+import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementServiceRequest;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementListResponse;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementSaveResponse;
 import org.myteam.server.improvement.repository.ImprovementQueryRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.repository.MemberRepository;
@@ -17,8 +19,6 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -56,7 +56,10 @@ public class ImprovementReadService {
         }
 
         log.info("개선요청 상세 조회 성공: {}", improvementId);
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended);
+        Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
+        Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
+
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId);
     }
 
     /**
