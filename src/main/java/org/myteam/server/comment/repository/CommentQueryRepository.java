@@ -245,7 +245,8 @@ public class CommentQueryRepository {
                 .leftJoin(comment1.mentionedMember, mentionedMember) // 언급된 사용자 정보 조인
                 .where(
                         comment1.member.publicId.eq(publicId),
-                        comment1.commentType.stringValue().eq(commentType.name())
+                        comment1.commentType.stringValue().eq(commentType.name()),
+                        isSearchTypeLikeTo(searchType, search, commentType)
                 )
                 .orderBy(isOrderTypeEqualTo(orderType))
                 .offset(pageable.getOffset())
@@ -290,6 +291,50 @@ public class CommentQueryRepository {
                 .fetchOne();
 
         return new PageImpl<>(commentList, pageable, totalCount);
+    }
+
+    private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search, CommentType commentType) {
+        if (searchType == null) {
+            return null;
+        }
+
+        switch (searchType) {
+            case TITLE:
+                return switch (commentType) {
+                    case BOARD -> board.title.like("%" + search + "%");
+                    case IMPROVEMENT -> improvement.title.like("%" + search + "%");
+                    case NEWS -> news.title.like("%" + search + "%");
+                    case NOTICE -> notice.title.like("%" + search + "%");
+                    case INQUIRY -> null;
+                };
+
+            case CONTENT:
+                return switch (commentType) {
+                    case BOARD -> board.content.like("%" + search + "%");
+                    case IMPROVEMENT -> improvement.content.like("%" + search + "%");
+                    case NEWS -> news.content.like("%" + search + "%");
+                    case NOTICE -> notice.content.like("%" + search + "%");
+                    case INQUIRY -> inquiry.content.like("%" + search + "%");
+                };
+
+            case TITLE_CONTENT:
+                return switch (commentType) {
+                    case BOARD -> board.title.like("%" + search + "%").or(board.content.like("%" + search + "%"));
+                    case IMPROVEMENT -> improvement.title.like("%" + search + "%").or(improvement.content.like("%" + search + "%"));
+                    case NEWS -> news.title.like("%" + search + "%").or(news.content.like("%" + search + "%"));
+                    case NOTICE -> notice.title.like("%" + search + "%").or(notice.content.like("%" + search + "%"));
+                    case INQUIRY -> inquiry.content.like("%" + search + "%");
+                };
+
+            case NICKNAME:
+                return comment1.member.nickname.like("%" + search + "%");
+
+            case COMMENT:
+                return comment1.comment.like("%" + search + "%");
+
+            default:
+                return null;
+        }
     }
 
     private BooleanExpression isHotPost(CommentType commentType) {
@@ -523,7 +568,6 @@ public class CommentQueryRepository {
      * @brief: NEWS
      * @brief: IMPROVEMENT
      * @brief: INQUIRY
-     * TODO
      */
     private Expression<Integer> selectCommentCount() {
         return new CaseBuilder()
