@@ -43,6 +43,7 @@ public class CommentService {
     private final CommentQueryRepository commentQueryRepository;
     private final CommentRecommendReadService commentRecommendReadService;
     private final CommentRecommendRepository commentRecommendRepository;
+    private final CommentRecommendService commentRecommendService;
     private Map<CommentType, CommentCountService> countServiceMap;
 
     @Autowired
@@ -56,6 +57,7 @@ public class CommentService {
                           CommentReadService commentReadService,
                           CommentRecommendReadService commentRecommendReadService,
                           CommentRecommendRepository commentRecommendRepository,
+                          CommentRecommendService commentRecommendService,
                           CommentQueryRepository commentQueryRepository) {
 
         this.commentRepository = commentRepository;
@@ -68,6 +70,7 @@ public class CommentService {
         this.commentQueryRepository = commentQueryRepository;
         this.commentRecommendReadService = commentRecommendReadService;
         this.commentRecommendRepository = commentRecommendRepository;
+        this.commentRecommendService = commentRecommendService;
 
         log.info("등록된 CommentCountService Bean 목록: {}", countServices.keySet());
 
@@ -224,6 +227,13 @@ public class CommentService {
                 commentType,
                 contentId
         );
+
+        for (Comment comment : list) {
+            commentRecommendService.deleteCommentRecommendByPost(comment.getId());
+            if (comment.getImageUrl() != null) {
+                s3Service.deleteFile(comment.getImageUrl());
+            }
+        }
 
         commentRepository.deleteAll(list);
     }

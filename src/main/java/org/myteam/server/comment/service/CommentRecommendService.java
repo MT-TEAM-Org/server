@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.CommentRecommend;
+import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.repository.CommentRecommendRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -83,5 +86,9 @@ public class CommentRecommendService {
     private void recommend(Comment comment, Member member) {
         CommentRecommend recommend = CommentRecommend.createCommentRecommend(comment, member);
         commentRecommendRepository.save(recommend);
+    }
+
+    public void deleteCommentRecommendByPost(Long commentId) {
+        commentRecommendRepository.deleteByCommentId(commentId);
     }
 }
