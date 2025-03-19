@@ -9,10 +9,7 @@ import static org.myteam.server.news.news.domain.QNews.news;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.newsCount;
 import static org.myteam.server.notice.domain.QNotice.notice;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -242,7 +239,7 @@ public class CommentQueryRepository {
                 .leftJoin(comment1.mentionedMember, mentionedMember) // 언급된 사용자 정보 조인
                 .where(
                         comment1.member.publicId.eq(publicId),
-                        comment1.commentType.eq(commentType)
+                        comment1.commentType.stringValue().eq(commentType.name())
                 )
                 .orderBy(isOrderTypeEqualTo(orderType))
                 .offset(pageable.getOffset())
@@ -295,9 +292,16 @@ public class CommentQueryRepository {
         return switch (boardOrderType) {
             case CREATE -> new OrderSpecifier<?>[]{comment1.createDate.desc(), comment1.id.desc()};
             case RECOMMEND -> new OrderSpecifier<?>[]{comment1.recommendCount.desc(), comment1.id.desc()};
-//            case COMMENT -> new OrderSpecifier<?>[]{selectCommentCount()};
-            case COMMENT -> null;
+            case COMMENT -> new OrderSpecifier<?>[]{
+                    selectCommentCountDesc(),
+                    comment1.id.desc()            // 동일한 경우 id 기준 정렬};
+            };
+//            case COMMENT -> null;
         };
+    }
+
+    private OrderSpecifier<Integer> selectCommentCountDesc() {
+        return new OrderSpecifier<>(Order.DESC, selectCommentCount());
     }
 
     /**
@@ -474,6 +478,7 @@ public class CommentQueryRepository {
      * @brief: NEWS
      * @brief: IMPROVEMENT
      * @brief: INQUIRY
+     * TODO
      */
     private Expression<Integer> selectCommentCount() {
         return new CaseBuilder()
