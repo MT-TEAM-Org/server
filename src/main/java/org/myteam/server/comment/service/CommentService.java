@@ -22,7 +22,7 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +37,7 @@ public class CommentService {
     private final CommentFactory commentFactory;
     private final SecurityReadService securityReadService;
     private final BadWordFilter badWordFilter;
-    private final S3Service s3Service;
+    private final StorageService s3Service;
     private final MemberJpaRepository memberJpaRepository;
     private final CommentReadService commentReadService;
     private final CommentQueryRepository commentQueryRepository;
@@ -52,7 +52,7 @@ public class CommentService {
                           CommentFactory commentFactory,
                           SecurityReadService securityReadService,
                           BadWordFilter badWordFilter,
-                          S3Service s3Service,
+                          StorageService s3Service,
                           MemberJpaRepository memberJpaRepository,
                           CommentReadService commentReadService,
                           CommentRecommendReadService commentRecommendReadService,

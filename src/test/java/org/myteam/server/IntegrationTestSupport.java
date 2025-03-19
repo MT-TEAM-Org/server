@@ -1,31 +1,21 @@
 package org.myteam.server;
 
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.domain.Board;
-//import org.myteam.server.board.domain.BoardComment;
-//import org.myteam.server.board.domain.BoardCommentRecommend;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
-//import org.myteam.server.board.domain.BoardReply;
-//import org.myteam.server.board.domain.BoardReplyRecommend;
 import org.myteam.server.board.domain.CategoryType;
-//import org.myteam.server.board.repository.BoardCommentRecommendRepository;
-//import org.myteam.server.board.repository.BoardCommentRepository;
 import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRecommendRepository;
-//import org.myteam.server.board.repository.BoardReplyRecommendRepository;
-//import org.myteam.server.board.repository.BoardReplyRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.board.service.BoardCountReadService;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
-//import org.myteam.server.board.service.BoardReplyRecommendService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.service.CommentReadService;
@@ -71,13 +61,12 @@ import org.myteam.server.notice.repository.NoticeCountRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.upload.service.StorageService;
 import org.myteam.server.util.slack.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
@@ -165,7 +154,7 @@ public abstract class IntegrationTestSupport {
     @MockBean
     protected S3Controller s3Controller;
     @MockBean
-    protected S3Service s3Service;
+    protected StorageService s3Service;
     @MockBean
     protected SlackService slackService;
 
