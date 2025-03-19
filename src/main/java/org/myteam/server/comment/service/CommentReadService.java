@@ -18,6 +18,8 @@ import org.myteam.server.mypage.dto.request.MyCommentServiceRequest;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.MyCommentListResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,6 +122,11 @@ public class CommentReadService {
         );
 
         return MyCommentListResponse.createResponse(PageCustomResponse.of(list));
+    }
+
+    public long getMyCommentCount() {
+        UUID publicId = securityReadService.getMember().getPublicId();
+        return commentRepository.countByMemberPublicId(publicId);
     }
 
     public boolean existsById(Long commentId) {
