@@ -219,6 +219,15 @@ public class CommentService {
         countService.minusCommentCount(contentId, minusCount);
     }
 
+    public void deleteCommentByPost(CommentType commentType, Long contentId) {
+        List<Comment> list = commentQueryRepository.getCommentList(
+                commentType,
+                contentId
+        );
+
+        commentRepository.deleteAll(list);
+    }
+
     private List<Comment> getReply(Long commentId, UUID loginUser) {
         List<Comment> comments = commentQueryRepository.findRepliesWithImages(commentId);
         for (Comment reply : comments) {

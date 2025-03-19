@@ -85,6 +85,21 @@ public class CommentQueryRepository {
         return (int) deletedCount + 1;
     }
 
+    public List<Comment> getCommentList(CommentType type, Long contentId) {
+        QMember mentionedMember = new QMember("mentionedMember");
+
+        return queryFactory
+                .selectFrom(comment1)
+                .leftJoin(comment1.member, member).fetchJoin() // 작성자 정보 조인
+                .leftJoin(comment1.mentionedMember, mentionedMember).fetchJoin() // 언급된 사용자 정보 조인
+                .where(
+                        comment1.parent.id.isNull(), // 부모 댓글만 조회
+                        isTypeAndIdEqualTo(type, contentId) // 동적 조건
+                )
+                .orderBy(comment1.createDate.desc(), comment1.comment.asc())
+                .fetch();
+    }
+
     /**
      * 댓글 목록 조회 (페이징 + 최신순)
      */
