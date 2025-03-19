@@ -9,13 +9,13 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.notice.repository.NoticeCountRepository;
-import org.myteam.server.notice.repository.NoticeRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
-import org.myteam.server.notice.dto.request.NoticeRequest.*;
-import org.myteam.server.notice.dto.response.NoticeResponse.*;
-import org.myteam.server.upload.service.S3Service;
+import org.myteam.server.notice.dto.request.NoticeRequest.NoticeSaveRequest;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
+import org.myteam.server.notice.repository.NoticeCountRepository;
+import org.myteam.server.notice.repository.NoticeRepository;
+import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +31,8 @@ public class NoticeService {
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeReadService noticeReadService;
     private final NoticeCountReadService noticeCountReadService;
-    private final S3Service s3Service;
     private final CommentService commentService;
+    private final StorageService s3Service;
 
     /**
      * 공지사항 작성

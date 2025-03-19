@@ -27,6 +27,7 @@ public class GameQueryRepository {
      * 게임 이벤트 목록 조회 (노출 날짜가 오늘인 것중 최대 10개 조회)
      */
     public Page<GameEventDto> getGameEventList(Pageable pageable) {
+        // 최대 10개만 조회
         List<GameEventDto> content = queryFactory
                 .select(Projections.constructor(GameEventDto.class,
                         gameEvent.id,
@@ -40,25 +41,19 @@ public class GameQueryRepository {
                 .from(gameEvent)
                 .where(gameEvent.exposureDate.eq(LocalDate.now().atStartOfDay()))
                 .orderBy(gameEvent.id.asc())
-                .offset(pageable.getOffset())
-                .limit(10)
+                .limit(10) // 최대 10개까지만 조회
                 .fetch();
 
-        long total = getTotalEventCount();
+        // 전체 개수 (조회된 데이터 개수)
+        int total = content.size();
 
-        return new PageImpl<>(content, pageable, total);
-    }
+        // 메모리에서 페이징 적용
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), total);
 
-    private long getTotalEventCount() {
-        // 전체 개수를 구할 때는 limit(10)을 제외하고 실제 데이터의 개수를 계산
-        long count = queryFactory
-                .select(gameEvent.count())
-                .from(gameEvent)
-                .where(gameEvent.exposureDate.eq(LocalDate.now().atStartOfDay()))
-                .fetchOne();
+        List<GameEventDto> pagedContent = content.subList(start, end);
 
-        // 10개 이상이면 10을 반환
-        return Math.min(count, 10L);
+        return new PageImpl<>(pagedContent, pageable, total);
     }
 
     /**

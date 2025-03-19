@@ -71,6 +71,8 @@ public class Member extends Base {
     private int birthMonth;
     private int birthDay;
 
+    private String imgUrl;
+
     @Builder
     public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
         this.email = email;
@@ -100,10 +102,11 @@ public class Member extends Base {
     }
 
     // 전체 업데이트 메서드
-    public void update(String password, String tel, String nickname) {
+    public void update(String password, String tel, String nickname, String imageUrl) {
         this.password = password;
         this.tel = tel;
         this.nickname = nickname;
+        this.imgUrl = imageUrl;
     }
 
     public void updatePassword(String password) {

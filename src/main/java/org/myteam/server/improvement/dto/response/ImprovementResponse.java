@@ -1,6 +1,8 @@
 package org.myteam.server.improvement.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,9 +12,6 @@ import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.util.ClientUtils;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 public record ImprovementResponse() {
 
@@ -37,7 +36,8 @@ public record ImprovementResponse() {
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
 
-        public static ImprovementSaveResponse createResponse(Improvement improvement, ImprovementCount improvementCount, boolean isRecommended) {
+        public static ImprovementSaveResponse createResponse(Improvement improvement, ImprovementCount improvementCount,
+                                                             boolean isRecommended) {
             return ImprovementSaveResponse.builder()
                     .noticeId(improvement.getId())
                     .publicId(improvement.getMember().getPublicId())
@@ -91,6 +91,6 @@ public record ImprovementResponse() {
         private Integer commentCount;
         private Integer recommendCount;
         private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+        private LocalDateTime lastModifiedDate;
     }
 }

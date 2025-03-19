@@ -10,6 +10,11 @@ public class ClientUtils {
     public static String getRemoteIP(HttpServletRequest request) {
         String ip = request.getHeader("X-FORWARDED-FOR");
 
+        if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+            // X-FORWARDED-FOR 헤더에 여러 IP가 있을 경우, 첫 번째 IP만 추출
+            String[] ips = ip.split(",");
+            ip = ips[0].trim();
+        }
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         }

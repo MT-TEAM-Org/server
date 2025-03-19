@@ -13,6 +13,7 @@ import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +48,10 @@ public class InquiryReadService {
         );
 
         log.info("내 문의내역: {} 조회 성공", member.getPublicId());
+        inquiryResponses.getContent().forEach(response ->{
+            log.info("ip: {}, maskedIp:{}", response.getClientIp(), ClientUtils.maskIp(response.getClientIp()));
+            response.setClientIp(ClientUtils.maskIp(response.getClientIp()));
+        });
 
         return InquiriesListResponse.createResponse(PageCustomResponse.of(inquiryResponses));
     }

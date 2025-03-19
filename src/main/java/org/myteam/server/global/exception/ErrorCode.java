@@ -16,6 +16,7 @@ public enum ErrorCode {
     NOT_SUPPORT_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "This email type is not supported"),
     SEND_EMAIL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Occur error during send email"),
     CREATE_EMAIL_ACCOUNT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Occur error during create email"),
+    MISSING_ENVIRONMENT_VARIABLE(HttpStatus.INTERNAL_SERVER_ERROR, "Environment variable not found"),
 
     // 503 Service Unavailable
     KAFKA_TOPIC_DELETE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "Failed to delete the Kafka topic."),
