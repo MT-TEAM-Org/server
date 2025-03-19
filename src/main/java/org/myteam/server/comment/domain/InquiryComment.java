@@ -7,7 +7,7 @@ import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.member.entity.Member;
 
 @Entity
-@DiscriminatorValue("INQUIRY")
+//@DiscriminatorValue("INQUIRY")
 @NoArgsConstructor
 public class InquiryComment extends Comment {
 
