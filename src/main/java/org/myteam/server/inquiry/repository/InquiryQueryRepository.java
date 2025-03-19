@@ -1,28 +1,25 @@
 package org.myteam.server.inquiry.repository;
 
-import com.querydsl.core.types.OrderSpecifier;
+import static org.myteam.server.comment.domain.QInquiryComment.inquiryComment;
+import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
+import static org.myteam.server.inquiry.domain.QInquiryCount.inquiryCount;
+import static org.myteam.server.member.entity.QMember.member;
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
-import org.myteam.server.inquiry.domain.QInquiry;
-import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquirySaveResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.myteam.server.inquiry.domain.QInquiry.*;
-//import static org.myteam.server.inquiry.domain.QInquiryComment.inquiryComment;
-import static org.myteam.server.inquiry.domain.QInquiryCount.*;
-import static org.myteam.server.member.entity.QMember.member;
 
 @Slf4j
 @Repository
@@ -56,7 +53,7 @@ public class InquiryQueryRepository {
                 .from(inquiry)
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
                 .join(member).on(member.publicId.eq(memberPublicId))
-//                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
+                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
                         getSearchCondition(searchType, keyword),
                         getOrderType(orderType)
@@ -91,7 +88,7 @@ public class InquiryQueryRepository {
                 .from(inquiry)
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
                 .join(member).on(member.publicId.eq(memberPublicId))
-//                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
+                .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
                         getSearchCondition(searchType, keyword),
                         getOrderType(orderType)
@@ -99,13 +96,13 @@ public class InquiryQueryRepository {
                 .fetchOne()
         ).orElse(0L);
     }
-
-    private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry) {
-        if (orderType == InquiryOrderType.ANSWERED) {
-            return inquiry.isAdminAnswered.desc();
-        }
-        return inquiry.createdAt.desc();
-    }
+//
+//    private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry) {
+//        if (orderType == InquiryOrderType.ANSWERED) {
+//            return inquiry.isAdminAnswered.desc();
+//        }
+//        return inquiry.createdAt.desc();
+//    }
 
     private BooleanExpression isMemberEqualTo(UUID memberPublicId) {
         return memberPublicId != null ? inquiry.member.publicId.eq(memberPublicId) : null;
@@ -118,7 +115,7 @@ public class InquiryQueryRepository {
 
         return switch (searchType) {
             case CONTENT -> inquiry.content.like("%" + search + "%");
-//            case COMMENT -> inquiryComment.comment.like("%" + search + "%");
+            case COMMENT -> inquiryComment.comment.like("%" + search + "%");
             default -> null;
         };
     }
