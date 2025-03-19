@@ -2,6 +2,7 @@ package org.myteam.server.news.newsCount.service;
 
 import java.util.UUID;
 
+import org.myteam.server.comment.service.CommentCountService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.newsCount.dto.service.response.NewsRecommendResponse;
 import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
@@ -14,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class NewsCountService {
+public class NewsCountService implements CommentCountService {
 
 	private final NewsCountReadService newsCountReadService;
 	private final SecurityReadService securityReadService;
@@ -48,12 +49,19 @@ public class NewsCountService {
 		newsCountReadService.findByNewsIdLock(newsId).minusRecommendCount();
 	}
 
-	public void addCommendCount(Long newsId) {
+	@Override
+	public void addCommentCount(Long newsId) {
 		newsCountReadService.findByNewsIdLock(newsId).addCommentCount();
 	}
 
-	public void minusCommendCount(Long newsId) {
+	@Override
+	public void minusCommentCount(Long newsId) {
 		newsCountReadService.findByNewsIdLock(newsId).minusCommentCount();
+	}
+
+	@Override
+	public void minusCommentCount(Long newsId, int minusCount) {
+		newsCountReadService.findByNewsIdLock(newsId).minusCommentCount(minusCount);
 	}
 
 	public void addViewCount(Long newsId) {

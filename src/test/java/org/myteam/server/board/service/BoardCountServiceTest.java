@@ -16,8 +16,8 @@ import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -32,7 +32,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
     void recommendBoardTest() {
         // given
         Member member = createMember(1);
-        Board board = createBoard(member, BoardType.BASEBALL, CategoryType.FREE, "야구 카테고리 제목", "야구 카테고리 내용");
+        Board board = createBoard(member, Category.BASEBALL, CategoryType.FREE, "야구 카테고리 제목", "야구 카테고리 내용");
         // when
         boardCountService.recommendBoard(board.getId());
 
@@ -54,7 +54,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
     void cancelRecommendTest() {
         // given
         Member member = createMember(1);
-        Board board = createBoard(member, BoardType.BASEBALL, CategoryType.FREE, "야구 카테고리 제목", "야구 카테고리 내용");
+        Board board = createBoard(member, Category.BASEBALL, CategoryType.FREE, "야구 카테고리 제목", "야구 카테고리 내용");
 
         boardCountService.addRecommendCount(board.getId());
         BoardRecommend boardRecommend = createBoardRecommend(board, member);
@@ -92,7 +92,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         Board board = Board.builder()
                 .member(member)
-                .boardType(BoardType.BASEBALL)
+                .boardType(Category.BASEBALL)
                 .categoryType(CategoryType.FREE)
                 .title("title")
                 .content("content")
@@ -146,7 +146,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         Board board = Board.builder()
                 .member(member)
-                .boardType(BoardType.BASEBALL)
+                .boardType(Category.BASEBALL)
                 .categoryType(CategoryType.FREE)
                 .title("title")
                 .content("content")
@@ -202,7 +202,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         Board board = Board.builder()
                 .member(member)
-                .boardType(BoardType.BASEBALL)
+                .boardType(Category.BASEBALL)
                 .categoryType(CategoryType.FREE)
                 .title("title")
                 .content("content")
@@ -256,7 +256,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         Board board = Board.builder()
                 .member(member)
-                .boardType(BoardType.BASEBALL)
+                .boardType(Category.BASEBALL)
                 .categoryType(CategoryType.FREE)
                 .title("title")
                 .content("content")
@@ -311,7 +311,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
 
         Board board = Board.builder()
                 .member(member)
-                .boardType(BoardType.BASEBALL)
+                .boardType(Category.BASEBALL)
                 .categoryType(CategoryType.FREE)
                 .title("title")
                 .content("content")

@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.global.domain.BaseTime;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.entity.Member;
 
 @Getter
@@ -35,7 +36,7 @@ public class Board extends BaseTime {
     private Member member;
 
     @Enumerated(EnumType.STRING)
-    private BoardType boardType;
+    private Category boardType;
 
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
@@ -54,7 +55,7 @@ public class Board extends BaseTime {
     private BoardCount boardCount;
 
     @Builder
-    public Board(Member member, BoardType boardType, CategoryType categoryType, String title, String content,
+    public Board(Member member, Category boardType, CategoryType categoryType, String title, String content,
                  String link, String createdIp, String thumbnail,
                  BoardCount boardCount) {
         this.member = member;

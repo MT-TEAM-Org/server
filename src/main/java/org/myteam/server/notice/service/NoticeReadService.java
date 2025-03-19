@@ -75,4 +75,7 @@ public class NoticeReadService {
         return NoticeListResponse.createResponse(PageCustomResponse.of(noticePagingList));
     }
 
+    public boolean existsById(Long commentId) {
+        return noticeRepository.existsById(commentId);
+    }
 }

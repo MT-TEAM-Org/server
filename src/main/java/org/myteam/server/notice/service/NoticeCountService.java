@@ -2,6 +2,7 @@ package org.myteam.server.notice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.comment.service.CommentCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.notice.repository.NoticeRecommendRepository;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class NoticeCountService {
+public class NoticeCountService implements CommentCountService {
 
     private final SecurityReadService securityReadService;
     private final NoticeReadService noticeReadService;
@@ -91,6 +92,7 @@ public class NoticeCountService {
     /**
      * commentCount 증가
      */
+    @Override
     public void addCommentCount(Long noticeId) {
         noticeCountReadService.findByNoticeId(noticeId).addCommentCount();
     }
@@ -98,6 +100,7 @@ public class NoticeCountService {
     /**
      * commentCount 감소 (1 감소)
      */
+    @Override
     public void minusCommentCount(Long noticeId) {
         noticeCountReadService.findByNoticeId(noticeId).minusCommentCount();
     }
@@ -105,6 +108,7 @@ public class NoticeCountService {
     /**
      * commentCount 감소 (본 댓글 + 대댓글)
      */
+    @Override
     public void minusCommentCount(Long noticeId, int count) {
         noticeCountReadService.findByNoticeId(noticeId).minusCommentCount(count);
     }

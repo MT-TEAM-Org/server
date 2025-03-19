@@ -2,8 +2,8 @@ package org.myteam.server.news.news.dto.service.response;
 
 import java.time.LocalDateTime;
 
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.domain.NewsCategory;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +18,7 @@ public class NewsResponse {
 	@Schema(description = "뉴스 ID")
 	private Long id;
 	@Schema(description = "뉴스 카테고리")
-	private NewsCategory category;
+	private Category category;
 	@Schema(description = "뉴스 제목")
 	private String title;
 	@Schema(description = "뉴스 썸네일 이미지")
@@ -39,7 +39,7 @@ public class NewsResponse {
 	private String content;
 
 	@Builder
-	public NewsResponse(Long id, NewsCategory category, String title, String thumbImg, int recommendCount,
+	public NewsResponse(Long id, Category category, String title, String thumbImg, int recommendCount,
 		int commentCount,
 		int viewCount, LocalDateTime postDate, boolean isRecommend, String source, String content) {
 		this.id = id;

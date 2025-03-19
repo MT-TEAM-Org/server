@@ -86,6 +86,8 @@ public class SecurityConfig {
             // 아이디-비밀번호 찾기
             "/api/me/find-id/**",
             "api/me/find-password",
+
+            "/api/notice-comments/**"
     };
 
     /**
@@ -97,6 +99,11 @@ public class SecurityConfig {
             "/api/board", // 게시글 목록 조회
             "/api/board/comment/{boardCommentId}", // 게시판 댓글 상세 조회
             "/api/board/{boardId}/comment",
+
+            /** @brief 홈 메인*/
+            "api/comments/{contentId}",
+            "api/comments/{commentId}/detail",
+            "/api/comments/{contentId}/best",
 
             /** @brief 문의사항 관련 URL */
             "/api/inquiry/{inquiryId}/comment",

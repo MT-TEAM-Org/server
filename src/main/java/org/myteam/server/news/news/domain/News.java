@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.global.domain.Category;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,7 +26,7 @@ public class News extends Base {
 	private Long id;
 
 	@Enumerated(EnumType.STRING)
-	private NewsCategory category;
+	private Category category;
 
 	private String title;
 
@@ -38,7 +39,7 @@ public class News extends Base {
 	private LocalDateTime postDate;
 
 	@Builder
-	public News(Long id, NewsCategory category, String title, String thumbImg, LocalDateTime postDate, String source, String content) {
+	public News(Long id, Category category, String title, String thumbImg, LocalDateTime postDate, String source, String content) {
 		this.id = id;
 		this.category = category;
 		this.title = title;

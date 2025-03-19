@@ -2,8 +2,8 @@ package org.myteam.server.board.repository;
 
 import static java.util.Optional.ofNullable;
 import static org.myteam.server.board.domain.QBoard.board;
-import static org.myteam.server.board.domain.QBoardComment.boardComment;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
+import static org.myteam.server.comment.domain.QBoardComment.boardComment;
 import static org.myteam.server.member.entity.QMember.member;
 
 import com.querydsl.core.types.OrderSpecifier;
@@ -20,10 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardCommentSearchDto;
 import org.myteam.server.board.dto.reponse.BoardDto;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.springframework.data.domain.Page;
@@ -41,7 +41,7 @@ public class BoardQueryRepository {
     /**
      * 게시글 목록 조회
      */
-    public Page<BoardDto> getBoardList(BoardType boardType, CategoryType categoryType,
+    public Page<BoardDto> getBoardList(Category boardType, CategoryType categoryType,
                                        BoardOrderType orderType,
                                        BoardSearchType searchType, String search, Pageable pageable) {
 
@@ -77,12 +77,8 @@ public class BoardQueryRepository {
         // searchType이 COMMENT일 경우, 댓글 데이터 추가
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
-
                 BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
-
-                if (commentSearch != null) {
-                    boardDto.setBoardCommentSearchList(commentSearch);
-                }
+                boardDto.setBoardCommentSearchList(commentSearch);
             });
         }
 
@@ -136,7 +132,7 @@ public class BoardQueryRepository {
         };
     }
 
-    private long getTotalBoardCount(BoardType boardType, CategoryType categoryType, BoardSearchType searchType,
+    private long getTotalBoardCount(Category boardType, CategoryType categoryType, BoardSearchType searchType,
                                     String search) {
         return ofNullable(
                 queryFactory
@@ -163,7 +159,7 @@ public class BoardQueryRepository {
         return categoryType != null ? board.categoryType.eq(categoryType) : null;
     }
 
-    private BooleanExpression isBoardTypeEqualTo(BoardType boardType) {
+    private BooleanExpression isBoardTypeEqualTo(Category boardType) {
         return boardType != null ? board.boardType.eq(boardType) : null;
     }
 
@@ -204,12 +200,8 @@ public class BoardQueryRepository {
         // searchType이 COMMENT일 경우, 댓글 데이터 추가
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
-
                 BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
-
-                if (commentSearch != null) {
-                    boardDto.setBoardCommentSearchList(commentSearch);
-                }
+                boardDto.setBoardCommentSearchList(commentSearch);
             });
         }
 

@@ -75,4 +75,8 @@ public class ImprovementReadService {
 
         return ImprovementListResponse.createResponse(PageCustomResponse.of(improvementPagingList));
     }
+
+    public boolean existsById(Long commentId) {
+        return improvementRepository.existsById(commentId);
+    }
 }

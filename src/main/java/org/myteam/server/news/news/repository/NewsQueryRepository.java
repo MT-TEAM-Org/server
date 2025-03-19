@@ -4,11 +4,10 @@ import static java.util.Optional.*;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.myteam.server.news.news.domain.NewsCategory;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.springframework.data.domain.Page;
@@ -30,7 +29,7 @@ public class NewsQueryRepository {
 	private final JPAQueryFactory queryFactory;
 
 	public Page<NewsDto> getNewsList(NewsServiceRequest newsServiceRequest) {
-		NewsCategory category = newsServiceRequest.getCategory();
+		Category category = newsServiceRequest.getCategory();
 		OrderType orderType = newsServiceRequest.getOrderType();
 		String content = newsServiceRequest.getContent();
 		TimePeriod timePeriod = newsServiceRequest.getTimePeriod();
@@ -63,7 +62,7 @@ public class NewsQueryRepository {
 		return new PageImpl<>(contents, pageable, total);
 	}
 
-	private long getTotalNewsCount(NewsCategory category, String content, TimePeriod timePeriod) {
+	private long getTotalNewsCount(Category category, String content, TimePeriod timePeriod) {
 		return ofNullable(
 				queryFactory
 						.select(news.count())
@@ -95,7 +94,7 @@ public class NewsQueryRepository {
 		};
 	}
 
-	private BooleanExpression isCategoryEqualTo(NewsCategory category) {
+	private BooleanExpression isCategoryEqualTo(Category category) {
 		return category != null ? news.category.eq(category) : null;
 	}
 

@@ -8,8 +8,8 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.util.ClientUtils;
 
 @Getter
@@ -18,7 +18,7 @@ public class BoardDto {
     /**
      * 게시판 타입
      */
-    private BoardType boardType;
+    private Category boardType;
     /**
      * 게시판 카테고리 타입
      */
@@ -76,7 +76,7 @@ public class BoardDto {
     @JsonInclude(Include.NON_EMPTY)
     private BoardCommentSearchDto boardCommentSearchList;
 
-    public BoardDto(BoardType boardType, CategoryType categoryType, Long id, boolean isHot, String title,
+    public BoardDto(Category boardType, CategoryType categoryType, Long id, boolean isHot, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,
                     Integer recommendCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.boardType = boardType;

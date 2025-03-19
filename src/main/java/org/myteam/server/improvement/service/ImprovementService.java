@@ -2,6 +2,8 @@ package org.myteam.server.improvement.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.upload.MediaUtils;
@@ -28,6 +30,7 @@ public class ImprovementService {
     private final ImprovementRecommendReadService improvementRecommendReadService;
     private final ImprovementCountReadService improvementCountReadService;
     private final ImprovementReadService improvementReadService;
+    private final CommentService commentService;
     private final StorageService s3Service;
 
     /**
@@ -110,6 +113,8 @@ public class ImprovementService {
         improvementRepository.delete(improvement);
 
         log.info("개선요청 삭제: {}", improvementId);
+
+        commentService.deleteCommentByPost(CommentType.IMPROVEMENT, improvementId);
     }
 
     private Improvement makeImprovement(Member member, String clientIp, ImprovementSaveRequest request) {

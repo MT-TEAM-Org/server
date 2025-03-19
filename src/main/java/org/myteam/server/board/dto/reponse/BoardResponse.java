@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
-import org.myteam.server.board.domain.BoardType;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.global.domain.Category;
 import org.myteam.server.util.ClientUtils;
 
 @Getter
@@ -18,7 +18,7 @@ public class BoardResponse {
     /**
      * 게시판 타입
      */
-    private BoardType boardType;
+    private Category boardType;
     /**
      * 카테고리 타입
      */

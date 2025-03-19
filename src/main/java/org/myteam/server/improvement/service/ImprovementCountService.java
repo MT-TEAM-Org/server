@@ -2,6 +2,7 @@ package org.myteam.server.improvement.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.comment.service.CommentCountService;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementRecommend;
 import org.myteam.server.improvement.repository.ImprovementRecommendRepository;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ImprovementCountService {
+public class ImprovementCountService implements CommentCountService {
 
     private final SecurityReadService securityReadService;
     private final ImprovementReadService improvementReadService;
@@ -90,6 +91,7 @@ public class ImprovementCountService {
     /**
      * commentCount 증가
      */
+    @Override
     public void addCommentCount(Long improvementId) {
         improvementCountReadService.findByImprovementId(improvementId).addCommentCount();
     }
@@ -97,6 +99,7 @@ public class ImprovementCountService {
     /**
      * commentCount 감소 (1 감소)
      */
+    @Override
     public void minusCommentCount(Long improvementId) {
         improvementCountReadService.findByImprovementId(improvementId).minusCommentCount();
     }
@@ -104,6 +107,7 @@ public class ImprovementCountService {
     /**
      * commentCount 감소 (본 댓글 + 대댓글)
      */
+    @Override
     public void minusCommentCount(Long improvementId, int count) {
         improvementCountReadService.findByImprovementId(improvementId).minusCommentCount(count);
     }

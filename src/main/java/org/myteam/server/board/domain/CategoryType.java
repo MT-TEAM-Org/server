@@ -23,7 +23,8 @@ public enum CategoryType {
     /**
      * 플레이 팁 (e-sports)
      */
-    TIP;
+    TIP,
+    UNKNOWN;
 
     public void confirmEsports() {
         if (this.equals(TIP) || this.equals(VERIFICATION)) {

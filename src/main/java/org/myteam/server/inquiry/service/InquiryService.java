@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.service.BoardCountReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.inquiry.domain.Inquiry;
@@ -13,6 +15,7 @@ import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.repository.InquiryCountRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
@@ -36,6 +39,8 @@ public class InquiryService {
     private final SlackService slackService;
     private final SecurityReadService securityReadService;
     private final InquiryReadService inquiryReadService;
+    private final MemberJpaRepository memberJpaRepository;
+    private final CommentService commentService;
 
     /**
      * 문의 내역 생성
@@ -44,7 +49,11 @@ public class InquiryService {
      * @return
      */
     public String createInquiry(String content, String clientIP) {
-        Optional<Member> member = securityReadService.getOptionalMember();
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
+        Optional<Member> member = null;
+        if (loginUser != null) {
+            member = memberJpaRepository.findByPublicId(loginUser);
+        }
 
         Inquiry inquiry = makeInquiry(content, clientIP, member);
         InquiryCount inquiryCount = InquiryCount.createCount(inquiry);
@@ -75,6 +84,7 @@ public class InquiryService {
         inquiryRepository.delete(inquiry);
 
         log.info("문의내역: {} 삭제", inquiryId);
+        commentService.deleteCommentByPost(CommentType.INQUIRY, inquiryId);
     }
 
     private Inquiry makeInquiry(String content, String clientIP, Optional<Member> member) {

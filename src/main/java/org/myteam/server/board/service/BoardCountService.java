@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.repository.BoardRecommendRepository;
+import org.myteam.server.comment.service.CommentCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class BoardCountService {
+public class BoardCountService implements CommentCountService {
 
     private final SecurityReadService securityReadService;
     private final BoardReadService boardReadService;
@@ -83,6 +84,7 @@ public class BoardCountService {
     /**
      * commentCount 증가
      */
+    @Override
     public void addCommentCount(Long boardId) {
         boardCountReadService.findByBoardIdLock(boardId).addCommentCount();
     }
@@ -90,6 +92,7 @@ public class BoardCountService {
     /**
      * commentCount 감소 (1 감소)
      */
+    @Override
     public void minusCommentCount(Long boardId) {
         boardCountReadService.findByBoardIdLock(boardId).minusCommentCount();
     }
@@ -97,6 +100,7 @@ public class BoardCountService {
     /**
      * commentCount 감소 (본 댓글 + 대댓글)
      */
+    @Override
     public void minusCommentCount(Long boardId, int count) {
         boardCountReadService.findByBoardIdLock(boardId).minusCommentCount(count);
     }

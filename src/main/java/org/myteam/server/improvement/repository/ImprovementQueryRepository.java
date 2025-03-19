@@ -8,11 +8,16 @@ import static org.myteam.server.member.entity.QMember.member;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.domain.QComment;
+import org.myteam.server.comment.domain.QImprovementComment;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
@@ -73,6 +78,14 @@ public class ImprovementQueryRepository {
             case TITLE_CONTENT -> improvement.title.like("%" + search + "%")
                     .or(improvement.content.like("%" + search + "%"));
             case NICKNAME -> improvement.member.nickname.like("%" + search + "%");
+            case COMMENT -> JPAExpressions.selectOne()
+                    .from(QComment.comment1)
+                    .where(
+                            QComment.comment1.comment.like("%" + search + "%")
+                                    .and(QComment.comment1.commentType.eq(CommentType.IMPROVEMENT))
+                                    .and(QComment.comment1.as(QImprovementComment.class).improvement.id.eq(improvement.id))
+                    )
+                    .exists();
             default -> null;
         };
     }

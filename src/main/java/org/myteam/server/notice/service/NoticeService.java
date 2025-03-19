@@ -2,6 +2,8 @@ package org.myteam.server.notice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.upload.MediaUtils;
@@ -29,6 +31,7 @@ public class NoticeService {
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeReadService noticeReadService;
     private final NoticeCountReadService noticeCountReadService;
+    private final CommentService commentService;
     private final StorageService s3Service;
 
     /**
@@ -122,5 +125,7 @@ public class NoticeService {
         noticeRepository.delete(notice);
 
         log.info("공지사항 삭제: {}", noticeId);
+
+        commentService.deleteCommentByPost(CommentType.NOTICE, noticeId);
     }
 }
