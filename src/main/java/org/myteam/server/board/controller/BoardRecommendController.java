@@ -28,8 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class BoardRecommendController {
 
     private final BoardCountService boardCountService;
-//    private final BoardCommentRecommendService boardCommentRecommendService;
-//    private final BoardReplyRecommendService boardReplyRecommendService;
 
     /**
      * 게시글 추천
@@ -61,69 +59,4 @@ public class BoardRecommendController {
         boardCountService.deleteRecommendBoard(boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 추천 삭제 성공", null));
     }
-//
-//    /**
-//     * 게시판 댓글 추천
-//     */
-//    @Operation(summary = "게시판 댓글 추천", description = "게시글의 댓글을 추천합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "게시판 댓글 추천 성공"),
-//            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "404", description = "회원, 게시판 댓글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "409", description = "이미 추천되었음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-//    })
-//    @PostMapping("/comment/{boardCommentId}")
-//    public ResponseEntity<ResponseDto<Void>> recommendComment(@PathVariable Long boardCommentId) {
-//        boardCommentRecommendService.recommendBoardComment(boardCommentId);
-//        return ResponseEntity.ok(
-//                new ResponseDto<>(SUCCESS.name(), "게시판 댓글 추천 성공", null));
-//    }
-//
-//    /**
-//     * 게시판 댓글 추천 삭제
-//     */
-//    @Operation(summary = "게시판 댓글 추천 삭제", description = "게시판 댓글의 추천을 취소합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "게시판 댓글 추천 삭제 성공"),
-//            @ApiResponse(responseCode = "404", description = "회원, 게시판 댓글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//    })
-//    @DeleteMapping("/comment/{boardCommentId}")
-//    public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long boardCommentId) {
-//        boardCommentRecommendService.deleteRecommendBoardComment(boardCommentId);
-//        return ResponseEntity.ok(
-//                new ResponseDto<>(SUCCESS.name(), "게시판 댓글 추천 삭제", null));
-//    }
-//
-//    /**
-//     * 게시판 대댓글 추천
-//     */
-//    @Operation(summary = "게시판 대댓글 추천", description = "게시판 댓글의 대댓글을 추천합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "게시판 대댓글 추천 성공"),
-//            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "404", description = "게시판 대댓글, 회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "409", description = "이미 추천되었음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-//    })
-//    @PostMapping("/reply/{boardReplyId}")
-//    public ResponseEntity<ResponseDto<Void>> recommendReply(@PathVariable Long boardReplyId) {
-//        boardReplyRecommendService.recommendBoardReply(boardReplyId);
-//        return ResponseEntity.ok(
-//                new ResponseDto<>(SUCCESS.name(), "게시판 대댓글 추천 성공", null));
-//    }
-//
-//    /**
-//     * 게시판 대댓글 추천 삭제
-//     */
-//    @Operation(summary = "게시판 대댓글 추천 삭제", description = "게시판 대댓글의 추천을 취소합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "게시판 대댓글 추천 삭제 성공"),
-//            @ApiResponse(responseCode = "404", description = "회원, 게시판 대댓글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "404", description = "회원이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//    })
-//    @DeleteMapping("/reply/{boardReplyId}")
-//    public ResponseEntity<ResponseDto<Void>> deleteReply(@PathVariable Long boardReplyId) {
-//        boardReplyRecommendService.deleteRecommendBoardReply(boardReplyId);
-//        return ResponseEntity.ok(
-//                new ResponseDto<>(SUCCESS.name(), "게시판 대댓글 추천 삭제", null));
-//    }
 }
