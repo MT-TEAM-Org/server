@@ -1,9 +1,7 @@
 package org.myteam.server.comment.repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.myteam.server.comment.domain.BoardComment;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.NoticeComment;
 import org.myteam.server.notice.domain.Notice;
@@ -20,5 +18,4 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Optional<Comment> findCommentById(Long commentId);
 
-    List<BoardComment> findAllByBoardId(Long boardId);
 }

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.comment.domain.BoardComment;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
 import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
@@ -125,9 +124,5 @@ public class CommentReadService {
 
     public boolean existsById(Long commentId) {
         return commentRepository.existsById(commentId);
-    }
-
-    public List<BoardComment> findByBoardId(Long boardId) {
-        return commentRepository.findAllByBoardId(boardId);
     }
 }
