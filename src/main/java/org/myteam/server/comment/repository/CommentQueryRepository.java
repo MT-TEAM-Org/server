@@ -1,6 +1,8 @@
 package org.myteam.server.comment.repository;
 
 import static org.myteam.server.board.domain.QBoard.board;
+import static org.myteam.server.board.domain.QBoardCount.boardCount;
+import static org.myteam.server.comment.domain.QBoardComment.boardComment;
 import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
@@ -9,7 +11,11 @@ import static org.myteam.server.news.news.domain.QNews.news;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.newsCount;
 import static org.myteam.server.notice.domain.QNotice.notice;
 
-import com.querydsl.core.types.*;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -263,7 +269,7 @@ public class CommentQueryRepository {
                             selectCommentCount(),
                             selectCreateDate(),
                             selectLastModifiedDate(),
-                            Expressions.constant(false)
+                            isHotPost(commentType)
                     ))
                     .from(comment1)
                     .where(comment1.id.eq(comment.getCommentId()))
@@ -286,6 +292,28 @@ public class CommentQueryRepository {
         return new PageImpl<>(commentList, pageable, totalCount);
     }
 
+    private BooleanExpression isHotPost(CommentType commentType) {
+        // commentType이 BOARD일 경우에만 핫 게시글 체크
+        if (commentType.equals(CommentType.BOARD)) {
+            List<Long> hotBoardIds = getHotBoardIdList(); // 핫 게시글 ID 목록 가져오기
+
+            if (hotBoardIds == null || hotBoardIds.isEmpty()) {
+                return Expressions.FALSE; // 핫 게시글이 없으면 false 반환
+            }
+
+            // 게시글 ID가 핫 게시글 목록에 포함되는지 체크
+            return JPAExpressions.select(board.id)
+                    .from(board)
+                    .join(boardComment).on(boardComment.board.id.eq(board.id))
+                    .where(boardComment.id.eq(comment1.id))
+                    .in(hotBoardIds);  // board.id가 hotBoardIds 목록에 포함되는지 체크
+        }
+
+        // commentType이 BOARD가 아니면 false로 처리
+        return Expressions.FALSE;
+    }
+
+
     private OrderSpecifier<?>[] isOrderTypeEqualTo(BoardOrderType orderType) {
         // default 최신순
         BoardOrderType boardOrderType = Optional.ofNullable(orderType).orElse(BoardOrderType.CREATE);
@@ -294,14 +322,31 @@ public class CommentQueryRepository {
             case RECOMMEND -> new OrderSpecifier<?>[]{comment1.recommendCount.desc(), comment1.id.desc()};
             case COMMENT -> new OrderSpecifier<?>[]{
                     selectCommentCountDesc(),
-                    comment1.id.desc()            // 동일한 경우 id 기준 정렬};
+                    comment1.id.desc()            // 동일한 경우 id 기준 정렬
             };
-//            case COMMENT -> null;
         };
     }
 
     private OrderSpecifier<Integer> selectCommentCountDesc() {
         return new OrderSpecifier<>(Order.DESC, selectCommentCount());
+    }
+
+    /**
+     * 핫 게시글 ID 목록 조회
+     */
+    private List<Long> getHotBoardIdList() {
+        // 전체 게시글 기준 추천순 내림차순 -> 조회수 + 댓글수 내림차순 -> 제목 오름차순 -> id 오름차순
+        return queryFactory
+                .select(board.id)
+                .from(board)
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
+                .orderBy(
+                        boardCount.recommendCount.desc(),
+                        boardCount.viewCount.add(boardCount.commentCount).desc(),
+                        board.title.asc(), board.id.asc()
+                )
+                .limit(10)
+                .fetch();
     }
 
     /**
