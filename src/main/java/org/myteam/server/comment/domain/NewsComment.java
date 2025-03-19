@@ -7,7 +7,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
 
 @Entity
-//@DiscriminatorValue("NewsComment")
+@DiscriminatorValue("NewsComment")
 @NoArgsConstructor
 public class NewsComment extends Comment {
 

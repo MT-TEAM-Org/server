@@ -5,6 +5,7 @@ import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.inquiry.domain.QInquiryCount.inquiryCount;
 import static org.myteam.server.member.entity.QMember.member;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
+import org.myteam.server.inquiry.domain.QInquiry;
 import org.myteam.server.inquiry.dto.response.InquiryResponse.InquirySaveResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -96,13 +98,12 @@ public class InquiryQueryRepository {
                 .fetchOne()
         ).orElse(0L);
     }
-//
-//    private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry) {
-//        if (orderType == InquiryOrderType.ANSWERED) {
-//            return inquiry.isAdminAnswered.desc();
-//        }
-//        return inquiry.createdAt.desc();
-//    }
+    private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry) {
+        if (orderType == InquiryOrderType.ANSWERED) {
+            return inquiry.isAdminAnswered.desc();
+        }
+        return inquiry.createdAt.desc();
+    }
 
     private BooleanExpression isMemberEqualTo(UUID memberPublicId) {
         return memberPublicId != null ? inquiry.member.publicId.eq(memberPublicId) : null;

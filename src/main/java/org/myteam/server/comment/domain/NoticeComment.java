@@ -7,7 +7,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.notice.domain.Notice;
 
 @Entity
-//@DiscriminatorValue("NOTICE")  // 테이블의 comment_type 값이 "BOARD"이면 이 클래스 사용
+@DiscriminatorValue("NOTICE")  // 테이블의 comment_type 값이 "BOARD"이면 이 클래스 사용
 @NoArgsConstructor
 public class NoticeComment extends Comment {
 
