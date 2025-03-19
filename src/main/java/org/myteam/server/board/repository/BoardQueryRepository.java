@@ -23,6 +23,9 @@ import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardCommentSearchDto;
 import org.myteam.server.board.dto.reponse.BoardDto;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.domain.QBoardComment;
+import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
@@ -116,18 +119,15 @@ public class BoardQueryRepository {
             case TITLE_CONTENT -> board.title.like("%" + search + "%")
                     .or(board.content.like("%" + search + "%"));
             case NICKNAME -> board.member.nickname.like("%" + search + "%");
-            case COMMENT -> {
-                JPQLQuery<Long> subQuery = JPAExpressions
-                        .select(boardComment.board.id)
-                        .distinct()
-                        .from(boardComment);
-
-                if (search != null && !search.isEmpty()) {
-                    subQuery.where(boardComment.comment.like("%" + search + "%"));
-                }
-
-                yield board.id.in(subQuery);
-            }
+            case COMMENT -> JPAExpressions.selectOne()
+                    .from(QComment.comment1)
+                    .where(
+                            QComment.comment1.comment.like("%" + search + "%")
+                                    .and(QComment.comment1.commentType.eq(CommentType.BOARD))
+                                    .and(QComment.comment1.as(QBoardComment.class).board.id.eq(
+                                            board.id))
+                    )
+                    .exists();
             default -> null;
         };
     }
