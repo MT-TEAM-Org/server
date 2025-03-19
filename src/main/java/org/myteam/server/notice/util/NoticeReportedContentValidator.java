@@ -1,8 +1,8 @@
-package org.myteam.server.board.util;
+package org.myteam.server.notice.util;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.service.BoardReadService;
+import org.myteam.server.inquiry.service.InquiryReadService;
+import org.myteam.server.notice.service.NoticeReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.report.util.ReportedContentValidator;
 import org.springframework.stereotype.Component;
@@ -11,22 +11,22 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class BoardReportedContentValidator implements ReportedContentValidator {
+public class NoticeReportedContentValidator implements ReportedContentValidator {
 
-    private final BoardReadService boardReadService;
+    private final NoticeReadService noticeReadService;
 
     @Override
     public boolean isValid(Long reportedContentId) {
-        return boardReadService.existsById(reportedContentId);
+        return noticeReadService.existsById(reportedContentId);
     }
 
     @Override
     public UUID getOwnerPublicId(Long reportedContentId) {
-        return boardReadService.findById(reportedContentId).getMember().getPublicId();
+        return noticeReadService.findById(reportedContentId).getMember().getPublicId();
     }
 
     @Override
     public DomainType getSupportedDomain() {
-        return DomainType.BOARD;
+        return DomainType.NOTICE;
     }
 }

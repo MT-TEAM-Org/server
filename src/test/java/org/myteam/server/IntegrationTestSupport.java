@@ -28,6 +28,8 @@ import org.myteam.server.board.service.BoardRecommendReadService;
 //import org.myteam.server.board.service.BoardReplyRecommendService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.comment.repository.CommentRepository;
+import org.myteam.server.comment.service.CommentReadService;
+import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
@@ -59,18 +61,10 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.repository.NewsRepository;
-import org.myteam.server.news.newsComment.domain.NewsComment;
-import org.myteam.server.news.newsComment.repository.NewsCommentRepository;
-import org.myteam.server.news.newsCommentMember.domain.NewsCommentMember;
-import org.myteam.server.news.newsCommentMember.repository.NewsCommentMemberRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
 import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
 import org.myteam.server.news.newsCountMember.repository.NewsCountMemberRepository;
-import org.myteam.server.news.newsReply.domain.NewsReply;
-import org.myteam.server.news.newsReply.repository.NewsReplyRepository;
-import org.myteam.server.news.newsReplyMember.domain.NewsReplyMember;
-import org.myteam.server.news.newsReplyMember.repository.NewsReplyMemberRepository;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.repository.NoticeCountRepository;
@@ -102,14 +96,6 @@ public abstract class IntegrationTestSupport {
 	@Autowired
 	protected NewsCountRepository newsCountRepository;
 	@Autowired
-	protected NewsCommentRepository newsCommentRepository;
-	@Autowired
-	protected NewsCommentMemberRepository newsCommentMemberRepository;
-	@Autowired
-	protected NewsReplyRepository newsReplyRepository;
-	@Autowired
-	protected NewsReplyMemberRepository newsReplyMemberRepository;
-	@Autowired
 	protected MemberJpaRepository memberJpaRepository;
 	@Autowired
 	protected MemberActivityRepository memberActivityRepository;
@@ -127,14 +113,6 @@ public abstract class IntegrationTestSupport {
 	protected BoardCountRepository boardCountRepository;
 	@Autowired
 	protected BoardRecommendRepository boardRecommendRepository;
-//	@Autowired
-//	protected BoardCommentRepository boardCommentRepository;
-//	@Autowired
-//	protected BoardCommentRecommendRepository boardCommentRecommendRepository;
-//	@Autowired
-//	protected BoardReplyRepository boardReplyRepository;
-//	@Autowired
-//	protected BoardReplyRecommendRepository boardReplyRecommendRepository;
 	@Autowired
 	protected NoticeRepository noticeRepository;
 	@Autowired
@@ -168,16 +146,14 @@ public abstract class IntegrationTestSupport {
 	protected BoardCountReadService boardCountReadService;
 	@Autowired
 	protected BoardRecommendReadService boardRecommendReadService;
-//	@Autowired
-//	protected BoardReplyRecommendService boardReplyRecommendService;
 	@Autowired
 	protected BoardCountService boardCountService;
 	@Autowired
 	protected InquiryService inquiryService;
-//	@Autowired
-//	protected CommentService commentService;
-//	@Autowired
-//	protected CommentReadService commentReadService;
+	@Autowired
+	protected CommentService commentService;
+	@Autowired
+	protected CommentReadService commentReadService;
 
 	/**
 	 * ================== Config ========================
@@ -199,17 +175,9 @@ public abstract class IntegrationTestSupport {
 		matchRepository.deleteAllInBatch();
 		teamRepository.deleteAllInBatch();
 		inquiryRepository.deleteAllInBatch();
-		newsReplyMemberRepository.deleteAllInBatch();
-		newsReplyRepository.deleteAllInBatch();
-		newsCommentMemberRepository.deleteAllInBatch();
-		newsCommentRepository.deleteAllInBatch();
 		newsCountMemberRepository.deleteAllInBatch();
 		newsCountRepository.deleteAllInBatch();
 		newsRepository.deleteAllInBatch();
-//		boardReplyRecommendRepository.deleteAllInBatch();
-//		boardReplyRepository.deleteAllInBatch();
-//		boardCommentRecommendRepository.deleteAllInBatch();
-//		boardCommentRepository.deleteAllInBatch();
 		boardRecommendRepository.deleteAllInBatch();
 		boardCountRepository.deleteAllInBatch();
 		boardRepository.deleteAllInBatch();
@@ -318,49 +286,6 @@ public abstract class IntegrationTestSupport {
 		);
 	}
 
-	protected NewsComment createNewsComment(News news, Member member, String comment, int recommendCount) {
-		return newsCommentRepository.save(
-			NewsComment.builder()
-				.news(news)
-				.member(member)
-				.comment(comment)
-				.ip("1.1.1.1")
-				.imgUrl("www.test.com")
-				.recommendCount(recommendCount)
-				.build()
-		);
-	}
-
-	protected NewsReply createNewsReply(NewsComment newsComment, Member member, String comment) {
-		return newsReplyRepository.save(
-			NewsReply.builder()
-				.newsComment(newsComment)
-				.member(member)
-				.comment(comment)
-				.ip("1.1.1.1")
-				.imgUrl("www.test.com")
-				.build()
-		);
-	}
-
-	protected NewsCommentMember createNewsCommentMember(Member member, NewsComment newsComment) {
-		return newsCommentMemberRepository.save(
-			NewsCommentMember.builder()
-				.member(member)
-				.newsComment(newsComment)
-				.build()
-		);
-	}
-
-	protected NewsReplyMember createNewsReplyMember(Member member, NewsReply newsReply) {
-		return newsReplyMemberRepository.save(
-			NewsReplyMember.builder()
-				.member(member)
-				.newsReply(newsReply)
-				.build()
-		);
-	}
-
 	protected Team createTeam(int index, TeamCategory category) {
 		return teamRepository.save(Team.builder()
 			.name("테스트팀" + index)
@@ -424,58 +349,6 @@ public abstract class IntegrationTestSupport {
 
 		return recommend;
 	}
-
-//	protected BoardComment createBoardComment(Board board, Member member, String comment) {
-//		BoardComment boardComment = BoardComment.builder()
-//			.board(board)
-//			.member(member)
-//			.imageUrl("http://localhost:9000/bucket/test.png")
-//			.comment(comment)
-//			.createdIp("127.0.0.1")
-//			.recommendCount(0)
-//			.build();
-//
-//		boardCommentRepository.save(boardComment);
-//
-//		return boardComment;
-//	}
-//
-//	protected BoardCommentRecommend createBoardCommentRecommend(BoardComment boardComment, Member member) {
-//		BoardCommentRecommend boardCommentRecommend = BoardCommentRecommend.builder()
-//			.boardComment(boardComment)
-//			.member(member)
-//			.build();
-//		boardCommentRecommendRepository.save(boardCommentRecommend);
-//
-//		return boardCommentRecommend;
-//	}
-//
-//	protected BoardReply createBoardReply(BoardComment boardComment, Member member, String comment,
-//		Member mentionedMember) {
-//		BoardReply boardReply = BoardReply.builder()
-//			.boardComment(boardComment)
-//			.member(member)
-//			.imageUrl("http://localhost:9000/bucket/test.png")
-//			.comment(comment)
-//			.createdIp("127.0.0.1")
-//			.recommendCount(0)
-//			.mentionedMember(mentionedMember)
-//			.build();
-//
-//		boardReplyRepository.save(boardReply);
-//
-//		return boardReply;
-//	}
-//
-//	protected BoardReplyRecommend createBoardReplyRecommend(BoardReply boardReply, Member member) {
-//		BoardReplyRecommend boardReplyRecommend = BoardReplyRecommend.builder()
-//			.boardReply(boardReply)
-//			.member(member)
-//			.build();
-//		boardReplyRecommendRepository.save(boardReplyRecommend);
-//
-//		return boardReplyRecommend;
-//	}
 
 	protected Notice createNotice(Member member) {
 		Notice notice = Notice.builder()

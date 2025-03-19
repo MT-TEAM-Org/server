@@ -121,4 +121,8 @@ public class CommentReadService {
 
         return MyCommentListResponse.createResponse(PageCustomResponse.of(list));
     }
+
+    public boolean existsById(Long commentId) {
+        return commentRepository.existsById(commentId);
+    }
 }

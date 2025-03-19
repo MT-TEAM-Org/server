@@ -18,20 +18,12 @@ public class NewsReportedContentValidator implements ReportedContentValidator {
 
     @Override
     public boolean isValid(Long reportedContentId) {
-        return newsReadService.existsById(reportedContentId) ||
-                newsCommentReadService.existsById(reportedContentId) ||
-                newsReplyReadService.existsById(reportedContentId);
+        return newsReadService.existsById(reportedContentId);
     }
 
     @Override
     public UUID getOwnerPublicId(Long reportedContentId) {
-        if (newsReadService.existsById(reportedContentId)) {
-            return null;
-        } else if (newsCommentReadService.existsById(reportedContentId)) {
-            return newsCommentReadService.findById(reportedContentId).getMember().getPublicId();
-        } else {
-            return newsReplyReadService.findById(reportedContentId).getMember().getPublicId();
-        }
+        return null;
     }
 
     @Override

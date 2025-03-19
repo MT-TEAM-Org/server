@@ -16,28 +16,15 @@ import java.util.UUID;
 public class InquiryReportedContentValidator implements ReportedContentValidator {
 
     private final InquiryReadService inquiryReadService;
-//    private final InquiryCommentReadService inquiryCommentReadService;
-//    private final InquiryReplyReadService inquiryReplyReadService;
 
     @Override
     public boolean isValid(Long reportedContentId) {
         return inquiryReadService.existsById(reportedContentId);
-//                inquiryCommentReadService.existsById(reportedContentId) ||
-//                inquiryReplyReadService.existsById(reportedContentId);
     }
 
     @Override
     public UUID getOwnerPublicId(Long reportedContentId) {
-        if (inquiryReadService.existsById(reportedContentId)) {
-            return inquiryReadService.findInquiryById(reportedContentId).getMember().getPublicId();
-        } else {
-            return null;
-        }
-//        else if (inquiryCommentReadService.existsById(reportedContentId)) {
-//            return inquiryCommentReadService.findById(reportedContentId).getMember().getPublicId();
-//        } else {
-//            return inquiryReplyReadService.findById(reportedContentId).getMember().getPublicId();
-//        }
+        return inquiryReadService.findInquiryById(reportedContentId).getMember().getPublicId();
     }
 
     @Override
