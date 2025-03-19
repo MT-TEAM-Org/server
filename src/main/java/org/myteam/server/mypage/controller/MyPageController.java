@@ -24,6 +24,7 @@ import org.myteam.server.mypage.dto.request.MyBoardSearchRequest;
 import org.myteam.server.mypage.dto.request.MyCommentSearchRequest;
 import org.myteam.server.mypage.dto.request.MyPageRequest.MyPageUpdateRequest;
 import org.myteam.server.mypage.dto.response.MyCommentListResponse;
+import org.myteam.server.mypage.dto.response.MyPageResponse.MemberStatsResponse;
 import org.myteam.server.mypage.dto.response.MyPageResponse.MemberModifyResponse;
 import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.mypage.service.MyPageService;
@@ -55,22 +56,22 @@ public class MyPageController {
      *
      * @return
      */
-//    @Operation(summary = "마이페이지 회원 정보 조회", description = "로그인한 사용자의 정보를 조회합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공"),
-//            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-//            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-//    })
-//    @GetMapping
-//    public ResponseEntity<ResponseDto<MemberStatsResponse>> getMyPage() {
-//        MemberStatsResponse response = myPageReadService.getMemberInfo();
-//
-//        return ResponseEntity.ok(new ResponseDto<>(
-//                SUCCESS.name(),
-//                "회원 정보가 조회되었습니다.",
-//                response
-//        ));
-//    }
+    @Operation(summary = "마이페이지 회원 정보 조회", description = "로그인한 사용자의 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping
+    public ResponseEntity<ResponseDto<MemberStatsResponse>> getMyPage() {
+        MemberStatsResponse response = myPageReadService.getMemberInfo();
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "회원 정보가 조회되었습니다.",
+                response
+        ));
+    }
 
     /**
      * 마이페이지 회원 정보 수정 목록 보여주기

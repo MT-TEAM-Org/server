@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
  * 로컬 실행용 S3 Config
  */
 @Configuration
-@Profile("dev")
+@Profile({"dev", "test"})
 public class S3ConfigLocal {
 
     @Value("${minio.url}")

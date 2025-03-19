@@ -23,7 +23,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Profile("dev")
+@Profile({"dev", "test"})
 public class LocalS3Service implements StorageService {
 
     private final S3Client minioClient;
