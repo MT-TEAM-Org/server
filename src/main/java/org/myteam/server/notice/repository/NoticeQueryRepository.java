@@ -116,4 +116,24 @@ public class NoticeQueryRepository {
                 .limit(2)
                 .fetch();
     }
+
+    public Long findPreviousNoticeId(Long noticeId) {
+        return queryFactory
+                .select(notice.id)
+                .from(notice)
+                .where(notice.id.lt(noticeId)) // 현재 게시글보다 작은 ID
+                .orderBy(notice.id.desc()) // 가장 큰 ID (즉, 이전 글)
+                .limit(1)
+                .fetchOne();
+    }
+
+    public Long findNextNoticeId(Long noticeId) {
+        return queryFactory
+                .select(notice.id)
+                .from(notice)
+                .where(notice.id.gt(noticeId)) // 현재 게시글보다 큰 ID
+                .orderBy(notice.id.asc()) // 가장 작은 ID (즉, 다음 글)
+                .limit(1)
+                .fetchOne();
+    }
 }

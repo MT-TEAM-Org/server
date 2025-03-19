@@ -98,6 +98,7 @@ public class InquiryQueryRepository {
                 .fetchOne()
         ).orElse(0L);
     }
+
     private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry) {
         if (orderType == InquiryOrderType.ANSWERED) {
             return inquiry.isAdminAnswered.desc();
@@ -126,5 +127,26 @@ public class InquiryQueryRepository {
             return inquiry.isAdminAnswered.isTrue();
         }
         return null;
+    }
+
+    public Long findPreviousInquiryI(Long inquiryId) {
+        return queryFactory
+                .select(inquiry.id)
+                .from(inquiry)
+                .where(inquiry.id.lt(inquiryId))
+                .orderBy(inquiry.id.desc()) // 가장 큰 ID (즉, 이전 글)
+                .limit(1)
+                .fetchOne();
+    }
+
+
+    public Long findNextInquiryId(Long inquiryId) {
+        return queryFactory
+                .select(inquiry.id)
+                .from(inquiry)
+                .where(inquiry.id.gt(inquiryId))
+                .orderBy(inquiry.id.asc()) // 가장 작은 ID (즉, 다음 글)
+                .limit(1)
+                .fetchOne();
     }
 }

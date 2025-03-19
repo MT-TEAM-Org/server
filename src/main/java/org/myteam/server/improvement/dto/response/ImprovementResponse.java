@@ -35,9 +35,17 @@ public record ImprovementResponse() {
         private int viewCount; // 조회 수
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
+        /**
+         * 이전글
+         */
+        private Long previousId;
+        /**
+         * 다음글
+         */
+        private Long nextId;
 
         public static ImprovementSaveResponse createResponse(Improvement improvement, ImprovementCount improvementCount,
-                                                             boolean isRecommended) {
+                                                             boolean isRecommended, Long previousId, Long nextId) {
             return ImprovementSaveResponse.builder()
                     .noticeId(improvement.getId())
                     .publicId(improvement.getMember().getPublicId())
@@ -53,6 +61,8 @@ public record ImprovementResponse() {
                     .viewCount(improvementCount.getViewCount())
                     .createdAt(improvement.getCreateDate())
                     .modifiedAt(improvement.getLastModifiedDate())
+                    .previousId(previousId)
+                    .nextId(nextId)
                     .build();
         }
     }

@@ -304,4 +304,28 @@ public class BoardQueryRepository {
 
         return hotBoardList;
     }
+
+    public Long findPreviousBoardId(Long boardId, Category boardType, CategoryType categoryType) {
+        return queryFactory
+                .select(board.id)
+                .from(board)
+                .where(board.id.lt(boardId), // 현재 게시글보다 작은 ID
+                        board.boardType.eq(boardType),
+                        board.categoryType.eq(categoryType))
+                .orderBy(board.id.desc()) // 가장 큰 ID (즉, 이전 글)
+                .limit(1)
+                .fetchOne();
+    }
+
+    public Long findNextBoardId(Long boardId, Category boardType, CategoryType categoryType) {
+        return queryFactory
+                .select(board.id)
+                .from(board)
+                .where(board.id.gt(boardId), // 현재 게시글보다 큰 ID
+                        board.boardType.eq(boardType),
+                        board.categoryType.eq(categoryType))
+                .orderBy(board.id.asc()) // 가장 작은 ID (즉, 다음 글)
+                .limit(1)
+                .fetchOne();
+    }
 }

@@ -9,6 +9,7 @@ import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardResponse;
 import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.repository.BoardCountRepository;
+import org.myteam.server.board.repository.BoardQueryRepository;
 import org.myteam.server.board.repository.BoardRecommendRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.comment.domain.CommentType;
@@ -33,6 +34,7 @@ public class BoardService {
     private final BoardCountRepository boardCountRepository;
     private final BoardRecommendRepository boardRecommendRepository;
     private final MemberRepository memberRepository;
+    private final BoardQueryRepository boardQueryRepository;
 
     private final SecurityReadService securityReadService;
     private final BoardReadService boardReadService;
@@ -60,8 +62,14 @@ public class BoardService {
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
+        // 이전글/다음글 ID 조회 (게시판 타입(BASEBALL, FOOTBALL...), 카테고리 타입(FREE,QUESTION...) 기준으로 조회)
+        Long previousId = boardQueryRepository.findPreviousBoardId(board.getId(), board.getBoardType(),
+                board.getCategoryType());
+        Long nextId = boardQueryRepository.findNextBoardId(board.getId(), board.getBoardType(),
+                board.getCategoryType());
+
         log.info("게시판 생성: {}", loginUser);
-        return BoardResponse.createResponse(board, boardCount, isRecommended);
+        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId);
     }
 
     /**
@@ -113,7 +121,13 @@ public class BoardService {
             isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
         }
 
-        return BoardResponse.createResponse(board, boardCount, isRecommended);
+        // 이전글/다음글 ID 조회 (게시판 타입(BASEBALL, FOOTBALL...), 카테고리 타입(FREE,QUESTION...) 기준으로 조회)
+        Long previousId = boardQueryRepository.findPreviousBoardId(boardId, board.getBoardType(),
+                board.getCategoryType());
+        Long nextId = boardQueryRepository.findNextBoardId(boardId, board.getBoardType(), board.getCategoryType());
+
+        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId,
+                nextId);
     }
 
     /**
@@ -136,7 +150,14 @@ public class BoardService {
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
-        return BoardResponse.createResponse(board, boardCount, isRecommended);
+
+        // 이전글/다음글 ID 조회 (게시판 타입(BASEBALL, FOOTBALL...), 카테고리 타입(FREE,QUESTION...) 기준으로 조회)
+        Long previousId = boardQueryRepository.findPreviousBoardId(board.getId(), board.getBoardType(),
+                board.getCategoryType());
+        Long nextId = boardQueryRepository.findNextBoardId(board.getId(), board.getBoardType(),
+                board.getCategoryType());
+
+        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId);
     }
 
     /**
