@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.service.BoardCountReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.inquiry.domain.Inquiry;
@@ -38,6 +40,7 @@ public class InquiryService {
     private final SecurityReadService securityReadService;
     private final InquiryReadService inquiryReadService;
     private final MemberJpaRepository memberJpaRepository;
+    private final CommentService commentService;
 
     /**
      * 문의 내역 생성
@@ -81,6 +84,7 @@ public class InquiryService {
         inquiryRepository.delete(inquiry);
 
         log.info("문의내역: {} 삭제", inquiryId);
+        commentService.deleteCommentByPost(CommentType.INQUIRY, inquiryId);
     }
 
     private Inquiry makeInquiry(String content, String clientIP, Optional<Member> member) {
