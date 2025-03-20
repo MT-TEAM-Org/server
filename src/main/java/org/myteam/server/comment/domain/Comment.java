@@ -1,7 +1,6 @@
 package org.myteam.server.comment.domain;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,7 +21,7 @@ import org.myteam.server.member.entity.Member;
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)  // 단일 테이블 전략 사용
-@DiscriminatorColumn(name = "d_type") // 타입 구분 컬럼 추가
+//@DiscriminatorColumn(name = "d_type") // 타입 구분 컬럼 추가
 public abstract class Comment extends BaseTime {
 
     private static final int MAX_DEPTH = 3; // 최대 대댓글 깊이 제한
