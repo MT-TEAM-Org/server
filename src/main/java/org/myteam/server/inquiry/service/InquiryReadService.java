@@ -41,13 +41,24 @@ public class InquiryReadService {
         Member member = securityReadService.getMember();
         log.info("내 문의내역 조회: {} 요청", member.getPublicId());
 
-        Page<InquirySaveResponse> inquiryResponses = inquiryQueryRepository.getInquiryList(
-                member.getPublicId(),
-                inquiryServiceRequest.getOrderType(),
-                inquiryServiceRequest.getSearchType(),
-                inquiryServiceRequest.getSearch(),
-                inquiryServiceRequest.toPageable()
-        );
+        Page<InquirySaveResponse> inquiryResponses = null;
+        if (member.isAdmin()) {
+            inquiryResponses = inquiryQueryRepository.getInquiryList(
+                    null,
+                    inquiryServiceRequest.getOrderType(),
+                    inquiryServiceRequest.getSearchType(),
+                    inquiryServiceRequest.getSearch(),
+                    inquiryServiceRequest.toPageable()
+            );
+        } else {
+            inquiryResponses = inquiryQueryRepository.getInquiryList(
+                    member.getPublicId(),
+                    inquiryServiceRequest.getOrderType(),
+                    inquiryServiceRequest.getSearchType(),
+                    inquiryServiceRequest.getSearch(),
+                    inquiryServiceRequest.toPageable()
+            );
+        }
 
         log.info("내 문의내역: {} 조회 성공", member.getPublicId());
         inquiryResponses.getContent().forEach(response -> {
@@ -76,9 +87,7 @@ public class InquiryReadService {
         log.info("요청 멤버: {}, 조회 문의내역: {} 요청", member.getPublicId(), inquiryId);
 
         Inquiry inquiry = findInquiryById(inquiryId);
-        if (!inquiry.getMember().getPublicId().equals(member.getPublicId())) {
-            throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
-        }
+        inquiry.verifyInquiryAuthor(member);
 
         InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiry.getId());
 
