@@ -54,7 +54,7 @@ public class InquiryQueryRepository {
                 ))
                 .from(inquiry)
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
-                .join(member).on(member.publicId.eq(memberPublicId))
+                .join(member).on(member.publicId.eq(inquiry.member.publicId))
                 .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
                         isMemberEqualTo(memberPublicId),
@@ -90,7 +90,7 @@ public class InquiryQueryRepository {
                 .select(inquiry.count())
                 .from(inquiry)
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
-                .join(member).on(member.publicId.eq(memberPublicId))
+                .join(member).on(member.publicId.eq(inquiry.member.publicId))
                 .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
                         isMemberEqualTo(memberPublicId),
