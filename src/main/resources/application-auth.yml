@@ -19,7 +19,7 @@ spring:
         registration:
           discord:
             client-name: discord
-            client-id: ${DISCORD_CLIENT_ID}
+            client-id: ${DISCORD_APPLICATION_ID}
             client-secret: ${DISCORD_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
