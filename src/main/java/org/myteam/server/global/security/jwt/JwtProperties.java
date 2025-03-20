@@ -1,18 +1,16 @@
 package org.myteam.server.global.security.jwt;
 
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
+import org.springframework.stereotype.Component;
 
 @Getter
-@ConfigurationProperties("jwt")
+@Component
 public class JwtProperties {
-    private final String issuer;
-    private final String secretKey;
-
-    @ConstructorBinding
-    public JwtProperties(String issuer, String secretKey) {
-        this.issuer = issuer;
-        this.secretKey = secretKey;
-    }
+    @Value("${jwt.issuer}")
+    private String issuer;
+    @Value("${jwt.secret-key}")
+    private String secretKey;
 }

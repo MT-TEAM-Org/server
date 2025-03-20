@@ -44,6 +44,8 @@ services:
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     restart: always
 
   #  zookeeper:
