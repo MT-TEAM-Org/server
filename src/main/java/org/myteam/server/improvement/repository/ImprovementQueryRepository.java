@@ -20,6 +20,7 @@ import org.myteam.server.comment.domain.QImprovementComment;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +61,10 @@ public class ImprovementQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        for (ImprovementDto improvementDto : content) {
+            improvementDto.setCreatedIp(ClientUtils.maskIp(improvementDto.getCreatedIp()));
+        }
 
         long total = getTotalImprovementCount(searchType, search);
 
