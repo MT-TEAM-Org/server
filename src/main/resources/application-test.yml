@@ -120,3 +120,13 @@ playhive:
   control:
     aesSecretKey: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=" # "0123456789abcdef0123456789abcdef"
     aesIv: "YWJjZGVmMDEyMzQ1Njc4OQ==" # "abcdef0123456789"
+
+jwt:
+  issuer: "JWT_ISSUER"
+  secret-key: "yZ6U7+jr6lQc9T8m5F9rNwT9Pf+wRd0fu8HzKxSgHbo="
+
+app:
+  frontend:
+    url:
+      dev: http://localhost:3000
+      prod: https://your-production-domain.com
