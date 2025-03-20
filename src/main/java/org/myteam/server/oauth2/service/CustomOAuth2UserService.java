@@ -55,7 +55,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         //리소스 서버에서 발급 받은 정보로 사용자를 특정할 아이디값을 만듬
         String providerId = createProviderId(oAuth2Response);
-        Optional<Member> existDataOP = memberJpaRepository.findByEmail(oAuth2Response.getEmail());
+        Optional<Member> existDataOP = memberJpaRepository.findByEmailAndType(
+                oAuth2Response.getEmail(),
+                MemberType.fromOAuth2Provider(oAuth2Response.getProvider())
+        );
 
         if (existDataOP.isPresent()) {
             return handleExistingMember(existDataOP.get(), oAuth2Response);
