@@ -36,7 +36,7 @@ import static org.myteam.server.member.domain.MemberStatus.*;
 @Slf4j
 @Component
 public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    @Value("${app.frontend.url}")
+    @Value("${app.frontend.url.dev}")
     private String frontUrl;
     private final String frontSignUpPath = "/sign"; // 프론트 회원가입 주소
     private final JwtProvider jwtProvider;
