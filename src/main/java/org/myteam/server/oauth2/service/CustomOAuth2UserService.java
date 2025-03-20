@@ -7,6 +7,8 @@ import org.myteam.server.global.security.util.PasswordUtil;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberActivity;
+import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.dto.CustomOAuth2User;
 import org.myteam.server.oauth2.response.*;
@@ -29,11 +31,11 @@ import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberJpaRepository memberJpaRepository;
-    private final AESCryptoUtil aesCryptoUtil;
+    private final MemberActivityRepository memberActivityRepository;
 
-    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository, AESCryptoUtil aesCryptoUtil) {
+    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository, MemberActivityRepository memberActivityRepository) {
         this.memberJpaRepository = memberJpaRepository;
-        this.aesCryptoUtil = aesCryptoUtil;
+        this.memberActivityRepository = memberActivityRepository;
     }
 
     @Override
@@ -119,6 +121,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .build();
 
         memberJpaRepository.save(newMember);
+
+        MemberActivity memberActivity = new MemberActivity(newMember);
+        memberActivityRepository.save(memberActivity);
+
         return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId, newMember.getStatus());
     }
 

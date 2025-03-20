@@ -43,18 +43,15 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     private final MemberJpaRepository memberJpaRepository;
     private final ReIssueService reIssueService;
     private final ApplicationEventPublisher eventPublisher;
-    private final MemberActivityRepository memberActivityRepository;
 
     public CustomOauth2SuccessHandler(JwtProvider jwtProvider,
                                       MemberJpaRepository memberJpaRepository,
                                       ReIssueService reIssueService,
-                                      ApplicationEventPublisher eventPublisher,
-                                      MemberActivityRepository memberActivityRepository) {
+                                      ApplicationEventPublisher eventPublisher) {
         this.jwtProvider = jwtProvider;
         this.memberJpaRepository = memberJpaRepository;
         this.reIssueService = reIssueService;
         this.eventPublisher = eventPublisher;
-        this.memberActivityRepository = memberActivityRepository;
     }
 
     @Override
@@ -119,9 +116,6 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         log.debug("print refreshToken: {}", refreshToken);
         log.debug("print frontUrl: {}", frontUrl);
-
-        MemberActivity memberActivity = new MemberActivity(member);  // 멤버와 연결된 활동 생성
-        memberActivityRepository.save(memberActivity);  // DB에 저장
 
         eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
