@@ -47,8 +47,8 @@ public class InquiryQueryRepository {
                         inquiry.content,
                         inquiry.clientIp,
                         inquiry.createdAt,
-                        member.publicId,
-                        member.nickname,
+                        inquiry.member.publicId,
+                        inquiry.member.nickname,
                         inquiry.isAdminAnswered.when(true).then("답변완료").otherwise("접수완료"),
                         inquiryCount.commentCount
                 ))
@@ -57,6 +57,7 @@ public class InquiryQueryRepository {
                 .join(member).on(member.publicId.eq(memberPublicId))
                 .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
+                        isMemberEqualTo(memberPublicId),
                         getSearchCondition(searchType, keyword),
                         getOrderType(orderType)
                 )
@@ -76,7 +77,7 @@ public class InquiryQueryRepository {
         return queryFactory
                 .select(inquiry.count())
                 .from(inquiry)
-                .where(inquiry.member.publicId.eq(memberPublicId))
+                .where(isMemberEqualTo(memberPublicId))
                 .fetchOne()
                 .intValue();
     }
@@ -92,6 +93,7 @@ public class InquiryQueryRepository {
                 .join(member).on(member.publicId.eq(memberPublicId))
                 .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
+                        isMemberEqualTo(memberPublicId),
                         getSearchCondition(searchType, keyword),
                         getOrderType(orderType)
                 )
