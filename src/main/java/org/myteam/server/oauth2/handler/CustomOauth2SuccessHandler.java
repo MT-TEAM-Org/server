@@ -71,7 +71,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         log.info("onAuthenticationSuccess role: {}", role);
         log.info("onAuthenticationSuccess frontUrl: {}", frontUrl);
         //유저확인
-        Member member = memberJpaRepository.findByEmail(email).orElse(null);
+        Member member = memberJpaRepository.findByEmailAndType(email, customUserDetails.getType()).orElse(null);
 
         if (status.equals(PENDING.name())) {
             log.warn("PENDING 상태인 경우 로그인이 불가능합니다");

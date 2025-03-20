@@ -98,7 +98,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             member.updateEmail(oAuth2Response.getEmail());
 
-            return new CustomOAuth2User(member.getEmail(), member.getRole().name(), member.getPublicId(), member.getStatus());
+            return new CustomOAuth2User(member.getEmail(), member.getRole().name(), member.getPublicId(), member.getStatus(), MemberType.fromOAuth2Provider(oAuth2Response.getProvider()));
         } else {
             // 로컬 이메일 계정으로 존재하는 유저
             throw new ExistingUserAuthenticationException(
@@ -128,7 +128,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         MemberActivity memberActivity = new MemberActivity(newMember);
         memberActivityRepository.save(memberActivity);
 
-        return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId, newMember.getStatus());
+        return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId, newMember.getStatus(), MemberType.fromOAuth2Provider(oAuth2Response.getProvider()));
     }
 
     /**
