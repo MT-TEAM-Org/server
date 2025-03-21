@@ -1,6 +1,6 @@
 package org.myteam.server.match.team.domain;
 
-import org.myteam.server.global.domain.Base;
+import org.myteam.server.global.domain.BaseTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_team")
-public class Team extends Base {
+public class Team extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;

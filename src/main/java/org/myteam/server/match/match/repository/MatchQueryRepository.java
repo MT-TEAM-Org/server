@@ -35,6 +35,6 @@ public class MatchQueryRepository {
 	}
 
 	private BooleanExpression isCategoryEqualTo(MatchCategory matchCategory) {
-		return matchCategory != null ? match.category.eq(matchCategory) : null;
+		return matchCategory != MatchCategory.ALL ? match.category.eq(matchCategory) : null;
 	}
 }
