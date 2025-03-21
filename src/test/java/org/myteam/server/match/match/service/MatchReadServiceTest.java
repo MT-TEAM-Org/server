@@ -36,22 +36,25 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.findSchedulesBetweenDate(null).getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
 				"category")
 			.containsExactly(
 				tuple(
 					team1.getName(), team1.getLogo(), team1.getCategory().name(),
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
+					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				),
 				tuple(
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
 					team3.getName(), team3.getLogo(), team3.getCategory().name(),
+					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				),
 				tuple(
 					team3.getName(), team3.getLogo(), team3.getCategory().name(),
 					team4.getName(), team4.getLogo(), team4.getCategory().name(),
+					LocalDate.now().atStartOfDay(),
 					MatchCategory.ESPORTS.name()
 				)
 			);
@@ -72,12 +75,13 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
 				"category")
 			.containsExactly(
 				tuple(
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
 					team3.getName(), team3.getLogo(), team3.getCategory().name(),
+					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				)
 			);
@@ -98,17 +102,19 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
 				"category")
 			.containsExactly(
 				tuple(
 					team1.getName(), team1.getLogo(), team1.getCategory().name(),
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
+					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				),
 				tuple(
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
 					team1.getName(), team1.getLogo(), team1.getCategory().name(),
+					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				)
 			);
@@ -125,12 +131,13 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.findOne(match.getId()))
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
 				"category")
 			.contains(
-					team1.getName(), team1.getLogo(), team1.getCategory().name(),
-					team2.getName(), team2.getLogo(), team2.getCategory().name(),
-					MatchCategory.FOOTBALL.name()
+				team1.getName(), team1.getLogo(), team1.getCategory().name(),
+				team2.getName(), team2.getLogo(), team2.getCategory().name(),
+				LocalDate.now().atStartOfDay(),
+				MatchCategory.FOOTBALL.name()
 			);
 	}
 
@@ -139,7 +146,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 	void findByIdThrowException() {
 		assertThatThrownBy(() -> matchReadService.findOne(1L))
 			.isInstanceOf(PlayHiveException.class)
-				.hasMessage(ErrorCode.MATCH_NOT_FOUNT.getMsg());
+			.hasMessage(ErrorCode.MATCH_NOT_FOUNT.getMsg());
 	}
 
 }
