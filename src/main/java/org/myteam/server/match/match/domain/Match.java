@@ -3,6 +3,7 @@ package org.myteam.server.match.match.domain;
 import java.time.LocalDateTime;
 
 import org.myteam.server.global.domain.Base;
+import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.match.team.domain.Team;
 
 import jakarta.persistence.Entity;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_match")
-public class Match extends Base {
+public class Match extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

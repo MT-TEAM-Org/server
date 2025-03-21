@@ -33,7 +33,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
 		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDate.now().atStartOfDay());
 
-		assertThat(matchReadService.findSchedulesBetweenDate(null).getList())
+		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.ALL).getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
 				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",

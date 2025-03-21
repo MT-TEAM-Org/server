@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum MatchCategory {
     BASEBALL("야구"),
     ESPORTS("E스포츠"),
-    FOOTBALL("축구");
+    FOOTBALL("축구"),
+    ALL("전체");
 
     private final String text;
 }
