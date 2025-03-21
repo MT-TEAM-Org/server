@@ -1,5 +1,7 @@
 package org.myteam.server.match.match.dto.service.response;
 
+import java.time.LocalDateTime;
+
 import org.myteam.server.match.match.domain.Match;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,15 +19,18 @@ public class MatchResponse {
 	private TeamResponse awayTeam;
 	@Schema(description = "경기장소")
 	private String place;
+	@Schema(description = "경기 시작 시간")
+	private LocalDateTime startTime;
 	@Schema(description = "경기 유형 ID")
 	private String category;
 
 	@Builder
-	public MatchResponse(Long id, TeamResponse homeTeam, TeamResponse awayTeam, String place, String category) {
+	public MatchResponse(Long id, TeamResponse homeTeam, TeamResponse awayTeam, String place, LocalDateTime startTime, String category) {
 		this.id = id;
 		this.homeTeam = homeTeam;
 		this.awayTeam = awayTeam;
 		this.place = place;
+		this.startTime = startTime;
 		this.category = category;
 	}
 
@@ -35,6 +40,7 @@ public class MatchResponse {
 			.homeTeam(TeamResponse.createResponse(match.getHomeTeam()))
 			.awayTeam(TeamResponse.createResponse(match.getAwayTeam()))
 			.place(match.getPlace())
+			.startTime(match.getStartTime())
 			.category(match.getCategory().name())
 			.build();
 	}
