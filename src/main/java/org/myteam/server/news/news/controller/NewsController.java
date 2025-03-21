@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -43,15 +45,18 @@ public class NewsController {
 	@Operation(summary = "뉴스 상세 조회 API", description = "뉴스의 상세를 조회합니다.")
 	@GetMapping("/{newsId}")
 	public ResponseEntity<ResponseDto<NewsResponse>> findOne(
+		HttpServletRequest request,
+		HttpServletResponse response,
 		@PathVariable
 		@Parameter(description = "뉴스 ID")
 		Long newsId
 	) {
-		newsCountService.addViewCount(newsId);
+		NewsResponse newsResponse = newsReadService.findOne(newsId);
+		newsCountService.addViewCount(request, response, newsId);
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"뉴스 상세 조회 성공",
-			newsReadService.findOne(newsId)));
+			newsResponse));
 	}
 
 }

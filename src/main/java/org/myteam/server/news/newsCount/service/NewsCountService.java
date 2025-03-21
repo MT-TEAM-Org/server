@@ -7,9 +7,13 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.newsCount.dto.service.response.NewsRecommendResponse;
 import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
 import org.myteam.server.news.newsCountMember.service.NewsCountMemberService;
+import org.myteam.server.viewCountMember.domain.ViewType;
+import org.myteam.server.viewCountMember.service.ViewCountService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,6 +25,7 @@ public class NewsCountService implements CommentCountService {
 	private final SecurityReadService securityReadService;
 	private final NewsCountMemberReadService newsCountMemberReadService;
 	private final NewsCountMemberService newsCountMemberService;
+	private final ViewCountService viewCountService;
 
 	public NewsRecommendResponse recommendNews(Long newsId) {
 		UUID memberId = securityReadService.getMember().getPublicId();
@@ -64,8 +69,11 @@ public class NewsCountService implements CommentCountService {
 		newsCountReadService.findByNewsIdLock(newsId).minusCommentCount(minusCount);
 	}
 
-	public void addViewCount(Long newsId) {
-		newsCountReadService.findByNewsIdLock(newsId).addViewCount();
+	public void addViewCount(HttpServletRequest request, HttpServletResponse response, Long newsId) {
+		if (!viewCountService.confirmPostView(request, response, ViewType.NEWS, newsId,
+			securityReadService.getAuthenticatedPublicId())) {
+			newsCountReadService.findByNewsIdLock(newsId).addViewCount();
+		}
 	}
 
 	public void minusViewCont(Long newsId) {

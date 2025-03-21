@@ -1,5 +1,7 @@
 package org.myteam.server.board.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardRecommend;
@@ -7,6 +9,8 @@ import org.myteam.server.board.repository.BoardRecommendRepository;
 import org.myteam.server.comment.service.CommentCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.viewCountMember.domain.ViewType;
+import org.myteam.server.viewCountMember.service.ViewCountService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,8 @@ public class BoardCountService implements CommentCountService {
     private final BoardRecommendReadService boardRecommendReadService;
 
     private final BoardRecommendRepository boardRecommendRepository;
+
+    private final ViewCountService viewCountService;
 
     public void recommendBoard(Long boardId) {
         Board board = boardReadService.findById(boardId);
@@ -105,7 +111,10 @@ public class BoardCountService implements CommentCountService {
         boardCountReadService.findByBoardIdLock(boardId).minusCommentCount(count);
     }
 
-    public void addViewCount(Long boardId) {
-        boardCountReadService.findByBoardIdLock(boardId).addViewCount();
+    public void addViewCount(HttpServletRequest request, HttpServletResponse response, Long boardId) {
+        if (!viewCountService.confirmPostView(request, response, ViewType.BOARD, boardId,
+            securityReadService.getAuthenticatedPublicId())) {
+            boardCountReadService.findByBoardIdLock(boardId).addViewCount();
+        }
     }
 }
