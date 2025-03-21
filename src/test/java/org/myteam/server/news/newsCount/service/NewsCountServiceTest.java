@@ -2,6 +2,7 @@ package org.myteam.server.news.newsCount.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
@@ -19,7 +20,10 @@ import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.news.newsCount.repository.NewsCountRepository;
 import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
+import org.myteam.server.viewCountMember.domain.ViewType;
+import org.myteam.server.viewCountMember.service.ViewCountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 public class NewsCountServiceTest extends IntegrationTestSupport {
@@ -30,6 +34,9 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 	private NewsRepository newsRepository;
 	@Autowired
 	private NewsCountRepository newsCountRepository;
+
+	@MockBean
+	private ViewCountService viewCountService;
 
 	@DisplayName("뉴스 추천 클릭시 사용자 좋아요 추가를 테스트한다.")
 	@Test
@@ -260,6 +267,9 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 			.news(news)
 			.build();
 
+		given(viewCountService.confirmPostView(null, null, ViewType.BOARD, 1L, null))
+			.willReturn(false);
+
 		executorService.submit(() -> {
 			newsRepository.save(news);
 			newsCountRepository.save(savedNewsCount);
@@ -269,7 +279,7 @@ public class NewsCountServiceTest extends IntegrationTestSupport {
 		for (int i = 0; i < threadCount; i++) {
 			executorService.execute(() -> {
 				try {
-					newsCountService.addViewCount(news.getId());
+					newsCountService.addViewCount(null, null, news.getId());
 				} finally {
 					countDownLatch.countDown();
 				}
