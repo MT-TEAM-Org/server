@@ -1,17 +1,28 @@
 package org.myteam.server.news.news.repository;
 
 import static java.util.Optional.ofNullable;
+import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.news.news.domain.QNews.news;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.newsCount;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.LocalDateTime;
+
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.board.domain.BoardOrderType;
+import org.myteam.server.board.domain.BoardSearchType;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.domain.QBoardComment;
+import org.myteam.server.comment.domain.QComment;
+import org.myteam.server.comment.domain.QNewsComment;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.springframework.data.domain.Page;
@@ -59,6 +70,34 @@ public class NewsQueryRepository {
         return new PageImpl<>(contents, pageable, total);
     }
 
+    public Page<NewsDto> getTotalList(TimePeriod timePeriod, BoardOrderType orderType,
+                                      BoardSearchType searchType, String search, Pageable pageable) {
+        List<NewsDto> contents = queryFactory
+                .select(Projections.constructor(NewsDto.class,
+                        news.id,
+                        news.category,
+                        news.title,
+                        news.thumbImg,
+                        news.content,
+                        newsCount.commentCount,
+                        news.postDate
+                ))
+                .from(news)
+                .join(newsCount).on(newsCount.news.id.eq(news.id))
+                .where(
+                        isSearchTypeLikeTo(searchType, search),
+                        isPostDateAfter(timePeriod)
+                )
+                .orderBy(isOrderByEqualToOrderCategory(orderType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = getTotalNewsCount(timePeriod, searchType, search);
+
+        return new PageImpl<>(contents, pageable, total);
+    }
+
     private long getTotalNewsCount(Category category, String content, TimePeriod timePeriod) {
         return ofNullable(
                 queryFactory
@@ -73,14 +112,17 @@ public class NewsQueryRepository {
         ).orElse(0L);
     }
 
-    private LocalDateTime calculateFromDate(TimePeriod timePeriod) {
-        LocalDateTime now = LocalDateTime.now();
-        return switch (timePeriod) {
-            case DAILY -> now.minusDays(1);
-            case WEEKLY -> now.minusWeeks(1);
-            case MONTHLY -> now.minusMonths(1);
-            case YEARLY -> now.minusYears(1);
-        };
+    private long getTotalNewsCount(TimePeriod timePeriod, BoardSearchType searchType, String search) {
+        return ofNullable(
+                queryFactory
+                        .select(board.countDistinct())
+                        .from(board)
+                        .where(
+                                isSearchTypeLikeTo(searchType, search),
+                                isPostDateAfter(timePeriod)
+                        )
+                        .fetchOne()
+        ).orElse(0L);
     }
 
     private OrderSpecifier<?> isOrderByEqualToOrderType(OrderType orderType) {
@@ -89,6 +131,54 @@ public class NewsQueryRepository {
             case VIEW -> newsCount.viewCount.desc();
             case COMMENT -> newsCount.commentCount.desc();
         };
+    }
+
+    private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search) {
+        if (searchType == null) {
+            return null;
+        }
+
+        return switch (searchType) {
+            case TITLE -> news.title.like("%" + search + "%");
+            case CONTENT -> news.content.like("%" + search + "%");
+            case TITLE_CONTENT -> news.title.like("%" + search + "%")
+                    .or(news.content.like("%" + search + "%"));
+            case NICKNAME -> null;
+            case COMMENT -> JPAExpressions.selectOne()
+                    .from(QComment.comment1)
+                    .where(
+                            QComment.comment1.comment.like("%" + search + "%")
+                                    .and(QComment.comment1.commentType.eq(CommentType.NEWS))
+                                    .and(QComment.comment1.as(QNewsComment.class).news.id.eq(
+                                            news.id))
+                    )
+                    .exists();
+            default -> null;
+        };
+    }
+
+    private OrderSpecifier<?>[] isOrderByEqualToOrderCategory(BoardOrderType orderType) {
+        // default 최신순
+        BoardOrderType boardOrderType = Optional.ofNullable(orderType).orElse(BoardOrderType.CREATE);
+        return switch (boardOrderType) {
+            case CREATE -> new OrderSpecifier<?>[]{news.createDate.desc(), news.title.asc(), news.id.desc()};
+            case RECOMMEND -> new OrderSpecifier<?>[]{newsCount.recommendCount.desc(),
+                    newsCount.commentCount.add(newsCount.viewCount).desc(), news.title.asc(), news.id.desc()};
+            case COMMENT -> new OrderSpecifier<?>[]{newsCount.commentCount.desc(), news.title.asc(), news.id.desc()};
+        };
+    }
+
+    private long getTotalBoardCount(TimePeriod timePeriod, BoardSearchType searchType, String search) {
+        return ofNullable(
+                queryFactory
+                        .select(board.countDistinct())
+                        .from(board)
+                        .where(
+                                isSearchTypeLikeTo(searchType, search),
+                                isPostDateAfter(timePeriod)
+                        )
+                        .fetchOne()
+        ).orElse(0L);
     }
 
     private BooleanExpression isCategoryEqualTo(Category category) {
@@ -100,7 +190,7 @@ public class NewsQueryRepository {
     }
 
     private BooleanExpression isPostDateAfter(TimePeriod timePeriod) {
-        return timePeriod != null ? news.postDate.after(calculateFromDate(timePeriod)) : null;
+        return timePeriod != null ? news.postDate.after(timePeriod.getStartDateByTimePeriod(timePeriod)) : null;
     }
 
     public Long findPreviousNewsId(Long newsId, Category category) {
