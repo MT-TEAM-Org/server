@@ -47,7 +47,7 @@ public class ImprovementController {
     })
     @PostMapping
     public ResponseEntity<ResponseDto<ImprovementSaveResponse>> saveImprovement(@Valid @RequestBody ImprovementSaveRequest improvementSaveRequest,
-                                                                           HttpServletRequest request) {
+                                                                                HttpServletRequest request) {
         String clientIP = ClientUtils.getRemoteIP(request);
         ImprovementSaveResponse response = improvementService.saveImprovement(improvementSaveRequest, clientIP);
         return ResponseEntity.ok(new ResponseDto<>(

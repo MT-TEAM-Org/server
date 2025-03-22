@@ -74,7 +74,7 @@ public class ImprovementService {
             s3Service.deleteFile(improvement.getImgUrl());
         }
 
-        improvement.updateImprovement(request.getTitle(), request.getContent(), request.getImgUrl());
+        improvement.updateImprovement(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         improvementRepository.save(improvement);
 
         ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
@@ -134,6 +134,7 @@ public class ImprovementService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .imgUrl(request.getImgUrl())
+                .link(request.getLink())
                 .build();
 
         improvementRepository.save(improvement);
