@@ -41,20 +41,25 @@ public class Improvement extends BaseTime {
     @OneToOne(mappedBy = "improvement", cascade = CascadeType.ALL, orphanRemoval = true)
     private ImprovementCount improvementCount;
 
+    private String link;
+
     @Builder
-    public Improvement(Member member, String title, String content, String createdIP, String imgUrl, ImprovementCount improvementCount) {
+    public Improvement(Member member, String title, String content, String createdIP,
+                       String imgUrl, ImprovementCount improvementCount, String link) {
         this.member = member;
         this.title = title;
         this.content = content;
         this.createdIP = createdIP;
         this.imgUrl = imgUrl;
         this.improvementCount = improvementCount;
+        this.link = link;
     }
 
-    public void updateImprovement(String title, String content, String imgUrl) {
+    public void updateImprovement(String title, String content, String imgUrl, String link) {
         this.title = title;
         this.content = content;
         this.imgUrl = imgUrl;
+        this.link = link;
     }
 
     public void updateState() {

@@ -123,7 +123,7 @@ playhive:
 
 jwt:
   issuer: "JWT_ISSUER"
-  secret-key: "yZ6U7+jr6lQc9T8m5F9rNwT9Pf+wRd0fu8HzKxSgHbo="
+  secret-key: "mT1VSuSPUFn8ZcFJyxned0KbyChtCxSwRD_jpIwg9_eUOx9vBXc27bzkQhZ6sWVuxxs2YAC0gmKxqMw4WNkRZw=="
 
 app:
   frontend:

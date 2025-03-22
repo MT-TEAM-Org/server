@@ -43,6 +43,7 @@ public record ImprovementResponse() {
          * 다음글
          */
         private Long nextId;
+        private String link;
 
         public static ImprovementSaveResponse createResponse(Improvement improvement, ImprovementCount improvementCount,
                                                              boolean isRecommended, Long previousId, Long nextId) {
@@ -63,6 +64,7 @@ public record ImprovementResponse() {
                     .modifiedAt(improvement.getLastModifiedDate())
                     .previousId(previousId)
                     .nextId(nextId)
+                    .link(improvement.getLink())
                     .build();
         }
     }

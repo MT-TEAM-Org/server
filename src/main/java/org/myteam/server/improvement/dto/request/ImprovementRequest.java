@@ -25,6 +25,7 @@ public record ImprovementRequest() {
         @NotBlank(message = "내용을 입력해주세요")
         private String content;
         private String imgUrl; // 썸네일 이미지
+        private String link; // 출처 링크
     }
 
     @Data

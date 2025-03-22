@@ -31,22 +31,25 @@ public class Notice extends BaseTime {
 
     @OneToOne(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
     private NoticeCount noticeCount;
+    private String link;
 
     @Builder
     public Notice(Member member, String title, String content,
-                  String createdIP, String imgUrl, NoticeCount noticeCount) {
+                  String createdIP, String imgUrl, NoticeCount noticeCount, String link) {
         this.member = member;
         this.title = title;
         this.content = content;
         this.createdIP = createdIP;
         this.imgUrl = imgUrl;
         this.noticeCount = noticeCount;
+        this.link = link;
     }
 
     // TODO: update 하면 request 넣기
-    public void updateNotice(String title, String content, String imgUrl) {
+    public void updateNotice(String title, String content, String imgUrl, String link) {
         this.title = title;
         this.content = content;
         this.imgUrl = imgUrl;
+        this.link = link;
     }
 }

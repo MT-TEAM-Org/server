@@ -41,6 +41,7 @@ public record NoticeResponse() {
          * 다음글
          */
         private Long nextId;
+        private String link;
 
         public static NoticeSaveResponse createResponse(Notice notice, NoticeCount noticeCount, boolean isRecommended,
                                                         Long previousId, Long nextId) {
@@ -60,6 +61,7 @@ public record NoticeResponse() {
                     .modifiedAt(notice.getLastModifiedDate())
                     .previousId(previousId)
                     .nextId(nextId)
+                    .link(notice.getLink())
                     .build();
         }
     }
