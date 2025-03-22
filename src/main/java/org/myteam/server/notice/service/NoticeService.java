@@ -63,13 +63,14 @@ public class NoticeService {
 
     }
 
-    private Notice makeNotice(final Member member, String clientIp, NoticeSaveRequest resquest) {
+    private Notice makeNotice(final Member member, String clientIp, NoticeSaveRequest request) {
         Notice notice = Notice.builder()
                 .member(member)
                 .createdIP(clientIp)
-                .title(resquest.getTitle())
-                .content(resquest.getContent())
-                .imgUrl(resquest.getImgUrl())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .imgUrl(request.getImgUrl())
+                .link(request.getLink())
                 .build();
 
         noticeRepository.save(notice);
@@ -96,7 +97,7 @@ public class NoticeService {
             s3Service.deleteFile(notice.getImgUrl());
         }
 
-        notice.updateNotice(request.getTitle(), request.getContent(), request.getImgUrl());
+        notice.updateNotice(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         noticeRepository.save(notice);
 
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
