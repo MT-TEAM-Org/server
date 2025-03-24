@@ -31,7 +31,7 @@ public class MatchQueryRepository {
 	}
 
 	private BooleanExpression isBetweenDate(LocalDateTime startOfDay, LocalDateTime endTime) {
-		return match.startTime.between(startOfDay, endTime);
+		return match.endTime.between(startOfDay, endTime);
 	}
 
 	private BooleanExpression isCategoryEqualTo(MatchCategory matchCategory) {
