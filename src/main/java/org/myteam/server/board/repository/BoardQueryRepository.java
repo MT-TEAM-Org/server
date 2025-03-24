@@ -9,6 +9,7 @@ import static org.myteam.server.member.entity.QMember.member;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -260,9 +261,14 @@ public class BoardQueryRepository {
                 .select(Projections.fields(NewBoardDto.class,
                         board.id,
                         board.boardType,
+                        board.categoryType,
                         board.title,
                         boardCount.commentCount,
-                        board.id.in(getHotBoardIdList()).as("isHot")
+                        board.id.in(getHotBoardIdList()).as("isHot"),
+                        new CaseBuilder()
+                                .when(board.thumbnail.isNotNull()).then(true)
+                                .otherwise(false)
+                                .as("isImage")
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.board.id.eq(board.id))
@@ -282,10 +288,15 @@ public class BoardQueryRepository {
         List<HotBoardDto> hotBoardList = queryFactory
                 .select(Projections.fields(HotBoardDto.class,
                         board.boardType,
+                        board.categoryType,
                         board.id,
                         board.title,
                         boardCount.commentCount,
-                        board.id.in(getHotBoardIdList()).as("isHot")
+                        board.id.in(getHotBoardIdList()).as("isHot"),
+                        new CaseBuilder()
+                                .when(board.thumbnail.isNotNull()).then(true)
+                                .otherwise(false)
+                                .as("isImage")
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.board.id.eq(board.id))
