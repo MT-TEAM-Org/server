@@ -182,6 +182,8 @@ public class BoardService {
         commentService.deleteCommentByPost(CommentType.BOARD, boardId);
         //게시글 추천 삭제
         boardRecommendRepository.deleteAllByBoardId(board.getId());
+        // 조회수 삭제
+        redisViewCountService.removeViewCount("board", boardId);
         // 게시글 카운트 삭제
         boardCountRepository.deleteByBoardId(board.getId());
         // 게시글 삭제

@@ -68,4 +68,13 @@ public class RedisViewCountService {
         String key = strategy.getRedisKey(contentId);
         redisTemplate.opsForValue().increment(key);
     }
+
+    /**
+     * 특정 키 삭제
+     */
+    public void removeViewCount(String type, Long contentId) {
+        ViewCountStrategy strategy = strategyFactory.getStrategy(type);
+        String key = strategy.getRedisKey(contentId);
+        redisTemplate.delete(key);
+    }
 }

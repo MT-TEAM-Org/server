@@ -137,6 +137,8 @@ public class NoticeService {
             s3Service.deleteFile(notice.getImgUrl());
         }
 
+        redisViewCountService.removeViewCount("notice", noticeId);
+
         noticeCountRepository.deleteByNoticeId(notice.getId());
         noticeRepository.delete(notice);
 

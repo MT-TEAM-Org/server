@@ -123,6 +123,8 @@ public class ImprovementService {
             s3Service.deleteFile(improvement.getImgUrl());
         }
 
+        redisViewCountService.removeViewCount("improvement", improvementId);
+
         improvementCountRepository.deleteByImprovementId(improvement.getId());
         improvementRepository.delete(improvement);
 
