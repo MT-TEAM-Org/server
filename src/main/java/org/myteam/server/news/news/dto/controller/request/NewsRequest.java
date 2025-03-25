@@ -1,10 +1,11 @@
 package org.myteam.server.news.news.dto.controller.request;
 
+import org.myteam.server.board.domain.BoardOrderType;
+import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
-import org.myteam.server.news.news.repository.OrderType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -21,23 +22,28 @@ public class NewsRequest extends PageInfoRequest {
 	@Schema(description = "뉴스 카테고리", example = "BASEBALL, FOOTBALL, ESPORTS")
 	private Category category;
 
-	@Schema(description = "뉴스 정렬 타입", example = "DATE(날짜순), COMMENT(댓글순), VIEW(조회순)")
+	@Schema(description = "뉴스 정렬 타입", example = "CREATE(최신), RECOMMEND(인기), COMMENT(댓글)")
 	@NotNull(message = "뉴스 정렬 타입은 필수입니다.")
-	private OrderType orderType;
+	private BoardOrderType orderType;
+
+	@Schema(description = "뉴스 검색 타입", example = "TITLE(제목), CONTENT(내용), TITLE_CONTENT(제목 + 내용), COMMENT(댓글)")
+	private BoardSearchType searchType;
 
 	@Schema(description = "검색할 뉴스 내용", example = "검색할 뉴스 제목")
-	private String content;
+	private String search;
 
 	@Schema(description = "날짜 조건", example = "DAILY(일별), WEEKLY(주별), MONTHLY(월별), YEARLY(년별)")
 	private TimePeriod timePeriod;
 
 	@Builder
-	public NewsRequest(Category category, OrderType orderType, String content, TimePeriod timePeriod, int page,
+	public NewsRequest(Category category, BoardOrderType orderType, BoardSearchType SearchType, String search,
+		TimePeriod timePeriod, int page,
 		int size) {
 		super(page, size);
 		this.category = category;
 		this.orderType = orderType;
-		this.content = content;
+		this.searchType = SearchType;
+		this.search = search;
 		this.timePeriod = timePeriod;
 	}
 
@@ -45,7 +51,8 @@ public class NewsRequest extends PageInfoRequest {
 		return NewsServiceRequest.builder()
 			.category(category)
 			.orderType(orderType)
-			.content(content)
+			.searchType(searchType)
+			.search(search)
 			.timePeriod(timePeriod)
 			.size(getSize())
 			.page(getPage())
