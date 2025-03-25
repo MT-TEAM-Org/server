@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementServiceRequest;
@@ -32,6 +33,7 @@ public class ImprovementReadService {
     private final ImprovementRecommendReadService improvementRecommendReadService;
     private final ImprovementQueryRepository improvementQueryRepository;
     private final SecurityReadService securityReadService;
+    private final RedisViewCountService redisViewCountService;
 
     public Improvement findById(Long improvementId) {
         return improvementRepository.findById(improvementId)
@@ -46,6 +48,7 @@ public class ImprovementReadService {
 
         Improvement improvement = findById(improvementId);
         ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
+        int viewCount = redisViewCountService.getViewCountAndIncr("improvement", improvementId);
 
         boolean isRecommended = false;
 
@@ -59,7 +62,7 @@ public class ImprovementReadService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId);
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId, viewCount);
     }
 
     /**

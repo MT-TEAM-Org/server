@@ -109,7 +109,7 @@ public class ImprovementController {
     })
     @GetMapping("/{improvementId}")
     public ResponseEntity<ResponseDto<ImprovementSaveResponse>> getImprovement(@PathVariable Long improvementId) {
-        improvementCountService.addViewCount(improvementId);
+//        improvementCountService.addViewCount(improvementId);
         ImprovementSaveResponse response = improvementReadService.getImprovement(improvementId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
