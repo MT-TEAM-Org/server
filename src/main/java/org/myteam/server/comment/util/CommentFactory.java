@@ -8,6 +8,8 @@ import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.improvement.service.ImprovementReadService;
+import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.service.NewsReadService;
@@ -25,6 +27,7 @@ public class CommentFactory {
     private final NewsReadService newsReadService;
     private final ImprovementReadService improvementReadService;
     private final InquiryReadService inquiryReadService;
+    private final InquiryRepository inquiryRepository;
 
     public Comment createComment(CommentType type, Long contentId, Member member, Member mentionedMember, String comment, String imageUrl, String createdIp, Long parentId) {
         log.info("댓글 생성 요청 - type: {}, contentId: {}, memberId: {}, mentionedMemberId: {}, parentId: {}",
@@ -50,56 +53,70 @@ public class CommentFactory {
         }
 
         // 댓글 타입에 따라 생성
-        return switch (type) {
-            case BOARD -> BoardComment.createComment(
-                    boardReadService.findById(contentId),
-                    member,
-                    mentionedMember,
-                    comment,
-                    imageUrl,
-                    createdIp,
-                    parent
-            );
+        switch (type) {
+            case BOARD:
+                return BoardComment.createComment(
+                        boardReadService.findById(contentId),
+                        member,
+                        mentionedMember,
+                        comment,
+                        imageUrl,
+                        createdIp,
+                        parent
+                );
 
-            case NEWS -> NewsComment.createComment(
-                    newsReadService.findById(contentId),
-                    member,
-                    mentionedMember,
-                    comment,
-                    imageUrl,
-                    createdIp,
-                    parent
-            );
+            case NEWS:
+                return NewsComment.createComment(
+                        newsReadService.findById(contentId),
+                        member,
+                        mentionedMember,
+                        comment,
+                        imageUrl,
+                        createdIp,
+                        parent
+                );
 
-            case IMPROVEMENT -> ImprovementComment.createComment(
-                    improvementReadService.findById(contentId),
-                    member,
-                    mentionedMember,
-                    comment,
-                    imageUrl,
-                    createdIp,
-                    parent
-            );
+            case IMPROVEMENT:
+                return ImprovementComment.createComment(
+                        improvementReadService.findById(contentId),
+                        member,
+                        mentionedMember,
+                        comment,
+                        imageUrl,
+                        createdIp,
+                        parent
+                );
 
-            case INQUIRY -> InquiryComment.createComment(
-                    inquiryReadService.findInquiryById(contentId),
-                    member,
-                    mentionedMember,
-                    comment,
-                    imageUrl,
-                    createdIp,
-                    parent
-            );
+            case INQUIRY:
+                Inquiry inquiry = inquiryReadService.findInquiryById(contentId);
+                if (member.isAdmin()) {
+                    inquiry.updateAdminAnswered();
+                    inquiryRepository.save(inquiry);
+                }
+                return InquiryComment.createComment(
+                        inquiry,
+                        member,
+                        mentionedMember,
+                        comment,
+                        imageUrl,
+                        createdIp,
+                        parent
+                );
 
-            case NOTICE -> NoticeComment.createComment(
-                    noticeReadService.findById(contentId),
-                    member,
-                    mentionedMember,
-                    comment,
-                    imageUrl,
-                    createdIp,
-                    parent
-            ) ;
-        };
+            case NOTICE:
+                return NoticeComment.createComment(
+                        noticeReadService.findById(contentId),
+                        member,
+                        mentionedMember,
+                        comment,
+                        imageUrl,
+                        createdIp,
+                        parent
+                );
+
+            default:
+                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+        }
+
     }
 }
