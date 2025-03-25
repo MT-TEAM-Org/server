@@ -2,8 +2,8 @@ package org.myteam.server.news.news.dto.service.request;
 
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.request.PageInfoServiceRequest;
+import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.repository.OrderType;
-import org.myteam.server.news.news.repository.TimePeriod;
 
 import lombok.Builder;
 import lombok.Getter;

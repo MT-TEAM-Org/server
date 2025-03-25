@@ -7,16 +7,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.board.dto.request.BoardSearchRequest;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
+import org.myteam.server.home.dto.TotalListResponse;
+import org.myteam.server.home.dto.TotalSearchRequest;
+import org.myteam.server.home.service.TotalReadService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -25,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "메인 홈 API", description = "메인 홈 화면 관련 API")
 public class HomeController {
 
-    private final BoardReadService boardReadService;
+    private final TotalReadService totalReadService;
 
     /**
      * 실시간 HOT 게시글 목록 조회
@@ -37,7 +41,7 @@ public class HomeController {
     @GetMapping("/hot")
     public ResponseEntity<ResponseDto<List<HotBoardDto>>> getHomeHotList() {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "실시간 HOT 게시글 목록 조회 성공",
-                boardReadService.getHotBoardList()));
+                totalReadService.getHotBoardList()));
     }
 
     /**
@@ -50,6 +54,19 @@ public class HomeController {
     @GetMapping("/new")
     public ResponseEntity<ResponseDto<List<NewBoardDto>>> getHomeNewList() {
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "실시간 최신 게시글 목록 조회 성공",
-                boardReadService.getNewBoardList()));
+                totalReadService.getNewBoardList()));
+    }
+
+    /**
+     * 통합 검색
+     */
+    @GetMapping("/search")
+    public ResponseEntity<ResponseDto<TotalListResponse<?>>> getTotalSearch(@Valid @ModelAttribute TotalSearchRequest request) {
+
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "통합 검색 조회 성공",
+                totalReadService.getTotalList(request.toServiceRequest())
+        ));
     }
 }

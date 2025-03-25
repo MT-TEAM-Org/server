@@ -2,9 +2,9 @@ package org.myteam.server.news.news.dto.controller.request;
 
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.request.PageInfoRequest;
+import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.repository.OrderType;
-import org.myteam.server.news.news.repository.TimePeriod;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
