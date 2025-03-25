@@ -9,9 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.ControllerTestSupport;
+import org.myteam.server.board.domain.BoardOrderType;
+import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.news.news.dto.controller.request.NewsRequest;
-import org.myteam.server.news.news.repository.OrderType;
 import org.springframework.security.test.context.support.WithMockUser;
 
 class NewsControllerTest extends ControllerTestSupport {
@@ -24,15 +25,16 @@ class NewsControllerTest extends ControllerTestSupport {
 		NewsRequest newsRequest = NewsRequest.builder()
 			.page(1)
 			.size(10)
-			.content("테스트")
-			.orderType(OrderType.DATE)
+			.search("테스트")
+			.SearchType(BoardSearchType.CONTENT)
+			.orderType(BoardOrderType.CREATE)
 			.category(Category.FOOTBALL)
 			.build();
 
 		// when // then
 		mockMvc.perform(
 				get("/api/news")
-					.param("content", "테스트")
+					.param("search", "테스트")
 					.param("orderType", newsRequest.getOrderType().name())
 					.param("category", newsRequest.getCategory().name())
 					.param("page", String.valueOf(newsRequest.getPage()))
@@ -53,7 +55,7 @@ class NewsControllerTest extends ControllerTestSupport {
 		NewsRequest newsRequest = NewsRequest.builder()
 			.page(1)
 			.size(10)
-			.content("테스트")
+			.search("테스트")
 			.category(Category.FOOTBALL)
 			.build();
 
@@ -62,7 +64,7 @@ class NewsControllerTest extends ControllerTestSupport {
 				get("/api/news")
 					.param("page", String.valueOf(newsRequest.getPage()))
 					.param("size", String.valueOf(newsRequest.getSize()))
-					.param("content", newsRequest.getContent())
+					.param("content", newsRequest.getSearch())
 					.param("category", newsRequest.getCategory().name())
 					.with(csrf())
 			)
@@ -72,32 +74,32 @@ class NewsControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.message").value("뉴스 정렬 타입은 필수입니다."));
 	}
 
-//	@DisplayName("뉴스목록을 조회시 뉴스 카테고리는 필수입니다.")
-//	@Test
-//	@WithMockUser
-//	void findAllWithoutCategoryTest() throws Exception {
-//		// given
-//		NewsRequest newsRequest = NewsRequest.builder()
-//			.page(1)
-//			.size(10)
-//			.content("테스트")
-//			.orderType(OrderType.DATE)
-//			.build();
-//
-//		// when // then
-//		mockMvc.perform(
-//				get("/api/news")
-//					.param("page", String.valueOf(newsRequest.getPage()))
-//					.param("size", String.valueOf(newsRequest.getSize()))
-//					.param("content", newsRequest.getContent())
-//					.param("orderType", newsRequest.getOrderType().name())
-//					.with(csrf())
-//			)
-//			.andDo(print())
-//			.andExpect(status().isBadRequest())
-//			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-//			.andExpect(jsonPath("$.message").value("뉴스 카테고리는 필수입니다."));
-//	}
+	//	@DisplayName("뉴스목록을 조회시 뉴스 카테고리는 필수입니다.")
+	//	@Test
+	//	@WithMockUser
+	//	void findAllWithoutCategoryTest() throws Exception {
+	//		// given
+	//		NewsRequest newsRequest = NewsRequest.builder()
+	//			.page(1)
+	//			.size(10)
+	//			.content("테스트")
+	//			.orderType(OrderType.DATE)
+	//			.build();
+	//
+	//		// when // then
+	//		mockMvc.perform(
+	//				get("/api/news")
+	//					.param("page", String.valueOf(newsRequest.getPage()))
+	//					.param("size", String.valueOf(newsRequest.getSize()))
+	//					.param("content", newsRequest.getContent())
+	//					.param("orderType", newsRequest.getOrderType().name())
+	//					.with(csrf())
+	//			)
+	//			.andDo(print())
+	//			.andExpect(status().isBadRequest())
+	//			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+	//			.andExpect(jsonPath("$.message").value("뉴스 카테고리는 필수입니다."));
+	//	}
 
 	@DisplayName("뉴스상세 조회를 한다.")
 	@Test
