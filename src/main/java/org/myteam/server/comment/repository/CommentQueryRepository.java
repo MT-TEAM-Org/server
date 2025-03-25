@@ -110,8 +110,9 @@ public class CommentQueryRepository {
                 .select(Projections.fields(CommentSaveResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
-                        member.publicId,
-                        member.nickname,
+                        comment1.member.publicId,
+                        comment1.member.nickname,
+                        comment1.member.imgUrl,
                         comment1.imageUrl,
                         comment1.comment,
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false

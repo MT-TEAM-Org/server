@@ -29,10 +29,9 @@ public record CommentResponse() {
         private String createdIp; // 작성 ip
         private UUID publicId; // 작성자 uuid
         private String nickname; // 작성자 닉네임
+        private String commenterImg; // 작성자 프로필 이미지
         private String imageUrl; // 이미지 url
         private String comment; // 댓글 내용
-        @Setter
-        @JsonProperty("isRecommended")
         private boolean isRecommended; // 로그인한 사용자 게시글 댓글 추천 여부
         private int recommendCount; // 추천수
         private UUID mentionedPublicId; // 언급 된 사람
@@ -42,7 +41,7 @@ public record CommentResponse() {
         @Setter
         private List<CommentSaveResponse> replyList; // 대댓글 리스트
 
-        public static CommentSaveResponse createResponse(Comment comment) {
+        public static CommentSaveResponse createResponse(Comment comment, boolean isRecommended) {
             UUID mentionedPublicId =
                     comment.getMentionedMember() == null ? null : comment.getMentionedMember().getPublicId();
             String mentionedNickname =
@@ -52,8 +51,10 @@ public record CommentResponse() {
                     .createdIp(ClientUtils.maskIp(comment.getCreatedIp()))
                     .publicId(comment.getMember().getPublicId())
                     .nickname(comment.getMember().getNickname())
+                    .commenterImg(comment.getMember().getImgUrl())
                     .imageUrl(comment.getImageUrl())
                     .comment(comment.getComment())
+                    .isRecommended(isRecommended)
                     .recommendCount(comment.getRecommendCount())
                     .mentionedPublicId(mentionedPublicId)
                     .mentionedNickname(mentionedNickname)
