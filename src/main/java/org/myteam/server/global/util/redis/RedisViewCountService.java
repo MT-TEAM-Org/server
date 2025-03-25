@@ -7,6 +7,7 @@ import org.myteam.server.util.ViewCountStrategyFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Set;
 
 @Service
@@ -50,6 +51,7 @@ public class RedisViewCountService {
 
         String value = redisTemplate.opsForValue().get(key);
         if (value != null) { // cache hit
+            // TODO: 키로 바꾸기
             incrementViewCount(type, contentId);
             return Integer.parseInt(value) + 1;
         }
@@ -57,7 +59,7 @@ public class RedisViewCountService {
         // cache miss
         BoardCount dbValue = strategy.loadFromDatabase(contentId);
         int newCount = dbValue.getViewCount() + 1;
-        redisTemplate.opsForValue().set(key, String.valueOf(newCount), EXPIRED_TIME);
+        redisTemplate.opsForValue().set(key, String.valueOf(newCount), Duration.ofMinutes(EXPIRED_TIME));
         return newCount;
     }
 
