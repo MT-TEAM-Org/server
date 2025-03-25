@@ -12,11 +12,16 @@ import java.util.Set;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class RedisViewCountBulkUpdater {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ViewCountStrategyFactory strategyFactory;
+
+    public RedisViewCountBulkUpdater(RedisTemplate<String, String> redisTemplate,
+                                 ViewCountStrategyFactory strategyFactory) {
+        this.redisTemplate = redisTemplate;
+        this.strategyFactory = strategyFactory;
+    }
 
     /**
      * 특정 타입 전체 조회수에 대해 Redis → DB 벌크 업데이트

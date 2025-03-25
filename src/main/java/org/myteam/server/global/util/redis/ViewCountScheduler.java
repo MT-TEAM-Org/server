@@ -17,8 +17,8 @@ public class ViewCountScheduler {
         bulkUpdater.bulkUpdate("board");
     }
 
-    @Scheduled(fixedRate = 5 * 60 * 1000)
-    public void updateNewsViews() {
-        bulkUpdater.bulkUpdate("news");
-    }
+//    @Scheduled(fixedRate = 5 * 60 * 1000)
+//    public void updateNewsViews() {
+//        bulkUpdater.bulkUpdate("news");
+//    }
 }

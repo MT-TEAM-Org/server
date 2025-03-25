@@ -19,7 +19,7 @@ public class BoardViewCountStrategy implements ViewCountStrategy {
 
     @Override
     public String getRedisKey(Long contentId) {
-        return KEY;
+        return KEY + contentId;
     }
 
     @Override
