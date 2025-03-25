@@ -61,7 +61,7 @@ public class NewsResponse {
     }
 
     public static NewsResponse createResponse(News news, NewsCount newsCount, boolean isRecommend, Long previousId,
-                                              Long nextId) {
+                                              Long nextId, int viewCount) {
         return NewsResponse.builder()
                 .id(news.getId())
                 .category(news.getCategory())
@@ -70,7 +70,7 @@ public class NewsResponse {
                 .postDate(news.getPostDate())
                 .recommendCount(newsCount.getRecommendCount())
                 .commentCount(newsCount.getCommentCount())
-                .viewCount(newsCount.getViewCount())
+                .viewCount(viewCount)
                 .isRecommend(isRecommend)
                 .source(news.getSource())
                 .content(news.getContent())

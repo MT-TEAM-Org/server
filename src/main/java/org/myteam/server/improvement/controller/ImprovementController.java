@@ -1,5 +1,7 @@
 package org.myteam.server.improvement.controller;
 
+import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,19 +13,24 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorResponse;
-import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.improvement.dto.request.ImprovementRequest.*;
-import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
-import org.myteam.server.improvement.service.ImprovementCountService;
+import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSaveRequest;
+import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSearchRequest;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementListResponse;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementSaveResponse;
 import org.myteam.server.improvement.service.ImprovementReadService;
 import org.myteam.server.improvement.service.ImprovementService;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -34,7 +41,6 @@ public class ImprovementController {
 
     private final ImprovementService improvementService;
     private final ImprovementReadService improvementReadService;
-    private final ImprovementCountService improvementCountService;
 
     /**
      * 개선목록 생성
@@ -46,8 +52,9 @@ public class ImprovementController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
-    public ResponseEntity<ResponseDto<ImprovementSaveResponse>> saveImprovement(@Valid @RequestBody ImprovementSaveRequest improvementSaveRequest,
-                                                                                HttpServletRequest request) {
+    public ResponseEntity<ResponseDto<ImprovementSaveResponse>> saveImprovement(
+            @Valid @RequestBody ImprovementSaveRequest improvementSaveRequest,
+            HttpServletRequest request) {
         String clientIP = ClientUtils.getRemoteIP(request);
         ImprovementSaveResponse response = improvementService.saveImprovement(improvementSaveRequest, clientIP);
         return ResponseEntity.ok(new ResponseDto<>(
@@ -69,8 +76,9 @@ public class ImprovementController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{improvementId}")
-    public ResponseEntity<ResponseDto<ImprovementSaveResponse>> updateImprovement(@Valid @RequestBody ImprovementSaveRequest improvementSaveRequest,
-                                                                             @PathVariable Long improvementId) {
+    public ResponseEntity<ResponseDto<ImprovementSaveResponse>> updateImprovement(
+            @Valid @RequestBody ImprovementSaveRequest improvementSaveRequest,
+            @PathVariable Long improvementId) {
         ImprovementSaveResponse response = improvementService.updateImprovement(improvementSaveRequest, improvementId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -109,7 +117,6 @@ public class ImprovementController {
     })
     @GetMapping("/{improvementId}")
     public ResponseEntity<ResponseDto<ImprovementSaveResponse>> getImprovement(@PathVariable Long improvementId) {
-//        improvementCountService.addViewCount(improvementId);
         ImprovementSaveResponse response = improvementReadService.getImprovement(improvementId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -127,7 +134,8 @@ public class ImprovementController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<ResponseDto<ImprovementListResponse>> getImprovementList(@Valid @ModelAttribute ImprovementSearchRequest request) {
+    public ResponseEntity<ResponseDto<ImprovementListResponse>> getImprovementList(
+            @Valid @ModelAttribute ImprovementSearchRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "개선목록 목록 조회",

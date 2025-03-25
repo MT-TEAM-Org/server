@@ -16,7 +16,6 @@ import org.myteam.server.board.dto.reponse.BoardListResponse;
 import org.myteam.server.board.dto.reponse.BoardResponse;
 import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.board.dto.request.BoardSearchRequest;
-import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.global.exception.ErrorResponse;
@@ -43,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class BoardController {
 
     private final BoardService boardService;
-    private final BoardCountService boardCountService;
     private final BoardReadService boardReadService;
 
     /**
