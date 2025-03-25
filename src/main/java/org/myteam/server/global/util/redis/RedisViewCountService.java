@@ -36,7 +36,7 @@ public class RedisViewCountService {
             return Integer.parseInt(value);
         }
 
-        BoardCount dbValue = strategy.loadFromDatabase(contentId);
+        CommonCount dbValue = strategy.loadFromDatabase(contentId);
         int newCount = dbValue.getViewCount();
         redisTemplate.opsForValue().set(key, String.valueOf(newCount), EXPIRED_TIME);
         return newCount;
@@ -57,7 +57,7 @@ public class RedisViewCountService {
         }
 
         // cache miss
-        BoardCount dbValue = strategy.loadFromDatabase(contentId);
+        CommonCount dbValue = strategy.loadFromDatabase(contentId);
         int newCount = dbValue.getViewCount() + 1;
         redisTemplate.opsForValue().set(key, String.valueOf(newCount), Duration.ofMinutes(EXPIRED_TIME));
         return newCount;

@@ -6,6 +6,7 @@ import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.service.BoardCountReadService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.CommonCount;
 import org.myteam.server.util.ViewCountStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +30,14 @@ public class BoardViewCountStrategy implements ViewCountStrategy {
 
     @Override
     public Long extractContentIdFromKey(String key) {
-        return Long.parseLong(key.substring(key.length()));
+        return Long.parseLong(key.substring(KEY.length()));
     }
 
     @Override
-    public BoardCount loadFromDatabase(Long contentId) {
-        return boardCountRepository.findByBoardId(contentId)
+    public CommonCount loadFromDatabase(Long contentId) {
+        BoardCount boardCount = boardCountRepository.findByBoardId(contentId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
+        return new CommonCount(boardCount, boardCount.getViewCount());
     }
 
     @Override
