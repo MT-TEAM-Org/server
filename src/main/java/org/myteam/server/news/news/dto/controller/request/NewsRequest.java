@@ -6,6 +6,7 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
+import org.myteam.server.news.news.repository.OrderType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ public class NewsRequest extends PageInfoRequest {
 
 	@Schema(description = "뉴스 정렬 타입", example = "CREATE(최신), RECOMMEND(인기), COMMENT(댓글)")
 	@NotNull(message = "뉴스 정렬 타입은 필수입니다.")
-	private BoardOrderType orderType;
+	private OrderType orderType;
 
 	@Schema(description = "뉴스 검색 타입", example = "TITLE(제목), CONTENT(내용), TITLE_CONTENT(제목 + 내용), COMMENT(댓글)")
 	private BoardSearchType searchType;
@@ -36,7 +37,7 @@ public class NewsRequest extends PageInfoRequest {
 	private TimePeriod timePeriod;
 
 	@Builder
-	public NewsRequest(Category category, BoardOrderType orderType, BoardSearchType SearchType, String search,
+	public NewsRequest(Category category, OrderType orderType, BoardSearchType SearchType, String search,
 		TimePeriod timePeriod, int page,
 		int size) {
 		super(page, size);

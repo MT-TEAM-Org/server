@@ -37,7 +37,7 @@ public class NewsQueryRepository {
 
 	public Page<NewsDto> getNewsList(NewsServiceRequest newsServiceRequest) {
 		Category category = newsServiceRequest.getCategory();
-		BoardOrderType orderType = newsServiceRequest.getOrderType();
+		OrderType orderType = newsServiceRequest.getOrderType();
 		BoardSearchType searchType = newsServiceRequest.getSearchType();
 		String search = newsServiceRequest.getSearch();
 		TimePeriod timePeriod = newsServiceRequest.getTimePeriod();
@@ -146,6 +146,17 @@ public class NewsQueryRepository {
 							news.id))
 				)
 				.exists();
+		};
+	}
+
+	private OrderSpecifier<?>[] isOrderByEqualToOrderCategory(OrderType orderType) {
+		// default 최신순
+		OrderType newsOrderType = ofNullable(orderType).orElse(OrderType.DATE);
+		return switch (newsOrderType) {
+			case DATE -> new OrderSpecifier<?>[] {news.postDate.desc(), news.title.asc(), news.id.desc()};
+			case VIEW -> new OrderSpecifier<?>[] {newsCount.recommendCount.desc(),
+				newsCount.commentCount.add(newsCount.viewCount).desc(), news.title.asc(), news.id.desc()};
+			case COMMENT -> new OrderSpecifier<?>[] {newsCount.commentCount.desc(), news.title.asc(), news.id.desc()};
 		};
 	}
 

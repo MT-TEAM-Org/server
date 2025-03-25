@@ -19,6 +19,7 @@ import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
 import org.myteam.server.news.news.dto.service.response.NewsResponse;
+import org.myteam.server.news.news.repository.OrderType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class NewsReadServiceTest extends IntegrationTestSupport {
@@ -36,7 +37,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
 			.category(Category.BASEBALL)
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -81,7 +82,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
 			.category(Category.ESPORTS)
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -131,7 +132,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
 			.category(Category.FOOTBALL)
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -173,7 +174,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNews(4, Category.BASEBALL, 12);
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.build();
@@ -209,7 +210,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNewsWithPostDate(4, Category.BASEBALL, 12, LocalDateTime.now().minusDays(2));
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.timePeriod(TimePeriod.DAILY)
@@ -244,7 +245,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNewsWithPostDate(4, Category.BASEBALL, 12, LocalDateTime.now().minusDays(7));
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.timePeriod(TimePeriod.WEEKLY)
@@ -279,7 +280,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNewsWithPostDate(4, Category.BASEBALL, 12, LocalDateTime.now().minusMonths(7));
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.timePeriod(TimePeriod.MONTHLY)
@@ -314,7 +315,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNewsWithPostDate(4, Category.BASEBALL, 12, LocalDateTime.now().minusYears(1));
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
 			.timePeriod(TimePeriod.YEARLY)
@@ -349,7 +350,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNews(4, Category.BASEBALL, 12);
 
 		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.searchType(BoardSearchType.TITLE)
 			.search("타이틀1")
 			.page(1)

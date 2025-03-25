@@ -13,6 +13,7 @@ import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.news.news.dto.controller.request.NewsRequest;
+import org.myteam.server.news.news.repository.OrderType;
 import org.springframework.security.test.context.support.WithMockUser;
 
 class NewsControllerTest extends ControllerTestSupport {
@@ -27,7 +28,7 @@ class NewsControllerTest extends ControllerTestSupport {
 			.size(10)
 			.search("테스트")
 			.SearchType(BoardSearchType.CONTENT)
-			.orderType(BoardOrderType.CREATE)
+			.orderType(OrderType.DATE)
 			.category(Category.FOOTBALL)
 			.build();
 
