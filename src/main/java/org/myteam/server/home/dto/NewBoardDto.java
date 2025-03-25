@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.global.domain.Category;
 
 @Getter
@@ -18,6 +19,10 @@ public class NewBoardDto {
      */
     private Category boardType;
     /**
+     * 게시판 카테고리 타입
+     */
+    private CategoryType categoryType;
+    /**
      * 게시글 제목
      */
     private String title;
@@ -31,12 +36,22 @@ public class NewBoardDto {
     @Setter
     @JsonProperty("isHot")
     private boolean isHot;
+    /**
+     * 이미지 존재 여부
+     */
+    @Setter
+    @JsonProperty("isImage")
+    private boolean isImage;
 
-    public NewBoardDto(Long id, Category boardType, String title, Integer commentCount, boolean isHot) {
+
+    public NewBoardDto(Long id, Category boardType, CategoryType categoryType, String title, Integer commentCount,
+                       boolean isHot, boolean isImage) {
         this.id = id;
         this.boardType = boardType;
+        this.categoryType = categoryType;
         this.title = title;
         this.commentCount = commentCount;
         this.isHot = isHot;
+        this.isImage = isImage;
     }
 }

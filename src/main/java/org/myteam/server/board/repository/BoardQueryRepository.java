@@ -9,9 +9,12 @@ import static org.myteam.server.member.entity.QMember.member;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,6 +30,7 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QBoardComment;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.springframework.data.domain.Page;
@@ -88,6 +92,54 @@ public class BoardQueryRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
+    public Page<BoardDto> getTotalList(TimePeriod timePeriod, BoardOrderType orderType,
+                                       BoardSearchType searchType, String search, Pageable pageable) {
+        List<BoardDto> content = queryFactory
+                .selectDistinct(Projections.constructor(BoardDto.class,
+                        board.boardType,
+                        board.categoryType,
+                        board.id,
+                        board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.title,
+                        board.createdIp,
+                        board.thumbnail,
+                        member.publicId,
+                        member.nickname,
+                        boardCount.commentCount,
+                        boardCount.recommendCount,
+                        board.createDate,
+                        board.lastModifiedDate
+                ))
+                .from(board)
+                .join(boardCount).on(boardCount.board.id.eq(board.id))
+                .join(member).on(member.eq(board.member))
+                .fetchJoin()
+                .where(
+                        isSearchTypeLikeTo(searchType, search),
+                        isCreatedAfterByTimePeriod(timePeriod)
+                )
+                .orderBy(isOrderByEqualToOrderCategory(orderType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = getTotalBoardCount(timePeriod, searchType, search);
+
+        if (searchType == BoardSearchType.COMMENT) {
+            content.forEach(boardDto -> {
+                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+                boardDto.setBoardCommentSearchList(commentSearch);
+            });
+        }
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    private BooleanExpression isCreatedAfterByTimePeriod(TimePeriod timePeriod) {
+        LocalDateTime start = timePeriod.getStartDateByTimePeriod(timePeriod);
+        return start != null ? board.createDate.after(start) : null;
+    }
+
     private BoardCommentSearchDto getSearchBoardComment(Long boardId, String search) {
         JPQLQuery<BoardCommentSearchDto> query = queryFactory
                 .select(Projections.fields(BoardCommentSearchDto.class,
@@ -140,6 +192,19 @@ public class BoardQueryRepository {
                         .from(board)
                         .where(isBoardTypeEqualTo(boardType), isCategoryEqualTo(categoryType),
                                 isSearchTypeLikeTo(searchType, search))
+                        .fetchOne()
+        ).orElse(0L);
+    }
+
+    private long getTotalBoardCount(TimePeriod timePeriod, BoardSearchType searchType, String search) {
+        return ofNullable(
+                queryFactory
+                        .select(board.countDistinct())
+                        .from(board)
+                        .where(
+                                isSearchTypeLikeTo(searchType, search),
+                                isCreatedAfterByTimePeriod(timePeriod)
+                        )
                         .fetchOne()
         ).orElse(0L);
     }
@@ -260,9 +325,14 @@ public class BoardQueryRepository {
                 .select(Projections.fields(NewBoardDto.class,
                         board.id,
                         board.boardType,
+                        board.categoryType,
                         board.title,
                         boardCount.commentCount,
-                        board.id.in(getHotBoardIdList()).as("isHot")
+                        board.id.in(getHotBoardIdList()).as("isHot"),
+                        new CaseBuilder()
+                                .when(board.thumbnail.isNotNull()).then(true)
+                                .otherwise(false)
+                                .as("isImage")
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.board.id.eq(board.id))
@@ -282,10 +352,15 @@ public class BoardQueryRepository {
         List<HotBoardDto> hotBoardList = queryFactory
                 .select(Projections.fields(HotBoardDto.class,
                         board.boardType,
+                        board.categoryType,
                         board.id,
                         board.title,
                         boardCount.commentCount,
-                        board.id.in(getHotBoardIdList()).as("isHot")
+                        board.id.in(getHotBoardIdList()).as("isHot"),
+                        new CaseBuilder()
+                                .when(board.thumbnail.isNotNull()).then(true)
+                                .otherwise(false)
+                                .as("isImage")
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.board.id.eq(board.id))

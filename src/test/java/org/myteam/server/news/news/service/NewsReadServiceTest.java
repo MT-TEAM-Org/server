@@ -11,13 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.response.PageableCustomResponse;
+import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
 import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.repository.OrderType;
-import org.myteam.server.news.news.repository.TimePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class NewsReadServiceTest extends IntegrationTestSupport {
