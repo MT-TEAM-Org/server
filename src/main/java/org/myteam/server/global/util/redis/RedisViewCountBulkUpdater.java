@@ -36,12 +36,20 @@ public class RedisViewCountBulkUpdater {
         for (String key : keys) {
             try {
                 String value = redisTemplate.opsForValue().get(key);
-                if (value == null) continue;
+                if (value == null) {
+                    redisTemplate.delete(key);
+                }
 
                 int viewCount = Integer.parseInt(value);
                 Long contentId = strategy.extractContentIdFromKey(key);
 
+                /**
+                 * @Brief: DB 벌크 업데이트
+                 */
                 strategy.updateToDatabase(contentId, viewCount);
+                /**
+                 * @Brief: 레디스 키 삭제
+                 */
                 redisTemplate.delete(key);
 
                 log.info("✅ [조회수 DB 저장 완료] type={}, id={}, count={}", type, contentId, viewCount);

@@ -12,6 +12,7 @@ import java.util.Set;
 @Service
 @Slf4j
 public class RedisViewCountService {
+    private static final long EXPIRED_TIME = 5L; // 조회수 만료 시간. 5분보다 큰 값으로 설정
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ViewCountStrategyFactory strategyFactory;
@@ -22,24 +23,47 @@ public class RedisViewCountService {
         this.strategyFactory = strategyFactory;
     }
 
-    public BoardCount getViewCount(String type, Long contentId) {
+    /**
+     * 특정 키 값 조회
+     */
+    public int getViewCount(String type, Long contentId) {
         ViewCountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
         String value = redisTemplate.opsForValue().get(key);
-        if (value != null) { // cache miss
-            int count = Integer.parseInt(value);
-            BoardCount countObj = new BoardCount();
-            countObj.setViewCount(count);
-            return countObj;
+        if (value != null) {
+            return Integer.parseInt(value);
         }
 
-        // cache hit
         BoardCount dbValue = strategy.loadFromDatabase(contentId);
-        redisTemplate.opsForValue().set(key, String.valueOf(dbValue.getViewCount()));
-        return dbValue;
+        int newCount = dbValue.getViewCount();
+        redisTemplate.opsForValue().set(key, String.valueOf(newCount), EXPIRED_TIME);
+        return newCount;
     }
 
+    /**
+     * 특정 키 값 조회 + 조회수 증가
+     */
+    public int getViewCountAndIncr(String type, Long contentId) {
+        ViewCountStrategy strategy = strategyFactory.getStrategy(type);
+        String key = strategy.getRedisKey(contentId);
+
+        String value = redisTemplate.opsForValue().get(key);
+        if (value != null) { // cache hit
+            incrementViewCount(type, contentId);
+            return Integer.parseInt(value) + 1;
+        }
+
+        // cache miss
+        BoardCount dbValue = strategy.loadFromDatabase(contentId);
+        int newCount = dbValue.getViewCount() + 1;
+        redisTemplate.opsForValue().set(key, String.valueOf(newCount), EXPIRED_TIME);
+        return newCount;
+    }
+
+    /**
+     * 조회수 증가
+     */
     public void incrementViewCount(String type, Long contentId) {
         ViewCountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);

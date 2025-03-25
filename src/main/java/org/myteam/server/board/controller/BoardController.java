@@ -110,7 +110,7 @@ public class BoardController {
     public ResponseEntity<ResponseDto<BoardResponse>> getBoard(@PathVariable final Long boardId,
                                                                @AuthenticationPrincipal final CustomUserDetails userDetails) {
         final BoardResponse response = boardService.getBoard(boardId, userDetails);
-        boardCountService.addViewCount(boardId);
+//        boardCountService.addViewCount(boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 조회 성공", response));
     }
 

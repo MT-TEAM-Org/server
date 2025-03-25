@@ -18,6 +18,7 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
+import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
@@ -42,6 +43,7 @@ public class BoardService {
     private final MemberReadService memberReadService;
     private final BoardRecommendReadService boardRecommendReadService;
     private final CommentService commentService;
+    private final RedisViewCountService redisViewCountService;
 
     /**
      * 게시글 작성
@@ -59,6 +61,7 @@ public class BoardService {
 
         Board board = makeBoard(member, clientIP, request);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
+        int viewCount = redisViewCountService.getViewCountAndIncr("board", board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -69,7 +72,7 @@ public class BoardService {
                 board.getCategoryType());
 
         log.info("게시판 생성: {}", loginUser);
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId);
+        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount);
     }
 
     /**
@@ -113,6 +116,7 @@ public class BoardService {
 
         Board board = boardReadService.findById(boardId);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
+        int viewCount = redisViewCountService.getViewCountAndIncr("board", boardId);
 
         boolean isRecommended = false;
 
@@ -127,7 +131,7 @@ public class BoardService {
         Long nextId = boardQueryRepository.findNextBoardId(boardId, board.getBoardType(), board.getCategoryType());
 
         return BoardResponse.createResponse(board, boardCount, isRecommended, previousId,
-                nextId);
+                nextId, viewCount);
     }
 
     /**
@@ -148,6 +152,7 @@ public class BoardService {
         boardRepository.save(board);
 
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
+        int viewCount = redisViewCountService.getViewCount("board", boardId);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -157,7 +162,7 @@ public class BoardService {
         Long nextId = boardQueryRepository.findNextBoardId(board.getId(), board.getBoardType(),
                 board.getCategoryType());
 
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId);
+        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount);
     }
 
     /**
