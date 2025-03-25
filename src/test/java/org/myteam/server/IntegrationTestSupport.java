@@ -67,346 +67,332 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
 @SpringBootTest
 public abstract class IntegrationTestSupport {
-    
-    @Container
-    private static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>("redis:latest")
-            .withExposedPorts(6379);
 
-    @DynamicPropertySource
-    static void redisProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
-        registry.add("spring.data.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
+    /**
+     * ================== Repository ========================
+     */
+    @Autowired
+    protected TeamRepository teamRepository;
+    @Autowired
+    protected MatchRepository matchRepository;
+    @Autowired
+    protected NewsRepository newsRepository;
+    @Autowired
+    protected NewsCountRepository newsCountRepository;
+    @Autowired
+    protected MemberJpaRepository memberJpaRepository;
+    @Autowired
+    protected MemberActivityRepository memberActivityRepository;
+    @Autowired
+    protected NewsCountMemberRepository newsCountMemberRepository;
+    @Autowired
+    protected InquiryRepository inquiryRepository;
+    @Autowired
+    protected InquiryCountRepository inquiryCountRepository;
+    @Autowired
+    protected MatchPredictionRepository matchPredictionRepository;
+    @Autowired
+    protected BoardRepository boardRepository;
+    @Autowired
+    protected BoardCountRepository boardCountRepository;
+    @Autowired
+    protected BoardRecommendRepository boardRecommendRepository;
+    @Autowired
+    protected NoticeRepository noticeRepository;
+    @Autowired
+    protected NoticeCountRepository noticeCountRepository;
+
+    @Autowired
+    protected ImprovementRepository improvementRepository;
+    @Autowired
+    protected ImprovementCountRepository improvementCountRepository;
+    @Autowired
+    protected CommentRepository commentRepository;
+
+    /**
+     * ================== Service ========================
+     */
+    @MockBean
+    protected InquiryReadService inquiryReadService;
+    @MockBean
+    protected SecurityReadService securityReadService;
+    @Autowired
+    protected MemberService memberService;
+    @Autowired
+    protected MyPageReadService myPageReadService;
+    @MockBean
+    protected BoardService boardService;
+    @Autowired
+    protected BoardReadService boardReadService;
+    @MockBean
+    protected MemberReadService memberReadService;
+    @Autowired
+    protected BoardCountReadService boardCountReadService;
+    @Autowired
+    protected BoardRecommendReadService boardRecommendReadService;
+    @Autowired
+    protected BoardCountService boardCountService;
+    @Autowired
+    protected InquiryService inquiryService;
+    @Autowired
+    protected CommentService commentService;
+    @Autowired
+    protected CommentReadService commentReadService;
+
+    /**
+     * ================== Config ========================
+     */
+    @MockBean
+    protected S3ConfigLocal s3ConfigLocal;
+    @MockBean
+    protected S3Presigner s3Presigner;
+    @MockBean
+    protected S3Controller s3Controller;
+    @MockBean
+    protected StorageService s3Service;
+    @MockBean
+    protected SlackService slackService;
+
+    @AfterEach
+    void tearDown() {
+        matchPredictionRepository.deleteAllInBatch();
+        matchRepository.deleteAllInBatch();
+        teamRepository.deleteAllInBatch();
+        inquiryRepository.deleteAllInBatch();
+        newsCountMemberRepository.deleteAllInBatch();
+        newsCountRepository.deleteAllInBatch();
+        newsRepository.deleteAllInBatch();
+        boardRecommendRepository.deleteAllInBatch();
+        boardCountRepository.deleteAllInBatch();
+        boardRepository.deleteAllInBatch();
+        memberActivityRepository.deleteAllInBatch();
+        memberJpaRepository.deleteAllInBatch();
     }
 
-	/**
-	 * ================== Repository ========================
-	 */
-	@Autowired
-	protected TeamRepository teamRepository;
-	@Autowired
-	protected MatchRepository matchRepository;
-	@Autowired
-	protected NewsRepository newsRepository;
-	@Autowired
-	protected NewsCountRepository newsCountRepository;
-	@Autowired
-	protected MemberJpaRepository memberJpaRepository;
-	@Autowired
-	protected MemberActivityRepository memberActivityRepository;
-	@Autowired
-	protected NewsCountMemberRepository newsCountMemberRepository;
-	@Autowired
-	protected InquiryRepository inquiryRepository;
-	@Autowired
-	protected InquiryCountRepository inquiryCountRepository;
-	@Autowired
-	protected MatchPredictionRepository matchPredictionRepository;
-	@Autowired
-	protected BoardRepository boardRepository;
-	@Autowired
-	protected BoardCountRepository boardCountRepository;
-	@Autowired
-	protected BoardRecommendRepository boardRecommendRepository;
-	@Autowired
-	protected NoticeRepository noticeRepository;
-	@Autowired
-	protected NoticeCountRepository noticeCountRepository;
+    protected Member createMember(int index) {
+        Member member = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel("12345")
+                .nickname("test")
+                .role(MemberRole.USER)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
 
-	@Autowired
-	protected ImprovementRepository improvementRepository;
-	@Autowired
-	protected ImprovementCountRepository improvementCountRepository;
-	@Autowired
-	protected CommentRepository commentRepository;
+        Member savedMember = memberJpaRepository.save(member);
 
-	/**
-	 * ================== Service ========================
-	 */
-	@MockBean
-	protected InquiryReadService inquiryReadService;
-	@MockBean
-	protected SecurityReadService securityReadService;
-	@Autowired
-	protected MemberService memberService;
-	@Autowired
-	protected MyPageReadService myPageReadService;
-	@MockBean
-	protected BoardService boardService;
-	@Autowired
-	protected BoardReadService boardReadService;
-	@MockBean
-	protected MemberReadService memberReadService;
-	@Autowired
-	protected BoardCountReadService boardCountReadService;
-	@Autowired
-	protected BoardRecommendReadService boardRecommendReadService;
-	@Autowired
-	protected BoardCountService boardCountService;
-	@Autowired
-	protected InquiryService inquiryService;
-	@Autowired
-	protected CommentService commentService;
-	@Autowired
-	protected CommentReadService commentReadService;
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
 
-	/**
-	 * ================== Config ========================
-	 */
-	@MockBean
-	protected S3ConfigLocal s3ConfigLocal;
-	@MockBean
-	protected S3Presigner s3Presigner;
-	@MockBean
-	protected S3Controller s3Controller;
-	@MockBean
-	protected StorageService s3Service;
-	@MockBean
-	protected SlackService slackService;
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
 
-	@AfterEach
-	void tearDown() {
-		matchPredictionRepository.deleteAllInBatch();
-		matchRepository.deleteAllInBatch();
-		teamRepository.deleteAllInBatch();
-		inquiryRepository.deleteAllInBatch();
-		newsCountMemberRepository.deleteAllInBatch();
-		newsCountRepository.deleteAllInBatch();
-		newsRepository.deleteAllInBatch();
-		boardRecommendRepository.deleteAllInBatch();
-		boardCountRepository.deleteAllInBatch();
-		boardRepository.deleteAllInBatch();
-		memberActivityRepository.deleteAllInBatch();
-		memberJpaRepository.deleteAllInBatch();
-	}
+        return savedMember;
+    }
 
-	protected Member createMember(int index) {
-		Member member = Member.builder()
-			.email("test" + index + "@test.com")
-			.password("1234")
-			.tel("12345")
-			.nickname("test")
-			.role(MemberRole.USER)
-			.type(MemberType.LOCAL)
-			.publicId(UUID.randomUUID())
-			.status(MemberStatus.ACTIVE)
-			.build();
+    protected Member createAdmin(int index) {
+        Member admin = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel("12345")
+                .nickname("test")
+                .role(MemberRole.ADMIN)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
 
-		Member savedMember = memberJpaRepository.save(member);
+        Member savedMember = memberJpaRepository.save(admin);
 
-		given(securityReadService.getMember())
-			.willReturn(savedMember);
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
 
-		given(securityReadService.getAuthenticatedPublicId())
-			.willReturn(member.getPublicId());
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(admin.getPublicId());
 
-		return savedMember;
-	}
+        return savedMember;
+    }
 
-	protected Member createAdmin(int index) {
-		Member admin = Member.builder()
-			.email("test" + index + "@test.com")
-			.password("1234")
-			.tel("12345")
-			.nickname("test")
-			.role(MemberRole.ADMIN)
-			.type(MemberType.LOCAL)
-			.publicId(UUID.randomUUID())
-			.status(MemberStatus.ACTIVE)
-			.build();
+    protected News createNews(int index, Category category, int count) {
+        News savedNews = newsRepository.save(News.builder()
+                .title("기사타이틀" + index)
+                .category(category)
+                .thumbImg("www.test.com")
+                .postDate(LocalDateTime.now())
+                .source("www.test.com")
+                .content("뉴스본문")
+                .build());
 
-		Member savedMember = memberJpaRepository.save(admin);
+        NewsCount newsCount = NewsCount.builder()
+                .recommendCount(count)
+                .commentCount(count)
+                .viewCount(count)
+                .build();
 
-		given(securityReadService.getMember())
-			.willReturn(savedMember);
+        newsCount.updateNews(savedNews);
 
-		given(securityReadService.getAuthenticatedPublicId())
-			.willReturn(admin.getPublicId());
+        newsCountRepository.save(newsCount);
 
-		return savedMember;
-	}
+        return savedNews;
+    }
 
-	protected News createNews(int index, Category category, int count) {
-		News savedNews = newsRepository.save(News.builder()
-			.title("기사타이틀" + index)
-			.category(category)
-			.thumbImg("www.test.com")
-			.postDate(LocalDateTime.now())
-			.source("www.test.com")
-			.content("뉴스본문")
-			.build());
+    protected News createNewsWithPostDate(int index, Category category, int count, LocalDateTime postTime) {
+        News savedNews = newsRepository.save(News.builder()
+                .title("기사타이틀" + index)
+                .category(category)
+                .thumbImg("www.test.com")
+                .postDate(postTime)
+                .source("www.test.com")
+                .content("뉴스본문")
+                .build());
 
-		NewsCount newsCount = NewsCount.builder()
-			.recommendCount(count)
-			.commentCount(count)
-			.viewCount(count)
-			.build();
+        NewsCount newsCount = NewsCount.builder()
+                .recommendCount(count)
+                .commentCount(count)
+                .viewCount(count)
+                .build();
 
-		newsCount.updateNews(savedNews);
+        newsCount.updateNews(savedNews);
 
-		newsCountRepository.save(newsCount);
+        newsCountRepository.save(newsCount);
 
-		return savedNews;
-	}
+        return savedNews;
+    }
 
-	protected News createNewsWithPostDate(int index, Category category, int count, LocalDateTime postTime) {
-		News savedNews = newsRepository.save(News.builder()
-			.title("기사타이틀" + index)
-			.category(category)
-			.thumbImg("www.test.com")
-			.postDate(postTime)
-			.source("www.test.com")
-			.content("뉴스본문")
-			.build());
+    protected NewsCountMember createNewsCountMember(Member member, News news) {
+        return newsCountMemberRepository.save(
+                NewsCountMember.builder()
+                        .news(news)
+                        .member(member)
+                        .build()
+        );
+    }
 
-		NewsCount newsCount = NewsCount.builder()
-			.recommendCount(count)
-			.commentCount(count)
-			.viewCount(count)
-			.build();
+    protected Team createTeam(int index, TeamCategory category) {
+        return teamRepository.save(Team.builder()
+                .name("테스트팀" + index)
+                .logo("www.test.com")
+                .category(category)
+                .build());
+    }
 
-		newsCount.updateNews(savedNews);
+    protected Match createMatch(Team homeTeam, Team awayTeam, MatchCategory category,
+                                LocalDateTime startDate) {
+        return matchRepository.save(Match.builder()
+                .homeTeam(homeTeam)
+                .awayTeam(awayTeam)
+                .category(category)
+                .startTime(startDate)
+                .endTime(startDate)
+                .build());
+    }
 
-		newsCountRepository.save(newsCount);
+    protected MatchPrediction createMatchPrediction(Match match, int home, int away) {
+        return matchPredictionRepository.save(MatchPrediction.builder()
+                .match(match)
+                .home(home)
+                .away(away)
+                .build());
+    }
 
-		return savedNews;
-	}
+    protected Board createBoard(Member member, Category boardType, CategoryType categoryType, String title,
+                                String content) {
 
-	protected NewsCountMember createNewsCountMember(Member member, News news) {
-		return newsCountMemberRepository.save(
-			NewsCountMember.builder()
-				.news(news)
-				.member(member)
-				.build()
-		);
-	}
+        Board board = Board.builder()
+                .member(member)
+                .boardType(boardType)
+                .categoryType(categoryType)
+                .title(title)
+                .content(content)
+                .link("https://www.naver.com")
+                .createdIp("127.0.0.1")
+                .thumbnail("http://localhost:9000/devbucket/inage/1235.png")
+                .build();
 
-	protected Team createTeam(int index, TeamCategory category) {
-		return teamRepository.save(Team.builder()
-			.name("테스트팀" + index)
-			.logo("www.test.com")
-			.category(category)
-			.build());
-	}
+        boardRepository.save(board);
 
-	protected Match createMatch(Team homeTeam, Team awayTeam, MatchCategory category,
-		LocalDateTime startDate) {
-		return matchRepository.save(Match.builder()
-			.homeTeam(homeTeam)
-			.awayTeam(awayTeam)
-			.category(category)
-			.startTime(startDate)
-			.endTime(startDate)
-			.build());
-	}
+        BoardCount boardCount = BoardCount.builder()
+                .board(board)
+                .recommendCount(0)
+                .commentCount(0)
+                .viewCount(0)
+                .build();
 
-	protected MatchPrediction createMatchPrediction(Match match, int home, int away) {
-		return matchPredictionRepository.save(MatchPrediction.builder()
-			.match(match)
-			.home(home)
-			.away(away)
-			.build());
-	}
+        boardCountRepository.save(boardCount);
 
-	protected Board createBoard(Member member, Category boardType, CategoryType categoryType, String title,
-		String content) {
+        return board;
+    }
 
-		Board board = Board.builder()
-			.member(member)
-			.boardType(boardType)
-			.categoryType(categoryType)
-			.title(title)
-			.content(content)
-			.link("https://www.naver.com")
-			.createdIp("127.0.0.1")
-			.thumbnail("http://localhost:9000/devbucket/inage/1235.png")
-			.build();
+    protected BoardRecommend createBoardRecommend(Board board, Member member) {
+        BoardRecommend recommend = BoardRecommend.builder()
+                .board(board)
+                .member(member)
+                .build();
+        boardRecommendRepository.save(recommend);
 
-		boardRepository.save(board);
+        return recommend;
+    }
 
-		BoardCount boardCount = BoardCount.builder()
-			.board(board)
-			.recommendCount(0)
-			.commentCount(0)
-			.viewCount(0)
-			.build();
+    protected Notice createNotice(Member member) {
+        Notice notice = Notice.builder()
+                .member(member)
+                .title("공지사하아앙 제목")
+                .content("공지공지공지")
+                .createdIP("0.0.0.1")
+                .imgUrl(null)
+                .build();
 
-		boardCountRepository.save(boardCount);
+        noticeRepository.save(notice);
 
-		return board;
-	}
+        NoticeCount noticeCount = NoticeCount.builder()
+                .notice(notice)
+                .recommendCount(0)
+                .commentCount(0)
+                .viewCount(0)
+                .build();
 
-	protected BoardRecommend createBoardRecommend(Board board, Member member) {
-		BoardRecommend recommend = BoardRecommend.builder()
-			.board(board)
-			.member(member)
-			.build();
-		boardRecommendRepository.save(recommend);
+        noticeCountRepository.save(noticeCount);
 
-		return recommend;
-	}
+        return notice;
+    }
 
-	protected Notice createNotice(Member member) {
-		Notice notice = Notice.builder()
-			.member(member)
-			.title("공지사하아앙 제목")
-			.content("공지공지공지")
-			.createdIP("0.0.0.1")
-			.imgUrl(null)
-			.build();
+    protected Inquiry createInquiry(Member member) {
+        Inquiry inquiry = Inquiry.builder()
+                .content("문의사항ㅇㅇㅇ")
+                .member(member)
+                .clientIp("0.0.0.1")
+                .createdAt(LocalDateTime.now())
+                .isAdminAnswered(false)
+                .build();
 
-		noticeRepository.save(notice);
+        inquiryRepository.save(inquiry);
 
-		NoticeCount noticeCount = NoticeCount.builder()
-			.notice(notice)
-			.recommendCount(0)
-			.commentCount(0)
-			.viewCount(0)
-			.build();
+        InquiryCount inquiryCount = InquiryCount.createCount(inquiry);
+        inquiryCountRepository.save(inquiryCount);
 
-		noticeCountRepository.save(noticeCount);
+        return inquiry;
+    }
 
-		return notice;
-	}
+    protected Improvement createImprovement(Member member) {
+        Improvement improvement = Improvement.builder()
+                .member(member)
+                .title("개선요처어엉ㅇ 제목")
+                .content("개선개선개선")
+                .createdIP("0.0.0.1")
+                .imgUrl(null)
+                .build();
+        improvementRepository.save(improvement);
 
-	protected Inquiry createInquiry(Member member) {
-		Inquiry inquiry = Inquiry.builder()
-			.content("문의사항ㅇㅇㅇ")
-			.member(member)
-			.clientIp("0.0.0.1")
-			.createdAt(LocalDateTime.now())
-			.isAdminAnswered(false)
-			.build();
+        ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
+        improvementCountRepository.save(improvementCount);
 
-		inquiryRepository.save(inquiry);
-
-		InquiryCount inquiryCount = InquiryCount.createCount(inquiry);
-		inquiryCountRepository.save(inquiryCount);
-
-		return inquiry;
-	}
-
-	protected Improvement createImprovement(Member member) {
-		Improvement improvement = Improvement.builder()
-			.member(member)
-			.title("개선요처어엉ㅇ 제목")
-			.content("개선개선개선")
-			.createdIP("0.0.0.1")
-			.imgUrl(null)
-			.build();
-		improvementRepository.save(improvement);
-
-		ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
-		improvementCountRepository.save(improvementCount);
-
-		return improvement;
-	}
+        return improvement;
+    }
 }
