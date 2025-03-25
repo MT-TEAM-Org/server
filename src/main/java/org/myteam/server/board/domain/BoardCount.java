@@ -63,6 +63,10 @@ public class BoardCount extends BaseTime {
         this.viewCount += 1;
     }
 
+    public void addViewCount(int count) {
+        this.viewCount += count;
+    }
+
     public void addRecommendCount() {
         this.recommendCount += 1;
     }
