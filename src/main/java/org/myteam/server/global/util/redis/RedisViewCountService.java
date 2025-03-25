@@ -1,14 +1,11 @@
 package org.myteam.server.global.util.redis;
 
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.util.ViewCountStrategy;
 import org.myteam.server.util.ViewCountStrategyFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.Set;
 
 @Service
 @Slf4j

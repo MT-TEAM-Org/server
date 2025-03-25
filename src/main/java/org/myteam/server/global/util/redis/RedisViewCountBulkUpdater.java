@@ -1,13 +1,11 @@
 package org.myteam.server.global.util.redis;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.util.ViewCountStrategy;
 import org.myteam.server.util.ViewCountStrategyFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 
 @Slf4j
@@ -18,7 +16,7 @@ public class RedisViewCountBulkUpdater {
     private final ViewCountStrategyFactory strategyFactory;
 
     public RedisViewCountBulkUpdater(RedisTemplate<String, String> redisTemplate,
-                                 ViewCountStrategyFactory strategyFactory) {
+                                     ViewCountStrategyFactory strategyFactory) {
         this.redisTemplate = redisTemplate;
         this.strategyFactory = strategyFactory;
     }
