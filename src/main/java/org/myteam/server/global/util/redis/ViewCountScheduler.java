@@ -12,13 +12,12 @@ public class ViewCountScheduler {
 
     private final RedisViewCountBulkUpdater bulkUpdater;
 
-    @Scheduled(fixedRate = 5 * 60 * 1000) // 5분마다
+    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 5 * 60 * 1000) // 실행 후 5분마다
     public void updateBoardViews() {
         bulkUpdater.bulkUpdate("board");
-    }
+        bulkUpdater.bulkUpdate("news");
+        bulkUpdater.bulkUpdate("notice");
+        bulkUpdater.bulkUpdate("improvement");
 
-//    @Scheduled(fixedRate = 5 * 60 * 1000)
-//    public void updateNewsViews() {
-//        bulkUpdater.bulkUpdate("news");
-//    }
+    }
 }
