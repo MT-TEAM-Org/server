@@ -67,11 +67,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
 @SpringBootTest
 public abstract class IntegrationTestSupport {
+    
+    @Container
+    private static final GenericContainer<?> REDIS_CONTAINER = new GenericContainer<>("redis:latest")
+            .withExposedPorts(6379);
+
+    @DynamicPropertySource
+    static void redisProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+        registry.add("spring.data.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
+    }
 
     /**
      * ================== Repository ========================
