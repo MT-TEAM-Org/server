@@ -42,7 +42,7 @@ public class ImprovementQueryRepository {
     public Page<ImprovementDto> getImprovementList(ImprovementOrderType orderType,
                                                    ImprovementSearchType searchType, String search, Pageable pageable) {
         List<ImprovementDto> content = queryFactory
-                .select(Projections.constructor(ImprovementDto.class,
+                .select(Projections.fields(ImprovementDto.class,
                         improvement.id,
                         improvement.title,
                         improvement.createdIP,

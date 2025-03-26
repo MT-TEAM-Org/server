@@ -38,7 +38,7 @@ public class NoticeQueryRepository {
     public Page<NoticeDto> getNoticeList(NoticeSearchType searchType, String search, Pageable pageable) {
 
         List<NoticeDto> content = queryFactory
-                .select(Projections.constructor(NoticeDto.class,
+                .select(Projections.fields(NoticeDto.class,
                         notice.id,
                         notice.title,
                         notice.imgUrl,
