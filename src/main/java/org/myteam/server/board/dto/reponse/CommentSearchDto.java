@@ -7,11 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BoardCommentSearchDto {
+public class CommentSearchDto {
     /**
      * 댓글 id
      */
-    private Long boardCommentId;
+    private Long commentId;
     /**
      * 댓글
      */

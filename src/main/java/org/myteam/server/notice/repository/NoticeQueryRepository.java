@@ -1,6 +1,7 @@
 package org.myteam.server.notice.repository;
 
 import static java.util.Optional.ofNullable;
+import static org.myteam.server.comment.domain.QNoticeComment.noticeComment;
 import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.notice.domain.QNotice.notice;
 import static org.myteam.server.notice.domain.QNoticeCount.noticeCount;
@@ -8,10 +9,12 @@ import static org.myteam.server.notice.domain.QNoticeCount.noticeCount;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
@@ -58,6 +61,13 @@ public class NoticeQueryRepository {
 
         long total = getTotalNoticeCount(searchType, search);
 
+        if (searchType == NoticeSearchType.COMMENT) {
+            content.forEach(noticeDto -> {
+                CommentSearchDto commentSearch = getSearchNoticeComment(noticeDto.getId(), search);
+                noticeDto.setCommentSearchList(commentSearch);
+            });
+        }
+
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -93,6 +103,25 @@ public class NoticeQueryRepository {
                         .where(isSearchTypeLikeTo(searchType, search))
                         .fetchOne()
         ).orElse(0L);
+    }
+
+    private CommentSearchDto getSearchNoticeComment(Long noticeId, String search) {
+        JPQLQuery<CommentSearchDto> query = queryFactory
+                .select(Projections.fields(CommentSearchDto.class,
+                        noticeComment.id.as("commentId"),
+                        noticeComment.comment,
+                        noticeComment.imageUrl
+                ))
+                .from(noticeComment)
+                .where(
+                        noticeComment.notice.id.eq(noticeId),
+                        noticeComment.comment.like("%" + search + "%")
+                );
+
+        return query.orderBy(
+                noticeComment.createDate.desc(),
+                noticeComment.comment.asc()
+        ).fetchFirst();
     }
 
     public List<NoticeDto> getFixNotice() {
