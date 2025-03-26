@@ -20,9 +20,10 @@ public record CommentResponse() {
     @Data
     @Builder
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    @JsonInclude(Include.NON_EMPTY)
+//    @JsonInclude(Include.NON_EMPTY)
     public static final class CommentSaveResponse {
         private Long commentId; // 댓글 id
         // 댓글에 대한 게시글 id는 필요 없지 않을까?

@@ -44,6 +44,7 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.entity.QMember;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.PostResponse;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -112,7 +113,7 @@ public class CommentQueryRepository {
                         comment1.createdIp,
                         comment1.member.publicId,
                         comment1.member.nickname,
-                        comment1.member.imgUrl,
+                        comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false
@@ -134,6 +135,10 @@ public class CommentQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        for (CommentSaveResponse response: comments) {
+            response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
+        }
+
         for (CommentSaveResponse parentComment : comments) {
             getCommentReply(parentComment);
         }
@@ -148,8 +153,9 @@ public class CommentQueryRepository {
                 .select(Projections.fields(CommentSaveResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
-                        member.publicId,
-                        member.nickname,
+                        comment1.member.publicId,
+                        comment1.member.nickname,
+                        comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false
@@ -169,6 +175,10 @@ public class CommentQueryRepository {
                 .orderBy(comment1.createDate.asc()) // 대댓글은 오래된 순으로 정렬
                 .fetch();
 
+        for (CommentSaveResponse response: replies) {
+            response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
+        }
+
         parentComment.setReplyList(replies); // 대댓글을 부모 댓글에 매핑
     }
 
@@ -183,8 +193,9 @@ public class CommentQueryRepository {
                 .select(Projections.fields(CommentSaveResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
-                        member.publicId,
-                        member.nickname,
+                        comment1.member.publicId,
+                        comment1.member.nickname,
+                        comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false
@@ -245,8 +256,9 @@ public class CommentQueryRepository {
                 .select(Projections.fields(CommentSaveResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
-                        member.publicId,
-                        member.nickname,
+                        comment1.member.publicId,
+                        comment1.member.nickname,
+                        comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false
@@ -297,6 +309,11 @@ public class CommentQueryRepository {
             commentDto.setPostResponse(postResponse);
             commentDto.setCommentResponse(comment);
             commentList.add(commentDto);
+        }
+
+        for (MyCommentDto dto : commentList) {
+            dto.getCommentResponse().setCreatedIp(
+                    ClientUtils.maskIp(dto.getCommentResponse().getCreatedIp()));
         }
 
         // 전체 댓글 수 조회
