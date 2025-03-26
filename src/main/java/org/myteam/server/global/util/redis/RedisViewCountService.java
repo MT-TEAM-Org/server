@@ -22,6 +22,23 @@ public class RedisViewCountService {
     }
 
     /**
+     * 네이티브한 키 값.
+     */
+    public String getRedisKey(String type, Long contentId) {
+        ViewCountStrategy strategy = strategyFactory.getStrategy(type);
+        String key = strategy.getRedisKey(contentId);
+
+        String value = redisTemplate.opsForValue().get(key);
+        if (value != null) {
+            return value;
+        }
+
+        CommonCount dbValue = strategy.loadFromDatabase(contentId);
+        int newCount = dbValue.getViewCount();
+        return String.valueOf(newCount);
+    }
+
+    /**
      * 특정 키 값 조회
      */
     public int getViewCount(String type, Long contentId) {

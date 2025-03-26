@@ -2,6 +2,8 @@ package org.myteam.server.news.news.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -381,6 +383,8 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 		createNews(3, Category.ESPORTS, 15);
 		createNews(4, Category.BASEBALL, 12);
 
+		given(redisViewCountService.getViewCountAndIncr(anyString(), anyLong()))
+				.willReturn(10);
 		NewsResponse newsResponse = newsReadService.findOne(news.getId());
 
 		assertThat(newsResponse)

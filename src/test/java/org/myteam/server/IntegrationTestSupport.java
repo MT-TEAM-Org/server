@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.given;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
+import org.mockito.Mock;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
@@ -21,6 +22,8 @@ import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.util.redis.RedisViewCountBulkUpdater;
+import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
@@ -157,6 +160,8 @@ public abstract class IntegrationTestSupport {
     protected StorageService s3Service;
     @MockBean
     protected SlackService slackService;
+    @MockBean
+    protected RedisViewCountService redisViewCountService;
 
     @AfterEach
     void tearDown() {
