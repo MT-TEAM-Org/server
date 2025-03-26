@@ -44,7 +44,7 @@ public record NoticeResponse() {
         private String link;
 
         public static NoticeSaveResponse createResponse(Notice notice, NoticeCount noticeCount, boolean isRecommended,
-                                                        Long previousId, Long nextId) {
+                                                        Long previousId, Long nextId, int viewCount) {
             return NoticeSaveResponse.builder()
                     .noticeId(notice.getId())
                     .publicId(notice.getMember().getPublicId())
@@ -56,7 +56,7 @@ public record NoticeResponse() {
                     .isRecommended(isRecommended)
                     .recommendCount(noticeCount.getRecommendCount())
                     .commentCount(noticeCount.getCommentCount())
-                    .viewCount(noticeCount.getViewCount())
+                    .viewCount(viewCount)
                     .createdAt(notice.getCreateDate())
                     .modifiedAt(notice.getLastModifiedDate())
                     .previousId(previousId)

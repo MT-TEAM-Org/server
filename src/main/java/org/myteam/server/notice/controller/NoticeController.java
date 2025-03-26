@@ -13,17 +13,24 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorResponse;
-import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.web.response.ResponseDto;
-import org.myteam.server.notice.dto.request.NoticeRequest.*;
-import org.myteam.server.notice.dto.response.NoticeResponse.*;
-import org.myteam.server.notice.service.NoticeCountService;
+import org.myteam.server.notice.dto.request.NoticeRequest.NoticeSaveRequest;
+import org.myteam.server.notice.dto.request.NoticeRequest.NoticeSearchRequest;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeListResponse;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
 import org.myteam.server.notice.service.NoticeReadService;
 import org.myteam.server.notice.service.NoticeService;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -34,7 +41,6 @@ public class NoticeController {
 
     private final NoticeService noticeService;
     private final NoticeReadService noticeReadService;
-    private final NoticeCountService noticeCountService;
 
     /**
      * 공지사항 생성
@@ -47,8 +53,9 @@ public class NoticeController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
-    public ResponseEntity<ResponseDto<NoticeSaveResponse>> saveNotice(@Valid @RequestBody NoticeSaveRequest noticeSaveRequest,
-                                                                      HttpServletRequest request) {
+    public ResponseEntity<ResponseDto<NoticeSaveResponse>> saveNotice(
+            @Valid @RequestBody NoticeSaveRequest noticeSaveRequest,
+            HttpServletRequest request) {
         String clientIP = ClientUtils.getRemoteIP(request);
         NoticeSaveResponse response = noticeService.saveNotice(noticeSaveRequest, clientIP);
         return ResponseEntity.ok(new ResponseDto<>(
@@ -70,8 +77,9 @@ public class NoticeController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{noticeId}")
-    public ResponseEntity<ResponseDto<NoticeSaveResponse>> updateNotice(@Valid @RequestBody NoticeSaveRequest noticeSaveRequest,
-                                                                      @PathVariable Long noticeId) {
+    public ResponseEntity<ResponseDto<NoticeSaveResponse>> updateNotice(
+            @Valid @RequestBody NoticeSaveRequest noticeSaveRequest,
+            @PathVariable Long noticeId) {
         NoticeSaveResponse response = noticeService.updateNotice(noticeSaveRequest, noticeId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -110,7 +118,6 @@ public class NoticeController {
     })
     @GetMapping("/{noticeId}")
     public ResponseEntity<ResponseDto<NoticeSaveResponse>> getNotice(@PathVariable Long noticeId) {
-        noticeCountService.addViewCount(noticeId);
         NoticeSaveResponse response = noticeReadService.getNotice(noticeId);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
@@ -128,7 +135,8 @@ public class NoticeController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<ResponseDto<NoticeListResponse>> getNoticeList(@Valid @ModelAttribute NoticeSearchRequest request) {
+    public ResponseEntity<ResponseDto<NoticeListResponse>> getNoticeList(
+            @Valid @ModelAttribute NoticeSearchRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "게시글 목록 조회",

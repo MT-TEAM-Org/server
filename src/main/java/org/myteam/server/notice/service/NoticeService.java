@@ -6,6 +6,7 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -35,6 +36,7 @@ public class NoticeService {
     private final NoticeCountReadService noticeCountReadService;
     private final CommentService commentService;
     private final StorageService s3Service;
+    private final RedisViewCountService redisViewCountService;
 
     /**
      * 공지사항 작성
@@ -52,6 +54,8 @@ public class NoticeService {
         NoticeCount noticeCount = NoticeCount.createNoticeCount(notice);
         noticeCountRepository.save(noticeCount);
 
+        int viewCount = redisViewCountService.getViewCountAndIncr("notice", notice.getId());
+
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
         log.info("공지사항 생성: {}", notice.getId());
@@ -59,7 +63,7 @@ public class NoticeService {
         Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
         Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
 
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId);
+        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId, viewCount);
 
     }
 
@@ -101,6 +105,7 @@ public class NoticeService {
         noticeRepository.save(notice);
 
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
+        int viewCount = redisViewCountService.getViewCountAndIncr("notice", noticeId);
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -109,7 +114,7 @@ public class NoticeService {
         Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
         Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
 
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId);
+        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId, viewCount);
     }
 
     /**
@@ -131,6 +136,8 @@ public class NoticeService {
         if (notice.getImgUrl() != null) {
             s3Service.deleteFile(notice.getImgUrl());
         }
+
+        redisViewCountService.removeViewCount("notice", noticeId);
 
         noticeCountRepository.deleteByNoticeId(notice.getId());
         noticeRepository.delete(notice);

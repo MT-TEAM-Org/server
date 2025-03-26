@@ -10,7 +10,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RedisService {
+public class RedisService { // TODO: RedisReportService 로 변경.
 
     private final RedisTemplate<String, String> redisTemplate;
 

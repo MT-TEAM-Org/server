@@ -46,7 +46,7 @@ public record ImprovementResponse() {
         private String link;
 
         public static ImprovementSaveResponse createResponse(Improvement improvement, ImprovementCount improvementCount,
-                                                             boolean isRecommended, Long previousId, Long nextId) {
+                                                             boolean isRecommended, Long previousId, Long nextId, int viewCount) {
             return ImprovementSaveResponse.builder()
                     .noticeId(improvement.getId())
                     .publicId(improvement.getMember().getPublicId())
@@ -59,7 +59,7 @@ public record ImprovementResponse() {
                     .isRecommended(isRecommended)
                     .recommendCount(improvementCount.getRecommendCount())
                     .commentCount(improvementCount.getCommentCount())
-                    .viewCount(improvementCount.getViewCount())
+                    .viewCount(viewCount)
                     .createdAt(improvement.getCreateDate())
                     .modifiedAt(improvement.getLastModifiedDate())
                     .previousId(previousId)
