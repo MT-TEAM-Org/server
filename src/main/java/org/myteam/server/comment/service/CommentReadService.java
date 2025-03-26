@@ -67,7 +67,7 @@ public class CommentReadService {
 
         Comment comment = findById(commentId);
 
-        CommentSaveResponse response = CommentSaveResponse.createResponse(comment);
+        CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
         commentQueryRepository.getCommentReply(response);
 
         UUID loginUser = securityReadService.getAuthenticatedPublicId();

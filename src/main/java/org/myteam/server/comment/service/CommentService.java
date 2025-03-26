@@ -135,10 +135,7 @@ public class CommentService {
         }
         countService.addCommentCount(contentId);
 
-        boolean isRecommended = commentRecommendReadService.isRecommended(comment.getId(), member.getPublicId());
-
-        CommentSaveResponse response = CommentSaveResponse.createResponse(comment);
-        response.setRecommended(isRecommended);
+        CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
 
         return response;
     }
@@ -174,8 +171,7 @@ public class CommentService {
 
         boolean isRecommended = commentRecommendReadService.isRecommended(comment.getId(), member.getPublicId());
 
-        CommentSaveResponse response = CommentSaveResponse.createResponse(comment);
-        response.setRecommended(isRecommended);
+        CommentSaveResponse response = CommentSaveResponse.createResponse(comment, isRecommended);
 
         return response;
     }

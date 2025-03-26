@@ -144,7 +144,10 @@ public class SecurityConfig {
 
             /** @brief 홈 메인*/
             "/api/home/new",
-            "/api/home/hot"
+            "/api/home/hot",
+
+            /** @brief 댓글 */
+            "/api/comments/{contentId}",
     };
 
     /* Admin 접근 권한 */
