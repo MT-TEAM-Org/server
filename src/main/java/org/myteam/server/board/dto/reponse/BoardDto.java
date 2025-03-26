@@ -74,7 +74,7 @@ public class BoardDto {
      */
     @Setter
     @JsonInclude(Include.NON_EMPTY)
-    private BoardCommentSearchDto boardCommentSearchList;
+    private CommentSearchDto boardCommentSearchList;
 
     public BoardDto(Category boardType, CategoryType categoryType, Long id, boolean isHot, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,

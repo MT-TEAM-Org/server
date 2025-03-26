@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.board.dto.reponse.BoardCommentSearchDto;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QBoardComment;
@@ -84,7 +84,7 @@ public class BoardQueryRepository {
         // searchType이 COMMENT일 경우, 댓글 데이터 추가
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
-                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+                CommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
                 boardDto.setBoardCommentSearchList(commentSearch);
             });
         }
@@ -127,7 +127,7 @@ public class BoardQueryRepository {
 
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
-                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+                CommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
                 boardDto.setBoardCommentSearchList(commentSearch);
             });
         }
@@ -140,10 +140,10 @@ public class BoardQueryRepository {
         return start != null ? board.createDate.after(start) : null;
     }
 
-    private BoardCommentSearchDto getSearchBoardComment(Long boardId, String search) {
-        JPQLQuery<BoardCommentSearchDto> query = queryFactory
-                .select(Projections.fields(BoardCommentSearchDto.class,
-                        boardComment.id.as("boardCommentId"),
+    private CommentSearchDto getSearchBoardComment(Long boardId, String search) {
+        JPQLQuery<CommentSearchDto> query = queryFactory
+                .select(Projections.fields(CommentSearchDto.class,
+                        boardComment.id.as("commentId"),
                         boardComment.comment,
                         boardComment.imageUrl
                 ))
@@ -265,7 +265,7 @@ public class BoardQueryRepository {
         // searchType이 COMMENT일 경우, 댓글 데이터 추가
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
-                BoardCommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
+                CommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);
                 boardDto.setBoardCommentSearchList(commentSearch);
             });
         }

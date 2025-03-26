@@ -1,12 +1,12 @@
 package org.myteam.server.notice.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
@@ -98,5 +98,10 @@ public record NoticeResponse() {
         private Integer recommendCount;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
+        /**
+         * 댓글 검색 시 결과
+         */
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private CommentSearchDto commentSearchList;
     }
 }
