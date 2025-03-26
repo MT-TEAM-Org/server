@@ -24,6 +24,7 @@ public record MyPageResponse() {
         private int createdInquiryCount;   // 내가 작성한 문의 개수
         private int totalInviteCount;      // 내가 초대한 횟수
         private String nickname;           // 닉네임
+        private String img;
         private MemberRole role;           // 회원 등급
         private String registeredAt;       // 회원 가입일
         private String registrationMethod; // 가입 방법 (이메일, 소셜 로그인 등)
@@ -36,6 +37,7 @@ public record MyPageResponse() {
                     .createdInquiryCount(inquiryCount)
                     .totalInviteCount(member.getMemberActivity().getVisitCount())
                     .nickname(member.getNickname())
+                    .img(member.getImgUrl())
                     .role(member.getRole())
                     .registeredAt(DateUtils.formatDateTime(member.getCreateDate()))
                     .registrationMethod(member.getType().getValue())

@@ -29,6 +29,7 @@ public class MemberResponse {
     private MemberStatus status;
 
     private UUID publicId;
+    private String imgUrl;
 
     public MemberResponse() {
     }
@@ -41,6 +42,7 @@ public class MemberResponse {
         this.type = member.getType();
         this.status = member.getStatus();
         this.publicId = member.getPublicId();
+        this.imgUrl = member.getImgUrl();
     }
 
     public static MemberResponse createMemberResponse(Member member) {
@@ -52,6 +54,7 @@ public class MemberResponse {
                 .type(member.getType())
                 .status(member.getStatus())
                 .publicId(member.getPublicId())
+                .imgUrl(member.getImgUrl())
                 .build();
     }
 }
