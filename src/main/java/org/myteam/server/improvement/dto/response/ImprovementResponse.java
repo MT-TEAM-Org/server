@@ -1,12 +1,12 @@
 package org.myteam.server.improvement.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
@@ -104,5 +104,8 @@ public record ImprovementResponse() {
         private Integer recommendCount;
         private LocalDateTime createdAt;
         private LocalDateTime lastModifiedDate;
+        @Setter
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private CommentSearchDto improvementCommentSearchList;
     }
 }

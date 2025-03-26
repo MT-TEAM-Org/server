@@ -1,6 +1,7 @@
 package org.myteam.server.improvement.repository;
 
 import static java.util.Optional.ofNullable;
+import static org.myteam.server.comment.domain.QImprovementComment.improvementComment;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.improvement.domain.QImprovementCount.improvementCount;
 import static org.myteam.server.member.entity.QMember.member;
@@ -9,11 +10,13 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QImprovementComment;
@@ -68,6 +71,13 @@ public class ImprovementQueryRepository {
 
         long total = getTotalImprovementCount(searchType, search);
 
+        if (searchType == ImprovementSearchType.COMMENT) {
+            content.forEach(improvementDto -> {
+                CommentSearchDto commentSearch = getSearchImprovementComment(improvementDto.getId(), search);
+                improvementDto.setImprovementCommentSearchList(commentSearch);
+            });
+        }
+
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -104,6 +114,25 @@ public class ImprovementQueryRepository {
             case RECOMMEND -> improvementCount.recommendCount.desc();
             case COMMENT -> improvementCount.commentCount.desc();
         };
+    }
+
+    private CommentSearchDto getSearchImprovementComment(Long improvementId, String search) {
+        JPQLQuery<CommentSearchDto> query = queryFactory
+                .select(Projections.fields(CommentSearchDto.class,
+                        improvementComment.id.as("commentId"),
+                        improvementComment.comment,
+                        improvementComment.imageUrl
+                ))
+                .from(improvementComment)
+                .where(
+                        improvementComment.improvement.id.eq(improvementId),
+                        improvementComment.comment.like("%" + search + "%")
+                );
+
+        return query.orderBy(
+                improvementComment.createDate.desc(),
+                improvementComment.comment.asc()
+        ).fetchFirst();
     }
 
     private long getTotalImprovementCount(ImprovementSearchType searchType, String search) {
