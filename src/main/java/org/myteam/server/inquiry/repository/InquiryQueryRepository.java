@@ -130,22 +130,28 @@ public class InquiryQueryRepository {
         return null;
     }
 
-    public Long findPreviousInquiryI(Long inquiryId) {
+    public Long findPreviousInquiry(Long inquiryId, UUID memberPublicId) {
         return queryFactory
                 .select(inquiry.id)
                 .from(inquiry)
-                .where(inquiry.id.lt(inquiryId))
+                .where(
+                        inquiry.id.lt(inquiryId),
+                        isMemberEqualTo(memberPublicId)
+                )
                 .orderBy(inquiry.id.desc()) // 가장 큰 ID (즉, 이전 글)
                 .limit(1)
                 .fetchOne();
     }
 
 
-    public Long findNextInquiryId(Long inquiryId) {
+    public Long findNextInquiryId(Long inquiryId, UUID memberPublicId) {
         return queryFactory
                 .select(inquiry.id)
                 .from(inquiry)
-                .where(inquiry.id.gt(inquiryId))
+                .where(
+                        inquiry.id.gt(inquiryId),
+                        isMemberEqualTo(memberPublicId)
+                )
                 .orderBy(inquiry.id.asc()) // 가장 작은 ID (즉, 다음 글)
                 .limit(1)
                 .fetchOne();

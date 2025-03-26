@@ -93,8 +93,8 @@ public class InquiryReadService {
 
         log.info("요청 멤버: {}, 조회 문의내역: {} 성공", member.getPublicId(), inquiryId);
 
-        Long previousId = inquiryQueryRepository.findPreviousInquiryI(inquiry.getId());
-        Long nextId = inquiryQueryRepository.findNextInquiryId(inquiry.getId());
+        Long previousId = inquiryQueryRepository.findPreviousInquiry(inquiry.getId(), member.getPublicId());
+        Long nextId = inquiryQueryRepository.findNextInquiryId(inquiry.getId(), member.getPublicId());
 
         return InquiryDetailsResponse.createResponse(inquiry, inquiryCount, previousId, nextId);
     }
