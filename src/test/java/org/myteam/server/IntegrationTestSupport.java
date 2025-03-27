@@ -363,7 +363,7 @@ public abstract class IntegrationTestSupport {
                 .member(member)
                 .title("공지사하아앙 제목")
                 .content("공지공지공지")
-                .createdIP("0.0.0.1")
+                .createdIp("0.0.0.1")
                 .imgUrl(null)
                 .build();
 
@@ -403,7 +403,7 @@ public abstract class IntegrationTestSupport {
                 .member(member)
                 .title("개선요처어엉ㅇ 제목")
                 .content("개선개선개선")
-                .createdIP("0.0.0.1")
+                .createdIp("0.0.0.1")
                 .imgUrl(null)
                 .build();
         improvementRepository.save(improvement);
