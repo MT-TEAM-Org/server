@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class NewsCommentSearchDto {
-	private Long commentId;
+	private Long newsCommentId;
 	private String comment;
 	private String imageUrl;
 }
