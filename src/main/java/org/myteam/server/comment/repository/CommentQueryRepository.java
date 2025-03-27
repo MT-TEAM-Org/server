@@ -135,7 +135,7 @@ public class CommentQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        for (CommentSaveResponse response: comments) {
+        for (CommentSaveResponse response : comments) {
             response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
         }
 
@@ -169,14 +169,16 @@ public class CommentQueryRepository {
                 .leftJoin(comment1.member, member)
                 .leftJoin(comment1.mentionedMember, mentionedMember)
                 .where(
-                        comment1.parent.id.isNotNull(),
                         comment1.parent.id.eq(parentComment.getCommentId()) // 부모 댓글 기준 대댓글 조회
                 )
                 .orderBy(comment1.createDate.asc()) // 대댓글은 오래된 순으로 정렬
                 .fetch();
 
-        for (CommentSaveResponse response: replies) {
+        for (CommentSaveResponse response : replies) {
             response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
+
+            // DFS를 사용하여 자식 댓글 탐색
+            getCommentReply(response);
         }
 
         parentComment.setReplyList(replies); // 대댓글을 부모 댓글에 매핑
@@ -353,7 +355,8 @@ public class CommentQueryRepository {
             case TITLE_CONTENT:
                 return switch (commentType) {
                     case BOARD -> board.title.like("%" + search + "%").or(board.content.like("%" + search + "%"));
-                    case IMPROVEMENT -> improvement.title.like("%" + search + "%").or(improvement.content.like("%" + search + "%"));
+                    case IMPROVEMENT ->
+                            improvement.title.like("%" + search + "%").or(improvement.content.like("%" + search + "%"));
                     case NEWS -> news.title.like("%" + search + "%").or(news.content.like("%" + search + "%"));
                     case NOTICE -> notice.title.like("%" + search + "%").or(notice.content.like("%" + search + "%"));
                     case INQUIRY -> inquiry.content.like("%" + search + "%");
