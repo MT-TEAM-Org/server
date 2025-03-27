@@ -2,6 +2,7 @@ package org.myteam.server.news.news.repository;
 
 import static java.util.Optional.*;
 import static org.myteam.server.board.domain.QBoard.*;
+import static org.myteam.server.comment.domain.QNewsComment.*;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
@@ -14,6 +15,7 @@ import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNewsComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
+import org.myteam.server.news.news.dto.repository.NewsCommentSearchDto;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -65,6 +68,14 @@ public class NewsQueryRepository {
 			.limit(pageable.getPageSize())
 			.fetch();
 
+		// searchType이 COMMENT일 경우, 댓글 데이터 추가
+		if (searchType == BoardSearchType.COMMENT) {
+			contents.forEach(newsDto -> {
+				NewsCommentSearchDto commentSearch = getNewsSearchBoardComment(newsDto.getId(), search);
+				newsDto.updateNewsCommentSearchDto(commentSearch);
+			});
+		}
+
 		long total = getTotalNewsCount(category, searchType, search, timePeriod);
 
 		return new PageImpl<>(contents, pageable, total);
@@ -96,6 +107,25 @@ public class NewsQueryRepository {
 		long total = getTotalNewsCount(timePeriod, searchType, search);
 
 		return new PageImpl<>(contents, pageable, total);
+	}
+
+	private NewsCommentSearchDto getNewsSearchBoardComment(Long newsId, String search) {
+		JPQLQuery<NewsCommentSearchDto> query = queryFactory
+			.select(Projections.fields(NewsCommentSearchDto.class,
+				newsComment.id.as("commentId"),
+				newsComment.comment,
+				newsComment.imageUrl
+			))
+			.from(newsComment)
+			.where(newsComment.news.id.eq(newsId));
+
+		// 검색어가 있을 경우 해당 검색어를 포함하는 댓글만 조회
+		if (search != null && !search.isEmpty()) {
+			query.where(newsComment.comment.like("%" + search + "%"));
+		}
+
+		return query.orderBy(newsComment.createDate.desc(), newsComment.comment.asc())
+			.fetchFirst();
 	}
 
 	private long getTotalNewsCount(Category category, BoardSearchType searchType, String search,
