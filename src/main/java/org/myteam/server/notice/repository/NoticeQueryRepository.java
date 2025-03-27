@@ -132,16 +132,17 @@ public class NoticeQueryRepository {
 
     public List<NoticeDto> getFixNotice() {
         return queryFactory
-                .select(Projections.constructor(NoticeDto.class,
+                .select(Projections.fields(NoticeDto.class,
                         notice.id,
                         notice.title,
-                        notice.imgUrl,
-                        member.publicId,
-                        member.nickname,
+                        notice.imgUrl.as("thumbnail"),
+                        notice.createdIp.as("createdIp"),
+                        notice.member.publicId,
+                        notice.member.nickname,
                         noticeCount.commentCount,
                         noticeCount.recommendCount,
-                        notice.createDate,
-                        notice.lastModifiedDate
+                        notice.createDate.as("createdAt"),
+                        notice.lastModifiedDate.as("updatedAt")
                 ))
                 .from(notice)
                 .join(noticeCount).on(noticeCount.notice.id.eq(notice.id))
