@@ -51,7 +51,7 @@ public record ImprovementResponse() {
                     .noticeId(improvement.getId())
                     .publicId(improvement.getMember().getPublicId())
                     .nickname(improvement.getMember().getNickname())
-                    .clientIp(ClientUtils.maskIp(improvement.getCreatedIP()))
+                    .clientIp(ClientUtils.maskIp(improvement.getCreatedIp()))
                     .title(improvement.getTitle())
                     .content(improvement.getContent())
                     .imgUrl(improvement.getImgUrl())

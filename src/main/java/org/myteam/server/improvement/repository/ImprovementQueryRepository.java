@@ -45,15 +45,15 @@ public class ImprovementQueryRepository {
                 .select(Projections.fields(ImprovementDto.class,
                         improvement.id,
                         improvement.title,
-                        improvement.createdIP,
+                        improvement.createdIp.as("createdIp"),
                         improvement.imgUrl.as("thumbnail"),
                         improvement.improvementStatus.as("status"),
-                        member.publicId,
-                        member.nickname,
+                        improvement.member.publicId,
+                        improvement.member.nickname,
                         improvementCount.commentCount,
                         improvementCount.recommendCount,
-                        improvement.createDate,
-                        improvement.lastModifiedDate
+                        improvement.createDate.as("createdAt"),
+                        improvement.lastModifiedDate.as("lastModifiedDate")
                 ))
                 .from(improvement)
                 .join(improvementCount).on(improvementCount.improvement.id.eq(improvement.id))
