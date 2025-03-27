@@ -1,11 +1,11 @@
 package org.myteam.server;
 
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 import org.junit.jupiter.api.AfterEach;
-import org.mockito.Mock;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
@@ -18,11 +18,11 @@ import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
 import org.myteam.server.board.service.BoardService;
+import org.myteam.server.comment.domain.NewsComment;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.domain.Category;
-import org.myteam.server.global.util.redis.RedisViewCountBulkUpdater;
 import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
@@ -70,6 +70,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @ActiveProfiles("test")
@@ -165,6 +166,7 @@ public abstract class IntegrationTestSupport {
 
     @AfterEach
     void tearDown() {
+        commentRepository.deleteAllInBatch();
         matchPredictionRepository.deleteAllInBatch();
         matchRepository.deleteAllInBatch();
         teamRepository.deleteAllInBatch();
@@ -246,6 +248,17 @@ public abstract class IntegrationTestSupport {
         newsCountRepository.save(newsCount);
 
         return savedNews;
+    }
+
+    protected void createNewsComment(News news, Member member, String comment) {
+        NewsComment savedNewsComment = commentRepository.save(
+            NewsComment.builder()
+                .news(news)
+                .comment(comment)
+                .imageUrl("www.test.com")
+                .member(member)
+                .build()
+        );
     }
 
     protected News createNewsWithPostDate(int index, Category category, int count, LocalDateTime postTime) {
