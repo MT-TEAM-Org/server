@@ -49,7 +49,7 @@ public record NoticeResponse() {
                     .noticeId(notice.getId())
                     .publicId(notice.getMember().getPublicId())
                     .nickname(notice.getMember().getNickname())
-                    .clientIp(ClientUtils.maskIp(notice.getCreatedIP()))
+                    .clientIp(ClientUtils.maskIp(notice.getCreatedIp()))
                     .title(notice.getTitle())
                     .content(notice.getContent())
                     .imgUrl(notice.getImgUrl())
@@ -92,6 +92,7 @@ public record NoticeResponse() {
         private Long id;
         private String title;
         private String thumbnail;
+        private String createdIp;
         private UUID publicId;
         private String nickname;
         private Integer commentCount;

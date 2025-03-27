@@ -136,9 +136,9 @@ public class ImprovementService {
     private Improvement makeImprovement(Member member, String clientIp, ImprovementSaveRequest request) {
         Improvement improvement = Improvement.builder()
                 .member(member)
-                .createdIP(clientIp)
                 .title(request.getTitle())
                 .content(request.getContent())
+                .createdIp(clientIp)
                 .imgUrl(request.getImgUrl())
                 .link(request.getLink())
                 .build();

@@ -70,7 +70,7 @@ public class NoticeService {
     private Notice makeNotice(final Member member, String clientIp, NoticeSaveRequest request) {
         Notice notice = Notice.builder()
                 .member(member)
-                .createdIP(clientIp)
+                .createdIp(clientIp)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .imgUrl(request.getImgUrl())

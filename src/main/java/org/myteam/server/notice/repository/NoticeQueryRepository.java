@@ -20,6 +20,7 @@ import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -42,12 +43,13 @@ public class NoticeQueryRepository {
                         notice.id,
                         notice.title,
                         notice.imgUrl,
-                        member.publicId,
-                        member.nickname,
+                        notice.createdIp.as("createdIp"),
+                        notice.member.publicId,
+                        notice.member.nickname,
                         noticeCount.commentCount,
                         noticeCount.recommendCount,
-                        notice.createDate,
-                        notice.lastModifiedDate
+                        notice.createDate.as("createdAt"),
+                        notice.lastModifiedDate.as("updatedAt")
                 ))
                 .from(notice)
                 .join(noticeCount).on(noticeCount.notice.id.eq(notice.id))
@@ -60,6 +62,10 @@ public class NoticeQueryRepository {
                 .fetch();
 
         long total = getTotalNoticeCount(searchType, search);
+
+        for (NoticeDto noticeDto : content) {
+            noticeDto.setCreatedIp(ClientUtils.maskIp(noticeDto.getCreatedIp()));
+        }
 
         if (searchType == NoticeSearchType.COMMENT) {
             content.forEach(noticeDto -> {

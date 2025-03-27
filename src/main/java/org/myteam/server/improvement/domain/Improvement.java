@@ -31,7 +31,7 @@ public class Improvement extends BaseTime {
 
     private String content;
 
-    private String createdIP;
+    private String createdIp;
 
     private String imgUrl;
 
@@ -44,12 +44,12 @@ public class Improvement extends BaseTime {
     private String link;
 
     @Builder
-    public Improvement(Member member, String title, String content, String createdIP,
+    public Improvement(Member member, String title, String content, String createdIp,
                        String imgUrl, ImprovementCount improvementCount, String link) {
         this.member = member;
         this.title = title;
         this.content = content;
-        this.createdIP = createdIP;
+        this.createdIp = createdIp;
         this.imgUrl = imgUrl;
         this.improvementCount = improvementCount;
         this.link = link;

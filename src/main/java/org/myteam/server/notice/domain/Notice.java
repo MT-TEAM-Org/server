@@ -25,7 +25,7 @@ public class Notice extends BaseTime {
 
     private String content;
 
-    private String createdIP;
+    private String createdIp;
 
     private String imgUrl;
 
@@ -35,11 +35,11 @@ public class Notice extends BaseTime {
 
     @Builder
     public Notice(Member member, String title, String content,
-                  String createdIP, String imgUrl, NoticeCount noticeCount, String link) {
+                  String createdIp, String imgUrl, NoticeCount noticeCount, String link) {
         this.member = member;
         this.title = title;
         this.content = content;
-        this.createdIP = createdIP;
+        this.createdIp = createdIp;
         this.imgUrl = imgUrl;
         this.noticeCount = noticeCount;
         this.link = link;
