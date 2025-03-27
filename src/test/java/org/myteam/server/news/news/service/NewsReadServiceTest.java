@@ -13,10 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
+import org.myteam.server.comment.domain.NewsComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.response.PageableCustomResponse;
 import org.myteam.server.global.util.domain.TimePeriod;
+import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
+import org.myteam.server.news.news.dto.repository.NewsCommentSearchDto;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
@@ -394,6 +397,43 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.extracting("title", "category", "thumbImg", "recommendCount", "commentCount", "viewCount", "source",
 				"content")
 			.contains("기사타이틀1", Category.BASEBALL, "www.test.com", 10, 10, 10, "www.test.com", "뉴스본문");
+	}
+
+	@DisplayName("뉴스 댓글 조회시 댓글이 정상 조회 되는지 확인한다.")
+	@Test
+	void findWithComment() {
+		News news = createNews(1, Category.BASEBALL, 10);
+		Member member = createMember(1);
+		createNewsComment(news, member, "테스트댓글");
+		createNews(2, Category.BASEBALL, 14);
+		createNews(3, Category.ESPORTS, 15);
+		createNews(4, Category.BASEBALL, 12);
+
+		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
+			.orderType(OrderType.DATE)
+			.searchType(BoardSearchType.COMMENT)
+			.search("테스트")
+			.page(1)
+			.size(10)
+			.build();
+
+		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
+
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 1L
+				),
+			() -> assertThat(newsList)
+				.extracting("title", "category", "thumbImg", "content", "commentCount", "newsCommentSearchDto.comment", "newsCommentSearchDto.imageUrl")
+				.containsExactly(
+					tuple("기사타이틀1", Category.BASEBALL, "www.test.com", "뉴스본문", 10, "테스트댓글", "www.test.com")
+				)
+		);
 	}
 
 }

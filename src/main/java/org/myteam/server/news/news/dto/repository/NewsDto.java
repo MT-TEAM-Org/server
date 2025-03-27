@@ -26,6 +26,8 @@ public class NewsDto {
 	private int commentCount;
 	@Schema(description = "뉴스 계시 날짜")
 	private LocalDateTime postDate;
+	@Schema(description = "댓글 검색 시 최상단 댓글 데이터")
+	private NewsCommentSearchDto newsCommentSearchDto;
 
 	public NewsDto(Long id, Category category, String title, String thumbImg, String content, int commentCount, LocalDateTime postDate) {
 		this.id = id;
@@ -35,5 +37,9 @@ public class NewsDto {
 		this.content = content;
 		this.commentCount = commentCount;
 		this.postDate = postDate;
+	}
+
+	public void updateNewsCommentSearchDto(NewsCommentSearchDto newsCommentSearchDto){
+		this.newsCommentSearchDto = newsCommentSearchDto;
 	}
 }
