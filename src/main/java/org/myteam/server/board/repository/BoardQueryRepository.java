@@ -13,7 +13,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.board.dto.reponse.BoardDto;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QBoardComment;
 import org.myteam.server.comment.domain.QComment;
@@ -330,7 +329,7 @@ public class BoardQueryRepository {
                         boardCount.commentCount,
                         board.id.in(getHotBoardIdList()).as("isHot"),
                         new CaseBuilder()
-                                .when(board.thumbnail.isNotNull()).then(true)
+                                .when(board.thumbnail.isNotEmpty()).then(true)
                                 .otherwise(false)
                                 .as("isImage")
                 ))
@@ -358,7 +357,7 @@ public class BoardQueryRepository {
                         boardCount.commentCount,
                         board.id.in(getHotBoardIdList()).as("isHot"),
                         new CaseBuilder()
-                                .when(board.thumbnail.isNotNull()).then(true)
+                                .when(board.thumbnail.isNotEmpty()).then(true)
                                 .otherwise(false)
                                 .as("isImage")
                 ))
