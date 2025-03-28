@@ -1,13 +1,11 @@
 package org.myteam.server.comment.service;
 
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.*;
 import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.global.exception.ErrorCode;
@@ -18,8 +16,6 @@ import org.myteam.server.mypage.dto.request.MyCommentServiceRequest;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.MyCommentListResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,13 +40,13 @@ public class CommentReadService {
                 request.getType(), contentId,
                 request.getPage(), request.getSize());
 
-        List<CommentSaveResponse> list = commentQueryRepository.getCommentList(
+        Page<CommentSaveResponse> list = commentQueryRepository.getCommentList(
                 request.getType(),
                 contentId,
                 request.toServiceRequest().toPageable()
         );
 
-        log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
+        log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list);
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
         if (loginUser != null) {
             for (CommentSaveResponse response : list) {
@@ -59,7 +55,7 @@ public class CommentReadService {
             }
         }
 
-        return CommentSaveListResponse.createResponse(list);
+        return CommentSaveListResponse.createResponse(PageCustomResponse.of(list));
     }
 
     public CommentSaveResponse getCommentDetail(Long commentId) {
@@ -82,12 +78,12 @@ public class CommentReadService {
         return response;
     }
 
-    public CommentSaveListResponse getBestComments(Long contentId, CommentListRequest request) {
+    public BestCommentSaveListResponse getBestComments(Long contentId, CommentListRequest request) {
         log.info("베스트 댓글 목록 조회 요청 - type: {}, contentId: {}, page: {}, size: {}",
                 request.getType(), contentId,
                 request.getPage(), request.getSize());
 
-        List<CommentSaveResponse> list = commentQueryRepository.getBestCommentList(
+        Page<BestCommentResponse> list = commentQueryRepository.getBestCommentList(
                 request.getType(),
                 contentId,
                 request.toServiceRequest().toPageable()
@@ -95,16 +91,16 @@ public class CommentReadService {
 
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
         if (loginUser != null) {
-            for (CommentSaveResponse response : list) {
+            for (BestCommentResponse response : list) {
                 boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(),
                         loginUser);
                 response.setRecommended(isRecommend);
             }
         }
 
-        log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
+        log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId);
 
-        return CommentSaveListResponse.createResponse(list);
+        return BestCommentSaveListResponse.createResponse(PageCustomResponse.of(list));
     }
 
     /**

@@ -32,15 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.comment.domain.Comment;
-import org.myteam.server.comment.domain.CommentType;
-import org.myteam.server.comment.domain.QBoardComment;
-import org.myteam.server.comment.domain.QImprovementComment;
-import org.myteam.server.comment.domain.QInquiryComment;
-import org.myteam.server.comment.domain.QNewsComment;
-import org.myteam.server.comment.domain.QNoticeComment;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
+import org.myteam.server.comment.domain.*;
+import org.myteam.server.comment.dto.response.CommentResponse.*;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.page.util.CustomPageImpl;
+import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.entity.QMember;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.PostResponse;
@@ -104,8 +100,13 @@ public class CommentQueryRepository {
     /**
      * 댓글 목록 조회 (페이징 + 최신순)
      */
-    public List<CommentSaveResponse> getCommentList(CommentType type, Long contentId, Pageable pageable) {
+    public Page<CommentSaveResponse> getCommentList(CommentType type, Long contentId, Pageable pageable) {
         QMember mentionedMember = new QMember("mentionedMember");
+
+        Expression<Boolean> isAdmin = new CaseBuilder()
+                .when(comment1.member.role.eq(MemberRole.ADMIN))
+                .then(true)
+                .otherwise(false);
 
         List<CommentSaveResponse> comments = queryFactory
                 .select(Projections.fields(CommentSaveResponse.class,
@@ -113,6 +114,7 @@ public class CommentQueryRepository {
                         comment1.createdIp,
                         comment1.member.publicId,
                         comment1.member.nickname,
+                        ExpressionUtils.as(isAdmin, "isAdmin"),
                         comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
@@ -137,17 +139,60 @@ public class CommentQueryRepository {
 
         for (CommentSaveResponse response : comments) {
             response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
+            getCommentReply(response);
         }
 
-        for (CommentSaveResponse parentComment : comments) {
-            getCommentReply(parentComment);
-        }
+        long parentsElements = getTotalCommentCount(type, contentId); // 부모 댓글만 count
 
-        return comments;
+        // 부모 댓글만 count + 대댓글만 count
+        long totalElements = parentsElements + getTotalReplyCommentCount(type, contentId);
+
+        // totalPages는 부모 댓글로만 count
+        long totalPages = (long) Math.ceil((double) parentsElements / pageable.getPageSize());
+
+        // 응답 content는 댓글+대댓글 모두 포함, 페이징은 부모 댓글로만 페이징 하도록 설정 (total Elements 값은 부모 댓글 + 대댓글 모두 포함)
+        return new CustomPageImpl<>(comments, pageable, totalElements, totalPages);
+    }
+
+    /**
+     * 대댓글만 카운트
+     */
+    private long getTotalReplyCommentCount(CommentType type, Long contentId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .select(comment1.count())
+                        .from(comment1)
+                        .where(
+                                comment1.parent.id.isNotNull(),
+                                isTypeAndIdEqualTo(type, contentId)
+                        )
+                        .fetchOne()
+        ).orElse(0L);
+    }
+
+    /**
+     * 부모 댓글만 카운트
+     */
+    public long getTotalCommentCount(CommentType type, Long contentId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .select(comment1.count())
+                        .from(comment1)
+                        .where(
+                                comment1.parent.id.isNull(),
+                                isTypeAndIdEqualTo(type, contentId)
+                        )
+                        .fetchOne()
+        ).orElse(0L);
     }
 
     public void getCommentReply(CommentSaveResponse parentComment) {
         QMember mentionedMember = new QMember("mentionedMember");
+
+        Expression<Boolean> isAdmin = new CaseBuilder()
+                .when(comment1.member.role.eq(MemberRole.ADMIN))
+                .then(true)
+                .otherwise(false);
 
         List<CommentSaveResponse> replies = queryFactory
                 .select(Projections.fields(CommentSaveResponse.class,
@@ -155,6 +200,7 @@ public class CommentQueryRepository {
                         comment1.createdIp,
                         comment1.member.publicId,
                         comment1.member.nickname,
+                        ExpressionUtils.as(isAdmin, "isAdmin"),
                         comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
@@ -187,16 +233,22 @@ public class CommentQueryRepository {
     /**
      * 베스트 댓글 목록 조회 (추천 수 기준 정렬)
      */
-    public List<CommentSaveResponse> getBestCommentList(CommentType type, Long contentId, Pageable pageable) {
+    public Page<BestCommentResponse> getBestCommentList(CommentType type, Long contentId, Pageable pageable) {
         QMember mentionedMember = new QMember("mentionedMember");
 
+        Expression<Boolean> isAdmin = new CaseBuilder()
+                .when(comment1.member.role.eq(MemberRole.ADMIN))
+                .then(true)
+                .otherwise(false);
+
         // ✅ 베스트 댓글 조회 (추천순 정렬)
-        List<CommentSaveResponse> bestComments = queryFactory
-                .select(Projections.fields(CommentSaveResponse.class,
+        List<BestCommentResponse> bestComments = queryFactory
+                .select(Projections.fields(BestCommentResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
                         comment1.member.publicId,
                         comment1.member.nickname,
+                        ExpressionUtils.as(isAdmin, "isAdmin"),
                         comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
@@ -205,7 +257,9 @@ public class CommentQueryRepository {
                         ExpressionUtils.as(comment1.mentionedMember.publicId, "mentionedPublicId"),
                         ExpressionUtils.as(comment1.mentionedMember.nickname, "mentionedNickname"),
                         comment1.createDate,
-                        comment1.lastModifiedDate
+                        comment1.lastModifiedDate,
+                        comment1.parent.member.nickname,
+                        comment1.parent.member.publicId
                 ))
                 .from(comment1)
                 .leftJoin(comment1.member, member) // 작성자 정보 조인
@@ -218,7 +272,7 @@ public class CommentQueryRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return bestComments;
+        return new PageImpl<>(bestComments, pageable, bestComments.size());
     }
 
     private BooleanExpression isTypeAndIdEqualTo(CommentType type, Long contentId) {
@@ -253,6 +307,11 @@ public class CommentQueryRepository {
         QMember member = new QMember("member");
         QMember mentionedMember = new QMember("mentionedMember");
 
+        Expression<Boolean> isAdmin = new CaseBuilder()
+                .when(comment1.member.role.eq(MemberRole.ADMIN))
+                .then(true)
+                .otherwise(false);
+
         // 댓글 정보 조회
         JPQLQuery<CommentSaveResponse> comments = queryFactory
                 .select(Projections.fields(CommentSaveResponse.class,
@@ -260,6 +319,7 @@ public class CommentQueryRepository {
                         comment1.createdIp,
                         comment1.member.publicId,
                         comment1.member.nickname,
+                        ExpressionUtils.as(isAdmin, "isAdmin"),
                         comment1.member.imgUrl.as("commenterImg"),
                         comment1.imageUrl,
                         comment1.comment,
