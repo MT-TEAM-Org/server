@@ -130,3 +130,9 @@ app:
     url:
       dev: http://localhost:3000
       prod: https://your-production-domain.com
+
+google:
+  api:
+    name: googleApi
+    url: https://www.googleapis.com
+    apiKey: test
