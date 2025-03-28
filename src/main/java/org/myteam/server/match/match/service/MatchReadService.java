@@ -8,10 +8,11 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
-import org.myteam.server.match.match.repository.MatchQueryRepository;
-import org.myteam.server.match.match.repository.MatchRepository;
+import org.myteam.server.match.match.dto.service.response.MatchEsportsYoutubeResponse;
 import org.myteam.server.match.match.dto.service.response.MatchResponse;
 import org.myteam.server.match.match.dto.service.response.MatchScheduleListResponse;
+import org.myteam.server.match.match.repository.MatchQueryRepository;
+import org.myteam.server.match.match.repository.MatchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class MatchReadService {
 
 	private final MatchQueryRepository matchQueryRepository;
 	private final MatchRepository matchRepository;
+	private final MatchYoutubeService matchYoutubeService;
 
 	public Match findById(Long id) {
 		return matchRepository.findById(id)
@@ -44,6 +46,18 @@ public class MatchReadService {
 
 	public MatchResponse findOne(Long id) {
 		return MatchResponse.createResponse(findById(id));
+	}
+
+	public MatchEsportsYoutubeResponse confirmEsportsYoutube() {
+		LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
+		LocalDateTime startDate = matchRepository.findMostRecentMatchStartTime(today, MatchCategory.ESPORTS);
+		LocalDateTime todayDate = LocalDateTime.now();
+
+		if (startDate == null || startDate.minusHours(1).isAfter(todayDate)) {
+			return MatchEsportsYoutubeResponse.createResponse(false, null);
+		}
+		String url = matchYoutubeService.getUrl();
+		return MatchEsportsYoutubeResponse.createResponse(url != null, url);
 	}
 
 }

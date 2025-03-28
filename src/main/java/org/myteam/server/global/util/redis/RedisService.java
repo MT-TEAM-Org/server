@@ -2,6 +2,8 @@ package org.myteam.server.global.util.redis;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.myteam.server.match.match.domain.MatchCategory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
@@ -16,6 +18,8 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
     private static final int MAX_REQUESTS = 3; // 제한 횟수 (기본값: 5분 동안 3회)
     private static final long EXPIRED_TIME = 5L; // 만료 시간 (5분)
+    private static final long YOUTUBE_EXPIRED_TIME = 5L * 60L * 60L * 1000L;
+    private static final String ESPORTS_YOUTUBE_URL_KEY = "esports:youtube:url";
 
     /**
      * 특정 키(식별자)에 대한 요청이 제한 범위를 초과했는지 확인
@@ -96,5 +100,13 @@ public class RedisService { // TODO: RedisReportService 로 변경.
         } else {
             log.debug("⚠️ [Redis] 초기화 실패 - Key: {} (존재하지 않음)", redisKey);
         }
+    }
+
+    public String getEsportsYoutubeUrl() {
+        return redisTemplate.opsForValue().get(ESPORTS_YOUTUBE_URL_KEY);
+    }
+
+    public void putEsportsYoutubeUrl(String esportsYoutubeUrl) {
+        redisTemplate.opsForValue().set(ESPORTS_YOUTUBE_URL_KEY, esportsYoutubeUrl, Duration.ofMinutes(YOUTUBE_EXPIRED_TIME));
     }
 }
