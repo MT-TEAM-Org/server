@@ -1,8 +1,5 @@
 package org.myteam.server.comment.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.myteam.server.comment.domain.Comment;
+import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.util.ClientUtils;
 
 public record CommentResponse() {
@@ -71,12 +69,11 @@ public record CommentResponse() {
     @NoArgsConstructor
     @AllArgsConstructor
     public static final class CommentSaveListResponse {
-        private long total;
-        private List<CommentSaveResponse> content;
+        private PageCustomResponse<CommentSaveResponse> content;
 
-        public static CommentSaveListResponse createResponse(List<CommentSaveResponse> content) {
+        public static CommentSaveListResponse createResponse(
+                PageCustomResponse<CommentSaveResponse> content) {
             return CommentSaveListResponse.builder()
-                    .total(content.size())
                     .content(content)
                     .build();
         }

@@ -1,6 +1,5 @@
 package org.myteam.server.comment.service;
 
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +17,6 @@ import org.myteam.server.mypage.dto.request.MyCommentServiceRequest;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.MyCommentListResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,13 +41,13 @@ public class CommentReadService {
                 request.getType(), contentId,
                 request.getPage(), request.getSize());
 
-        List<CommentSaveResponse> list = commentQueryRepository.getCommentList(
+        Page<CommentSaveResponse> list = commentQueryRepository.getCommentList(
                 request.getType(),
                 contentId,
                 request.toServiceRequest().toPageable()
         );
 
-        log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
+        log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list);
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
         if (loginUser != null) {
             for (CommentSaveResponse response : list) {
@@ -59,7 +56,7 @@ public class CommentReadService {
             }
         }
 
-        return CommentSaveListResponse.createResponse(list);
+        return CommentSaveListResponse.createResponse(PageCustomResponse.of(list));
     }
 
     public CommentSaveResponse getCommentDetail(Long commentId) {
@@ -87,7 +84,7 @@ public class CommentReadService {
                 request.getType(), contentId,
                 request.getPage(), request.getSize());
 
-        List<CommentSaveResponse> list = commentQueryRepository.getBestCommentList(
+        Page<CommentSaveResponse> list = commentQueryRepository.getBestCommentList(
                 request.getType(),
                 contentId,
                 request.toServiceRequest().toPageable()
@@ -102,9 +99,9 @@ public class CommentReadService {
             }
         }
 
-        log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list.size());
+        log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId);
 
-        return CommentSaveListResponse.createResponse(list);
+        return CommentSaveListResponse.createResponse(PageCustomResponse.of(list));
     }
 
     /**
