@@ -124,7 +124,7 @@ public class RedisBulkUpdateTest extends IntegrationTestSupport {
         for (int i = 0; i < 100; i++) {
             restTemplate.getForEntity(baseUrl + "/" + boardId, ResponseDto.class); // 1차 요청
         }
-        given(redisViewCountService.getViewCount(anyString(), anyLong()))
+        given(redisViewCountService.getViewCountAndIncr(anyString(), anyLong()))
                 .willReturn(100);
 
         // 2. Bulk 업데이트 실행
@@ -160,11 +160,11 @@ public class RedisBulkUpdateTest extends IntegrationTestSupport {
         // when
         restTemplate.getForEntity(baseUrl + "/" + boardId, ResponseDto.class); // 1차 요청
         restTemplate.getForEntity(baseUrl + "/" + boardId, ResponseDto.class); // 2차 요청
-        given(redisViewCountService.getViewCount(anyString(), anyLong()))
+        given(redisViewCountService.getViewCountAndIncr(anyString(), anyLong()))
                 .willReturn(2);
 
         // then
-        int viewCount = redisViewCountService.getViewCount(redisKey, boardId);
+        int viewCount = redisViewCountService.getViewCountAndIncr(redisKey, boardId);
         assertNotNull(viewCount, "조회 후 Redis에 조회수가 저장되어야 함");
         assertSame(2, viewCount);
     }

@@ -28,6 +28,7 @@ public record CommentResponse() {
         private String createdIp; // 작성 ip
         private UUID publicId; // 작성자 uuid
         private String nickname; // 작성자 닉네임
+        private boolean isAdmin; // 작성자가 관리자인지
         private String commenterImg; // 작성자 프로필 이미지
         private String imageUrl; // 이미지 url
         private String comment; // 댓글 내용
@@ -50,6 +51,7 @@ public record CommentResponse() {
                     .createdIp(ClientUtils.maskIp(comment.getCreatedIp()))
                     .publicId(comment.getMember().getPublicId())
                     .nickname(comment.getMember().getNickname())
+                    .isAdmin(comment.getMember().isAdmin())
                     .commenterImg(comment.getMember().getImgUrl())
                     .imageUrl(comment.getImageUrl())
                     .comment(comment.getComment())
