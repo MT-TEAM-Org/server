@@ -49,7 +49,7 @@ public class NoticeReadService {
         Notice notice = findById(noticeId);
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
         UUID memberPublicId = securityReadService.getAuthenticatedPublicId();
-        int viewCount = redisViewCountService.getViewCount("notice", noticeId);
+        int viewCount = redisViewCountService.getViewCountAndIncr("notice", noticeId);
 
         boolean isRecommended = false;
 
