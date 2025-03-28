@@ -1,12 +1,18 @@
 package org.myteam.server.match.match.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -15,11 +21,14 @@ import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 class MatchReadServiceTest extends IntegrationTestSupport {
 
 	@Autowired
 	private MatchReadService matchReadService;
+	@MockBean
+	private MatchYoutubeService matchYoutubeService;
 
 	@DisplayName("전체 경기일정 목록을 조회한다.")
 	@Test
@@ -147,6 +156,35 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThatThrownBy(() -> matchReadService.findOne(1L))
 			.isInstanceOf(PlayHiveException.class)
 			.hasMessage(ErrorCode.MATCH_NOT_FOUNT.getMsg());
+	}
+
+	@DisplayName("E스포츠 경기시간이 아직 되지 않았으면 Youtube API를 조회하지 않는다.")
+	@Test
+	void confirmEsportsYoutubeNotAfterStartDate() {
+		Team team1 = createTeam(1, TeamCategory.ESPORTS);
+		Team team2 = createTeam(2, TeamCategory.ESPORTS);
+
+		createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(2));
+
+		assertThat(matchReadService.confirmEsportsYoutube())
+			.extracting("isTrue", "url")
+			.containsExactly(false, null);
+	}
+
+	@DisplayName("E스포츠 경기시간이 되었으면 Youtube API를 조회한다.")
+	@Test
+	void confirmEsportsYoutubeAfterStartDate() {
+		given(matchYoutubeService.getUrl())
+			.willReturn("www.test.com");
+
+		Team team1 = createTeam(1, TeamCategory.ESPORTS);
+		Team team2 = createTeam(2, TeamCategory.ESPORTS);
+
+		createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(1));
+
+		assertThat(matchReadService.confirmEsportsYoutube())
+			.extracting("isTrue", "url")
+			.containsExactly(true, "www.test.com");
 	}
 
 }

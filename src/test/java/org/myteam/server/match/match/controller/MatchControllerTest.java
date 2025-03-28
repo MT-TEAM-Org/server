@@ -45,4 +45,20 @@ class MatchControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
 			.andExpect(jsonPath("$.msg").value("경기 상세 조회 성공"));
 	}
+
+	@DisplayName("E스포츠의 유튜브 라이브 여부를 조회한다.")
+	@Test
+	@WithMockUser
+	void confirmEsportsYoutube() throws Exception {
+		// given
+		// when // then
+		mockMvc.perform(
+				get("/api/match/esports/youtube")
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("E스포츠의 유튜브 라이브 여부를 조회 성공"));
+	}
 }
