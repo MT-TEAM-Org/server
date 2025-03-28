@@ -14,8 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentDeleteRequest;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentSaveRequest;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.*;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorResponse;
@@ -158,9 +157,9 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{contentId}/best")
-    public ResponseEntity<ResponseDto<CommentSaveListResponse>> getBestComments(@PathVariable Long contentId,
-                                                                                @Valid @ModelAttribute CommentListRequest request) {
-        CommentSaveListResponse bestComments = commentReadService.getBestComments(contentId, request);
+    public ResponseEntity<ResponseDto<BestCommentSaveListResponse>> getBestComments(@PathVariable Long contentId,
+                                                                                                    @Valid @ModelAttribute CommentListRequest request) {
+        BestCommentSaveListResponse bestComments = commentReadService.getBestComments(contentId, request);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),

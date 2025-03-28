@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.*;
 import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.global.exception.ErrorCode;
@@ -79,12 +78,12 @@ public class CommentReadService {
         return response;
     }
 
-    public CommentSaveListResponse getBestComments(Long contentId, CommentListRequest request) {
+    public BestCommentSaveListResponse getBestComments(Long contentId, CommentListRequest request) {
         log.info("베스트 댓글 목록 조회 요청 - type: {}, contentId: {}, page: {}, size: {}",
                 request.getType(), contentId,
                 request.getPage(), request.getSize());
 
-        Page<CommentSaveResponse> list = commentQueryRepository.getBestCommentList(
+        Page<BestCommentResponse> list = commentQueryRepository.getBestCommentList(
                 request.getType(),
                 contentId,
                 request.toServiceRequest().toPageable()
@@ -92,7 +91,7 @@ public class CommentReadService {
 
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
         if (loginUser != null) {
-            for (CommentSaveResponse response : list) {
+            for (BestCommentResponse response : list) {
                 boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(),
                         loginUser);
                 response.setRecommended(isRecommend);
@@ -101,7 +100,7 @@ public class CommentReadService {
 
         log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId);
 
-        return CommentSaveListResponse.createResponse(PageCustomResponse.of(list));
+        return BestCommentSaveListResponse.createResponse(PageCustomResponse.of(list));
     }
 
     /**

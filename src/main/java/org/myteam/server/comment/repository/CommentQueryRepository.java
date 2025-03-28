@@ -32,14 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.comment.domain.Comment;
-import org.myteam.server.comment.domain.CommentType;
-import org.myteam.server.comment.domain.QBoardComment;
-import org.myteam.server.comment.domain.QImprovementComment;
-import org.myteam.server.comment.domain.QInquiryComment;
-import org.myteam.server.comment.domain.QNewsComment;
-import org.myteam.server.comment.domain.QNoticeComment;
-import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
+import org.myteam.server.comment.domain.*;
+import org.myteam.server.comment.dto.response.CommentResponse.*;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.util.CustomPageImpl;
 import org.myteam.server.member.domain.MemberRole;
@@ -239,7 +233,7 @@ public class CommentQueryRepository {
     /**
      * 베스트 댓글 목록 조회 (추천 수 기준 정렬)
      */
-    public Page<CommentSaveResponse> getBestCommentList(CommentType type, Long contentId, Pageable pageable) {
+    public Page<BestCommentResponse> getBestCommentList(CommentType type, Long contentId, Pageable pageable) {
         QMember mentionedMember = new QMember("mentionedMember");
 
         Expression<Boolean> isAdmin = new CaseBuilder()
@@ -248,8 +242,8 @@ public class CommentQueryRepository {
                 .otherwise(false);
 
         // ✅ 베스트 댓글 조회 (추천순 정렬)
-        List<CommentSaveResponse> bestComments = queryFactory
-                .select(Projections.fields(CommentSaveResponse.class,
+        List<BestCommentResponse> bestComments = queryFactory
+                .select(Projections.fields(BestCommentResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
                         comment1.member.publicId,
@@ -263,7 +257,9 @@ public class CommentQueryRepository {
                         ExpressionUtils.as(comment1.mentionedMember.publicId, "mentionedPublicId"),
                         ExpressionUtils.as(comment1.mentionedMember.nickname, "mentionedNickname"),
                         comment1.createDate,
-                        comment1.lastModifiedDate
+                        comment1.lastModifiedDate,
+                        comment1.parent.member.nickname,
+                        comment1.parent.member.publicId
                 ))
                 .from(comment1)
                 .leftJoin(comment1.member, member) // 작성자 정보 조인
