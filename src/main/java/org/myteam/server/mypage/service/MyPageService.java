@@ -35,9 +35,11 @@ public class MyPageService {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
-        String password = passwordEncoder.encode(request.getPassword());
-
-        member.update(password, request.getTel(), request.getNickname(), request.getImageUrl());
+        if (request.getPassword() != null) {
+            String password = passwordEncoder.encode(request.getPassword());
+            member.updatePassword(password);
+        }
+        member.update(request.getTel(), request.getNickname(), request.getImageUrl());
 
         if (request.getBirthDate() != null) {
             memberValidator.validateBirthDate(request.getBirthDate());

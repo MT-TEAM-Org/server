@@ -109,6 +109,12 @@ public class Member extends Base {
         this.imgUrl = imageUrl;
     }
 
+    public void update(String tel, String nickname, String imageUrl) {
+        this.tel = tel;
+        this.nickname = nickname;
+        this.imgUrl = imageUrl;
+    }
+
     public void updatePassword(String password) {
         this.password = password;
     }
