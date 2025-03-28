@@ -1,6 +1,6 @@
 package org.myteam.server.match.matchPrediction.domain;
 
-import org.myteam.server.global.domain.Base;
+import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
 
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "p_match_prediction")
-public class MatchPrediction extends Base {
+public class MatchPrediction extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
