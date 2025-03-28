@@ -4,6 +4,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.*;
 
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.match.match.domain.MatchCategory;
+import org.myteam.server.match.match.dto.service.response.MatchEsportsYoutubeResponse;
 import org.myteam.server.match.match.dto.service.response.MatchResponse;
 import org.myteam.server.match.match.dto.service.response.MatchScheduleListResponse;
 import org.myteam.server.match.match.service.MatchReadService;
@@ -47,6 +48,16 @@ public class MatchController {
 			SUCCESS.name(),
 			"경기 상세 조회 성공",
 			matchReadService.findOne(matchId))
+		);
+	}
+
+	@Operation(summary = "E스포츠의 유튜브 라이브 여부를 조회 API", description = "E스포츠의 유튜브 라이브 여부를 조회한다.")
+	@GetMapping("/esports/youtube")
+	public ResponseEntity<ResponseDto<MatchEsportsYoutubeResponse>> confirmEsportsYoutube() {
+		return ResponseEntity.ok(new ResponseDto<>(
+			SUCCESS.name(),
+			"E스포츠의 유튜브 라이브 여부를 조회 성공",
+			matchReadService.confirmEsportsYoutube())
 		);
 	}
 
