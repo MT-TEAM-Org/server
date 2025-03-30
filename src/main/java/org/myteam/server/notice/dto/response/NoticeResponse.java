@@ -90,7 +90,6 @@ public record NoticeResponse() {
     @AllArgsConstructor
     public static final class NoticeDto {
         private Long id;
-        @Setter
         @JsonProperty("isHot")
         private boolean isHot;
         private String title;

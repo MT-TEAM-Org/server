@@ -94,7 +94,6 @@ public record ImprovementResponse() {
     @AllArgsConstructor
     public static final class ImprovementDto {
         private Long id;
-        @Setter
         @JsonProperty("isHot")
         private boolean isHot;
         private String title;

@@ -2,6 +2,9 @@ package org.myteam.server.news.news.dto.repository;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Setter;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.domain.Category;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,6 +31,10 @@ public class NewsDto {
 	private LocalDateTime postDate;
 	@Schema(description = "댓글 검색 시 최상단 댓글 데이터")
 	private NewsCommentSearchDto newsCommentSearchDto;
+
+	@Setter
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private CommentSearchDto commentSearchList;
 
 	public NewsDto(Long id, Category category, String title, String thumbImg, String content, int commentCount, LocalDateTime postDate) {
 		this.id = id;
