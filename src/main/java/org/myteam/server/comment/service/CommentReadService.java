@@ -15,6 +15,7 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.dto.request.MyCommentServiceRequest;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.MyCommentListResponse;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,13 +91,14 @@ public class CommentReadService {
         );
 
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
-        if (loginUser != null) {
             for (BestCommentResponse response : list) {
-                boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(),
-                        loginUser);
-                response.setRecommended(isRecommend);
+                response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
+                if (loginUser != null) {
+                    boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(),
+                            loginUser);
+                    response.setRecommended(isRecommend);
+                }
             }
-        }
 
         log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId);
 

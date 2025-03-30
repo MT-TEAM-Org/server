@@ -104,7 +104,7 @@ public record CommentResponse() {
         private LocalDateTime createDate; // 작성 일시
         private LocalDateTime lastModifiedDate; // 수정 일시
         private String parentCommenterName; // 부모 댓글 작성자 이름
-        private String parentCommenterId; // 부모 댓글 작성자 uuid
+        private UUID parentCommenterId; // 부모 댓글 작성자 uuid
     }
 
     @Data

@@ -149,6 +149,7 @@ public class SecurityConfig {
 
 		/** @brief 댓글 */
 		"/api/comments/{contentId}",
+		"/api/comments/{contentId}/best",
 	};
 
 	/* Admin 접근 권한 */

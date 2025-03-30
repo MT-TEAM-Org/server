@@ -1,5 +1,6 @@
 package org.myteam.server.comment.repository;
 
+import static java.util.Optional.ofNullable;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.comment.domain.QBoardComment.boardComment;
@@ -158,7 +159,7 @@ public class CommentQueryRepository {
      * 대댓글만 카운트
      */
     private long getTotalReplyCommentCount(CommentType type, Long contentId) {
-        return Optional.ofNullable(
+        return ofNullable(
                 queryFactory
                         .select(comment1.count())
                         .from(comment1)
@@ -174,7 +175,7 @@ public class CommentQueryRepository {
      * 부모 댓글만 카운트
      */
     public long getTotalCommentCount(CommentType type, Long contentId) {
-        return Optional.ofNullable(
+        return ofNullable(
                 queryFactory
                         .select(comment1.count())
                         .from(comment1)
@@ -235,6 +236,8 @@ public class CommentQueryRepository {
      */
     public Page<BestCommentResponse> getBestCommentList(CommentType type, Long contentId, Pageable pageable) {
         QMember mentionedMember = new QMember("mentionedMember");
+        QComment parentComment = new QComment("parentComment");
+        QMember parentMember = new QMember("parentMember");
 
         Expression<Boolean> isAdmin = new CaseBuilder()
                 .when(comment1.member.role.eq(MemberRole.ADMIN))
@@ -243,14 +246,14 @@ public class CommentQueryRepository {
 
         // ✅ 베스트 댓글 조회 (추천순 정렬)
         List<BestCommentResponse> bestComments = queryFactory
-                .select(Projections.fields(BestCommentResponse.class,
+                .select(Projections.constructor(BestCommentResponse.class,
                         ExpressionUtils.as(comment1.id, "commentId"),
                         comment1.createdIp,
-                        comment1.member.publicId,
-                        comment1.member.nickname,
+                        ExpressionUtils.as(comment1.member.publicId, "publicId"),
+                        ExpressionUtils.as(comment1.member.nickname, "nickname"),
                         ExpressionUtils.as(isAdmin, "isAdmin"),
                         comment1.member.imgUrl.as("commenterImg"),
-                        comment1.imageUrl,
+                        comment1.imageUrl.as("imageUrl"),
                         comment1.comment,
                         ExpressionUtils.as(Expressions.constant(false), "isRecommended"), // 기본값 false
                         comment1.recommendCount,
@@ -264,15 +267,33 @@ public class CommentQueryRepository {
                 .from(comment1)
                 .leftJoin(comment1.member, member) // 작성자 정보 조인
                 .leftJoin(comment1.mentionedMember, mentionedMember) // 언급된 사용자 정보 조인
+                .leftJoin(comment1.parent, parentComment)
+                .leftJoin(parentComment.member, parentMember)
                 .where(
                         isTypeAndIdEqualTo(type, contentId)
                 )
-                .orderBy(comment1.createDate.desc(), comment1.comment.asc())
+                .orderBy(
+                        comment1.recommendCount.desc(),
+                        comment1.comment.asc(),
+                        comment1.createDate.desc()
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return new PageImpl<>(bestComments, pageable, bestComments.size());
+        long total = getTotalBestComment(type, contentId);
+
+        return new PageImpl<>(bestComments, pageable, total);
+    }
+
+    private long getTotalBestComment(CommentType type, Long contentId) {
+        return ofNullable(
+                queryFactory
+                        .select(comment1.count())
+                        .from(comment1)
+                        .where(isTypeAndIdEqualTo(type, contentId))
+                        .fetchOne()
+        ).orElse(0L);
     }
 
     private BooleanExpression isTypeAndIdEqualTo(CommentType type, Long contentId) {
@@ -457,7 +478,7 @@ public class CommentQueryRepository {
 
     private OrderSpecifier<?>[] isOrderTypeEqualTo(BoardOrderType orderType) {
         // default 최신순
-        BoardOrderType boardOrderType = Optional.ofNullable(orderType).orElse(BoardOrderType.CREATE);
+        BoardOrderType boardOrderType = ofNullable(orderType).orElse(BoardOrderType.CREATE);
         return switch (boardOrderType) {
             case CREATE -> new OrderSpecifier<?>[]{comment1.createDate.desc(), comment1.id.desc()};
             case RECOMMEND -> new OrderSpecifier<?>[]{comment1.recommendCount.desc(), comment1.id.desc()};
