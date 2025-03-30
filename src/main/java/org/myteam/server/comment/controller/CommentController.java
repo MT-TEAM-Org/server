@@ -158,7 +158,7 @@ public class CommentController {
     })
     @GetMapping("/{contentId}/best")
     public ResponseEntity<ResponseDto<BestCommentSaveListResponse>> getBestComments(@PathVariable Long contentId,
-                                                                                                    @Valid @ModelAttribute CommentListRequest request) {
+                                                                                    @Valid @ModelAttribute CommentListRequest request) {
         BestCommentSaveListResponse bestComments = commentReadService.getBestComments(contentId, request);
 
         return ResponseEntity.ok(new ResponseDto<>(
