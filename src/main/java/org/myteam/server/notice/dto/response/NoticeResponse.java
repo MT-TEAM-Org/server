@@ -90,6 +90,8 @@ public record NoticeResponse() {
     @AllArgsConstructor
     public static final class NoticeDto {
         private Long id;
+        @JsonProperty("isHot")
+        private boolean isHot;
         private String title;
         private String thumbnail;
         private String createdIp;
@@ -104,5 +106,18 @@ public record NoticeResponse() {
          */
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         private CommentSearchDto commentSearchList;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static final class NoticeRankingDto {
+        private Long id;
+        private int viewCount;
+        private int recommendCount;
+        private int commentCount;
+        private String title;
+        private int totalScore; // 댓글수 + 조회수
     }
 }

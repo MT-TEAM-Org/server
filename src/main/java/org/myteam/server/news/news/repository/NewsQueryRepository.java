@@ -3,6 +3,7 @@ package org.myteam.server.news.news.repository;
 import static java.util.Optional.*;
 import static org.myteam.server.board.domain.QBoard.*;
 import static org.myteam.server.comment.domain.QNewsComment.*;
+import static org.myteam.server.comment.domain.QNoticeComment.noticeComment;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNewsComment;
@@ -18,6 +20,7 @@ import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.dto.repository.NewsCommentSearchDto;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
+import org.myteam.server.notice.domain.NoticeSearchType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -105,6 +108,13 @@ public class NewsQueryRepository {
 			.fetch();
 
 		long total = getTotalNewsCount(timePeriod, searchType, search);
+
+		if (searchType == BoardSearchType.COMMENT) {
+			contents.forEach(newsDto -> {
+				CommentSearchDto commentSearch = getSearchNewsComment(newsDto.getId(), search);
+				newsDto.setCommentSearchList(commentSearch);
+			});
+		}
 
 		return new PageImpl<>(contents, pageable, total);
 	}
@@ -233,5 +243,24 @@ public class NewsQueryRepository {
 			.orderBy(news.id.asc()) // 가장 작은 ID (즉, 다음 글)
 			.limit(1)
 			.fetchOne();
+	}
+
+	private CommentSearchDto getSearchNewsComment(Long newsId, String search) {
+		JPQLQuery<CommentSearchDto> query = queryFactory
+				.select(Projections.fields(CommentSearchDto.class,
+						newsComment.id.as("commentId"),
+						newsComment.comment,
+						newsComment.imageUrl
+				))
+				.from(newsComment)
+				.where(
+						newsComment.news.id.eq(newsId),
+						newsComment.comment.like("%" + search + "%")
+				);
+
+		return query.orderBy(
+				newsComment.createDate.desc(),
+				newsComment.comment.asc()
+		).fetchFirst();
 	}
 }

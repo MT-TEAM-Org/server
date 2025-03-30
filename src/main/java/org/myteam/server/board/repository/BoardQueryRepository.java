@@ -299,6 +299,7 @@ public class BoardQueryRepository {
     }
 
     /**
+     * TODO: 레디스에서 조회수 읽어오는 것으로 수정
      * 핫 게시글 ID 목록 조회
      */
     private List<Long> getHotBoardIdList() {
