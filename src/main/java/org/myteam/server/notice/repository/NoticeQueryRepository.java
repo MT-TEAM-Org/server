@@ -6,20 +6,26 @@ import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.notice.domain.QNotice.notice;
 import static org.myteam.server.notice.domain.QNoticeCount.noticeCount;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
+import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.notice.domain.NoticeSearchType;
-import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
+import org.myteam.server.notice.dto.response.NoticeResponse.*;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,6 +38,7 @@ import org.springframework.stereotype.Repository;
 public class NoticeQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final RedisViewCountService redisViewCountService;
 
     /**
      * 공지사항 목록 조회
@@ -41,6 +48,7 @@ public class NoticeQueryRepository {
         List<NoticeDto> content = queryFactory
                 .select(Projections.fields(NoticeDto.class,
                         notice.id,
+                        notice.id.in(getHotNoticeIdList()).as("isHot"),
                         notice.title,
                         notice.imgUrl,
                         notice.createdIp.as("createdIp"),
@@ -134,6 +142,7 @@ public class NoticeQueryRepository {
         return queryFactory
                 .select(Projections.fields(NoticeDto.class,
                         notice.id,
+                        notice.id.in(getHotNoticeIdList()).as("isHot"),
                         notice.title,
                         notice.imgUrl.as("thumbnail"),
                         notice.createdIp.as("createdIp"),
@@ -151,6 +160,40 @@ public class NoticeQueryRepository {
                 .orderBy(notice.createDate.desc())
                 .limit(2)
                 .fetch();
+    }
+
+    private List<Long> getHotNoticeIdList() {
+        List<Tuple> improvements = queryFactory
+                .select(
+                        notice.id,
+                        notice.title,
+                        noticeCount.recommendCount,
+                        noticeCount.commentCount
+                )
+                .from(notice)
+                .join(noticeCount).on(noticeCount.notice.id.eq(notice.id))
+                .fetch();
+
+        List<Long> result = improvements.stream()
+                .map(tuple -> {
+                    Long noticeId = tuple.get(notice.id);
+                    int viewCount = redisViewCountService.getViewCount("improvement", noticeId);
+                    int recommendCount = tuple.get(noticeCount.recommendCount);
+                    int commentCount = tuple.get(noticeCount.commentCount);
+                    String title = tuple.get(notice.title);
+
+                    return new NoticeRankingDto(noticeId, viewCount, recommendCount, commentCount, title, viewCount + recommendCount);
+                })
+                .sorted(Comparator.comparing(NoticeRankingDto::getRecommendCount).reversed()
+                        .thenComparing(NoticeRankingDto::getTotalScore).reversed()
+                        .thenComparing(NoticeRankingDto::getId)
+
+                )
+                .limit(10)
+                .map(NoticeRankingDto::getId)
+                .collect(Collectors.toList());
+
+        return result;
     }
 
     public Long findPreviousNoticeId(Long noticeId) {

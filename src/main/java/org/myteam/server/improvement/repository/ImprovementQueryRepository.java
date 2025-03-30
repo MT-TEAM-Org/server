@@ -6,23 +6,29 @@ import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.improvement.domain.QImprovementCount.improvementCount;
 import static org.myteam.server.member.entity.QMember.member;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QImprovementComment;
+import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
-import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,6 +41,7 @@ import org.springframework.stereotype.Repository;
 public class ImprovementQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final RedisViewCountService redisViewCountService;
 
     /**
      * 개선요청 목록 조회
@@ -44,6 +51,7 @@ public class ImprovementQueryRepository {
         List<ImprovementDto> content = queryFactory
                 .select(Projections.fields(ImprovementDto.class,
                         improvement.id,
+                        improvement.id.in(getHotImprovementIdList()).as("isHot"),
                         improvement.title,
                         improvement.createdIp.as("createdIp"),
                         improvement.imgUrl.as("thumbnail"),
@@ -143,6 +151,40 @@ public class ImprovementQueryRepository {
                         .where(isSearchTypeLikeTo(searchType, search))
                         .fetchOne()
         ).orElse(0L);
+    }
+
+    private List<Long> getHotImprovementIdList() {
+        List<Tuple> improvements = queryFactory
+                .select(
+                        improvement.id,
+                        improvement.title,
+                        improvementCount.recommendCount,
+                        improvementCount.commentCount
+                )
+                .from(improvement)
+                .join(improvementCount).on(improvementCount.improvement.id.eq(improvement.id))
+                .fetch();
+
+        List<Long> result = improvements.stream()
+                .map(tuple -> {
+                    Long improvementId = tuple.get(improvement.id);
+                    int viewCount = redisViewCountService.getViewCount("improvement", improvementId);
+                    int recommendCount = tuple.get(improvementCount.recommendCount);
+                    int commentCount = tuple.get(improvementCount.commentCount);
+                    String title = tuple.get(improvement.title);
+
+                    return new ImprovementRankingDto(improvementId, viewCount, recommendCount, commentCount, title, viewCount + recommendCount);
+                })
+                .sorted(Comparator.comparing(ImprovementRankingDto::getRecommendCount).reversed()
+                        .thenComparing(ImprovementRankingDto::getTotalScore).reversed()
+                        .thenComparing(ImprovementRankingDto::getId)
+
+                )
+                .limit(10)
+                .map(ImprovementRankingDto::getId)
+                .collect(Collectors.toList());
+
+        return result;
     }
 
     public Long findPreviousImprovementId(Long improvementId) {

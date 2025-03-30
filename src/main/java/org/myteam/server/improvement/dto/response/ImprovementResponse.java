@@ -94,6 +94,9 @@ public record ImprovementResponse() {
     @AllArgsConstructor
     public static final class ImprovementDto {
         private Long id;
+        @Setter
+        @JsonProperty("isHot")
+        private boolean isHot;
         private String title;
         private String createdIp;
         private String thumbnail;
@@ -107,5 +110,18 @@ public record ImprovementResponse() {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         private CommentSearchDto improvementCommentSearchList;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static final class ImprovementRankingDto {
+        private Long id;
+        private int viewCount;
+        private int recommendCount;
+        private int commentCount;
+        private String title;
+        private int totalScore; // 댓글수 + 조회수
     }
 }
