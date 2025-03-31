@@ -65,11 +65,11 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					1, 1, 3L
 				),
 			() -> assertThat(newsList)
-				.extracting("title", "category", "thumbImg", "content", "commentCount")
+				.extracting("title", "category", "thumbImg", "content", "commentCount", "isHot")
 				.containsExactly(
-					tuple("기사타이틀4", Category.BASEBALL, "www.test.com", "뉴스본문", 12),
-					tuple("기사타이틀2", Category.BASEBALL, "www.test.com", "뉴스본문", 14),
-					tuple("기사타이틀1", Category.BASEBALL, "www.test.com", "뉴스본문", 10)
+					tuple("기사타이틀4", Category.BASEBALL, "www.test.com", "뉴스본문", 12, true),
+					tuple("기사타이틀2", Category.BASEBALL, "www.test.com", "뉴스본문", 14, true),
+					tuple("기사타이틀1", Category.BASEBALL, "www.test.com", "뉴스본문", 10, true)
 				)
 		);
 	}
@@ -202,6 +202,56 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 					tuple("기사타이틀3", Category.ESPORTS, "www.test.com", "뉴스본문", 15),
 					tuple("기사타이틀2", Category.BASEBALL, "www.test.com", "뉴스본문", 14),
 					tuple("기사타이틀1", Category.BASEBALL, "www.test.com", "뉴스본문", 10)
+				)
+		);
+	}
+
+	@DisplayName("추천수와, 조회수가 합해서 상위 10개는 HotNews이다.")
+	@Test
+	void findAllWithHotTest() {
+		createNews(1, Category.BASEBALL, 1);
+		createNews(2, Category.BASEBALL, 2);
+		createNews(3, Category.ESPORTS, 3);
+		createNews(4, Category.BASEBALL, 4);
+		createNews(5, Category.BASEBALL, 5);
+		createNews(6, Category.BASEBALL, 6);
+		createNews(7, Category.BASEBALL, 7);
+		createNews(8, Category.BASEBALL, 8);
+		createNews(9, Category.BASEBALL, 9);
+		createNews(10, Category.BASEBALL, 10);
+		createNews(11, Category.BASEBALL, 11);
+
+		NewsServiceRequest newsServiceRequest = NewsServiceRequest.builder()
+			.orderType(OrderType.DATE)
+			.page(1)
+			.size(11)
+			.build();
+
+		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
+
+		List<NewsDto> newsList = newsListResponse.getList().getContent();
+		PageableCustomResponse pageInfo = newsListResponse.getList().getPageInfo();
+
+		assertAll(
+			() -> assertThat(pageInfo)
+				.extracting("currentPage", "totalPage", "totalElement")
+				.containsExactlyInAnyOrder(
+					1, 1, 11L
+				),
+			() -> assertThat(newsList)
+				.extracting("title", "category", "thumbImg", "content", "commentCount", "isHot")
+				.containsExactly(
+					tuple("기사타이틀11", Category.BASEBALL, "www.test.com", "뉴스본문", 11, true),
+					tuple("기사타이틀10", Category.BASEBALL, "www.test.com", "뉴스본문", 10, true),
+					tuple("기사타이틀9", Category.BASEBALL, "www.test.com", "뉴스본문", 9, true),
+					tuple("기사타이틀8", Category.BASEBALL, "www.test.com", "뉴스본문", 8, true),
+					tuple("기사타이틀7", Category.BASEBALL, "www.test.com", "뉴스본문", 7, true),
+					tuple("기사타이틀6", Category.BASEBALL, "www.test.com", "뉴스본문", 6, true),
+					tuple("기사타이틀5", Category.BASEBALL, "www.test.com", "뉴스본문", 5, true),
+					tuple("기사타이틀4", Category.BASEBALL, "www.test.com", "뉴스본문", 4, true),
+					tuple("기사타이틀3", Category.ESPORTS, "www.test.com", "뉴스본문", 3, true),
+					tuple("기사타이틀2", Category.BASEBALL, "www.test.com", "뉴스본문", 2, true),
+					tuple("기사타이틀1", Category.BASEBALL, "www.test.com", "뉴스본문", 1, false)
 				)
 		);
 	}
