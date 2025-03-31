@@ -1,12 +1,11 @@
 package org.myteam.server.news.news.repository;
 
 import static java.util.Optional.*;
-import static org.myteam.server.board.domain.QBoard.*;
 import static org.myteam.server.comment.domain.QNewsComment.*;
-import static org.myteam.server.comment.domain.QNoticeComment.noticeComment;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.myteam.server.board.domain.BoardOrderType;
@@ -20,7 +19,6 @@ import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.news.news.dto.repository.NewsCommentSearchDto;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
-import org.myteam.server.notice.domain.NoticeSearchType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -57,7 +55,8 @@ public class NewsQueryRepository {
 				news.thumbImg,
 				news.content,
 				newsCount.commentCount,
-				news.postDate
+				news.postDate,
+				news.id.in(getHotNewsIdList())
 			))
 			.from(news)
 			.join(newsCount).on(newsCount.news.id.eq(news.id))
@@ -94,7 +93,8 @@ public class NewsQueryRepository {
 				news.thumbImg,
 				news.content,
 				newsCount.commentCount,
-				news.postDate
+				news.postDate,
+				news.id.in(getHotNewsIdList())
 			))
 			.from(news)
 			.join(newsCount).on(newsCount.news.id.eq(news.id))
@@ -153,11 +153,30 @@ public class NewsQueryRepository {
 		).orElse(0L);
 	}
 
+	/**
+	 * TODO: 레디스에서 조회수 읽어오는 것으로 수정
+	 * 핫 뉴스 ID 목록 조회
+	 */
+	private List<Long> getHotNewsIdList() {
+		// 전체 게시글 기준 추천순 내림차순 -> 조회수 + 댓글수 내림차순 -> 제목 오름차순 -> id 오름차순
+		return queryFactory
+			.select(news.id)
+			.from(news)
+			.join(newsCount).on(newsCount.news.id.eq(news.id))
+			.orderBy(
+				newsCount.recommendCount.desc(),
+				newsCount.viewCount.add(newsCount.commentCount).desc(),
+				news.title.asc(), news.id.asc()
+			)
+			.limit(10)
+			.fetch();
+	}
+
 	private long getTotalNewsCount(TimePeriod timePeriod, BoardSearchType searchType, String search) {
 		return ofNullable(
 			queryFactory
-				.select(board.countDistinct())
-				.from(board)
+				.select(news.countDistinct())
+				.from(news)
 				.where(
 					isSearchTypeLikeTo(searchType, search),
 					isPostDateAfter(timePeriod)
@@ -220,7 +239,8 @@ public class NewsQueryRepository {
 	}
 
 	private BooleanExpression isPostDateAfter(TimePeriod timePeriod) {
-		return timePeriod != null ? news.postDate.after(timePeriod.getStartDateByTimePeriod(timePeriod)) : null;
+		LocalDateTime start = timePeriod.getStartDateByTimePeriod(timePeriod);
+		return start != null ? news.postDate.after(start) : null;
 	}
 
 	public Long findPreviousNewsId(Long newsId, Category category) {
@@ -247,20 +267,20 @@ public class NewsQueryRepository {
 
 	private CommentSearchDto getSearchNewsComment(Long newsId, String search) {
 		JPQLQuery<CommentSearchDto> query = queryFactory
-				.select(Projections.fields(CommentSearchDto.class,
-						newsComment.id.as("commentId"),
-						newsComment.comment,
-						newsComment.imageUrl
-				))
-				.from(newsComment)
-				.where(
-						newsComment.news.id.eq(newsId),
-						newsComment.comment.like("%" + search + "%")
-				);
+			.select(Projections.fields(CommentSearchDto.class,
+				newsComment.id.as("commentId"),
+				newsComment.comment,
+				newsComment.imageUrl
+			))
+			.from(newsComment)
+			.where(
+				newsComment.news.id.eq(newsId),
+				newsComment.comment.like("%" + search + "%")
+			);
 
 		return query.orderBy(
-				newsComment.createDate.desc(),
-				newsComment.comment.asc()
+			newsComment.createDate.desc(),
+			newsComment.comment.asc()
 		).fetchFirst();
 	}
 }

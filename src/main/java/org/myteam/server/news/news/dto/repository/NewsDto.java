@@ -31,12 +31,14 @@ public class NewsDto {
 	private LocalDateTime postDate;
 	@Schema(description = "댓글 검색 시 최상단 댓글 데이터")
 	private NewsCommentSearchDto newsCommentSearchDto;
+	@Schema(description = "Hot 계시물 여부")
+	private boolean isHot;
 
 	@Setter
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private CommentSearchDto commentSearchList;
 
-	public NewsDto(Long id, Category category, String title, String thumbImg, String content, int commentCount, LocalDateTime postDate) {
+	public NewsDto(Long id, Category category, String title, String thumbImg, String content, int commentCount, LocalDateTime postDate, boolean isHot) {
 		this.id = id;
 		this.category = category;
 		this.title = title;
@@ -44,6 +46,7 @@ public class NewsDto {
 		this.content = content;
 		this.commentCount = commentCount;
 		this.postDate = postDate;
+		this.isHot = isHot;
 	}
 
 	public void updateNewsCommentSearchDto(NewsCommentSearchDto newsCommentSearchDto){
