@@ -130,6 +130,10 @@ public class BoardQueryRepository {
 
         long total = getTotalBoardCount(timePeriod, searchType, search);
 
+        for (BoardDto dto : content) {
+            dto.setCreatedIp(dto.getCreatedIp());
+        }
+
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
                 CommentSearchDto commentSearch = getSearchBoardComment(boardDto.getId(), search);

@@ -40,6 +40,7 @@ public class BoardDto {
     /**
      * 작성시 IP
      */
+    @Setter
     private String createdIp;
     /**
      * 썸네일
