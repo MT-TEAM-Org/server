@@ -138,7 +138,7 @@ public class NoticeQueryRepository {
     }
 
     public List<NoticeDto> getFixNotice() {
-        return queryFactory
+        List<NoticeDto> contents = queryFactory
                 .select(Projections.fields(NoticeDto.class,
                         notice.id,
                         notice.id.in(getHotNoticeIdList()).as("isHot"),
@@ -159,6 +159,12 @@ public class NoticeQueryRepository {
                 .orderBy(notice.createDate.desc())
                 .limit(2)
                 .fetch();
+
+        for (NoticeDto dto : contents) {
+            dto.setCreatedIp(ClientUtils.maskIp(dto.getCreatedIp()));
+        }
+
+        return contents;
     }
 
     private List<Long> getHotNoticeIdList() {

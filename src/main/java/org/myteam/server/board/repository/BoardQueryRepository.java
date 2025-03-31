@@ -37,6 +37,7 @@ import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -270,6 +271,10 @@ public class BoardQueryRepository {
                 .fetch();
 
         long total = getTotalMyBoardCount(searchType, search, publicId);
+
+        content.forEach(boardDto -> {
+            boardDto.setCreatedIp(ClientUtils.maskIp(boardDto.getCreatedIp()));
+        });
 
         // searchType이 COMMENT일 경우, 댓글 데이터 추가
         if (searchType == BoardSearchType.COMMENT) {
