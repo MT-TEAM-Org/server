@@ -12,11 +12,9 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
@@ -25,7 +23,8 @@ import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
 import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.notice.domain.NoticeSearchType;
-import org.myteam.server.notice.dto.response.NoticeResponse.*;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
+import org.myteam.server.notice.dto.response.NoticeResponse.NoticeRankingDto;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -177,12 +176,13 @@ public class NoticeQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long noticeId = tuple.get(notice.id);
-                    int viewCount = redisViewCountService.getViewCount("improvement", noticeId);
+                    int viewCount = redisViewCountService.getViewCount("notice", noticeId);
                     int recommendCount = tuple.get(noticeCount.recommendCount);
                     int commentCount = tuple.get(noticeCount.commentCount);
                     String title = tuple.get(notice.title);
 
-                    return new NoticeRankingDto(noticeId, viewCount, recommendCount, commentCount, title, viewCount + recommendCount);
+                    return new NoticeRankingDto(noticeId, viewCount, recommendCount, commentCount, title,
+                            viewCount + recommendCount);
                 })
                 .sorted(Comparator.comparing(NoticeRankingDto::getRecommendCount).reversed()
                         .thenComparing(NoticeRankingDto::getTotalScore).reversed()
