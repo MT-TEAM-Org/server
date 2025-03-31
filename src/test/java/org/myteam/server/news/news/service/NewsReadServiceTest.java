@@ -45,6 +45,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
+			.timePeriod(TimePeriod.ALL)
 			.build();
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
@@ -90,6 +91,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
+			.timePeriod(TimePeriod.ALL)
 			.build();
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
@@ -140,6 +142,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
+			.timePeriod(TimePeriod.ALL)
 			.build();
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
@@ -182,6 +185,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.orderType(OrderType.DATE)
 			.page(1)
 			.size(10)
+			.timePeriod(TimePeriod.ALL)
 			.build();
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
@@ -225,6 +229,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.orderType(OrderType.DATE)
 			.page(1)
 			.size(11)
+			.timePeriod(TimePeriod.ALL)
 			.build();
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
@@ -410,6 +415,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.search("타이틀1")
 			.page(1)
 			.size(10)
+			.timePeriod(TimePeriod.ALL)
 			.build();
 
 		NewsListResponse newsListResponse = newsReadService.findAll(newsServiceRequest);
@@ -463,6 +469,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
 			.orderType(OrderType.DATE)
 			.searchType(BoardSearchType.COMMENT)
 			.search("테스트")
+			.timePeriod(TimePeriod.ALL)
 			.page(1)
 			.size(10)
 			.build();
