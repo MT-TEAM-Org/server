@@ -6,6 +6,7 @@ import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.comment.domain.QBoardComment.boardComment;
 import static org.myteam.server.member.entity.QMember.member;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -14,22 +15,26 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardDto;
+import org.myteam.server.board.dto.reponse.BoardRankingDto;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QBoardComment;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
+import org.myteam.server.global.util.redis.RedisViewCountService;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.springframework.data.domain.Page;
@@ -43,6 +48,7 @@ import org.springframework.stereotype.Repository;
 public class BoardQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final RedisViewCountService redisViewCountService;
 
     /**
      * 게시글 목록 조회
@@ -299,22 +305,43 @@ public class BoardQueryRepository {
     }
 
     /**
-     * TODO: 레디스에서 조회수 읽어오는 것으로 수정
      * 핫 게시글 ID 목록 조회
      */
     private List<Long> getHotBoardIdList() {
         // 전체 게시글 기준 추천순 내림차순 -> 조회수 + 댓글수 내림차순 -> 제목 오름차순 -> id 오름차순
-        return queryFactory
-                .select(board.id)
+
+        List<Tuple> boards = queryFactory
+                .select(
+                        board.id,
+                        board.title,
+                        boardCount.recommendCount,
+                        boardCount.commentCount
+                )
                 .from(board)
-                .join(boardCount).on(boardCount.board.id.eq(board.id))
-                .orderBy(
-                        boardCount.recommendCount.desc(),
-                        boardCount.viewCount.add(boardCount.commentCount).desc(),
-                        board.title.asc(), board.id.asc()
+                .join(board).on(boardCount.board.id.eq(board.id))
+                .fetch();
+
+        List<Long> result = boards.stream()
+                .map(tuple -> {
+                    Long boardId = tuple.get(board.id);
+                    int viewCount = redisViewCountService.getViewCount("board", boardId);
+                    int recommendCount = tuple.get(boardCount.recommendCount);
+                    int commentCount = tuple.get(boardCount.commentCount);
+                    String title = tuple.get(board.title);
+
+                    return new BoardRankingDto(boardId, viewCount, recommendCount, commentCount, title,
+                            viewCount + recommendCount);
+                })
+                .sorted(Comparator.comparing(BoardRankingDto::getRecommendCount).reversed()
+                        .thenComparing(BoardRankingDto::getTotalScore).reversed()
+                        .thenComparing(BoardRankingDto::getId)
+
                 )
                 .limit(10)
-                .fetch();
+                .map(BoardRankingDto::getId)
+                .collect(Collectors.toList());
+
+        return result;
     }
 
     /**

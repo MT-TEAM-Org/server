@@ -52,7 +52,7 @@ public class RedisViewCountService {
 
         CommonCount dbValue = strategy.loadFromDatabase(contentId);
         int newCount = dbValue.getViewCount();
-        redisTemplate.opsForValue().set(key, String.valueOf(newCount), EXPIRED_TIME);
+        redisTemplate.opsForValue().set(key, String.valueOf(newCount), Duration.ofMinutes(EXPIRED_TIME));
         return newCount;
     }
 
