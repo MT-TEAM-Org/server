@@ -1,11 +1,11 @@
 package org.myteam.server.news.news.repository;
 
 import static java.util.Optional.*;
-import static org.myteam.server.board.domain.QBoard.*;
 import static org.myteam.server.comment.domain.QNewsComment.*;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.myteam.server.board.domain.BoardOrderType;
@@ -93,7 +93,8 @@ public class NewsQueryRepository {
 				news.thumbImg,
 				news.content,
 				newsCount.commentCount,
-				news.postDate
+				news.postDate,
+				news.id.in(getHotNewsIdList())
 			))
 			.from(news)
 			.join(newsCount).on(newsCount.news.id.eq(news.id))
@@ -174,8 +175,8 @@ public class NewsQueryRepository {
 	private long getTotalNewsCount(TimePeriod timePeriod, BoardSearchType searchType, String search) {
 		return ofNullable(
 			queryFactory
-				.select(board.countDistinct())
-				.from(board)
+				.select(news.countDistinct())
+				.from(news)
 				.where(
 					isSearchTypeLikeTo(searchType, search),
 					isPostDateAfter(timePeriod)
@@ -238,7 +239,8 @@ public class NewsQueryRepository {
 	}
 
 	private BooleanExpression isPostDateAfter(TimePeriod timePeriod) {
-		return timePeriod != null ? news.postDate.after(timePeriod.getStartDateByTimePeriod(timePeriod)) : null;
+		LocalDateTime start = timePeriod.getStartDateByTimePeriod(timePeriod);
+		return start != null ? news.postDate.after(start) : null;
 	}
 
 	public Long findPreviousNewsId(Long newsId, Category category) {
