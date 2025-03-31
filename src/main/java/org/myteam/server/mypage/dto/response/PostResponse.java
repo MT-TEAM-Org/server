@@ -40,6 +40,7 @@ public class PostResponse {
     /**
      * 게시글 작성시 IP
      */
+    @Setter
     private String createdIp;
     /**
      * 게시글 작성자 id

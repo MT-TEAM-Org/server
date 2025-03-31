@@ -397,6 +397,9 @@ public class CommentQueryRepository {
         for (MyCommentDto dto : commentList) {
             dto.getCommentResponse().setCreatedIp(
                     ClientUtils.maskIp(dto.getCommentResponse().getCreatedIp()));
+
+            dto.getPostResponse().setCreatedIp(
+                    ClientUtils.maskIp(dto.getPostResponse().getCreatedIp()));
         }
 
         // 전체 댓글 수 조회
