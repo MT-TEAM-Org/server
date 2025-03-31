@@ -7,6 +7,7 @@ import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
@@ -241,7 +242,7 @@ public class NewsQueryRepository {
 	private BooleanExpression isPostDateAfter(TimePeriod timePeriod) {
 		return Optional.ofNullable(timePeriod)
 			.map(tp -> tp.getStartDateByTimePeriod(tp))
-			.map(start -> news.postDate.after(start))
+			.map(news.postDate::after)
 			.orElse(null);
 	}
 
