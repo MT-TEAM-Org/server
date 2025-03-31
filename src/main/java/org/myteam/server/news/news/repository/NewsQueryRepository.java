@@ -239,8 +239,10 @@ public class NewsQueryRepository {
 	}
 
 	private BooleanExpression isPostDateAfter(TimePeriod timePeriod) {
-		LocalDateTime start = timePeriod.getStartDateByTimePeriod(timePeriod);
-		return start != null ? news.postDate.after(start) : null;
+		return Optional.ofNullable(timePeriod)
+			.map(tp -> tp.getStartDateByTimePeriod(tp))
+			.map(start -> news.postDate.after(start))
+			.orElse(null);
 	}
 
 	public Long findPreviousNewsId(Long newsId, Category category) {

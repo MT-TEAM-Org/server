@@ -23,7 +23,7 @@ public class NewsRequest extends PageInfoRequest {
 	@Schema(description = "뉴스 카테고리", example = "BASEBALL, FOOTBALL, ESPORTS")
 	private Category category;
 
-	@Schema(description = "뉴스 정렬 타입", example = "CREATE(최신), RECOMMEND(인기), COMMENT(댓글)")
+	@Schema(description = "뉴스 정렬 타입", example = "DATE(최신), VIEW(인기), COMMENT(댓글)")
 	@NotNull(message = "뉴스 정렬 타입은 필수입니다.")
 	private OrderType orderType;
 
