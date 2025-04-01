@@ -16,6 +16,8 @@ public record InquiryRequest() {
     @NoArgsConstructor
     @AllArgsConstructor
     public static final class InquirySaveRequest {
+        private String email;
+
         @NotNull(message = "문의 내용이 없으면 안됩니다.")
         private String content;
     }
