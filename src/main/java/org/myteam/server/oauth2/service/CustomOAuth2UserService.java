@@ -119,7 +119,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .tel(oAuth2Response.getTel())
                 .nickname(oAuth2Response.getNickname())
                 .publicId(publicId)
-                .status(MemberStatus.ACTIVE)
+                .status(MemberStatus.PENDING)
                 .type(MemberType.fromOAuth2Provider(oAuth2Response.getProvider()))
                 .build();
 

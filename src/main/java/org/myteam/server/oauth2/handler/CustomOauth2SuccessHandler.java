@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.auth.service.ReIssueService;
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
@@ -85,11 +86,12 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             log.warn("cookieValue refreshToken 확인용: {}", refreshToken);
             log.warn("cookieValue PublicId 확인용: {}", member.getPublicId());
 
+            member.updateStatus(ACTIVE);
+
             // 24 시간 유효한 리프레시 토큰을 생성
             response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, request.getServerName()));
             response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, request.getServerName()));
-//            String redirectUrl = String.format("%s?status=%s&email=%s", frontUrl, PENDING.name(), email);
-            String redirectUrl = String.format("%s?refreshToken=%s", frontUrl, refreshToken);
+            String redirectUrl = frontUrl + frontSignUpPath;
             log.info("redirectUrl: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
             return;
