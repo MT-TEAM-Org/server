@@ -48,17 +48,21 @@ public class InquiryService {
      * @param clientIP
      * @return
      */
-    public String createInquiry(String content, String clientIP) {
+    public String createInquiry(String content, String email, String clientIP) {
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
-        Optional<Member> member = null;
+        Optional<Member> member = Optional.empty();
         if (loginUser != null) {
             member = memberJpaRepository.findByPublicId(loginUser);
         }
 
-        Inquiry inquiry = makeInquiry(content, clientIP, member);
+        if (member.isEmpty() && email == null) {
+            throw new PlayHiveException(ErrorCode.INQUIRY_EMAIL_EMPTY);
+        }
+
+        Inquiry inquiry = makeInquiry(content, clientIP, member, email);
         InquiryCount inquiryCount = InquiryCount.createCount(inquiry);
 
-        String slackMessage = getSlackMessage(content, clientIP, member);
+        String slackMessage = getSlackMessage(content, clientIP, member, email);
 
         inquiryRepository.save(inquiry);
         inquiryCountRepository.save(inquiryCount);
@@ -87,17 +91,18 @@ public class InquiryService {
         commentService.deleteCommentByPost(CommentType.INQUIRY, inquiryId);
     }
 
-    private Inquiry makeInquiry(String content, String clientIP, Optional<Member> member) {
+    private Inquiry makeInquiry(String content, String clientIP, Optional<Member> member, String email) {
         Inquiry inquiry = Inquiry.builder()
                 .content(content)
-                .member(member.orElse(null))
+                .member(member.isEmpty() ? null : member.get())
                 .clientIp(clientIP)
                 .createdAt(LocalDateTime.now())
+                .email(member.isEmpty() ? email : null)
                 .build();
         return inquiry;
     }
 
-    private String getSlackMessage(String content, String clientIP, Optional<Member> member) {
+    private String getSlackMessage(String content, String clientIP, Optional<Member> member, String email) {
         String slackMessage = String.format(
                 "📩 새로운 문의가 접수되었습니다!\n\n" +
                         "🔹 문의 내용: %s\n" +
@@ -107,7 +112,7 @@ public class InquiryService {
                         "확인 후 답변해 주세요. ✅",
                 content,
                 member.map(Member::getNickname).orElse("익명 사용자"),
-                member.map(Member::getEmail).orElse("익명"),
+                member.map(Member::getEmail).orElse(email),
                 clientIP,
                 LocalDateTime.now()
         );

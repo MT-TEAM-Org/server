@@ -37,6 +37,9 @@ public class Inquiry {
     @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     private InquiryCount inquiryCount;
 
+    @Column(name = "email")
+    private String email;
+
     public boolean isAuthor(Member member) {
         return this.member.equals(member);
     }

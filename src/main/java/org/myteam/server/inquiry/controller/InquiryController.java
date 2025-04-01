@@ -44,7 +44,7 @@ public class InquiryController {
     public ResponseEntity<ResponseDto<String>> createInquiry(@Valid @RequestBody InquirySaveRequest inquirySaveRequest,
                                                              HttpServletRequest request) {
         String clientIp = ClientUtils.getRemoteIP(request);
-        String content = inquiryService.createInquiry(inquirySaveRequest.getContent(), clientIp);
+        String content = inquiryService.createInquiry(inquirySaveRequest.getContent(), inquirySaveRequest.getEmail(), clientIp);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),

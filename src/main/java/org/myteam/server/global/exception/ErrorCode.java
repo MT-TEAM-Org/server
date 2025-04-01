@@ -23,6 +23,7 @@ public enum ErrorCode {
 
     // 400 Bad Request
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, "Invalid email request"),
+    INQUIRY_EMAIL_EMPTY(HttpStatus.BAD_REQUEST, "비로그인 문의하기는 이메일이 필수입니다."),
     INVALID_CREDENTIALS(HttpStatus.BAD_REQUEST, "Invalid password"),
     UNSUPPORTED_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "Not Supported OAuth2 provider"),
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "Invalid parameter value"),
