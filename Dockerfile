@@ -18,7 +18,7 @@ RUN ./gradlew dependencies --no-daemon
 COPY src src
 
 # 애플리케이션 빌드 (bootJar 실행)
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew clean bootJar --no-daemon
 
 # Step 2: 런타임 이미지 생성
 FROM openjdk:17-jdk-slim
