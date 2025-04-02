@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Optional;
@@ -107,7 +108,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
-    private OAuth2User createNewMember(OAuth2Response oAuth2Response, String providerId) {
+    @Transactional
+    public OAuth2User createNewMember(OAuth2Response oAuth2Response, String providerId) {
         log.debug("Creating new member for providerId: {}", providerId);
         String password = PasswordUtil.generateRandomPassword();
 
