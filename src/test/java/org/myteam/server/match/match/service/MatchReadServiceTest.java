@@ -3,21 +3,19 @@ package org.myteam.server.match.match.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
+import org.myteam.server.match.match.dto.service.response.MatchEsportsScheduleResponse;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,33 +36,25 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		Team team3 = createTeam(3, TeamCategory.ESPORTS);
 		Team team4 = createTeam(4, TeamCategory.ESPORTS);
 
-		createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
-		createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
-		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDate.now().atStartOfDay());
+		createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDateTime.now());
+		createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDateTime.now());
+		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now());
 
 		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.ALL).getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
 				"category")
 			.containsExactly(
 				tuple(
 					team1.getName(), team1.getLogo(), team1.getCategory().name(),
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
-					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				),
 				tuple(
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
 					team3.getName(), team3.getLogo(), team3.getCategory().name(),
-					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
-				),
-				tuple(
-					team3.getName(), team3.getLogo(), team3.getCategory().name(),
-					team4.getName(), team4.getLogo(), team4.getCategory().name(),
-					LocalDate.now().atStartOfDay(),
-					MatchCategory.ESPORTS.name()
 				)
 			);
 	}
@@ -84,13 +74,12 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
 				"category")
 			.containsExactly(
 				tuple(
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
 					team3.getName(), team3.getLogo(), team3.getCategory().name(),
-					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				)
 			);
@@ -111,19 +100,17 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
 				"category")
 			.containsExactly(
 				tuple(
 					team1.getName(), team1.getLogo(), team1.getCategory().name(),
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
-					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				),
 				tuple(
 					team2.getName(), team2.getLogo(), team2.getCategory().name(),
 					team1.getName(), team1.getLogo(), team1.getCategory().name(),
-					LocalDate.now().atStartOfDay(),
 					MatchCategory.FOOTBALL.name()
 				)
 			);
@@ -140,12 +127,11 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.findOne(match.getId()))
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
-				"awayTeam.name", "awayTeam.logo", "awayTeam.category", "startTime",
+				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
 				"category")
 			.contains(
 				team1.getName(), team1.getLogo(), team1.getCategory().name(),
 				team2.getName(), team2.getLogo(), team2.getCategory().name(),
-				LocalDate.now().atStartOfDay(),
 				MatchCategory.FOOTBALL.name()
 			);
 	}
@@ -185,6 +171,49 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		assertThat(matchReadService.confirmEsportsYoutube())
 			.extracting("isLive", "url")
 			.containsExactly(true, "www.test.com");
+	}
+
+	@DisplayName("ESPORTS 경기일정 목록을 조회한다.")
+	@Test
+	void findEsportsSchedulesBetweenDateTest() {
+		Team team1 = createTeam(1, TeamCategory.ESPORTS);
+		Team team2 = createTeam(2, TeamCategory.ESPORTS);
+		Team team3 = createTeam(3, TeamCategory.ESPORTS);
+		Team team4 = createTeam(4, TeamCategory.ESPORTS);
+
+		createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now());
+		createMatch(team2, team3, MatchCategory.ESPORTS, LocalDateTime.now());
+		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now());
+
+		createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusDays(1));
+		createMatch(team2, team3, MatchCategory.ESPORTS, LocalDateTime.now().plusDays(1));
+		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now().plusDays(1));
+
+		List<MatchEsportsScheduleResponse> response = matchReadService.findEsportsSchedulesBetweenDate();
+		assertThat(response)
+			.flatExtracting(MatchEsportsScheduleResponse::getList) // matches 리스트에서 각 MatchResponse를 가져옴
+			.extracting(
+				matchResponse -> matchResponse.getHomeTeam().getName(),
+				matchResponse -> matchResponse.getHomeTeam().getLogo(),
+				matchResponse -> matchResponse.getHomeTeam().getCategory(),
+				matchResponse -> matchResponse.getAwayTeam().getName(),
+				matchResponse -> matchResponse.getAwayTeam().getLogo(),
+				matchResponse -> matchResponse.getAwayTeam().getCategory()
+			)
+			.containsExactly(
+				tuple(team1.getName(), team1.getLogo(), team1.getCategory().name(),
+					team2.getName(), team2.getLogo(), team2.getCategory().name()),
+				tuple(team2.getName(), team2.getLogo(), team2.getCategory().name(),
+					team3.getName(), team3.getLogo(), team3.getCategory().name()),
+				tuple(team3.getName(), team3.getLogo(), team3.getCategory().name(),
+					team4.getName(), team4.getLogo(), team4.getCategory().name()),
+				tuple(team1.getName(), team1.getLogo(), team1.getCategory().name(),
+					team2.getName(), team2.getLogo(), team2.getCategory().name()),
+				tuple(team2.getName(), team2.getLogo(), team2.getCategory().name(),
+					team3.getName(), team3.getLogo(), team3.getCategory().name()),
+				tuple(team3.getName(), team3.getLogo(), team3.getCategory().name(),
+					team4.getName(), team4.getLogo(), team4.getCategory().name())
+			);
 	}
 
 }

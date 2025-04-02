@@ -61,4 +61,20 @@ class MatchControllerTest extends ControllerTestSupport {
 			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
 			.andExpect(jsonPath("$.msg").value("E스포츠의 유튜브 라이브 여부를 조회 성공"));
 	}
+
+	@DisplayName("E스포츠의 경기일정을 조회한다.")
+	@Test
+	@WithMockUser
+	void findEsportsSchedulesBetweenDate() throws Exception {
+		// given
+		// when // then
+		mockMvc.perform(
+				get("/api/match/esports/schedule")
+					.with(csrf())
+			)
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(SUCCESS.name()))
+			.andExpect(jsonPath("$.msg").value("경기 일정 조회 성공"));
+	}
 }
