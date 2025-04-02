@@ -27,6 +27,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.HstsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -214,10 +215,10 @@ public class SecurityConfig {
 		);
 
 		// 기본 보안 설정 비활성화
-		http.logout((auth) -> auth.disable()) // 로그아웃 비활성화
-			.csrf((auth) -> auth.disable()) // csrf disable
-			.formLogin((auth) -> auth.disable()) // From 로그인 방식 disable
-			.httpBasic((auth) -> auth.disable()); // HTTP Basic 인증 방식 disable
+		http.logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
+			.csrf(AbstractHttpConfigurer::disable) // csrf disable
+			.formLogin(AbstractHttpConfigurer::disable) // From 로그인 방식 disable
+			.httpBasic(AbstractHttpConfigurer::disable); // HTTP Basic 인증 방식 disable
 
 		// 세션 관리: Stateless
 		http.sessionManagement(session -> session
