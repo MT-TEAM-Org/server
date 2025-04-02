@@ -11,4 +11,10 @@ public class NewsCommentSearchDto {
 	private Long newsCommentId;
 	private String comment;
 	private String imageUrl;
+
+	public NewsCommentSearchDto(Long newsCommentId, String comment, String imageUrl) {
+		this.newsCommentId = newsCommentId;
+		this.comment = comment;
+		this.imageUrl = imageUrl;
+	}
 }

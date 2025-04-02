@@ -122,8 +122,8 @@ public class NewsQueryRepository {
 
 	private NewsCommentSearchDto getNewsSearchBoardComment(Long newsId, String search) {
 		JPQLQuery<NewsCommentSearchDto> query = queryFactory
-			.select(Projections.fields(NewsCommentSearchDto.class,
-				newsComment.id.as("commentId"),
+			.select(Projections.constructor(NewsCommentSearchDto.class,
+				newsComment.id,
 				newsComment.comment,
 				newsComment.imageUrl
 			))
