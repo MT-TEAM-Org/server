@@ -66,8 +66,8 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		Team team2 = createTeam(2, TeamCategory.FOOTBALL);
 		Team team3 = createTeam(3, TeamCategory.FOOTBALL);
 
-		createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDate.now().minusDays(1).atStartOfDay());
-		createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
+		createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDateTime.now().minusDays(1));
+		createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDateTime.now());
 		createMatch(team3, team1, MatchCategory.FOOTBALL,
 			LocalDate.now().plusWeeks(1).atTime(LocalTime.of(7, 0)));
 
@@ -93,9 +93,9 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		Team team3 = createTeam(3, TeamCategory.ESPORTS);
 		Team team4 = createTeam(4, TeamCategory.ESPORTS);
 
-		createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
-		createMatch(team2, team1, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
-		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDate.now().atStartOfDay());
+		createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDateTime.now());
+		createMatch(team2, team1, MatchCategory.FOOTBALL, LocalDateTime.now());
+		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now());
 
 		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
 			.extracting(
