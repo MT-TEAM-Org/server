@@ -20,12 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/match")
-@Slf4j
 public class MatchController {
 
 	private final MatchReadService matchReadService;
@@ -46,7 +44,6 @@ public class MatchController {
 	@Operation(summary = "ESPORTS 경기 일정 조회 API", description = "당일과 다음날 새벽6시까지 ESPORTS 경기 일정을 조회한다")
 	@GetMapping("/esports/schedule")
 	public ResponseEntity<ResponseDto<List<MatchEsportsScheduleResponse>>> findEsportsSchedulesBetweenDate() {
-		log.info("Start findEsportsSchedulesBetweenDate Controller");
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"경기 일정 조회 성공",

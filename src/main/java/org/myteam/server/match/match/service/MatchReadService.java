@@ -19,12 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
 public class MatchReadService {
 
 	private final MatchQueryRepository matchQueryRepository;
@@ -49,14 +47,9 @@ public class MatchReadService {
 	}
 
 	public List<MatchEsportsScheduleResponse> findEsportsSchedulesBetweenDate() {
-		log.info("Start findEsportsSchedulesBetweenDate Service");
 		LocalDate today = LocalDate.now();
 		LocalDateTime startOfDay = today.atStartOfDay();
 		LocalDateTime endTime = today.plusWeeks(1).atTime(LocalTime.of(6, 0));
-
-		List<MatchEsportsScheduleResponse> list = matchQueryRepository.findEsportsSchedulesBetweenDate(startOfDay, endTime);
-		log.info(list.toString());
-		log.info("End findEsportsSchedulesBetweenDate Service");
 
 		return matchQueryRepository.findEsportsSchedulesBetweenDate(startOfDay, endTime);
 	}
