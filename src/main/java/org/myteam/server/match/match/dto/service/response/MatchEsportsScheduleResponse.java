@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class MatchEsportsScheduleResponse {
-	private Long matchId;
+	private Long id;
 	private String startTime;
 	private List<MatchResponse> list;
 
 	public MatchEsportsScheduleResponse(List<Match> matches) {
-		this.matchId = matches.get(matches.size() - 1).getId(); // 마지막 경기 ID를 기준으로 설정
+		this.id = matches.get(matches.size() - 1).getId(); // 마지막 경기 ID를 기준으로 설정
 		this.startTime = matches.get(0).getStartTime().toString(); // 첫번째 경기 시간을 기준
 		this.list = matches.stream().map(MatchResponse::createResponse).toList();
 	}
