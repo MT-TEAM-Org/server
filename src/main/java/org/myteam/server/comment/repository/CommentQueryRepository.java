@@ -26,15 +26,22 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.comment.domain.*;
-import org.myteam.server.comment.dto.response.CommentResponse.*;
+import org.myteam.server.comment.domain.Comment;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.domain.QBoardComment;
+import org.myteam.server.comment.domain.QComment;
+import org.myteam.server.comment.domain.QImprovementComment;
+import org.myteam.server.comment.domain.QInquiryComment;
+import org.myteam.server.comment.domain.QNewsComment;
+import org.myteam.server.comment.domain.QNoticeComment;
+import org.myteam.server.comment.dto.response.CommentResponse.BestCommentResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.util.CustomPageImpl;
 import org.myteam.server.member.domain.MemberRole;
@@ -425,6 +432,7 @@ public class CommentQueryRepository {
                     case NEWS -> news.title.like("%" + search + "%");
                     case NOTICE -> notice.title.like("%" + search + "%");
                     case INQUIRY -> null;
+                    case MATCH -> null;
                 };
 
             case CONTENT:
@@ -434,6 +442,7 @@ public class CommentQueryRepository {
                     case NEWS -> news.content.like("%" + search + "%");
                     case NOTICE -> notice.content.like("%" + search + "%");
                     case INQUIRY -> inquiry.content.like("%" + search + "%");
+                    case MATCH -> null;
                 };
 
             case TITLE_CONTENT:
@@ -444,6 +453,7 @@ public class CommentQueryRepository {
                     case NEWS -> news.title.like("%" + search + "%").or(news.content.like("%" + search + "%"));
                     case NOTICE -> notice.title.like("%" + search + "%").or(notice.content.like("%" + search + "%"));
                     case INQUIRY -> inquiry.content.like("%" + search + "%");
+                    case MATCH -> null;
                 };
 
             case NICKNAME:
