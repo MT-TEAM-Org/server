@@ -3,11 +3,13 @@ package org.myteam.server.match.match.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
+import org.myteam.server.match.match.dto.service.response.MatchEsportsScheduleResponse;
 import org.myteam.server.match.match.dto.service.response.MatchEsportsYoutubeResponse;
 import org.myteam.server.match.match.dto.service.response.MatchResponse;
 import org.myteam.server.match.match.dto.service.response.MatchScheduleListResponse;
@@ -34,7 +36,7 @@ public class MatchReadService {
 
 	public MatchScheduleListResponse findSchedulesBetweenDate(MatchCategory matchCategory) {
 		LocalDate today = LocalDate.now();
-		LocalDateTime startOfDay = today.atStartOfDay();
+		LocalDateTime startOfDay = LocalDateTime.now();
 		LocalDateTime endTime = today.plusWeeks(1).atTime(LocalTime.of(6, 0));
 
 		return MatchScheduleListResponse.createResponse(
@@ -42,6 +44,14 @@ public class MatchReadService {
 				.stream()
 				.map(MatchResponse::createResponse)
 				.toList());
+	}
+
+	public List<MatchEsportsScheduleResponse> findEsportsSchedulesBetweenDate() {
+		LocalDate today = LocalDate.now();
+		LocalDateTime startOfDay = today.atStartOfDay();
+		LocalDateTime endTime = today.plusWeeks(1).atTime(LocalTime.of(6, 0));
+
+		return matchQueryRepository.findEsportsSchedulesBetweenDate(startOfDay, endTime);
 	}
 
 	public MatchResponse findOne(Long id) {

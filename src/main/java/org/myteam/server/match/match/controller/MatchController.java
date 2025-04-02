@@ -2,8 +2,11 @@ package org.myteam.server.match.match.controller;
 
 import static org.myteam.server.global.web.response.ResponseStatus.*;
 
+import java.util.List;
+
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.match.match.domain.MatchCategory;
+import org.myteam.server.match.match.dto.service.response.MatchEsportsScheduleResponse;
 import org.myteam.server.match.match.dto.service.response.MatchEsportsYoutubeResponse;
 import org.myteam.server.match.match.dto.service.response.MatchResponse;
 import org.myteam.server.match.match.dto.service.response.MatchScheduleListResponse;
@@ -29,12 +32,22 @@ public class MatchController {
 	@GetMapping("/schedule/{matchCategory}")
 	public ResponseEntity<ResponseDto<MatchScheduleListResponse>> findSchedulesBetweenDate(
 		@PathVariable("matchCategory")
-		@Parameter(description = "경기 유형 FOOTBALL, BASEBALL, ESPORTS")
+		@Parameter(description = "경기 유형 FOOTBALL, BASEBALL")
 		MatchCategory matchCategory) {
 		return ResponseEntity.ok(new ResponseDto<>(
 			SUCCESS.name(),
 			"경기 일정 조회 성공",
 			matchReadService.findSchedulesBetweenDate(matchCategory))
+		);
+	}
+
+	@Operation(summary = "ESPORTS 경기 일정 조회 API", description = "당일과 다음날 새벽6시까지 ESPORTS 경기 일정을 조회한다")
+	@GetMapping("/esports/schedule")
+	public ResponseEntity<ResponseDto<List<MatchEsportsScheduleResponse>>> findEsportsSchedulesBetweenDate() {
+		return ResponseEntity.ok(new ResponseDto<>(
+			SUCCESS.name(),
+			"경기 일정 조회 성공",
+			matchReadService.findEsportsSchedulesBetweenDate())
 		);
 	}
 
