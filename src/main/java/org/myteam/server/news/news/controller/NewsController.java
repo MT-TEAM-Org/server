@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class NewsController {
 
     private final NewsReadService newsReadService;
-    private final NewsCountService newsCountService;
 
     @Operation(summary = "뉴스 목록 조회 API", description = "뉴스의 목록을 조회합니다.")
     @GetMapping
