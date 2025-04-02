@@ -11,9 +11,14 @@ COPY build.gradle .
 COPY settings.gradle .
 RUN chmod +x ./gradlew
 
-# Gradle 종속성을 빌드하는 것으로 캐싱 최적화
+# Gradle 종속성을 캐싱하여 빌드 속도 향상
+RUN ./gradlew dependencies --no-daemon
+
+# 소스 코드 복사
 COPY src src
-RUN ./gradlew build --no-daemon
+
+# 애플리케이션 빌드 (bootJar 실행)
+RUN ./gradlew bootJar --no-daemon
 
 # Step 2: 런타임 이미지 생성
 FROM openjdk:17-jdk-slim
