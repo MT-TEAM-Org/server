@@ -20,7 +20,7 @@ public record CommentRequest() {
     public static final class CommentSaveRequest {
 
         @Schema(description = "댓글 유형", example = "NOTICE", allowableValues = {"NOTICE", "BOARD", "NEWS", "IMPROVEMENT",
-                "INQUIRY, MATCH"})
+                "INQUIRY", "MATCH"})
         @NotNull(message = "댓글 유형(type)은 필수 입력 값입니다.")
         private CommentType type;
 
@@ -39,7 +39,7 @@ public record CommentRequest() {
     @AllArgsConstructor
     public static final class CommentDeleteRequest {
         @Schema(description = "댓글 유형", example = "NOTICE", allowableValues = {"NOTICE", "BOARD", "NEWS", "IMPROVEMENT",
-                "INQUIRY, MATCH"})
+                "INQUIRY", "MATCH"})
         @NotNull(message = "댓글 유형(type)은 필수 입력 값입니다.")
         private CommentType type;
     }
@@ -50,7 +50,7 @@ public record CommentRequest() {
     @AllArgsConstructor
     public static final class CommentListRequest extends PageInfoRequest {
         @Schema(description = "댓글 유형", example = "NOTICE", allowableValues = {"NOTICE", "BOARD", "NEWS", "IMPROVEMENT",
-                "INQUIRY, MATCH"})
+                "INQUIRY", "MATCH"})
         @NotNull(message = "댓글 유형(type)은 필수 입력 값입니다.")
         private CommentType type;
     }
