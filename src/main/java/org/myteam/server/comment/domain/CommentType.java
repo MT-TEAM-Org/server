@@ -10,7 +10,8 @@ public enum CommentType {
     IMPROVEMENT(ImprovementComment.class),
     INQUIRY(InquiryComment.class),
     NEWS(NewsComment.class),
-    NOTICE(NoticeComment.class);
+    NOTICE(NoticeComment.class),
+    MATCH(MatchComment.class);
 
     private final Class<? extends Comment> entityClass;
 

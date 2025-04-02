@@ -8,6 +8,7 @@ import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.ImprovementComment;
 import org.myteam.server.comment.domain.InquiryComment;
+import org.myteam.server.comment.domain.MatchComment;
 import org.myteam.server.comment.domain.NewsComment;
 import org.myteam.server.comment.domain.NoticeComment;
 import org.myteam.server.comment.repository.CommentRepository;
@@ -17,6 +18,7 @@ import org.myteam.server.improvement.service.ImprovementReadService;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.inquiry.service.InquiryReadService;
+import org.myteam.server.match.match.service.MatchReadService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.notice.service.NoticeReadService;
@@ -33,6 +35,7 @@ public class CommentFactory {
     private final ImprovementReadService improvementReadService;
     private final InquiryReadService inquiryReadService;
     private final InquiryRepository inquiryRepository;
+    private final MatchReadService matchReadService;
 
     public Comment createComment(CommentType type, Long contentId, Member member, Member mentionedMember,
                                  String comment, String imageUrl, String createdIp, Long parentId) {
@@ -119,6 +122,17 @@ public class CommentFactory {
             case NOTICE:
                 return NoticeComment.createComment(
                         noticeReadService.findById(contentId),
+                        member,
+                        mentionedMember,
+                        comment,
+                        imageUrl,
+                        createdIp,
+                        parent
+                );
+
+            case MATCH:
+                return MatchComment.createComment(
+                        matchReadService.findById(contentId),
                         member,
                         mentionedMember,
                         comment,
