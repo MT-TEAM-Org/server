@@ -125,5 +125,9 @@ jobs:
             # 컨테이너 재실행
             echo "Starting containers with Docker Compose..."
             sudo docker-compose up -d
+            
+            # 사용하지 않는 이미지 제거
+            echo "Removing unused Docker images..."
+            sudo docker image prune -f
   
             echo "Deployment completed successfully!"
