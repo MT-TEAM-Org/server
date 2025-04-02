@@ -16,6 +16,7 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.match.dto.service.response.MatchEsportsScheduleResponse;
+import org.myteam.server.match.match.dto.service.response.MatchScheduleListResponse;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,9 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDateTime.now());
 		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now());
 
-		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.ALL).getList())
+		MatchScheduleListResponse schedules = matchReadService.findSchedulesBetweenDate(MatchCategory.ALL);
+
+		assertThat(schedules.getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
 				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
@@ -71,7 +74,9 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team3, team1, MatchCategory.FOOTBALL,
 			LocalDate.now().plusWeeks(1).atTime(LocalTime.of(7, 0)));
 
-		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
+		MatchScheduleListResponse schedules = matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL);
+
+		assertThat(schedules.getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
 				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
@@ -97,7 +102,9 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team2, team1, MatchCategory.FOOTBALL, LocalDateTime.now());
 		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now());
 
-		assertThat(matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL).getList())
+		MatchScheduleListResponse schedules = matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL);
+
+		assertThat(schedules.getList())
 			.extracting(
 				"homeTeam.name", "homeTeam.logo", "homeTeam.category",
 				"awayTeam.name", "awayTeam.logo", "awayTeam.category",
@@ -189,7 +196,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team2, team3, MatchCategory.ESPORTS, LocalDateTime.now().plusDays(1));
 		createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now().plusDays(1));
 
-		List<MatchEsportsScheduleResponse> response = matchReadService.findEsportsSchedulesBetweenDate();
+		List<MatchEsportsScheduleResponse> response = matchReadService.findSchedulesBetweenDate(MatchCategory.ESPORTS);
 		assertThat(response)
 			.flatExtracting(MatchEsportsScheduleResponse::getList) // matches 리스트에서 각 MatchResponse를 가져옴
 			.extracting(
