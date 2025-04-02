@@ -34,24 +34,23 @@ public class MatchReadService {
 			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_NOT_FOUNT));
 	}
 
-	public MatchScheduleListResponse findSchedulesBetweenDate(MatchCategory matchCategory) {
+	@SuppressWarnings("unchecked")
+	public <T> T findSchedulesBetweenDate(MatchCategory matchCategory) {
 		LocalDate today = LocalDate.now();
 		LocalDateTime startOfDay = LocalDateTime.now();
 		LocalDateTime endTime = today.plusWeeks(1).atTime(LocalTime.of(6, 0));
 
-		return MatchScheduleListResponse.createResponse(
+		// ESPORTS 카테고리의 경우
+		if (matchCategory.equals(MatchCategory.ESPORTS)) {
+			return (T)matchQueryRepository.findEsportsSchedulesBetweenDate(startOfDay, endTime);
+		}
+
+		// 그 외 카테고리의 경우
+		return (T) MatchScheduleListResponse.createResponse(
 			matchQueryRepository.findSchedulesBetweenDate(startOfDay, endTime, matchCategory)
 				.stream()
 				.map(MatchResponse::createResponse)
 				.toList());
-	}
-
-	public List<MatchEsportsScheduleResponse> findEsportsSchedulesBetweenDate() {
-		LocalDate today = LocalDate.now();
-		LocalDateTime startOfDay = today.atStartOfDay();
-		LocalDateTime endTime = today.plusWeeks(1).atTime(LocalTime.of(6, 0));
-
-		return matchQueryRepository.findEsportsSchedulesBetweenDate(startOfDay, endTime);
 	}
 
 	public MatchResponse findOne(Long id) {

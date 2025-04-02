@@ -30,7 +30,7 @@ public class MatchController {
 
 	@Operation(summary = "경기 일정 조회 API", description = "당일과 다음날 새벽6시까지 경기 일정을 조회한다")
 	@GetMapping("/schedule/{matchCategory}")
-	public ResponseEntity<ResponseDto<MatchScheduleListResponse>> findSchedulesBetweenDate(
+	public ResponseEntity<ResponseDto<?>> findSchedulesBetweenDate(
 		@PathVariable("matchCategory")
 		@Parameter(description = "경기 유형 FOOTBALL, BASEBALL")
 		MatchCategory matchCategory) {
@@ -38,16 +38,6 @@ public class MatchController {
 			SUCCESS.name(),
 			"경기 일정 조회 성공",
 			matchReadService.findSchedulesBetweenDate(matchCategory))
-		);
-	}
-
-	@Operation(summary = "ESPORTS 경기 일정 조회 API", description = "당일과 다음날 새벽6시까지 ESPORTS 경기 일정을 조회한다")
-	@GetMapping("/esports/schedule")
-	public ResponseEntity<ResponseDto<List<MatchEsportsScheduleResponse>>> findEsportsSchedulesBetweenDate() {
-		return ResponseEntity.ok(new ResponseDto<>(
-			SUCCESS.name(),
-			"경기 일정 조회 성공",
-			matchReadService.findEsportsSchedulesBetweenDate())
 		);
 	}
 

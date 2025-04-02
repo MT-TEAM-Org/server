@@ -139,7 +139,6 @@ public class SecurityConfig {
 		"/api/match/{matchId}",
 		"/api/match/prediction/{matchId}",
 		"/api/match/esports/youtube",
-		"/api/match/esports/schedule",
 
 		/** @brief 게임 할인, 이벤트 관련 URL */
 		"api/game/event",
