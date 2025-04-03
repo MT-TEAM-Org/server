@@ -129,11 +129,13 @@ public class CommentService {
         log.info("댓글 작성 완료 - commentId: {}, contentId: {}, 작성자: {}", comment.getId(), contentId, member.getPublicId());
 
         // 댓글 카운트 증가
-        CommentCountService countService = countServiceMap.get(request.getType());
-        if (countService == null) {
-            throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+        if (!request.getType().equals(CommentType.MATCH)) {
+            CommentCountService countService = countServiceMap.get(request.getType());
+            if (countService == null) {
+                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+            }
+            countService.addCommentCount(contentId);
         }
-        countService.addCommentCount(contentId);
 
         CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
 
@@ -211,11 +213,13 @@ public class CommentService {
         log.info("댓글 삭제 완료 - commentId: {}, 요청자: {}", commentId, member.getPublicId());
 
         // 댓글 카운트 감소
-        CommentCountService countService = countServiceMap.get(request.getType());
-        if (countService == null) {
-            throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+        if (!request.getType().equals(CommentType.MATCH)) {
+            CommentCountService countService = countServiceMap.get(request.getType());
+            if (countService == null) {
+                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+            }
+            countService.minusCommentCount(contentId, minusCount);
         }
-        countService.minusCommentCount(contentId, minusCount);
     }
 
     public void deleteCommentByPost(CommentType commentType, Long contentId) {
