@@ -8,16 +8,18 @@ import static org.myteam.server.member.entity.QMember.member;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.domain.QInquiry;
-import org.myteam.server.inquiry.dto.response.InquiryResponse.InquirySaveResponse;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +32,7 @@ public class InquiryQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Page<InquirySaveResponse> getInquiryList(UUID memberPublicId,
+    public Page<InquiryDto> getInquiryList(UUID memberPublicId,
                                                     InquiryOrderType orderType,
                                                     InquirySearchType searchType,
                                                     String keyword,
@@ -41,15 +43,15 @@ public class InquiryQueryRepository {
         log.info("검색조건: {}&&{}", isMemberEqualTo(memberPublicId), getSearchCondition(searchType, keyword));
 
         // 문의 리스트 조회
-        List<InquirySaveResponse> inquiries = queryFactory
-                .select(Projections.constructor(InquirySaveResponse.class,
+        List<InquiryDto> inquiries = queryFactory
+                .select(Projections.fields(InquiryDto.class,
                         inquiry.id,
                         inquiry.content,
                         inquiry.clientIp,
                         inquiry.createdAt,
                         inquiry.member.publicId,
                         inquiry.member.nickname,
-                        inquiry.isAdminAnswered.when(true).then("답변완료").otherwise("접수완료"),
+                        inquiry.isAdminAnswered.when(true).then("답변완료").otherwise("접수완료").as("isAdminAnswered"),
                         inquiryCount.commentCount
                 ))
                 .from(inquiry)
@@ -57,7 +59,6 @@ public class InquiryQueryRepository {
                 .join(member).on(member.publicId.eq(inquiry.member.publicId))
                 .where(
                         isMemberEqualTo(memberPublicId),
-                        getSearchCondition(searchType, keyword),
                         getOrderType(orderType)
                 )
                 .orderBy(inquiry.createdAt.desc())
@@ -67,6 +68,13 @@ public class InquiryQueryRepository {
 
         // 전체 개수 조회
         long total = getInquiryCount(memberPublicId, searchType, keyword, orderType);
+
+        if (searchType == InquirySearchType.COMMENT) {
+            inquiries.forEach(inquiry -> {
+                CommentSearchDto commentSearch = getSearchInquiryComment(inquiry.getId(), keyword);
+                inquiry.setCommentSearchList(commentSearch);
+            });
+        }
 
         return new PageImpl<>(inquiries, pageable, total);
     }
@@ -98,6 +106,25 @@ public class InquiryQueryRepository {
                 )
                 .fetchOne()
         ).orElse(0L);
+    }
+
+    private CommentSearchDto getSearchInquiryComment(Long inquiryId, String search) {
+        JPQLQuery<CommentSearchDto> query = queryFactory
+                .select(Projections.fields(CommentSearchDto.class,
+                        inquiryComment.id.as("commentId"),
+                        inquiryComment.comment,
+                        inquiryComment.imageUrl
+                ))
+                .from(inquiryComment)
+                .where(
+                        inquiryComment.inquiry.id.eq(inquiryId),
+                        inquiryComment.comment.like("%" + search + "%")
+                );
+
+        return query.orderBy(
+                inquiryComment.createDate.desc(),
+                inquiryComment.comment.asc()
+        ).fetchFirst();
     }
 
     private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry) {
