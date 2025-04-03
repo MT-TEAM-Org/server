@@ -9,7 +9,7 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.dto.request.InquiryRequest.InquiryServiceRequest;
-import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiriesListResponse;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
 import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiryDetailsResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse.InquirySaveResponse;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
@@ -41,7 +41,7 @@ public class InquiryReadService {
         Member member = securityReadService.getMember();
         log.info("내 문의내역 조회: {} 요청", member.getPublicId());
 
-        Page<InquirySaveResponse> inquiryResponses = null;
+        Page<InquiryDto> inquiryResponses = null;
         if (member.isAdmin()) {
             inquiryResponses = inquiryQueryRepository.getInquiryList(
                     null,

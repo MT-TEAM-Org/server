@@ -2,10 +2,13 @@ package org.myteam.server.inquiry.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
@@ -46,14 +49,14 @@ public record InquiryResponse() {
     @Builder
     @NoArgsConstructor
     public static final class InquiriesListResponse {
-        private PageCustomResponse<InquirySaveResponse> list;
+        private PageCustomResponse<InquiryDto> list;
 
         @Builder
-        public InquiriesListResponse(PageCustomResponse<InquirySaveResponse> list) {
+        public InquiriesListResponse(PageCustomResponse<InquiryDto> list) {
             this.list = list;
         }
 
-        public static InquiriesListResponse createResponse(PageCustomResponse<InquirySaveResponse> list) {
+        public static InquiriesListResponse createResponse(PageCustomResponse<InquiryDto> list) {
             return InquiriesListResponse.builder()
                     .list(list)
                     .build();
@@ -104,5 +107,23 @@ public record InquiryResponse() {
                     .nextId(nextId)
                     .build();
         }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static final class InquiryDto {
+        private Long id;
+        private String content; // 문의내역 내용
+        private String clientIp; // 쓴 사람 IP
+        private LocalDateTime createdAt; // 쓴 시각
+        private UUID publicId; // 쓴 사람 public ID
+        private String nickname; // 쓴 사람 닉네임
+        private String isAdminAnswered; // 관리자 답변
+        private int commentCount; // 댓글 수
+
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private CommentSearchDto commentSearchList;
     }
 }
