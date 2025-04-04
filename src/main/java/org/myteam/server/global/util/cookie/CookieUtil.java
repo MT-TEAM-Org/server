@@ -27,7 +27,7 @@ public class CookieUtil {
         cookie.setHttpOnly(isHttpOnly);
         if (domain != null) {
             // ex) playhive.shop
-            cookie.setDomain(domain);
+            cookie.setDomain("." + domain);
         }
         return cookie;
     }
