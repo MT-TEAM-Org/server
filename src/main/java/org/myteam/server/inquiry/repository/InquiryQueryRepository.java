@@ -4,10 +4,12 @@ import static org.myteam.server.comment.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.inquiry.domain.QInquiryCount.inquiryCount;
 import static org.myteam.server.member.entity.QMember.member;
+import static org.myteam.server.notice.domain.QNotice.notice;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -16,6 +18,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.domain.QComment;
+import org.myteam.server.comment.domain.QInquiryComment;
+import org.myteam.server.comment.domain.QNoticeComment;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.domain.QInquiry;
@@ -33,14 +39,14 @@ public class InquiryQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     public Page<InquiryDto> getInquiryList(UUID memberPublicId,
-                                                    InquiryOrderType orderType,
-                                                    InquirySearchType searchType,
-                                                    String keyword,
-                                                    Pageable pageable) {
+                                           InquiryOrderType orderType,
+                                           InquirySearchType searchType,
+                                           String keyword,
+                                           Pageable pageable) {
         // 정렬 조건 설정
 
         // 검색 조건
-        log.info("검색조건: {}&&{}", isMemberEqualTo(memberPublicId), getSearchCondition(searchType, keyword));
+        log.info("검색조건: {}&&{}", isMemberEqualTo(memberPublicId), isSearchTypeLikeTo(searchType, keyword));
 
         // 문의 리스트 조회
         List<InquiryDto> inquiries = queryFactory
@@ -58,6 +64,7 @@ public class InquiryQueryRepository {
                 .join(inquiryCount).on(inquiry.id.eq(inquiryCount.inquiry.id))
                 .join(member).on(member.publicId.eq(inquiry.member.publicId))
                 .where(
+                        isSearchTypeLikeTo(searchType, keyword),
                         isMemberEqualTo(memberPublicId),
                         getOrderType(orderType)
                 )
@@ -101,7 +108,7 @@ public class InquiryQueryRepository {
                 .leftJoin(inquiryComment).on(inquiry.id.eq(inquiryComment.inquiry.id))
                 .where(
                         isMemberEqualTo(memberPublicId),
-                        getSearchCondition(searchType, keyword),
+                        isSearchTypeLikeTo(searchType, keyword),
                         getOrderType(orderType)
                 )
                 .fetchOne()
@@ -127,6 +134,26 @@ public class InquiryQueryRepository {
         ).fetchFirst();
     }
 
+    private BooleanExpression isSearchTypeLikeTo(InquirySearchType searchType, String search) {
+        if (search == null || search.isEmpty()) {
+            return null;
+        }
+
+        return switch (searchType) {
+            case CONTENT -> inquiry.content.like("%" + search + "%");
+            case COMMENT -> JPAExpressions.selectOne()
+                    .from(QComment.comment1)
+                    .where(
+                            QComment.comment1.comment.like("%" + search + "%")
+                                    .and(QComment.comment1.commentType.eq(CommentType.INQUIRY))
+                                    .and(QComment.comment1.as(QInquiryComment.class).inquiry.id.eq(
+                                            inquiry.id))
+                    )
+                    .exists();
+            default -> null;
+        };
+    }
+
     private OrderSpecifier<?> getOrderSpecifier(InquiryOrderType orderType, QInquiry inquiry) {
         if (orderType == InquiryOrderType.ANSWERED) {
             return inquiry.isAdminAnswered.desc();
@@ -136,18 +163,6 @@ public class InquiryQueryRepository {
 
     private BooleanExpression isMemberEqualTo(UUID memberPublicId) {
         return memberPublicId != null ? inquiry.member.publicId.eq(memberPublicId) : null;
-    }
-
-    private BooleanExpression getSearchCondition(InquirySearchType searchType, String search) {
-        if (search == null || search.isEmpty()) {
-            return null;
-        }
-
-        return switch (searchType) {
-            case CONTENT -> inquiry.content.like("%" + search + "%");
-            case COMMENT -> inquiryComment.comment.like("%" + search + "%");
-            default -> null;
-        };
     }
 
     private BooleanExpression getOrderType(InquiryOrderType orderType) {
