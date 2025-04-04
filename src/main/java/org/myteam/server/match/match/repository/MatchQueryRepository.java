@@ -45,8 +45,9 @@ public class MatchQueryRepository {
 		Map<String, List<Match>> groupedByYearMonth = matches.stream()
 			.collect(Collectors.groupingBy(match -> MatchEsportsScheduleResponse.formatLocalDateTimeToYearMonth(match.getStartTime())));
 
-		return groupedByYearMonth.values().stream()
-			.map(MatchEsportsScheduleResponse::new)
+		return groupedByYearMonth.entrySet().stream()
+			.sorted(Map.Entry.comparingByKey())
+			.map(entry -> new MatchEsportsScheduleResponse(entry.getValue()))
 			.collect(Collectors.toList());
 	}
 
