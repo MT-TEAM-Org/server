@@ -42,6 +42,7 @@ import org.myteam.server.comment.domain.QNewsComment;
 import org.myteam.server.comment.domain.QNoticeComment;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
+import org.myteam.server.comment.service.CommentRecommendReadService;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.util.CustomPageImpl;
 import org.myteam.server.member.domain.MemberRole;
@@ -61,6 +62,7 @@ public class CommentQueryRepository {
 
     private final JPAQueryFactory queryFactory;
     private final CommentRepository commentRepository;
+    private final CommentRecommendReadService commentRecommendReadService;
 
     /**
      * 대댓글 목록 조회
@@ -108,7 +110,8 @@ public class CommentQueryRepository {
     /**
      * 댓글 목록 조회 (페이징 + 최신순)
      */
-    public Page<CommentSaveResponse> getCommentList(CommentType type, Long contentId, Pageable pageable) {
+    public Page<CommentSaveResponse> getCommentList(CommentType type, Long contentId, Pageable pageable,
+                                                    UUID loginUser) {
         QMember mentionedMember = new QMember("mentionedMember");
 
         Expression<Boolean> isAdmin = new CaseBuilder()
@@ -147,7 +150,11 @@ public class CommentQueryRepository {
 
         for (CommentSaveResponse response : comments) {
             response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
-            getCommentReply(response);
+            getCommentReply(response, loginUser);
+            if (loginUser != null) {
+                boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(), loginUser);
+                response.setRecommended(isRecommend);
+            }
         }
 
         long parentsElements = getTotalCommentCount(type, contentId); // 부모 댓글만 count
@@ -194,7 +201,7 @@ public class CommentQueryRepository {
         ).orElse(0L);
     }
 
-    public void getCommentReply(CommentSaveResponse parentComment) {
+    public void getCommentReply(CommentSaveResponse parentComment, UUID loginUser) {
         QMember mentionedMember = new QMember("mentionedMember");
 
         Expression<Boolean> isAdmin = new CaseBuilder()
@@ -230,9 +237,12 @@ public class CommentQueryRepository {
 
         for (CommentSaveResponse response : replies) {
             response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
-
+            if (loginUser != null) {
+                boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(), loginUser);
+                response.setRecommended(isRecommend);
+            }
             // DFS를 사용하여 자식 댓글 탐색
-            getCommentReply(response);
+            getCommentReply(response, loginUser);
         }
 
         parentComment.setReplyList(replies); // 대댓글을 부모 댓글에 매핑

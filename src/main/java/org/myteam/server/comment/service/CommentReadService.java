@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
-import org.myteam.server.comment.dto.response.CommentResponse.*;
+import org.myteam.server.comment.dto.response.CommentResponse.BestCommentResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.BestCommentSaveListResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
 import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.global.exception.ErrorCode;
@@ -41,20 +44,15 @@ public class CommentReadService {
                 request.getType(), contentId,
                 request.getPage(), request.getSize());
 
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
         Page<CommentSaveResponse> list = commentQueryRepository.getCommentList(
                 request.getType(),
                 contentId,
-                request.toServiceRequest().toPageable()
+                request.toServiceRequest().toPageable(),
+                loginUser
         );
 
         log.info("댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId, list);
-        UUID loginUser = securityReadService.getAuthenticatedPublicId();
-        if (loginUser != null) {
-            for (CommentSaveResponse response : list) {
-                boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(), loginUser);
-                response.setRecommended(isRecommend);
-            }
-        }
 
         return CommentSaveListResponse.createResponse(PageCustomResponse.of(list));
     }
@@ -63,15 +61,10 @@ public class CommentReadService {
         log.info("댓글 상세 조회 요청 - commentId: {}", commentId);
 
         Comment comment = findById(commentId);
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
 
         CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
-        commentQueryRepository.getCommentReply(response);
-
-        UUID loginUser = securityReadService.getAuthenticatedPublicId();
-        if (loginUser != null) {
-            boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(), loginUser);
-            response.setRecommended(isRecommend);
-        }
+        commentQueryRepository.getCommentReply(response, loginUser);
 
         log.info("댓글 상세 조회 완료 - commentId: {}, 작성자: {}, 추천수: {}",
                 response.getCommentId(), response.getNickname(), response.getRecommendCount());
@@ -91,14 +84,14 @@ public class CommentReadService {
         );
 
         UUID loginUser = securityReadService.getAuthenticatedPublicId();
-            for (BestCommentResponse response : list) {
-                response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
-                if (loginUser != null) {
-                    boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(),
-                            loginUser);
-                    response.setRecommended(isRecommend);
-                }
+        for (BestCommentResponse response : list) {
+            response.setCreatedIp(ClientUtils.maskIp(response.getCreatedIp()));
+            if (loginUser != null) {
+                boolean isRecommend = commentRecommendReadService.isRecommended(response.getCommentId(),
+                        loginUser);
+                response.setRecommended(isRecommend);
             }
+        }
 
         log.info("베스트 댓글 목록 조회 완료 - contentId: {}, 조회된 댓글 수: {}", contentId);
 
