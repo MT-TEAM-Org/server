@@ -28,8 +28,7 @@ import java.util.Iterator;
 
 import static org.myteam.server.auth.controller.ReIssueController.LOGOUT_PATH;
 import static org.myteam.server.auth.controller.ReIssueController.TOKEN_REISSUE_PATH;
-import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KEY;
-import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_REFRESH;
+import static org.myteam.server.global.security.jwt.JwtProvider.*;
 import static org.myteam.server.global.util.cookie.CookieUtil.createCookie;
 import static org.myteam.server.global.util.domain.DomainUtil.extractDomain;
 import static org.myteam.server.member.domain.MemberStatus.*;
@@ -91,6 +90,17 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             // 24 시간 유효한 리프레시 토큰을 생성
             response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, request.getServerName()));
             response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, request.getServerName()));
+
+            // Authorization
+            String accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1), member.getPublicId(), role, status);
+
+            log.debug("print accessToken: {}", accessToken);
+            log.debug("print role: {}", role);
+
+            response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
+
+            eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
+
             String redirectUrl = frontUrl + frontSignUpPath;
             log.info("redirectUrl: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
@@ -118,6 +128,14 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         log.debug("print refreshToken: {}", refreshToken);
         log.debug("print frontUrl: {}", frontUrl);
+
+        // Authorization
+        String accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1), member.getPublicId(), role, status);
+
+        log.debug("print accessToken: {}", accessToken);
+        log.debug("print role: {}", role);
+
+        response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
 
         eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
