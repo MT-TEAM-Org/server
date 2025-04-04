@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentDeleteRequest;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentSaveRequest;
-import org.myteam.server.comment.dto.response.CommentResponse.*;
+import org.myteam.server.comment.dto.response.CommentResponse.BestCommentSaveListResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
+import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorResponse;
@@ -66,7 +68,7 @@ public class CommentController {
     /**
      * 댓글 수정 API
      */
-    @Operation(summary = "댓글 생성", description = "댓글을 수정합니다.")
+    @Operation(summary = "댓글 수정", description = "댓글을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "댓글 수정 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -151,7 +153,7 @@ public class CommentController {
     /**
      * 베스트 댓글 목록 조회
      */
-    @Operation(summary = "베스트 댓글 상세 조회", description = "베스트 댓글을 목록 조회합니다.")
+    @Operation(summary = "베스트 댓글 목록 조회", description = "베스트 댓글을 목록 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "베스트 댓글 목록 조회 성공"),
             @ApiResponse(responseCode = "404", description = "게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -163,7 +165,7 @@ public class CommentController {
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
-                "베스트 댓글 조회 성공",
+                "베스트 댓글 목록 조회 성공",
                 bestComments
         ));
     }
