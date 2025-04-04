@@ -126,6 +126,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .build();
 
         memberJpaRepository.save(newMember);
+        memberJpaRepository.flush();
 
         MemberActivity memberActivity = new MemberActivity(newMember);
         memberActivityRepository.save(memberActivity);
