@@ -18,10 +18,10 @@ public class GoogleYoutubeResponse {
 	private String etag;
 	@JsonProperty("regionCode")
 	private String regionCode;
-
 	@JsonProperty("items")
 	private List<Item> items;
 
+	@NoArgsConstructor
 	public static class Item {
 
 		@JsonProperty("id")
@@ -34,6 +34,7 @@ public class GoogleYoutubeResponse {
 	}
 
 	public static class Id {
+		@JsonProperty("videoId")
 		private String videoId;
 	}
 
