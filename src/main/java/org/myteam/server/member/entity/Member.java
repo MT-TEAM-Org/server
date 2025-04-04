@@ -74,14 +74,13 @@ public class Member extends Base {
     private String imgUrl;
 
     @Builder
-    public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
+    public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, MemberStatus status) {
         this.email = email;
         this.password = password;
         this.tel = tel;
         this.nickname = nickname;
         this.role = role;
         this.type = type;
-        this.publicId = publicId;
         this.status = status;
     }
 

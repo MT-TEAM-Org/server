@@ -189,7 +189,6 @@ public abstract class IntegrationTestSupport {
 			.nickname("test")
 			.role(MemberRole.USER)
 			.type(MemberType.LOCAL)
-			.publicId(UUID.randomUUID())
 			.status(MemberStatus.ACTIVE)
 			.build();
 
@@ -212,7 +211,6 @@ public abstract class IntegrationTestSupport {
 			.nickname("test")
 			.role(MemberRole.ADMIN)
 			.type(MemberType.LOCAL)
-			.publicId(UUID.randomUUID())
 			.status(MemberStatus.ACTIVE)
 			.build();
 

@@ -69,7 +69,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 log.info("status : " + status);
 
                 Member member = Member.builder()
-                        .publicId(publicId)
                         .role(MemberRole.valueOf(role))
                         .status(MemberStatus.valueOf(status))
                         .build();
