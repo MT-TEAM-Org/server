@@ -89,8 +89,8 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             member.updateStatus(ACTIVE);
 
             // 24 시간 유효한 리프레시 토큰을 생성
-            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, request.getServerName()));
-            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, request.getServerName()));
+            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, TOKEN_REISSUE_PATH, 24 * 60 * 60, true, request.getServerName().substring(3)));
+            response.addCookie(createCookie(REFRESH_TOKEN_KEY, refreshToken, LOGOUT_PATH, 24 * 60 * 60, true, request.getServerName().substring(3)));
             String redirectUrl = frontUrl + frontSignUpPath;
             log.info("redirectUrl: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
