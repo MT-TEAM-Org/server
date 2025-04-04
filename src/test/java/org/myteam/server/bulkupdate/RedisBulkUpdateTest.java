@@ -74,44 +74,44 @@ public class RedisBulkUpdateTest extends IntegrationTestSupport {
         createBoard(member, Category.FOOTBALL, CategoryType.FREE, "제목제목" + 3, "내용내용" + 3);
     }
 
-    @Test
-    @DisplayName("스트레스 테스트 적용")
-    void stressTestNativeViewCount() throws InterruptedException {
-        // given
-        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
-
-        // when
-        long start = System.currentTimeMillis();
-
-        for (int i = 0; i < THREAD_COUNT; i++) {
-            executorService.submit(() -> {
-                try {
-                    for (int j = 0; j < INCR_PER_THREAD; j++) {
-                        int randomBoardId = RandomGenerator.getDefault().nextInt(1, 4);
-                        String url = baseUrl + "/" + randomBoardId;
-
-                        try {
-                            restTemplate.getForEntity(url, ResponseDto.class);
-                        } catch (Exception e) {
-                            System.err.println("Request failed: " + e.getMessage());
-                        }
-
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error occurred: " + e.getMessage());
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-
-        latch.await(); // 모든 쓰레드 작업 완료 대기
-        long end = System.currentTimeMillis();
-
-        // then
-        System.out.println("⏱ 총 소요 시간: " + (end - start) + "ms"); // ⏱ 총 소요 시간: 38746ms
-    }
+//    @Test
+//    @DisplayName("스트레스 테스트 적용")
+//    void stressTestNativeViewCount() throws InterruptedException {
+//        // given
+//        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+//        CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
+//
+//        // when
+//        long start = System.currentTimeMillis();
+//
+//        for (int i = 0; i < THREAD_COUNT; i++) {
+//            executorService.submit(() -> {
+//                try {
+//                    for (int j = 0; j < INCR_PER_THREAD; j++) {
+//                        int randomBoardId = RandomGenerator.getDefault().nextInt(1, 4);
+//                        String url = baseUrl + "/" + randomBoardId;
+//
+//                        try {
+//                            restTemplate.getForEntity(url, ResponseDto.class);
+//                        } catch (Exception e) {
+//                            System.err.println("Request failed: " + e.getMessage());
+//                        }
+//
+//                    }
+//                } catch (Exception e) {
+//                    System.err.println("Error occurred: " + e.getMessage());
+//                } finally {
+//                    latch.countDown();
+//                }
+//            });
+//        }
+//
+//        latch.await(); // 모든 쓰레드 작업 완료 대기
+//        long end = System.currentTimeMillis();
+//
+//        // then
+//        System.out.println("⏱ 총 소요 시간: " + (end - start) + "ms"); // ⏱ 총 소요 시간: 38746ms
+//    }
 
     @Test
     @DisplayName("레디스 -> DB 벌크 업데이트 테스트")

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -88,6 +89,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
                 .status(MemberStatus.ACTIVE)
+                .publicId(UUID.randomUUID())
                 .build();
 
         Board board = Board.builder()
@@ -141,6 +143,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
                 .nickname("test")
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
                 .build();
 
@@ -197,6 +200,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
                 .nickname("test")
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
                 .build();
 
@@ -251,6 +255,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
                 .nickname("test")
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
                 .build();
 
@@ -306,6 +311,7 @@ public class BoardCountServiceTest extends IntegrationTestSupport {
                 .nickname("test")
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
                 .build();
 
