@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Iterator;
@@ -101,7 +102,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
             eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
-            String redirectUrl = frontUrl + frontSignUpPath;
+            String redirectUrl = frontUrl + "/auth/callback=?refreshToken=" + URLEncoder.encode(refreshToken, "UTF-8");
             log.info("redirectUrl: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
             return;
