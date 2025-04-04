@@ -33,9 +33,8 @@ import static org.myteam.server.member.domain.MemberType.LOCAL;
 public class Member extends Base {
 
     @Id
-    @GeneratedValue(generator = "UUID")
     @Column(name = "public_id", nullable = false, updatable = false, unique = true, columnDefinition = "BINARY(16)")
-    private UUID publicId = UUID.randomUUID();
+    private UUID publicId;
 
     @Column(nullable = false)
     private String email; // 계정
@@ -87,6 +86,7 @@ public class Member extends Base {
 
     @Builder
     public Member(MemberSaveRequest memberSaveRequest, PasswordEncoder passwordEncoder) {
+        this.publicId = UUID.randomUUID();
         this.email = memberSaveRequest.getEmail();
         this.password = passwordEncoder.encode(memberSaveRequest.getPassword());
         this.tel = memberSaveRequest.getTel();
