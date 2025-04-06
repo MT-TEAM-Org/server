@@ -2,30 +2,47 @@ package org.myteam.server.global.util.redis;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.recommend.RecommendActionType;
+import org.myteam.server.recommend.RecommendService;
 import org.myteam.server.util.CountStrategy;
 import org.myteam.server.util.CountStrategyFactory;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import static org.myteam.server.util.ClientUtils.toInt;
 
 @Service
 @Slf4j
 public class RedisCountService {
 
     enum ServiceType {
-        VIEW, COMMENT, RECOMMEND, NORMAL
+        VIEW, COMMENT, RECOMMEND, RECOMMEND_CANCEL, NORMAL
     }
 
     private static final long EXPIRED_TIME = 5L; // 조회수 만료 시간. 5분보다 큰 값으로 설정
 
+    private final RedissonClient redissonClient;
     private final RedisTemplate<String, String> redisTemplate;
     private final CountStrategyFactory strategyFactory;
+    private final RecommendService recommendService;
 
-    public RedisCountService(RedisTemplate<String, String> redisTemplate,
-                             CountStrategyFactory strategyFactory) {
+    public RedisCountService(RedissonClient redissonClient,
+                             RedisTemplate<String, String> redisTemplate,
+                             CountStrategyFactory strategyFactory,
+                             RecommendService recommendService) {
+        this.redissonClient = redissonClient;
         this.redisTemplate = redisTemplate;
         this.strategyFactory = strategyFactory;
+        this.recommendService = recommendService;
     }
 
     /**
@@ -66,9 +83,9 @@ public class RedisCountService {
             ));
             redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
         } else { // cache hit
-            viewCount = parseOrDefault(redisMap.get("view"));
-            commentCount = parseOrDefault(redisMap.get("comment"));
-            recommendCount = parseOrDefault(redisMap.get("recommend"));
+            viewCount = toInt(redisMap.get("view"));
+            commentCount = toInt(redisMap.get("comment"));
+            recommendCount = toInt(redisMap.get("recommend"));
         }
 
         if (type.equals(ServiceType.VIEW.name())) {
@@ -90,20 +107,14 @@ public class RedisCountService {
              * 추천할 때. 추천할 시 + 1
              * TODO 여기서 분산락 적용하면 됨.
              */
-            Long updateCount = redisTemplate.opsForHash().increment(key, "recommend", 1);
-
-            return new CommonCountDto(viewCount, commentCount, updateCount.intValue());
+            return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
+        } else if (type.equals(ServiceType.RECOMMEND_CANCEL.name())) {
+            /**
+             * 추천 취소
+             */
+            return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
         }
         return new CommonCountDto(viewCount, commentCount, recommendCount);
-    }
-
-    private int parseOrDefault(Object value) {
-        if (value == null) return 0;
-        try {
-            return Integer.parseInt(value.toString());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 
     /**

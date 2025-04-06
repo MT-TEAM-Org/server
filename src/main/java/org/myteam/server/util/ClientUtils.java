@@ -43,4 +43,11 @@ public class ClientUtils {
         }
         return ip.replaceAll("(\\d+\\.\\d+\\.)(\\d+)(\\.)(\\d+)", "$1***$3**");
     }
+
+    /**
+     * int로 변환
+     */
+    public static int toInt(Object val) {
+        return val != null ? Integer.parseInt(val.toString()) : 0;
+    }
 }
