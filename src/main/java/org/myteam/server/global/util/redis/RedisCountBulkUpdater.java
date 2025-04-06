@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class RedisCountBulkUpdater {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final CountStrategyFactory strategyFactory;
 
-    public RedisCountBulkUpdater(RedisTemplate<String, String> redisTemplate,
+    public RedisCountBulkUpdater(RedisTemplate<String, Object> redisTemplate,
                                  CountStrategyFactory strategyFactory) {
         this.redisTemplate = redisTemplate;
         this.strategyFactory = strategyFactory;
@@ -25,6 +25,7 @@ public class RedisCountBulkUpdater {
      * Redis에 저장된 count 정보 → DB로 벌크 업데이트
      */
     public void bulkUpdate(String type) {
+        System.out.println("RedisCountBulkUpdater.bulkUpdate");
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String pattern = strategy.getRedisPattern();
 
@@ -51,6 +52,8 @@ public class RedisCountBulkUpdater {
 
                 int viewCount = safeParseCount(redisHash.get("view"), count.getViewCount());
                 int commentCount = safeParseCount(redisHash.get("comment"), count.getCommentCount());
+
+                System.out.println("viewCount: " + viewCount + " commentCount: " + commentCount);
 
                 count = new CommonCount<>(count.getCount(), viewCount, commentCount);
 

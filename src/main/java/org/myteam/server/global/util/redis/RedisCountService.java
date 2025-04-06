@@ -33,6 +33,7 @@ public class RedisCountService {
      * 조회수 조회
      */
     public int getViewCount(String type, Long contentId) {
+        System.out.println("RedisCountService.getViewCount");
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
@@ -40,11 +41,14 @@ public class RedisCountService {
         if (value != null) { // cache hit
             // TODO: 키로 바꾸기
             Long newValue = redisTemplate.opsForHash().increment(key, "view", 1);
+            System.out.println("newValue = " + newValue);
             return newValue.intValue();
         }
 
         CommonCount dbValue = strategy.loadFromDatabase(contentId);
         int newCount = dbValue.getViewCount();
+
+        System.out.println("newCount = " + newCount);
 
         redisTemplate.opsForHash().put(key, "view", String.valueOf(newCount));
         redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
@@ -55,6 +59,7 @@ public class RedisCountService {
      * 특정 키 값 조회 + 조회수 증가
      */
     public int getViewCountAndIncr(String type, Long contentId) {
+        System.out.println("RedisCountService.getViewCountAndIncr");
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
@@ -62,12 +67,15 @@ public class RedisCountService {
         if (value != null) { // cache hit
             // TODO: 키로 바꾸기
             Long newValue = redisTemplate.opsForHash().increment(key, "view", 1);
+            System.out.println("newValue = " + newValue);
             return newValue.intValue();
         }
 
         // cache miss
         CommonCount dbValue = strategy.loadFromDatabase(contentId);
         int newCount = dbValue.getViewCount() + 1;
+
+        System.out.println("newCount = " + newCount);
 
         redisTemplate.opsForHash().put(key, "view", String.valueOf(newCount));
         redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
