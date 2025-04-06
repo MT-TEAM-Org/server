@@ -1,24 +1,15 @@
 package org.myteam.server.global.util.redis;
 
+import static org.myteam.server.util.ClientUtils.toInt;
+
 import java.time.Duration;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.recommend.RecommendActionType;
-import org.myteam.server.recommend.RecommendService;
 import org.myteam.server.util.CountStrategy;
 import org.myteam.server.util.CountStrategyFactory;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import static org.myteam.server.util.ClientUtils.toInt;
 
 @Service
 @Slf4j
@@ -33,16 +24,15 @@ public class RedisCountService {
     private final RedissonClient redissonClient;
     private final RedisTemplate<String, String> redisTemplate;
     private final CountStrategyFactory strategyFactory;
-    private final RecommendService recommendService;
+//    private final RecommendService recommendService;
 
     public RedisCountService(RedissonClient redissonClient,
                              RedisTemplate<String, String> redisTemplate,
-                             CountStrategyFactory strategyFactory,
-                             RecommendService recommendService) {
+                             CountStrategyFactory strategyFactory) {
         this.redissonClient = redissonClient;
         this.redisTemplate = redisTemplate;
         this.strategyFactory = strategyFactory;
-        this.recommendService = recommendService;
+//        this.recommendService = recommendService;
     }
 
     /**
@@ -56,8 +46,9 @@ public class RedisCountService {
     /**
      * 각 서비스에서 호출하는 함수.
      * TODO: redisTemplate 타입 변경 RedisTemplate<String, Object>
-     * @param type: 레디스를 호출하는 목적("view", "comment", "recommend", "normal")
-     * @param content: 어떤 게시판인지("board", "news" ...)
+     *
+     * @param type:      레디스를 호출하는 목적("view", "comment", "recommend", "normal")
+     * @param content:   어떤 게시판인지("board", "news" ...)
      * @param contentId: 각 게시판의 id
      * @return
      */
@@ -107,12 +98,12 @@ public class RedisCountService {
              * 추천할 때. 추천할 시 + 1
              * TODO 여기서 분산락 적용하면 됨.
              */
-            return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
+//            return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
         } else if (type.equals(ServiceType.RECOMMEND_CANCEL.name())) {
             /**
              * 추천 취소
              */
-            return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
+//            return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
         }
         return new CommonCountDto(viewCount, commentCount, recommendCount);
     }
@@ -124,14 +115,36 @@ public class RedisCountService {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
-        String value = redisTemplate.opsForValue().get(key);
+        Object value = redisTemplate.opsForHash().get(key, "view");
         if (value != null) {
-            return Integer.parseInt(value);
+            return Integer.parseInt(value.toString());
         }
 
         CommonCount dbValue = strategy.loadFromDatabase(contentId);
         int newCount = dbValue.getViewCount();
-        redisTemplate.opsForValue().set(key, String.valueOf(newCount), Duration.ofMinutes(EXPIRED_TIME));
+
+        redisTemplate.opsForHash().put(key, "view", String.valueOf(newCount));
+        redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
+        return newCount;
+    }
+
+    /**
+     * 댓글수 조회
+     */
+    public int getCommentCount(String type, Long contentId) {
+        CountStrategy strategy = strategyFactory.getStrategy(type);
+        String key = strategy.getRedisKey(contentId);
+
+        Object value = redisTemplate.opsForHash().get(key, "comment");
+        if (value != null) {
+            return Integer.parseInt(value.toString());
+        }
+
+        CommonCount dbValue = strategy.loadFromDatabase(contentId);
+        int newCount = dbValue.getCommentCount();
+
+        redisTemplate.opsForHash().put(key, "comment", String.valueOf(newCount));
+        redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
         return newCount;
     }
 
@@ -185,6 +198,38 @@ public class RedisCountService {
 
         redisTemplate.opsForHash().put(key, "comment", String.valueOf(newCount));
         redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
+        return newCount;
+    }
+
+    /**
+     * 특정 키 값 조회 + 댓글수 감소
+     */
+    public int getCommentCountAndMinus(String type, Long contentId, int minusCount) {
+        CountStrategy strategy = strategyFactory.getStrategy(type);
+        String key = strategy.getRedisKey(contentId);
+
+        Object value = redisTemplate.opsForHash().get(key, "comment");
+        if (value != null) { // cache hit
+            int currentValue = 0;
+            try {
+                currentValue = Integer.parseInt(value.toString());
+            } catch (NumberFormatException e) {
+                log.warn("잘못된 숫자 포맷: key={}, value={}", key, value);
+            }
+
+            int newValue = Math.max(0, currentValue - minusCount);
+            redisTemplate.opsForHash().put(key, "comment", String.valueOf(newValue));
+            return newValue;
+        }
+
+        // cache miss
+        CommonCount dbValue = strategy.loadFromDatabase(contentId);
+        int dbCount = dbValue.getCommentCount();
+        int newCount = Math.max(0, dbCount - minusCount);
+
+        redisTemplate.opsForHash().put(key, "comment", String.valueOf(newCount));
+        redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
+
         return newCount;
     }
 

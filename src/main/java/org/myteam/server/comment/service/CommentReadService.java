@@ -4,6 +4,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
+import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentSaveListResponse;
@@ -36,6 +37,11 @@ public class CommentReadService {
 
     public Comment findById(Long commentId) {
         return commentRepository.findById(commentId)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.COMMENT_NOT_FOUND));
+    }
+
+    public Comment findByIdAndCommentType(Long commentId, CommentType commentType) {
+        return commentRepository.findByIdAndCommentType(commentId, commentType)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.COMMENT_NOT_FOUND));
     }
 

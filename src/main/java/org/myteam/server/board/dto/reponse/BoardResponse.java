@@ -90,7 +90,8 @@ public class BoardResponse {
     private Long nextId;
 
     @Builder
-    public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended, Long previousId, Long nextId, int viewCount) {
+    public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended, Long previousId, Long nextId,
+                         int viewCount, int commentCount) {
         this.boardType = board.getBoardType();
         this.categoryType = board.getCategoryType();
         this.boardId = board.getId();
@@ -103,7 +104,7 @@ public class BoardResponse {
         this.thumbnail = board.getThumbnail();
         this.isRecommended = isRecommended;
         this.recommendCount = boardCount.getRecommendCount();
-        this.commentCount = boardCount.getCommentCount();
+        this.commentCount = commentCount;
         this.viewCount = viewCount; // redis에서 조회한 값
         this.createDate = board.getCreateDate();
         this.lastModifiedDate = board.getLastModifiedDate();
@@ -112,7 +113,7 @@ public class BoardResponse {
     }
 
     public static BoardResponse createResponse(Board board, BoardCount boardCount, boolean isRecommended,
-                                               Long previousId, Long nextId, int viewCount) {
+                                               Long previousId, Long nextId, int viewCount, int commentCount) {
         return BoardResponse.builder()
                 .board(board)
                 .boardCount(boardCount)
@@ -120,6 +121,7 @@ public class BoardResponse {
                 .previousId(previousId)
                 .nextId(nextId)
                 .viewCount(viewCount)
+                .commentCount(commentCount)
                 .build();
     }
 }

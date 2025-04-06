@@ -18,6 +18,7 @@ import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.util.CommentFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
@@ -45,6 +46,7 @@ public class CommentService {
     private final CommentRecommendRepository commentRecommendRepository;
     private final CommentRecommendService commentRecommendService;
     private Map<CommentType, CommentCountService> countServiceMap;
+    private final RedisCountService redisCountService;
 
     @Autowired
     public CommentService(Map<String, CommentCountService> countServices,
@@ -58,7 +60,7 @@ public class CommentService {
                           CommentRecommendReadService commentRecommendReadService,
                           CommentRecommendRepository commentRecommendRepository,
                           CommentRecommendService commentRecommendService,
-                          CommentQueryRepository commentQueryRepository) {
+                          CommentQueryRepository commentQueryRepository, RedisCountService redisCountService) {
 
         this.commentRepository = commentRepository;
         this.commentFactory = commentFactory;
@@ -71,6 +73,7 @@ public class CommentService {
         this.commentRecommendReadService = commentRecommendReadService;
         this.commentRecommendRepository = commentRecommendRepository;
         this.commentRecommendService = commentRecommendService;
+        this.redisCountService = redisCountService;
 
         log.info("등록된 CommentCountService Bean 목록: {}", countServices.keySet());
 
@@ -134,7 +137,8 @@ public class CommentService {
             if (countService == null) {
                 throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
             }
-            countService.addCommentCount(contentId);
+            // 댓글수 증가
+            redisCountService.getCommentCountAndIncr(request.getType().toString().toLowerCase(), contentId);
         }
 
         CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
@@ -183,7 +187,7 @@ public class CommentService {
      */
     public void deleteComment(Long contentId, Long commentId, CommentDeleteRequest request) {
         Member member = securityReadService.getMember();
-        Comment comment = commentReadService.findById(commentId);
+        Comment comment = commentReadService.findByIdAndCommentType(commentId, request.getType());
 
         if (!comment.verifyCommentAuthor(member)) {
             log.warn("댓글 삭제 실패 - 작성자 불일치 (commentId: {}, 요청자: {}, 작성자: {})",
@@ -214,11 +218,13 @@ public class CommentService {
 
         // 댓글 카운트 감소
         if (!request.getType().equals(CommentType.MATCH)) {
-            CommentCountService countService = countServiceMap.get(request.getType());
-            if (countService == null) {
-                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
-            }
-            countService.minusCommentCount(contentId, minusCount);
+//            CommentCountService countService = countServiceMap.get(request.getType());
+//            if (countService == null) {
+//                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
+//            }
+//            countService.minusCommentCount(contentId, minusCount);
+            redisCountService.getCommentCountAndMinus(request.getType().toString().toLowerCase(), contentId,
+                    minusCount);
         }
     }
 

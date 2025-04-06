@@ -3,6 +3,7 @@ package org.myteam.server.comment.repository;
 import java.util.Optional;
 import java.util.UUID;
 import org.myteam.server.comment.domain.Comment;
+import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.NoticeComment;
 import org.myteam.server.notice.domain.Notice;
 import org.springframework.data.domain.Page;
@@ -20,4 +21,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     long countByMemberPublicId(UUID memberPublicId);
 
+    Optional<Comment> findByIdAndCommentType(Long commentId, CommentType commentType);
 }

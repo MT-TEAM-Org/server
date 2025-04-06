@@ -62,6 +62,7 @@ public class BoardService {
         Board board = makeBoard(member, clientIP, request);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
         int viewCount = redisCountService.getViewCountAndIncr("board", board.getId());
+        int CommentCount = redisCountService.getCommentCount("board", board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -72,7 +73,8 @@ public class BoardService {
                 board.getCategoryType());
 
         log.info("게시판 생성: {}", loginUser);
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount);
+        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount,
+                CommentCount);
     }
 
     /**
@@ -117,6 +119,7 @@ public class BoardService {
         Board board = boardReadService.findById(boardId);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
         int viewCount = redisCountService.getViewCountAndIncr("board", boardId);
+        int commentCount = redisCountService.getCommentCount("board", boardId);
 
         boolean isRecommended = false;
 
@@ -131,7 +134,7 @@ public class BoardService {
         Long nextId = boardQueryRepository.findNextBoardId(boardId, board.getBoardType(), board.getCategoryType());
 
         return BoardResponse.createResponse(board, boardCount, isRecommended, previousId,
-                nextId, viewCount);
+                nextId, viewCount, commentCount);
     }
 
     /**
@@ -153,6 +156,7 @@ public class BoardService {
 
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
         int viewCount = redisCountService.getViewCountAndIncr("board", boardId);
+        int commentCount = redisCountService.getCommentCount("board", boardId);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -162,7 +166,8 @@ public class BoardService {
         Long nextId = boardQueryRepository.findNextBoardId(board.getId(), board.getBoardType(),
                 board.getCategoryType());
 
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount);
+        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount,
+                commentCount);
     }
 
     /**
