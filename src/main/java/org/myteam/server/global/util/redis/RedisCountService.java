@@ -1,6 +1,8 @@
 package org.myteam.server.global.util.redis;
 
 import java.time.Duration;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.util.CountStrategy;
 import org.myteam.server.util.CountStrategyFactory;
@@ -10,6 +12,11 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class RedisCountService {
+
+    enum ServiceType {
+        VIEW, COMMENT, RECOMMEND, NORMAL
+    }
+
     private static final long EXPIRED_TIME = 5L; // 조회수 만료 시간. 5분보다 큰 값으로 설정
 
     private final RedisTemplate<String, String> redisTemplate;
@@ -27,6 +34,76 @@ public class RedisCountService {
     public String getRedisKey(String type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         return strategy.getRedisKey(contentId);
+    }
+
+    /**
+     * 각 서비스에서 호출하는 함수.
+     * TODO: redisTemplate 타입 변경 RedisTemplate<String, Object>
+     * @param type: 레디스를 호출하는 목적("view", "comment", "recommend", "normal")
+     * @param content: 어떤 게시판인지("board", "news" ...)
+     * @param contentId: 각 게시판의 id
+     * @return
+     */
+    public CommonCountDto getCommonCount(String type, String content, Long contentId) {
+        CountStrategy strategy = strategyFactory.getStrategy(content);
+        String key = strategy.getRedisKey(contentId);
+
+        // Redis 해시 조회
+        Map<Object, Object> redisMap = redisTemplate.opsForHash().entries(key);
+        Integer viewCount, commentCount, recommendCount;
+
+        if (redisMap == null || redisMap.isEmpty()) { // cache miss
+            CommonCount<?> dbValue = strategy.loadFromDatabase(contentId);
+
+            viewCount = dbValue.getViewCount();
+            commentCount = dbValue.getCommentCount();
+            recommendCount = dbValue.getRecommendCount();
+
+            redisTemplate.opsForHash().putAll(key, Map.of(
+                    "view", viewCount,
+                    "comment", commentCount,
+                    "recommend", recommendCount
+            ));
+            redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
+        } else { // cache hit
+            viewCount = parseOrDefault(redisMap.get("view"));
+            commentCount = parseOrDefault(redisMap.get("comment"));
+            recommendCount = parseOrDefault(redisMap.get("recommend"));
+        }
+
+        if (type.equals(ServiceType.VIEW.name())) {
+            /**
+             * 조회할 때. 조회할 시 + 1
+             */
+            Long updateCount = redisTemplate.opsForHash().increment(key, "view", 1);
+
+            return new CommonCountDto(updateCount.intValue(), commentCount, recommendCount);
+        } else if (type.equals(ServiceType.COMMENT.name())) {
+            /**
+             * 댓글 쓸 때. 댓글 쓸 시 + 1
+             */
+            Long updateCount = redisTemplate.opsForHash().increment(key, "comment", 1);
+
+            return new CommonCountDto(viewCount, updateCount.intValue(), recommendCount);
+        } else if (type.equals(ServiceType.RECOMMEND.name())) {
+            /**
+             * 추천할 때. 추천할 시 + 1
+             * TODO 여기서 분산락 적용하면 됨.
+             */
+            Long updateCount = redisTemplate.opsForHash().increment(key, "recommend", 1);
+
+            return new CommonCountDto(viewCount, commentCount, updateCount.intValue());
+        }
+        return new CommonCountDto(viewCount, commentCount, recommendCount);
+    }
+
+    private int parseOrDefault(Object value) {
+        if (value == null) return 0;
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     /**
