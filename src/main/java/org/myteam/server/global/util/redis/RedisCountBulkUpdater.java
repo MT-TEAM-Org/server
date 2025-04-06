@@ -42,7 +42,9 @@ public class RedisCountBulkUpdater {
                 int viewCount = Integer.parseInt(redisHash.getOrDefault("view", "0").toString());
                 int commentCount = Integer.parseInt(redisHash.getOrDefault("comment", "0").toString());
 
-                CommonCount count = new CommonCount(contentId, viewCount, commentCount);
+                // 💡 contentId를 기반으로 DB에서 객체 가져오기
+                CommonCount<?> count = strategy.loadFromDatabase(contentId);
+                count = new CommonCount<>(count.getCount(), viewCount, commentCount);
 
                 strategy.updateToDatabase(count);
 

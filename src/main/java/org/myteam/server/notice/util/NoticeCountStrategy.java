@@ -47,7 +47,9 @@ public class NoticeCountStrategy implements CountStrategy {
     @Override
     @Transactional
     public void updateToDatabase(CommonCount<?> count) {
-        Long noticeId = (Long) count.getCount();
+        NoticeCount noticeCount = (NoticeCount) count.getCount();
+        Long noticeId = noticeCount.getNotice().getId();
+
         noticeCountRepository.updateAllCounts(
                 noticeId,
                 count.getViewCount(),

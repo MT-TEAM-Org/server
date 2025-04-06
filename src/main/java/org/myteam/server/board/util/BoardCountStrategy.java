@@ -47,7 +47,9 @@ public class BoardCountStrategy implements CountStrategy {
     @Override
     @Transactional
     public void updateToDatabase(CommonCount<?> count) {
-        Long boardId = (Long) count.getCount();
+        BoardCount boardCount = (BoardCount) count.getCount();
+        Long boardId = boardCount.getBoard().getId();
+
         boardCountRepository.updateAllCounts(
                 boardId,
                 count.getViewCount(),

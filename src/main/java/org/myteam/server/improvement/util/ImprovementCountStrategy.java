@@ -47,7 +47,9 @@ public class ImprovementCountStrategy implements CountStrategy {
     @Override
     @Transactional
     public void updateToDatabase(CommonCount<?> count) {
-        Long improvementId = (Long) count.getCount();
+        ImprovementCount improvementCount = (ImprovementCount) count.getCount(); // 이제 boardCount 객체
+        Long improvementId = improvementCount.getImprovement().getId();
+
         improvementCountRepository.updateAllCounts(
                 improvementId,
                 count.getViewCount(),

@@ -47,7 +47,9 @@ public class NewsCountStrategy implements CountStrategy {
     @Override
     @Transactional
     public void updateToDatabase(CommonCount<?> count) {
-        Long newsId = (Long) count.getCount();
+        NewsCount newsCount = (NewsCount) count.getCount();
+        Long newsId = newsCount.getNews().getId();
+        
         newsCountRepository.updateAllCounts(
                 newsId,
                 count.getViewCount(),
