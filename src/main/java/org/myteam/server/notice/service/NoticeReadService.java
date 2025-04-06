@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.notice.domain.Notice;
@@ -33,7 +33,7 @@ public class NoticeReadService {
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeQueryRepository noticeQueryRepository;
     private final SecurityReadService securityReadService;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     public Notice findById(Long noticeId) {
         return noticeRepository.findById(noticeId)
@@ -49,7 +49,7 @@ public class NoticeReadService {
         Notice notice = findById(noticeId);
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
         UUID memberPublicId = securityReadService.getAuthenticatedPublicId();
-        int viewCount = redisViewCountService.getViewCountAndIncr("notice", noticeId);
+        int viewCount = redisCountService.getViewCountAndIncr("notice", noticeId);
 
         boolean isRecommended = false;
 

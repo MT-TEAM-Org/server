@@ -18,7 +18,7 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
@@ -43,7 +43,7 @@ public class BoardService {
     private final MemberReadService memberReadService;
     private final BoardRecommendReadService boardRecommendReadService;
     private final CommentService commentService;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 게시글 작성
@@ -61,7 +61,7 @@ public class BoardService {
 
         Board board = makeBoard(member, clientIP, request);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCountAndIncr("board", board.getId());
+        int viewCount = redisCountService.getViewCountAndIncr("board", board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -116,7 +116,7 @@ public class BoardService {
 
         Board board = boardReadService.findById(boardId);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCountAndIncr("board", boardId);
+        int viewCount = redisCountService.getViewCountAndIncr("board", boardId);
 
         boolean isRecommended = false;
 
@@ -152,7 +152,7 @@ public class BoardService {
         boardRepository.save(board);
 
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCountAndIncr("board", boardId);
+        int viewCount = redisCountService.getViewCountAndIncr("board", boardId);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -183,7 +183,7 @@ public class BoardService {
         //게시글 추천 삭제
         boardRecommendRepository.deleteAllByBoardId(board.getId());
         // 조회수 삭제
-        redisViewCountService.removeViewCount("board", boardId);
+        redisCountService.removeViewCount("board", boardId);
         // 게시글 카운트 삭제
         boardCountRepository.deleteByBoardId(board.getId());
         // 게시글 삭제

@@ -34,7 +34,7 @@ import org.myteam.server.comment.domain.QBoardComment;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.util.ClientUtils;
@@ -49,7 +49,7 @@ import org.springframework.stereotype.Repository;
 public class BoardQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 게시글 목록 조회
@@ -333,7 +333,7 @@ public class BoardQueryRepository {
         List<Long> result = boards.stream()
                 .map(tuple -> {
                     Long boardId = tuple.get(board.id);
-                    int viewCount = redisViewCountService.getViewCount("board", boardId);
+                    int viewCount = redisCountService.getViewCount("board", boardId);
                     int recommendCount = tuple.get(boardCount.recommendCount);
                     int commentCount = tuple.get(boardCount.commentCount);
                     String title = tuple.get(board.title);

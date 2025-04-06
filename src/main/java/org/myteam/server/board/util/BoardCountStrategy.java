@@ -3,19 +3,18 @@ package org.myteam.server.board.util;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.repository.BoardCountRepository;
-import org.myteam.server.board.service.BoardCountReadService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCount;
-import org.myteam.server.util.ViewCountStrategy;
+import org.myteam.server.util.CountStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class BoardViewCountStrategy implements ViewCountStrategy {
+public class BoardCountStrategy implements CountStrategy {
 
-    private final String KEY = "view:board:";
+    private final String KEY = "board:count:";
     private final BoardCountRepository boardCountRepository;
 
     @Override
@@ -34,15 +33,25 @@ public class BoardViewCountStrategy implements ViewCountStrategy {
     }
 
     @Override
-    public CommonCount loadFromDatabase(Long contentId) {
+    public CommonCount<BoardCount> loadFromDatabase(Long contentId) {
         BoardCount boardCount = boardCountRepository.findByBoardId(contentId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
-        return new CommonCount(boardCount, boardCount.getViewCount());
+
+        return new CommonCount<>(
+                boardCount,
+                boardCount.getViewCount(),
+                boardCount.getCommentCount()
+        );
     }
 
     @Override
     @Transactional
-    public void updateToDatabase(Long id, int viewCount) {
-        boardCountRepository.updateViewCount(id, viewCount);
+    public void updateToDatabase(CommonCount<?> count) {
+        Long boardId = (Long) count.getCount();
+        boardCountRepository.updateAllCounts(
+                boardId,
+                count.getViewCount(),
+                count.getCommentCount()
+        );
     }
 }

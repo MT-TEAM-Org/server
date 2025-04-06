@@ -21,4 +21,10 @@ public interface ImprovementCountRepository extends JpaRepository<ImprovementCou
     @Modifying
     @Query("UPDATE ImprovementCount i SET i.viewCount = :viewCount WHERE i.id = :improvementId")
     void updateViewCount(@Param("improvementId") Long improvementId, @Param("viewCount") int viewCount);
+
+    @Modifying
+    @Query("UPDATE ImprovementCount i SET i.viewCount = :view, i.commentCount = :comment WHERE i.id = :improvementId")
+    void updateAllCounts(@Param("improvementId") Long improvementId,
+                         @Param("view") int view,
+                         @Param("comment") int comment);
 }

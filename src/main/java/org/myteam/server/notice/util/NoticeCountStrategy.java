@@ -6,15 +6,15 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCount;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.repository.NoticeCountRepository;
-import org.myteam.server.util.ViewCountStrategy;
+import org.myteam.server.util.CountStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class NoticeViewCountStrategy implements ViewCountStrategy {
+public class NoticeCountStrategy implements CountStrategy {
 
-    private final String KEY = "view:notice:";
+    private final String KEY = "notice:count:";
     private final NoticeCountRepository noticeCountRepository;
 
     @Override
@@ -33,15 +33,25 @@ public class NoticeViewCountStrategy implements ViewCountStrategy {
     }
 
     @Override
-    public CommonCount loadFromDatabase(Long contentId) {
+    public CommonCount<NoticeCount> loadFromDatabase(Long contentId) {
         NoticeCount noticeCount = noticeCountRepository.findByNoticeId(contentId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.NOTICE_NOT_FOUND));
-        return new CommonCount(noticeCount, noticeCount.getViewCount());
+
+        return new CommonCount<>(
+                noticeCount,
+                noticeCount.getViewCount(),
+                noticeCount.getCommentCount()
+        );
     }
 
     @Override
     @Transactional
-    public void updateToDatabase(Long id, int viewCount) {
-        noticeCountRepository.updateViewCount(id, viewCount);
+    public void updateToDatabase(CommonCount<?> count) {
+        Long noticeId = (Long) count.getCount();
+        noticeCountRepository.updateAllCounts(
+                noticeId,
+                count.getViewCount(),
+                count.getCommentCount()
+        );
     }
 }

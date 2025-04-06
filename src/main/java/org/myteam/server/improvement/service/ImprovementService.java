@@ -6,7 +6,7 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
@@ -35,7 +35,7 @@ public class ImprovementService {
     private final ImprovementReadService improvementReadService;
     private final CommentService commentService;
     private final StorageService s3Service;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 개선요청 작성
@@ -48,7 +48,7 @@ public class ImprovementService {
 
         ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
         improvementCountRepository.save(improvementCount);
-        int viewCount = redisViewCountService.getViewCountAndIncr("improvement", improvement.getId());
+        int viewCount = redisCountService.getViewCountAndIncr("improvement", improvement.getId());
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -58,7 +58,8 @@ public class ImprovementService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId, viewCount);
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId,
+                viewCount);
     }
 
     /**
@@ -81,7 +82,7 @@ public class ImprovementService {
         improvementRepository.save(improvement);
 
         ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
-        int viewCount = redisViewCountService.getViewCountAndIncr("improvement", improvementId);
+        int viewCount = redisCountService.getViewCountAndIncr("improvement", improvementId);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -90,7 +91,8 @@ public class ImprovementService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId, viewCount);
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId,
+                viewCount);
     }
 
     /**
@@ -123,7 +125,7 @@ public class ImprovementService {
             s3Service.deleteFile(improvement.getImgUrl());
         }
 
-        redisViewCountService.removeViewCount("improvement", improvementId);
+        redisCountService.removeViewCount("improvement", improvementId);
 
         improvementCountRepository.deleteByImprovementId(improvement.getId());
         improvementRepository.delete(improvement);

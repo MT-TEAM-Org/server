@@ -6,7 +6,7 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -36,7 +36,7 @@ public class NoticeService {
     private final NoticeCountReadService noticeCountReadService;
     private final CommentService commentService;
     private final StorageService s3Service;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 공지사항 작성
@@ -54,7 +54,7 @@ public class NoticeService {
         NoticeCount noticeCount = NoticeCount.createNoticeCount(notice);
         noticeCountRepository.save(noticeCount);
 
-        int viewCount = redisViewCountService.getViewCountAndIncr("notice", notice.getId());
+        int viewCount = redisCountService.getViewCountAndIncr("notice", notice.getId());
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -105,7 +105,7 @@ public class NoticeService {
         noticeRepository.save(notice);
 
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
-        int viewCount = redisViewCountService.getViewCountAndIncr("notice", noticeId);
+        int viewCount = redisCountService.getViewCountAndIncr("notice", noticeId);
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -137,7 +137,7 @@ public class NoticeService {
             s3Service.deleteFile(notice.getImgUrl());
         }
 
-        redisViewCountService.removeViewCount("notice", noticeId);
+        redisCountService.removeViewCount("notice", noticeId);
 
         noticeCountRepository.deleteByNoticeId(notice.getId());
         noticeRepository.delete(notice);

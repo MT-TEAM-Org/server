@@ -21,7 +21,7 @@ import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeRankingDto;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Repository;
 public class NoticeQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 공지사항 목록 조회
@@ -182,7 +182,7 @@ public class NoticeQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long noticeId = tuple.get(notice.id);
-                    int viewCount = redisViewCountService.getViewCount("notice", noticeId);
+                    int viewCount = redisCountService.getViewCount("notice", noticeId);
                     int recommendCount = tuple.get(noticeCount.recommendCount);
                     int commentCount = tuple.get(noticeCount.commentCount);
                     String title = tuple.get(notice.title);

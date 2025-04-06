@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ViewCountScheduler {
 
-    private final RedisViewCountBulkUpdater bulkUpdater;
+    private final RedisCountBulkUpdater bulkUpdater;
 
     @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 5 * 60 * 1000) // 실행 후 5분마다
     public void updateBoardViews() {
