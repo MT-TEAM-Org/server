@@ -12,6 +12,7 @@ import org.myteam.server.global.security.filter.TokenAuthenticationFilter;
 import org.myteam.server.global.security.handler.LogoutSuccessHandler;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.security.service.CustomUserDetailsService;
+import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
@@ -192,6 +193,7 @@ public class SecurityConfig {
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final RefreshJpaRepository refreshJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
+	private final RedisService redisService;
 
 	@PostConstruct
 	public void init() {
@@ -233,7 +235,7 @@ public class SecurityConfig {
 
 		// JWT 인증 및 토큰 검증 필터 추가
 		http.addFilterAt(
-				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher),
+				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher, redisService),
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);
