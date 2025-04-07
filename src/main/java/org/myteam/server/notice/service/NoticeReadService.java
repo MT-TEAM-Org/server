@@ -17,6 +17,7 @@ import org.myteam.server.notice.dto.response.NoticeResponse.NoticeListResponse;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
 import org.myteam.server.notice.repository.NoticeQueryRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,7 @@ public class NoticeReadService {
         Notice notice = findById(noticeId);
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
         UUID memberPublicId = securityReadService.getAuthenticatedPublicId();
-        int viewCount = redisCountService.getViewCountAndIncr("notice", noticeId);
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.NOTICE, noticeId);
 
         boolean isRecommended = false;
 

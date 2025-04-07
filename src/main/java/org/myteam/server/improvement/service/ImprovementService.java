@@ -17,6 +17,7 @@ import org.myteam.server.improvement.repository.ImprovementQueryRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +49,7 @@ public class ImprovementService {
 
         ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
         improvementCountRepository.save(improvementCount);
-        int viewCount = redisCountService.getViewCountAndIncr("improvement", improvement.getId());
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.IMPROVEMENT, improvement.getId());
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -82,7 +83,7 @@ public class ImprovementService {
         improvementRepository.save(improvement);
 
         ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
-        int viewCount = redisCountService.getViewCountAndIncr("improvement", improvementId);
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.IMPROVEMENT, improvementId);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -125,7 +126,7 @@ public class ImprovementService {
             s3Service.deleteFile(improvement.getImgUrl());
         }
 
-        redisCountService.removeViewCount("improvement", improvementId);
+        redisCountService.removeViewCount(DomainType.IMPROVEMENT, improvementId);
 
         improvementCountRepository.deleteByImprovementId(improvement.getId());
         improvementRepository.delete(improvement);

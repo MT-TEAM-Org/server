@@ -29,6 +29,7 @@ import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.myteam.server.board.dto.reponse.BoardRankingDto;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
+import org.myteam.server.board.util.RedisBoardRankingReader;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QBoardComment;
 import org.myteam.server.comment.domain.QComment;
@@ -37,6 +38,7 @@ import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -49,7 +51,7 @@ import org.springframework.stereotype.Repository;
 public class BoardQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final RedisCountService redisCountService;
+    private final RedisBoardRankingReader rankingReader;
 
     /**
      * 게시글 목록 조회
@@ -333,7 +335,8 @@ public class BoardQueryRepository {
         List<Long> result = boards.stream()
                 .map(tuple -> {
                     Long boardId = tuple.get(board.id);
-                    int viewCount = redisCountService.getViewCount("board", boardId);
+                    // TODO: rankingReader로 모두 변환
+                    int viewCount = rankingReader.getViewCount(boardId);
                     int recommendCount = tuple.get(boardCount.recommendCount);
                     int commentCount = tuple.get(boardCount.commentCount);
                     String title = tuple.get(board.title);

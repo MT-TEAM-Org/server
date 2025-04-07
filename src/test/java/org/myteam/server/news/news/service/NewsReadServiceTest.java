@@ -3,8 +3,7 @@ package org.myteam.server.news.news.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDateTime;
@@ -23,6 +22,7 @@ import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
 import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.repository.OrderType;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class NewsReadServiceTest extends IntegrationTestSupport {
@@ -443,7 +443,7 @@ class NewsReadServiceTest extends IntegrationTestSupport {
         createNews(3, Category.ESPORTS, 15);
         createNews(4, Category.BASEBALL, 12);
 
-        given(redisCountService.getViewCountAndIncr(anyString(), anyLong()))
+        given(redisCountService.getViewCountAndIncr(eq(DomainType.NEWS), anyLong()))
                 .willReturn(10);
         NewsResponse newsResponse = newsReadService.findOne(news.getId());
 

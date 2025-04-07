@@ -23,6 +23,7 @@ import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.upload.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -138,7 +139,7 @@ public class CommentService {
                 throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
             }
             // 댓글수 증가
-            redisCountService.getCommentCountAndIncr(request.getType().toString().toLowerCase(), contentId);
+            redisCountService.getCommentCountAndIncr(DomainType.changeType(request.getType()), contentId);
         }
 
         CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
@@ -223,7 +224,7 @@ public class CommentService {
 //                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
 //            }
 //            countService.minusCommentCount(contentId, minusCount);
-            redisCountService.getCommentCountAndMinus(request.getType().toString().toLowerCase(), contentId,
+            redisCountService.getCommentCountAndMinus(DomainType.changeType(request.getType()), contentId,
                     minusCount);
         }
     }

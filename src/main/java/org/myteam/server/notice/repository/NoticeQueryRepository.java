@@ -25,6 +25,7 @@ import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeRankingDto;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -182,7 +183,7 @@ public class NoticeQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long noticeId = tuple.get(notice.id);
-                    int viewCount = redisCountService.getViewCount("notice", noticeId);
+                    int viewCount = redisCountService.getViewCount(DomainType.NOTICE, noticeId);
                     int recommendCount = tuple.get(noticeCount.recommendCount);
                     int commentCount = tuple.get(noticeCount.commentCount);
                     String title = tuple.get(notice.title);

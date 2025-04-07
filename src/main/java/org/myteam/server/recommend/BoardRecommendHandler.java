@@ -4,9 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.repository.BoardRecommendRepository;
+import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -17,11 +21,11 @@ public class BoardRecommendHandler implements RecommendHandler {
 
     private final BoardRecommendReadService boardRecommendReadService;
     private final BoardRecommendRepository boardRecommendRepository;
-    private final BoardReadService boardReadService;
+    private final BoardRepository boardRepository;
 
     @Override
-    public boolean supports(String content) {
-        return content.equalsIgnoreCase("board");
+    public boolean supports(DomainType type) {
+        return type.name().equalsIgnoreCase("board");
     }
 
     @Override
@@ -33,7 +37,8 @@ public class BoardRecommendHandler implements RecommendHandler {
     @Override
     public void saveRecommendation(Long contentId, Member member) {
         // 저장 또는 큐에 넣기
-        Board board = boardReadService.findById(contentId);
+        Board board = boardRepository.findById(contentId)
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
         BoardRecommend recommend = BoardRecommend.builder().board(board).member(member).build();
         boardRecommendRepository.save(recommend);
     }

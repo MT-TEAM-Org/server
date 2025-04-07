@@ -28,6 +28,7 @@ import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementRankingDto;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -167,7 +168,7 @@ public class ImprovementQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long improvementId = tuple.get(improvement.id);
-                    int viewCount = redisCountService.getViewCount("improvement", improvementId);
+                    int viewCount = redisCountService.getViewCount(DomainType.IMPROVEMENT, improvementId);
                     int recommendCount = tuple.get(improvementCount.recommendCount);
                     int commentCount = tuple.get(improvementCount.commentCount);
                     String title = tuple.get(improvement.title);

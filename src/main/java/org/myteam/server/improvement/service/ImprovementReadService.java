@@ -17,6 +17,7 @@ import org.myteam.server.improvement.repository.ImprovementQueryRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +49,7 @@ public class ImprovementReadService {
 
         Improvement improvement = findById(improvementId);
         ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
-        int viewCount = redisCountService.getViewCountAndIncr("improvement", improvementId);
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.IMPROVEMENT, improvementId);
 
         boolean isRecommended = false;
 

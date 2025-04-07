@@ -23,6 +23,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,8 +62,8 @@ public class BoardService {
 
         Board board = makeBoard(member, clientIP, request);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisCountService.getViewCountAndIncr("board", board.getId());
-        int CommentCount = redisCountService.getCommentCount("board", board.getId());
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.BOARD, board.getId());
+        int CommentCount = redisCountService.getCommentCount(DomainType.BOARD, board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -118,8 +119,8 @@ public class BoardService {
 
         Board board = boardReadService.findById(boardId);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisCountService.getViewCountAndIncr("board", boardId);
-        int commentCount = redisCountService.getCommentCount("board", boardId);
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.BOARD, boardId);
+        int commentCount = redisCountService.getCommentCount(DomainType.BOARD, boardId);
 
         boolean isRecommended = false;
 
@@ -155,8 +156,8 @@ public class BoardService {
         boardRepository.save(board);
 
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisCountService.getViewCountAndIncr("board", boardId);
-        int commentCount = redisCountService.getCommentCount("board", boardId);
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.BOARD, boardId);
+        int commentCount = redisCountService.getCommentCount(DomainType.BOARD, boardId);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -188,7 +189,7 @@ public class BoardService {
         //게시글 추천 삭제
         boardRecommendRepository.deleteAllByBoardId(board.getId());
         // 조회수 삭제
-        redisCountService.removeViewCount("board", boardId);
+        redisCountService.removeViewCount(DomainType.BOARD, boardId);
         // 게시글 카운트 삭제
         boardCountRepository.deleteByBoardId(board.getId());
         // 게시글 삭제

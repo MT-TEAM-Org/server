@@ -16,6 +16,7 @@ import org.myteam.server.news.news.repository.NewsQueryRepository;
 import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsCount.service.NewsCountReadService;
 import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +45,7 @@ public class NewsReadService {
         boolean recommendYn = publicId != null && newsCountMemberReadService.confirmRecommendMember(newsId, publicId);
 
         News news = findById(newsId);
-        int viewCount = redisCountService.getViewCountAndIncr("news", newsId);
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.NEWS, newsId);
 
         Long previousId = newsQueryRepository.findPreviousNewsId(news.getId(), news.getCategory());
         Long nextId = newsQueryRepository.findNextNewsId(news.getId(), news.getCategory());

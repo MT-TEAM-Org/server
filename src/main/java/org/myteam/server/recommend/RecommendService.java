@@ -1,11 +1,16 @@
 package org.myteam.server.recommend;
 
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.improvement.service.ImprovementReadService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.news.news.service.NewsReadService;
+import org.myteam.server.notice.service.NoticeReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,9 +29,14 @@ public class RecommendService {
     private final RedissonClient redissonClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private final SecurityReadService securityReadService;
+//    // TODO: 이거 나중에 추가하기
+//    private final BoardReadService boardReadService;
+//    private final NewsReadService newsReadService;
+//    private final NoticeReadService noticeReadService;
+//    private final ImprovementReadService improvementReadService;
 
     public CommonCountDto handleRecommend(
-            String content,
+            DomainType content,
             Long contentId,
             RecommendActionType actionType,
             String redisKey
@@ -83,4 +93,19 @@ public class RecommendService {
             }
         }
     }
+
+//    private Object getContentObject(DomainType content, Long contentId) {
+//        switch (content) {
+//            case BOARD:
+//                return boardReadService.findById(contentId);
+//            case NEWS:
+//                return newsReadService.findById(contentId);
+//            case NOTICE:
+//                return noticeReadService.getNotice(contentId);
+//            case IMPROVEMENT:
+//                return improvementReadService.getImprovement(contentId);
+//            default:
+//                throw new PlayHiveException(ErrorCode.INVALID_TYPE);
+//        }
+//    }
 }

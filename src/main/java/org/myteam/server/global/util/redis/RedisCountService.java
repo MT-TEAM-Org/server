@@ -5,6 +5,10 @@ import static org.myteam.server.util.ClientUtils.toInt;
 import java.time.Duration;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.recommend.RecommendActionType;
+import org.myteam.server.recommend.RecommendService;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.CountStrategy;
 import org.myteam.server.util.CountStrategyFactory;
 import org.redisson.api.RedissonClient;
@@ -24,21 +28,22 @@ public class RedisCountService {
     private final RedissonClient redissonClient;
     private final RedisTemplate<String, String> redisTemplate;
     private final CountStrategyFactory strategyFactory;
-//    private final RecommendService recommendService;
+    private final RecommendService recommendService;
 
     public RedisCountService(RedissonClient redissonClient,
                              RedisTemplate<String, String> redisTemplate,
-                             CountStrategyFactory strategyFactory) {
+                             CountStrategyFactory strategyFactory,
+                             RecommendService recommendService) {
         this.redissonClient = redissonClient;
         this.redisTemplate = redisTemplate;
         this.strategyFactory = strategyFactory;
-//        this.recommendService = recommendService;
+        this.recommendService = recommendService;
     }
 
     /**
      * 네이티브한 키 값.
      */
-    public String getRedisKey(String type, Long contentId) {
+    public String getRedisKey(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         return strategy.getRedisKey(contentId);
     }
@@ -52,7 +57,7 @@ public class RedisCountService {
      * @param contentId: 각 게시판의 id
      * @return
      */
-    public CommonCountDto getCommonCount(String type, String content, Long contentId) {
+    public CommonCountDto getCommonCount(String type, DomainType content, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(content);
         String key = strategy.getRedisKey(contentId);
 
@@ -98,12 +103,12 @@ public class RedisCountService {
              * 추천할 때. 추천할 시 + 1
              * TODO 여기서 분산락 적용하면 됨.
              */
-//            return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
+            return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
         } else if (type.equals(ServiceType.RECOMMEND_CANCEL.name())) {
             /**
              * 추천 취소
              */
-//            return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
+            return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
         }
         return new CommonCountDto(viewCount, commentCount, recommendCount);
     }
@@ -111,7 +116,7 @@ public class RedisCountService {
     /**
      * 조회수 조회
      */
-    public int getViewCount(String type, Long contentId) {
+    public int getViewCount(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
@@ -131,7 +136,7 @@ public class RedisCountService {
     /**
      * 댓글수 조회
      */
-    public int getCommentCount(String type, Long contentId) {
+    public int getCommentCount(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
@@ -151,7 +156,7 @@ public class RedisCountService {
     /**
      * 특정 키 값 조회 + 조회수 증가
      */
-    public int getViewCountAndIncr(String type, Long contentId) {
+    public int getViewCountAndIncr(DomainType type, Long contentId) {
         System.out.println("RedisCountService.getViewCountAndIncr");
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
@@ -178,7 +183,7 @@ public class RedisCountService {
     /**
      * 특정 키 값 조회 + 댓글수 증가
      */
-    public int getCommentCountAndIncr(String type, Long contentId) {
+    public int getCommentCountAndIncr(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
@@ -204,7 +209,7 @@ public class RedisCountService {
     /**
      * 특정 키 값 조회 + 댓글수 감소
      */
-    public int getCommentCountAndMinus(String type, Long contentId, int minusCount) {
+    public int getCommentCountAndMinus(DomainType type, Long contentId, int minusCount) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
 
@@ -236,7 +241,7 @@ public class RedisCountService {
     /**
      * 조회수 증가
      */
-    public void incrementViewCount(String type, Long contentId) {
+    public void incrementViewCount(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
         redisTemplate.opsForHash().increment(key, "view", 1);
@@ -245,7 +250,7 @@ public class RedisCountService {
     /**
      * 댓글 수 증가
      */
-    public void incrementCommentCount(String type, Long contentId) {
+    public void incrementCommentCount(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
         redisTemplate.opsForHash().increment(key, "comment", 1);
@@ -254,7 +259,7 @@ public class RedisCountService {
     /**
      * 특정 키 삭제 (전체 Hash 삭제)
      */
-    public void removeViewCount(String type, Long contentId) {
+    public void removeViewCount(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
         redisTemplate.delete(key);

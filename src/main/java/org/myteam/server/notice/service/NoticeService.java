@@ -17,6 +17,7 @@ import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
 import org.myteam.server.notice.repository.NoticeCountRepository;
 import org.myteam.server.notice.repository.NoticeQueryRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,7 @@ public class NoticeService {
         NoticeCount noticeCount = NoticeCount.createNoticeCount(notice);
         noticeCountRepository.save(noticeCount);
 
-        int viewCount = redisCountService.getViewCountAndIncr("notice", notice.getId());
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.NOTICE, notice.getId());
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -105,7 +106,7 @@ public class NoticeService {
         noticeRepository.save(notice);
 
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
-        int viewCount = redisCountService.getViewCountAndIncr("notice", noticeId);
+        int viewCount = redisCountService.getViewCountAndIncr(DomainType.NOTICE, noticeId);
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -137,7 +138,7 @@ public class NoticeService {
             s3Service.deleteFile(notice.getImgUrl());
         }
 
-        redisCountService.removeViewCount("notice", noticeId);
+        redisCountService.removeViewCount(DomainType.NOTICE, noticeId);
 
         noticeCountRepository.deleteByNoticeId(notice.getId());
         noticeRepository.delete(notice);

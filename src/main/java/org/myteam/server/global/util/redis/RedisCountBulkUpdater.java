@@ -3,6 +3,7 @@ package org.myteam.server.global.util.redis;
 import java.util.Map;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.CountStrategy;
 import org.myteam.server.util.CountStrategyFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,7 +25,7 @@ public class RedisCountBulkUpdater {
     /**
      * Redis에 저장된 count 정보 → DB로 벌크 업데이트
      */
-    public void bulkUpdate(String type) {
+    public void bulkUpdate(DomainType type) {
         System.out.println("RedisCountBulkUpdater.bulkUpdate");
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String pattern = strategy.getRedisPattern();

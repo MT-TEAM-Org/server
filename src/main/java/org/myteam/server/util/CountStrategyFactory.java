@@ -7,6 +7,7 @@ import org.myteam.server.board.util.BoardCountStrategy;
 import org.myteam.server.improvement.util.ImprovementCountStrategy;
 import org.myteam.server.news.util.NewsCountStrategy;
 import org.myteam.server.notice.util.NoticeCountStrategy;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,7 +31,7 @@ public class CountStrategyFactory {
         }
     }
 
-    public CountStrategy getStrategy(String type) {
-        return strategies.get(type);
+    public CountStrategy getStrategy(DomainType type) {
+        return strategies.get(type.name());
     }
 }
