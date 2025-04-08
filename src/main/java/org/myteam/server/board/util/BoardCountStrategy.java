@@ -40,7 +40,8 @@ public class BoardCountStrategy implements CountStrategy {
         return new CommonCount<>(
                 boardCount,
                 boardCount.getViewCount(),
-                boardCount.getCommentCount()
+                boardCount.getCommentCount(),
+                boardCount.getRecommendCount()
         );
     }
 

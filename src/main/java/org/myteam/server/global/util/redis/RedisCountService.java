@@ -5,7 +5,6 @@ import static org.myteam.server.util.ClientUtils.toInt;
 import java.time.Duration;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.recommend.RecommendActionType;
 import org.myteam.server.recommend.RecommendService;
 import org.myteam.server.report.domain.DomainType;
@@ -48,6 +47,7 @@ public class RedisCountService {
      * 각 서비스에서 호출하는 함수.
      * TODO: redisTemplate 타입 변경 RedisTemplate<String, Object>
      * TODO: BOARD, NEWS, NOTICE, IMPROVEMENT에 모두 적용.
+     * TODO: ServiceType에 COMMENT_REMOVE도 필요
      *
      * @param type:      레디스를 호출하는 목적("view", "comment", "recommend", "normal")
      * @param content:   어떤 게시판인지("board", "news" ...)
