@@ -59,6 +59,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Token"),
     MISSING_AUTH_HEADER(HttpStatus.UNAUTHORIZED, "No Authorization header or not Bearer type"),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token"),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token Expired"),
     UNAUTHORIZED_EMAIL_ACCOUNT(HttpStatus.UNAUTHORIZED,
             "Email account verification failed due to an invalid refresh token."),
 
