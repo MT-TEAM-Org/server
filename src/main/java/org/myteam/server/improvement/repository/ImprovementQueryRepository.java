@@ -23,6 +23,7 @@ import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QImprovementComment;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
@@ -168,9 +169,10 @@ public class ImprovementQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long improvementId = tuple.get(improvement.id);
-                    int viewCount = redisCountService.getViewCount(DomainType.IMPROVEMENT, improvementId);
-                    int recommendCount = tuple.get(improvementCount.recommendCount);
-                    int commentCount = tuple.get(improvementCount.commentCount);
+                    CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementId);
+                    int viewCount = commonCountDto.getViewCount();
+                    int recommendCount = commonCountDto.getRecommendCount();
+                    int commentCount = commonCountDto.getCommentCount();
                     String title = tuple.get(improvement.title);
 
                     return new ImprovementRankingDto(improvementId, viewCount, recommendCount, commentCount, title,

@@ -107,8 +107,7 @@ public class NoticeService {
         notice.updateNotice(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         noticeRepository.save(notice);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.NOTICE,
-                notice.getId(), null);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NOTICE, notice.getId());
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 

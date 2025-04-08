@@ -20,5 +20,6 @@ public class ViewCountScheduler {
         bulkUpdater.bulkUpdate(DomainType.NEWS);
         bulkUpdater.bulkUpdate(DomainType.NOTICE);
         bulkUpdater.bulkUpdate(DomainType.IMPROVEMENT);
+        bulkUpdater.bulkUpdate(DomainType.INQUIRY);
     }
 }

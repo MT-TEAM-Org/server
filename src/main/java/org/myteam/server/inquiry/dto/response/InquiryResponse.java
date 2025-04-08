@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.util.ClientUtils;
@@ -86,23 +87,23 @@ public record InquiryResponse() {
 
 
         @Builder
-        public InquiryDetailsResponse(Inquiry inquiry, InquiryCount inquiryCount, Long previousId, Long nextId) {
+        public InquiryDetailsResponse(Inquiry inquiry, CommonCountDto commonCount, Long previousId, Long nextId) {
             this.inquiryId = inquiry.getId();
             this.publicID = inquiry.getMember().getPublicId();
             this.nickname = inquiry.getMember().getNickname();
             this.clientIp = ClientUtils.maskIp(inquiry.getClientIp());
             this.content = inquiry.getContent();
             this.createdAt = inquiry.getCreatedAt();
-            this.commentCount = inquiryCount.getCommentCount();
+            this.commentCount = commonCount.getCommentCount();
             this.previousId = previousId;
             this.nextId = nextId;
         }
 
-        public static InquiryDetailsResponse createResponse(Inquiry inquiry, InquiryCount inquiryCount, Long previousId,
+        public static InquiryDetailsResponse createResponse(Inquiry inquiry, CommonCountDto commonCount, Long previousId,
                                                             Long nextId) {
             return InquiryDetailsResponse.builder()
                     .inquiry(inquiry)
-                    .inquiryCount(inquiryCount)
+                    .commonCount(commonCount)
                     .previousId(previousId)
                     .nextId(nextId)
                     .build();

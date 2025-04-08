@@ -109,6 +109,38 @@ public class RedisCountService {
         return new CommonCountDto(viewCount, commentCount, recommendCount);
     }
 
+    public CommonCountDto getCommonCount(DomainType type, Long contentId) {
+        CountStrategy strategy = strategyFactory.getStrategy(type);
+        String key = strategy.getRedisKey(contentId);
+
+        // Redis 해시 조회
+        Map<Object, Object> redisMap = redisTemplate.opsForHash().entries(key);
+        Integer viewCount, commentCount, recommendCount;
+
+        if (redisMap == null || redisMap.isEmpty()) { // cache miss
+            log.info("cache miss type: {}, id: {}", type, contentId);
+            CommonCount<?> dbValue = strategy.loadFromDatabase(contentId);
+
+            viewCount = dbValue.getViewCount();
+            commentCount = dbValue.getCommentCount();
+            recommendCount = dbValue.getRecommendCount();
+
+            redisTemplate.opsForHash().putAll(key, Map.of(
+                    "view", String.valueOf(viewCount),
+                    "comment", String.valueOf(commentCount),
+                    "recommend", String.valueOf(recommendCount)
+            ));
+            redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
+        } else { // cache hit
+            log.info("cache hit type: {}, id: {}", type, contentId);
+            viewCount = toInt(redisMap.get("view"));
+            commentCount = toInt(redisMap.get("comment"));
+            recommendCount = toInt(redisMap.get("recommend"));
+        }
+
+        return new CommonCountDto(viewCount, commentCount, recommendCount);
+    }
+
     /**
      * 조회수 조회
      */

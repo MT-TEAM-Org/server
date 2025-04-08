@@ -11,6 +11,7 @@ public enum DomainType {
             case NEWS -> DomainType.NEWS;
             case NOTICE -> DomainType.NOTICE;
             case IMPROVEMENT -> DomainType.IMPROVEMENT;
+            case INQUIRY -> DomainType.INQUIRY;
             default -> null;
         };
     }

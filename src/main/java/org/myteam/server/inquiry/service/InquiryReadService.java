@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.dto.request.InquiryRequest.InquiryServiceRequest;
@@ -16,6 +18,7 @@ import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class InquiryReadService {
     private final InquiryRepository inquiryRepository;
     private final SecurityReadService securityReadService;
     private final InquiryCountReadService inquiryCountReadService;
+    private final RedisCountService redisCountService;
 
     /**
      * 검색 + 정렬 기능
@@ -89,14 +93,14 @@ public class InquiryReadService {
         Inquiry inquiry = findInquiryById(inquiryId);
         inquiry.verifyInquiryAuthor(member);
 
-        InquiryCount inquiryCount = inquiryCountReadService.findByInquiryId(inquiry.getId());
+        CommonCountDto commonCount = redisCountService.getCommonCount(DomainType.INQUIRY, inquiryId);
 
         log.info("요청 멤버: {}, 조회 문의내역: {} 성공", member.getPublicId(), inquiryId);
 
         Long previousId = inquiryQueryRepository.findPreviousInquiry(inquiry.getId(), member.getPublicId());
         Long nextId = inquiryQueryRepository.findNextInquiryId(inquiry.getId(), member.getPublicId());
 
-        return InquiryDetailsResponse.createResponse(inquiry, inquiryCount, previousId, nextId);
+        return InquiryDetailsResponse.createResponse(inquiry, commonCount, previousId, nextId);
     }
 
     public Inquiry findInquiryById(Long inquiryId) {

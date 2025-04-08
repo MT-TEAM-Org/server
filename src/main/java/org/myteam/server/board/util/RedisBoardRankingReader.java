@@ -1,6 +1,7 @@
 package org.myteam.server.board.util;
 
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RankingCacheReader;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.report.domain.DomainType;
@@ -19,9 +20,7 @@ public class RedisBoardRankingReader implements RankingCacheReader {
 
     @Override
     public int getTotalScore(Long boardId) {
-        int view = redisCountService.getViewCount(DomainType.BOARD, boardId);
-//        int recommend = redisCountService.getRecommendCount(DomainType.BOARD, boardId);
-//        return view + recommend;
-        return view + 0;
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, boardId);
+        return commonCountDto.getViewCount() + commonCountDto.getRecommendCount();
     }
 }
