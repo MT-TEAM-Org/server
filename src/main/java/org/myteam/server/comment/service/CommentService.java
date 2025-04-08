@@ -19,6 +19,7 @@ import org.myteam.server.comment.util.CommentFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
@@ -139,7 +140,8 @@ public class CommentService {
                 throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
             }
             // 댓글수 증가
-            redisCountService.getCommentCountAndIncr(DomainType.changeType(request.getType()), contentId);
+            redisCountService.getCommonCount(ServiceType.COMMENT, DomainType.changeType(request.getType()), contentId,
+                    null);
         }
 
         CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
@@ -219,13 +221,8 @@ public class CommentService {
 
         // 댓글 카운트 감소
         if (!request.getType().equals(CommentType.MATCH)) {
-//            CommentCountService countService = countServiceMap.get(request.getType());
-//            if (countService == null) {
-//                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
-//            }
-//            countService.minusCommentCount(contentId, minusCount);
-            redisCountService.getCommentCountAndMinus(DomainType.changeType(request.getType()), contentId,
-                    minusCount);
+            redisCountService.getCommonCount(ServiceType.COMMENT_REMOVE, DomainType.changeType(request.getType()),
+                    contentId, minusCount);
         }
     }
 

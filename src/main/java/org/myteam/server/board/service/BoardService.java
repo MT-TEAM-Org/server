@@ -18,7 +18,9 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
@@ -61,9 +63,9 @@ public class BoardService {
         verifyBoardTypeAndCategoryType(request.getBoardType(), request.getCategoryType());
 
         Board board = makeBoard(member, clientIP, request);
-        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisCountService.getViewCountAndIncr(DomainType.BOARD, board.getId());
-        int CommentCount = redisCountService.getCommentCount(DomainType.BOARD, board.getId());
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.BOARD,
+                board.getId(), null);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -74,8 +76,7 @@ public class BoardService {
                 board.getCategoryType());
 
         log.info("게시판 생성: {}", loginUser);
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount,
-                CommentCount);
+        return BoardResponse.createResponse(board, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**
@@ -118,9 +119,9 @@ public class BoardService {
     public BoardResponse getBoard(final Long boardId, CustomUserDetails userDetails) {
 
         Board board = boardReadService.findById(boardId);
-        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisCountService.getViewCountAndIncr(DomainType.BOARD, boardId);
-        int commentCount = redisCountService.getCommentCount(DomainType.BOARD, boardId);
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.BOARD,
+                board.getId(), null);
 
         boolean isRecommended = false;
 
@@ -134,8 +135,7 @@ public class BoardService {
                 board.getCategoryType());
         Long nextId = boardQueryRepository.findNextBoardId(boardId, board.getBoardType(), board.getCategoryType());
 
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId,
-                nextId, viewCount, commentCount);
+        return BoardResponse.createResponse(board, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**
@@ -155,9 +155,8 @@ public class BoardService {
         board.updateBoard(request);
         boardRepository.save(board);
 
-        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisCountService.getViewCountAndIncr(DomainType.BOARD, boardId);
-        int commentCount = redisCountService.getCommentCount(DomainType.BOARD, boardId);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.BOARD,
+                board.getId(), null);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -167,8 +166,7 @@ public class BoardService {
         Long nextId = boardQueryRepository.findNextBoardId(board.getId(), board.getBoardType(),
                 board.getCategoryType());
 
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount,
-                commentCount);
+        return BoardResponse.createResponse(board, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**
@@ -189,7 +187,7 @@ public class BoardService {
         //게시글 추천 삭제
         boardRecommendRepository.deleteAllByBoardId(board.getId());
         // 조회수 삭제
-        redisCountService.removeViewCount(DomainType.BOARD, boardId);
+        redisCountService.removeCount(DomainType.BOARD, boardId);
         // 게시글 카운트 삭제
         boardCountRepository.deleteByBoardId(board.getId());
         // 게시글 삭제

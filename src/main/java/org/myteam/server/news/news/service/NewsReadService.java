@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.dto.repository.NewsDto;
@@ -45,17 +47,17 @@ public class NewsReadService {
         boolean recommendYn = publicId != null && newsCountMemberReadService.confirmRecommendMember(newsId, publicId);
 
         News news = findById(newsId);
-        int viewCount = redisCountService.getViewCountAndIncr(DomainType.NEWS, newsId);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.NEWS, newsId,
+                null);
 
         Long previousId = newsQueryRepository.findPreviousNewsId(news.getId(), news.getCategory());
         Long nextId = newsQueryRepository.findNextNewsId(news.getId(), news.getCategory());
 
         return NewsResponse.createResponse(
                 news,
-                newsCountReadService.findByNewsId(newsId),
                 recommendYn,
                 previousId,
-                nextId, viewCount
+                nextId, commonCountDto
         );
     }
 

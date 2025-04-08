@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.notice.domain.Notice;
-import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.util.ClientUtils;
 
 public record NoticeResponse() {
@@ -43,8 +45,8 @@ public record NoticeResponse() {
         private Long nextId;
         private String link;
 
-        public static NoticeSaveResponse createResponse(Notice notice, NoticeCount noticeCount, boolean isRecommended,
-                                                        Long previousId, Long nextId, int viewCount) {
+        public static NoticeSaveResponse createResponse(Notice notice, boolean isRecommended,
+                                                        Long previousId, Long nextId, CommonCountDto commonCountDto) {
             return NoticeSaveResponse.builder()
                     .noticeId(notice.getId())
                     .publicId(notice.getMember().getPublicId())
@@ -54,9 +56,9 @@ public record NoticeResponse() {
                     .content(notice.getContent())
                     .imgUrl(notice.getImgUrl())
                     .isRecommended(isRecommended)
-                    .recommendCount(noticeCount.getRecommendCount())
-                    .commentCount(noticeCount.getCommentCount())
-                    .viewCount(viewCount)
+                    .recommendCount(commonCountDto.getRecommendCount())
+                    .commentCount(commonCountDto.getCommentCount())
+                    .viewCount(commonCountDto.getViewCount())
                     .createdAt(notice.getCreateDate())
                     .modifiedAt(notice.getLastModifiedDate())
                     .previousId(previousId)

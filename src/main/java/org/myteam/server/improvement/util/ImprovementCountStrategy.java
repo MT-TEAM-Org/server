@@ -40,20 +40,22 @@ public class ImprovementCountStrategy implements CountStrategy {
         return new CommonCount<>(
                 improvementCount,
                 improvementCount.getViewCount(),
-                improvementCount.getCommentCount()
+                improvementCount.getCommentCount(),
+                improvementCount.getRecommendCount()
         );
     }
 
     @Override
     @Transactional
     public void updateToDatabase(CommonCount<?> count) {
-        ImprovementCount improvementCount = (ImprovementCount) count.getCount(); // 이제 boardCount 객체
+        ImprovementCount improvementCount = (ImprovementCount) count.getCount();
         Long improvementId = improvementCount.getImprovement().getId();
 
         improvementCountRepository.updateAllCounts(
                 improvementId,
                 count.getViewCount(),
-                count.getCommentCount()
+                count.getCommentCount(),
+                count.getRecommendCount()
         );
     }
 }

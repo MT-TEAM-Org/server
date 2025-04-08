@@ -6,7 +6,9 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
@@ -49,7 +51,9 @@ public class ImprovementService {
 
         ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
         improvementCountRepository.save(improvementCount);
-        int viewCount = redisCountService.getViewCountAndIncr(DomainType.IMPROVEMENT, improvement.getId());
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.IMPROVEMENT,
+                improvement.getId(), null);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -59,8 +63,8 @@ public class ImprovementService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId,
-                viewCount);
+        return ImprovementSaveResponse.createResponse(improvement, isRecommended, previousId, nextId,
+                commonCountDto);
     }
 
     /**
@@ -82,8 +86,8 @@ public class ImprovementService {
         improvement.updateImprovement(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         improvementRepository.save(improvement);
 
-        ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
-        int viewCount = redisCountService.getViewCountAndIncr(DomainType.IMPROVEMENT, improvementId);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.IMPROVEMENT,
+                improvementId, null);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -92,8 +96,8 @@ public class ImprovementService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId,
-                viewCount);
+        return ImprovementSaveResponse.createResponse(improvement, isRecommended, previousId, nextId,
+                commonCountDto);
     }
 
     /**
@@ -126,7 +130,7 @@ public class ImprovementService {
             s3Service.deleteFile(improvement.getImgUrl());
         }
 
-        redisCountService.removeViewCount(DomainType.IMPROVEMENT, improvementId);
+        redisCountService.removeCount(DomainType.IMPROVEMENT, improvementId);
 
         improvementCountRepository.deleteByImprovementId(improvement.getId());
         improvementRepository.delete(improvement);

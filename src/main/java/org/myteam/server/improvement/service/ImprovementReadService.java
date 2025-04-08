@@ -6,16 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.improvement.domain.Improvement;
-import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementServiceRequest;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementListResponse;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementSaveResponse;
 import org.myteam.server.improvement.repository.ImprovementQueryRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.data.domain.Page;
@@ -29,8 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ImprovementReadService {
 
     private final ImprovementRepository improvementRepository;
-    private final ImprovementCountReadService improvementCountReadService;
-    private final MemberRepository memberRepository;
     private final ImprovementRecommendReadService improvementRecommendReadService;
     private final ImprovementQueryRepository improvementQueryRepository;
     private final SecurityReadService securityReadService;
@@ -48,8 +46,9 @@ public class ImprovementReadService {
         log.info("개선요청: {} 상세 조회 호출", improvementId);
 
         Improvement improvement = findById(improvementId);
-        ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
-        int viewCount = redisCountService.getViewCountAndIncr(DomainType.IMPROVEMENT, improvementId);
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.IMPROVEMENT,
+                improvementId, null);
 
         boolean isRecommended = false;
 
@@ -63,8 +62,7 @@ public class ImprovementReadService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId,
-                viewCount);
+        return ImprovementSaveResponse.createResponse(improvement, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**

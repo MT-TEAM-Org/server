@@ -40,7 +40,8 @@ public class NoticeCountStrategy implements CountStrategy {
         return new CommonCount<>(
                 noticeCount,
                 noticeCount.getViewCount(),
-                noticeCount.getCommentCount()
+                noticeCount.getCommentCount(),
+                noticeCount.getRecommendCount()
         );
     }
 
@@ -53,7 +54,8 @@ public class NoticeCountStrategy implements CountStrategy {
         noticeCountRepository.updateAllCounts(
                 noticeId,
                 count.getViewCount(),
-                count.getCommentCount()
+                count.getCommentCount(),
+                count.getRecommendCount()
         );
     }
 }

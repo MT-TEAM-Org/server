@@ -36,25 +36,15 @@ public class RedisCountService {
     }
 
     /**
-     * 네이티브한 키 값.
-     */
-    public String getRedisKey(DomainType type, Long contentId) {
-        CountStrategy strategy = strategyFactory.getStrategy(type);
-        return strategy.getRedisKey(contentId);
-    }
-
-    /**
      * 각 서비스에서 호출하는 함수.
      * TODO: redisTemplate 타입 변경 RedisTemplate<String, Object>
-     * TODO: BOARD, NEWS, NOTICE, IMPROVEMENT에 모두 적용.
-     * TODO: ServiceType에 COMMENT_REMOVE도 필요
      *
      * @param type:      레디스를 호출하는 목적("view", "comment", "recommend", "normal")
      * @param content:   어떤 게시판인지("board", "news" ...)
      * @param contentId: 각 게시판의 id
      * @return
      */
-    public CommonCountDto getCommonCount(ServiceType type, DomainType content, Long contentId) {
+    public CommonCountDto getCommonCount(ServiceType type, DomainType content, Long contentId, Integer minusCount) {
         CountStrategy strategy = strategyFactory.getStrategy(content);
         String key = strategy.getRedisKey(contentId);
 
@@ -95,6 +85,13 @@ public class RedisCountService {
              * 댓글 쓸 때. 댓글 쓸 시 + 1
              */
             Long updateCount = redisTemplate.opsForHash().increment(key, "comment", 1);
+
+            return new CommonCountDto(viewCount, updateCount.intValue(), recommendCount);
+        } else if (type.equals(ServiceType.COMMENT_REMOVE)) {
+            /**
+             * 댓글 삭제 할 때, 댓글 삭제 시 -1
+             */
+            Long updateCount = redisTemplate.opsForHash().increment(key, "comment", -minusCount);
 
             return new CommonCountDto(viewCount, updateCount.intValue(), recommendCount);
         } else if (type.equals(ServiceType.RECOMMEND)) {
@@ -180,85 +177,9 @@ public class RedisCountService {
     }
 
     /**
-     * 특정 키 값 조회 + 댓글수 증가
-     */
-    public int getCommentCountAndIncr(DomainType type, Long contentId) {
-        CountStrategy strategy = strategyFactory.getStrategy(type);
-        String key = strategy.getRedisKey(contentId);
-
-        Object value = redisTemplate.opsForHash().get(key, "comment");
-        if (value != null) { // cache hit
-            // TODO: 키로 바꾸기
-            Long newValue = redisTemplate.opsForHash().increment(key, "comment", 1);
-            System.out.println("newCommentValue = " + newValue);
-            return newValue.intValue();
-        }
-
-        // cache miss
-        CommonCount dbValue = strategy.loadFromDatabase(contentId);
-        int newCount = dbValue.getCommentCount() + 1;
-
-        System.out.println("newCommentCount = " + newCount);
-
-        redisTemplate.opsForHash().put(key, "comment", String.valueOf(newCount));
-        redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
-        return newCount;
-    }
-
-    /**
-     * 특정 키 값 조회 + 댓글수 감소
-     */
-    public int getCommentCountAndMinus(DomainType type, Long contentId, int minusCount) {
-        CountStrategy strategy = strategyFactory.getStrategy(type);
-        String key = strategy.getRedisKey(contentId);
-
-        Object value = redisTemplate.opsForHash().get(key, "comment");
-        if (value != null) { // cache hit
-            int currentValue = 0;
-            try {
-                currentValue = Integer.parseInt(value.toString());
-            } catch (NumberFormatException e) {
-                log.warn("잘못된 숫자 포맷: key={}, value={}", key, value);
-            }
-
-            int newValue = Math.max(0, currentValue - minusCount);
-            redisTemplate.opsForHash().put(key, "comment", String.valueOf(newValue));
-            return newValue;
-        }
-
-        // cache miss
-        CommonCount dbValue = strategy.loadFromDatabase(contentId);
-        int dbCount = dbValue.getCommentCount();
-        int newCount = Math.max(0, dbCount - minusCount);
-
-        redisTemplate.opsForHash().put(key, "comment", String.valueOf(newCount));
-        redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
-
-        return newCount;
-    }
-
-    /**
-     * 조회수 증가
-     */
-    public void incrementViewCount(DomainType type, Long contentId) {
-        CountStrategy strategy = strategyFactory.getStrategy(type);
-        String key = strategy.getRedisKey(contentId);
-        redisTemplate.opsForHash().increment(key, "view", 1);
-    }
-
-    /**
-     * 댓글 수 증가
-     */
-    public void incrementCommentCount(DomainType type, Long contentId) {
-        CountStrategy strategy = strategyFactory.getStrategy(type);
-        String key = strategy.getRedisKey(contentId);
-        redisTemplate.opsForHash().increment(key, "comment", 1);
-    }
-
-    /**
      * 특정 키 삭제 (전체 Hash 삭제)
      */
-    public void removeViewCount(DomainType type, Long contentId) {
+    public void removeCount(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
         String key = strategy.getRedisKey(contentId);
         redisTemplate.delete(key);

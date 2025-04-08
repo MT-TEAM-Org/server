@@ -1,27 +1,21 @@
 package org.myteam.server.recommend;
 
+import static org.myteam.server.util.ClientUtils.toInt;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.improvement.service.ImprovementReadService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.news.news.service.NewsReadService;
-import org.myteam.server.notice.service.NoticeReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import static org.myteam.server.util.ClientUtils.toInt;
 
 @Slf4j
 @Service

@@ -40,7 +40,8 @@ public class NewsCountStrategy implements CountStrategy {
         return new CommonCount<>(
                 newsCount,
                 newsCount.getViewCount(),
-                newsCount.getCommentCount()
+                newsCount.getCommentCount(),
+                newsCount.getRecommendCount()
         );
     }
 
@@ -49,11 +50,12 @@ public class NewsCountStrategy implements CountStrategy {
     public void updateToDatabase(CommonCount<?> count) {
         NewsCount newsCount = (NewsCount) count.getCount();
         Long newsId = newsCount.getNews().getId();
-        
+
         newsCountRepository.updateAllCounts(
                 newsId,
                 count.getViewCount(),
-                count.getCommentCount()
+                count.getCommentCount(),
+                count.getRecommendCount()
         );
     }
 }
