@@ -1,10 +1,7 @@
 package org.myteam.server.global.security.config;
 
-import static org.myteam.server.auth.controller.ReIssueController.*;
 import static org.myteam.server.global.security.jwt.JwtProvider.*;
 
-import org.myteam.server.auth.repository.RefreshJpaRepository;
-import org.myteam.server.global.config.WebConfig;
 import org.myteam.server.global.security.filter.AuthenticationEntryPointHandler;
 import org.myteam.server.global.security.filter.CustomAccessDeniedHandler;
 import org.myteam.server.global.security.filter.JwtAuthenticationFilter;
@@ -80,7 +77,7 @@ public class SecurityConfig {
 		"/api/oauth2/members/email/**",
 		"/api/members/type/**",
 		"/api/me/create",
-		TOKEN_REISSUE_PATH,
+		"/api/token/regenerate",
 
 		// 문의하기
 		"/api/inquiry",
@@ -186,12 +183,10 @@ public class SecurityConfig {
 	@Value("${FRONT_URL:http://localhost:3000}")
 	private String frontUrl;
 	private final JwtProvider jwtProvider;
-	private final WebConfig webConfig;
 	private final CustomUserDetailsService customUserDetailsService;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
-	private final RefreshJpaRepository refreshJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedisService redisService;
 
@@ -235,7 +230,7 @@ public class SecurityConfig {
 
 		// JWT 인증 및 토큰 검증 필터 추가
 		http.addFilterAt(
-				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, refreshJpaRepository, eventPublisher, redisService),
+				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, eventPublisher, redisService),
 				UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);
@@ -254,7 +249,7 @@ public class SecurityConfig {
 		http.logout(logout -> logout
 			.logoutUrl("/logout")
 			.invalidateHttpSession(true)
-			.logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider, refreshJpaRepository))
+			.logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider))
 			.permitAll()
 		);
 
