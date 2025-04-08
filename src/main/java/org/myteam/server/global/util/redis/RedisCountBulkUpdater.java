@@ -55,9 +55,10 @@ public class RedisCountBulkUpdater {
 
                 int viewCount = safeParseCount(redisHash.get("view"), count.getViewCount());
                 int commentCount = safeParseCount(redisHash.get("comment"), count.getCommentCount());
-                int recommendCount = safeParseCount(redisHash.get("recommend"), count.getCommentCount());
+                int recommendCount = safeParseCount(redisHash.get("recommend"), count.getRecommendCount());
 
-                System.out.println("viewCount: " + viewCount + " commentCount: " + commentCount + " recommendCount: " + recommendCount);
+                System.out.println("viewCount: " + viewCount + " commentCount: " + commentCount + " recommendCount: "
+                        + recommendCount);
 
                 count = new CommonCount<>(count.getCount(), viewCount, commentCount, recommendCount);
 
@@ -65,7 +66,8 @@ public class RedisCountBulkUpdater {
 
                 redisTemplate.delete(key);
 
-                log.info("✅ [카운트 DB 저장 완료] type={}, id={}, view={}, comment={}, recommend: {}", type, contentId, viewCount,
+                log.info("✅ [카운트 DB 저장 완료] type={}, id={}, view={}, comment={}, recommend: {}", type, contentId,
+                        viewCount,
                         commentCount, recommendCount);
 
             } catch (Exception e) {
