@@ -6,13 +6,10 @@ import static org.myteam.server.member.domain.MemberStatus.*;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-import org.myteam.server.auth.entity.Refresh;
-import org.myteam.server.auth.repository.RefreshJpaRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
@@ -32,7 +29,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -41,19 +37,16 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private final AuthenticationManager authenticationManager;
 	private final JwtProvider jwtProvider;
-	private final RefreshJpaRepository refreshJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedisService redisService;
 
 	public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
 		JwtProvider jwtProvider,
-		RefreshJpaRepository refreshJpaRepository,
 		ApplicationEventPublisher eventPublisher,
 		RedisService redisService) {
 		setFilterProcessesUrl("/login");
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
-		this.refreshJpaRepository = refreshJpaRepository;
 		this.eventPublisher = eventPublisher;
 		this.redisService = redisService;
 	}
@@ -83,7 +76,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-		Authentication authentication) throws IOException, ServletException {
+		Authentication authentication) throws IOException {
 		try {
 			// UserDetails
 			CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
@@ -141,25 +134,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-		AuthenticationException failed) throws IOException, ServletException {
+		AuthenticationException failed) {
 		String message = failed.getMessage();
 		//로그인 실패시 401 응답 코드 반환
 		response.setStatus(401);
 		log.debug("message : {}", message);
 		System.out.println("fail authentication");
-	}
-
-	public void addRefreshEntity(UUID publicId, String refresh, Duration duration) {
-		log.info("addRefreshEntity > publicId: {}, refresh: {}, expiredMs: {}", publicId, refresh, duration.toMillis());
-		Date date = new Date(System.currentTimeMillis() + duration.toMillis());
-
-		Refresh refreshEntity = Refresh.builder()
-			.publicId(publicId)
-			.refresh(refresh)
-			.expiration(date.toString())
-			.build();
-
-		refreshJpaRepository.save(refreshEntity);
 	}
 
 	/**
