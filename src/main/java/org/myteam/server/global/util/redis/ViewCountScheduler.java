@@ -13,6 +13,7 @@ public class ViewCountScheduler {
 
     private final RedisCountBulkUpdater bulkUpdater;
 
+    // TODO: 주기 변경
     @Scheduled(fixedRate = 1 * 60 * 1000, initialDelay = 1 * 60 * 1000) // 실행 후 5분마다
     public void updateCounts() {
         bulkUpdater.bulkUpdate(DomainType.BOARD);

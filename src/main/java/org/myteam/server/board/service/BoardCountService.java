@@ -5,8 +5,11 @@ import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.repository.BoardRecommendRepository;
 import org.myteam.server.comment.service.CommentCountService;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +24,20 @@ public class BoardCountService implements CommentCountService {
     private final BoardRecommendReadService boardRecommendReadService;
 
     private final BoardRecommendRepository boardRecommendRepository;
+    private final RedisCountService redisCountService;
 
     public void recommendBoard(Long boardId) {
         Board board = boardReadService.findById(boardId);
         Member member = securityReadService.getMember();
 
-        verifyMemberAlreadyRecommend(board, member);
+//        verifyMemberAlreadyRecommend(board, member);
+//
+//        recommend(board, member);
+//
+//        addRecommendCount(board.getId());
 
-        recommend(board, member);
+        redisCountService.getCommonCount(ServiceType.RECOMMEND, DomainType.BOARD, boardId);
 
-        addRecommendCount(board.getId());
     }
 
     public void deleteRecommendBoard(Long boardId) {
@@ -38,11 +45,12 @@ public class BoardCountService implements CommentCountService {
         Board board = boardReadService.findById(boardId);
         Member member = securityReadService.getMember();
 
-        isAlreadyRecommended(board, member);
-
-        boardRecommendRepository.deleteByBoardIdAndMemberPublicId(board.getId(), member.getPublicId());
-
-        minusRecommendCount(boardId);
+//        isAlreadyRecommended(board, member);
+//
+//        boardRecommendRepository.deleteByBoardIdAndMemberPublicId(board.getId(), member.getPublicId());
+//
+//        minusRecommendCount(boardId);
+        redisCountService.getCommonCount(ServiceType.RECOMMEND_CANCEL, DomainType.BOARD, boardId);
     }
 
     /**

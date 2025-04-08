@@ -23,11 +23,13 @@ public class RedisCountBulkUpdater {
     }
 
     /**
+     * TODO: println 지우기
      * Redis에 저장된 count 정보 → DB로 벌크 업데이트
      */
     public void bulkUpdate(DomainType type) {
         System.out.println("RedisCountBulkUpdater.bulkUpdate");
         CountStrategy strategy = strategyFactory.getStrategy(type);
+        log.info("type: {}", type);
         String pattern = strategy.getRedisPattern();
 
         // Redis에 저장된 모든 조회수 키 가져오기
@@ -53,17 +55,18 @@ public class RedisCountBulkUpdater {
 
                 int viewCount = safeParseCount(redisHash.get("view"), count.getViewCount());
                 int commentCount = safeParseCount(redisHash.get("comment"), count.getCommentCount());
+                int recommendCount = safeParseCount(redisHash.get("recommend"), count.getCommentCount());
 
-                System.out.println("viewCount: " + viewCount + " commentCount: " + commentCount);
+                System.out.println("viewCount: " + viewCount + " commentCount: " + commentCount + " recommendCount: " + recommendCount);
 
-                count = new CommonCount<>(count.getCount(), viewCount, commentCount);
+                count = new CommonCount<>(count.getCount(), viewCount, commentCount, recommendCount);
 
                 strategy.updateToDatabase(count);
 
                 redisTemplate.delete(key);
 
-                log.info("✅ [카운트 DB 저장 완료] type={}, id={}, view={}, comment={}", type, contentId, viewCount,
-                        commentCount);
+                log.info("✅ [카운트 DB 저장 완료] type={}, id={}, view={}, comment={}, recommend: {}", type, contentId, viewCount,
+                        commentCount, recommendCount);
 
             } catch (Exception e) {
                 log.error("❌ [카운트 저장 실패] key: {}, 이유: {}", key, e.getMessage());

@@ -19,19 +19,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RedisCountService {
 
-    enum ServiceType {
-        VIEW, COMMENT, RECOMMEND, RECOMMEND_CANCEL, NORMAL
-    }
-
     private static final long EXPIRED_TIME = 5L; // 조회수 만료 시간. 5분보다 큰 값으로 설정
 
     private final RedissonClient redissonClient;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final CountStrategyFactory strategyFactory;
     private final RecommendService recommendService;
 
     public RedisCountService(RedissonClient redissonClient,
-                             RedisTemplate<String, String> redisTemplate,
+                             RedisTemplate<String, Object> redisTemplate,
                              CountStrategyFactory strategyFactory,
                              RecommendService recommendService) {
         this.redissonClient = redissonClient;
@@ -51,13 +47,14 @@ public class RedisCountService {
     /**
      * 각 서비스에서 호출하는 함수.
      * TODO: redisTemplate 타입 변경 RedisTemplate<String, Object>
+     * TODO: BOARD, NEWS, NOTICE, IMPROVEMENT에 모두 적용.
      *
      * @param type:      레디스를 호출하는 목적("view", "comment", "recommend", "normal")
      * @param content:   어떤 게시판인지("board", "news" ...)
      * @param contentId: 각 게시판의 id
      * @return
      */
-    public CommonCountDto getCommonCount(String type, DomainType content, Long contentId) {
+    public CommonCountDto getCommonCount(ServiceType type, DomainType content, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(content);
         String key = strategy.getRedisKey(contentId);
 
@@ -66,6 +63,7 @@ public class RedisCountService {
         Integer viewCount, commentCount, recommendCount;
 
         if (redisMap == null || redisMap.isEmpty()) { // cache miss
+            log.info("cache miss type: {}, id: {}", content, contentId);
             CommonCount<?> dbValue = strategy.loadFromDatabase(contentId);
 
             viewCount = dbValue.getViewCount();
@@ -73,38 +71,39 @@ public class RedisCountService {
             recommendCount = dbValue.getRecommendCount();
 
             redisTemplate.opsForHash().putAll(key, Map.of(
-                    "view", viewCount,
-                    "comment", commentCount,
-                    "recommend", recommendCount
+                    "view", String.valueOf(viewCount),
+                    "comment", String.valueOf(commentCount),
+                    "recommend", String.valueOf(recommendCount)
             ));
             redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
         } else { // cache hit
+            log.info("cache hit type: {}, id: {}", content, contentId);
             viewCount = toInt(redisMap.get("view"));
             commentCount = toInt(redisMap.get("comment"));
             recommendCount = toInt(redisMap.get("recommend"));
         }
 
-        if (type.equals(ServiceType.VIEW.name())) {
+        if (type.equals(ServiceType.VIEW)) {
             /**
              * 조회할 때. 조회할 시 + 1
              */
             Long updateCount = redisTemplate.opsForHash().increment(key, "view", 1);
 
             return new CommonCountDto(updateCount.intValue(), commentCount, recommendCount);
-        } else if (type.equals(ServiceType.COMMENT.name())) {
+        } else if (type.equals(ServiceType.COMMENT)) {
             /**
              * 댓글 쓸 때. 댓글 쓸 시 + 1
              */
             Long updateCount = redisTemplate.opsForHash().increment(key, "comment", 1);
 
             return new CommonCountDto(viewCount, updateCount.intValue(), recommendCount);
-        } else if (type.equals(ServiceType.RECOMMEND.name())) {
+        } else if (type.equals(ServiceType.RECOMMEND)) {
             /**
              * 추천할 때. 추천할 시 + 1
              * TODO 여기서 분산락 적용하면 됨.
              */
             return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
-        } else if (type.equals(ServiceType.RECOMMEND_CANCEL.name())) {
+        } else if (type.equals(ServiceType.RECOMMEND_CANCEL)) {
             /**
              * 추천 취소
              */

@@ -23,9 +23,10 @@ public interface BoardCountRepository extends JpaRepository<BoardCount, Long> {
     void updateViewCount(@Param("boardId") Long boardId, @Param("viewCount") int viewCount);
 
     @Modifying
-    @Query("UPDATE BoardCount b SET b.viewCount = :view, b.commentCount = :comment WHERE b.id = :boardId")
+    @Query("UPDATE BoardCount b SET b.viewCount = :view, b.commentCount = :comment, b.recommendCount = :recommend WHERE b.id = :boardId")
     void updateAllCounts(@Param("boardId") Long boardId,
                          @Param("view") int view,
-                         @Param("comment") int comment);
+                         @Param("comment") int comment,
+                         @Param("recommend") int recommend);
 
 }

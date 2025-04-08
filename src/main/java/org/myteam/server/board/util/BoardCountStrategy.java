@@ -53,7 +53,8 @@ public class BoardCountStrategy implements CountStrategy {
         boardCountRepository.updateAllCounts(
                 boardId,
                 count.getViewCount(),
-                count.getCommentCount()
+                count.getCommentCount(),
+                count.getRecommendCount()
         );
     }
 }

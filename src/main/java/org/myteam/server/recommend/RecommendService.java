@@ -1,6 +1,7 @@
 package org.myteam.server.recommend;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.myteam.server.util.ClientUtils.toInt;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecommendService {
@@ -29,11 +31,6 @@ public class RecommendService {
     private final RedissonClient redissonClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private final SecurityReadService securityReadService;
-//    // TODO: 이거 나중에 추가하기
-//    private final BoardReadService boardReadService;
-//    private final NewsReadService newsReadService;
-//    private final NoticeReadService noticeReadService;
-//    private final ImprovementReadService improvementReadService;
 
     public CommonCountDto handleRecommend(
             DomainType content,
@@ -51,6 +48,7 @@ public class RecommendService {
         RLock lock = redissonClient.getLock(lockKey);
 
         try {
+            log.info("락 시도");
             if (!lock.tryLock(3, 10, TimeUnit.SECONDS)) {
                 throw new IllegalStateException("잠시 후 다시 시도해주세요.");
             }
@@ -67,11 +65,15 @@ public class RecommendService {
 
             Long updateCount;
             if (actionType == RecommendActionType.RECOMMEND) {
+                log.info("추천 시도: {}", redisKey);
                 handler.saveRecommendation(contentId, member);
                 updateCount = redisTemplate.opsForHash().increment(redisKey, "recommend", 1);
+                log.info("recommend count: {}", updateCount);
             } else {
+                log.info("추천 삭제: {}", redisKey);
                 handler.deleteRecommendation(contentId, member.getPublicId());
                 updateCount = redisTemplate.opsForHash().increment(redisKey, "recommend", -1);
+                log.info("recommend count: {}", updateCount);
             }
 
             // view/comment 값도 함께 조회하려면 entries() 사용
@@ -93,19 +95,4 @@ public class RecommendService {
             }
         }
     }
-
-//    private Object getContentObject(DomainType content, Long contentId) {
-//        switch (content) {
-//            case BOARD:
-//                return boardReadService.findById(contentId);
-//            case NEWS:
-//                return newsReadService.findById(contentId);
-//            case NOTICE:
-//                return noticeReadService.getNotice(contentId);
-//            case IMPROVEMENT:
-//                return improvementReadService.getImprovement(contentId);
-//            default:
-//                throw new PlayHiveException(ErrorCode.INVALID_TYPE);
-//        }
-//    }
 }

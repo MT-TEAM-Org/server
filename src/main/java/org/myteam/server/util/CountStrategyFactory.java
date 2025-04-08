@@ -13,25 +13,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class CountStrategyFactory {
 
-    private final Map<String, CountStrategy> strategies;
+    private final Map<DomainType, CountStrategy> strategies;
 
     public CountStrategyFactory(List<CountStrategy> strategyList) {
         strategies = new HashMap<>();
         for (CountStrategy strategy : strategyList) {
             if (strategy instanceof BoardCountStrategy) {
-                strategies.put("board", strategy);
+                strategies.put(DomainType.BOARD, strategy);
             } else if (strategy instanceof NewsCountStrategy) {
-                strategies.put("news", strategy);
+                strategies.put(DomainType.NEWS, strategy);
             } else if (strategy instanceof ImprovementCountStrategy) {
-                strategies.put("improvement", strategy);
+                strategies.put(DomainType.IMPROVEMENT, strategy);
             } else if (strategy instanceof NoticeCountStrategy) {
-                strategies.put("notice", strategy);
+                strategies.put(DomainType.NOTICE, strategy);
             }
             // 추가 전략이 있다면 여기에 등록
         }
     }
 
     public CountStrategy getStrategy(DomainType type) {
-        return strategies.get(type.name());
+        return strategies.get(type);
     }
 }
