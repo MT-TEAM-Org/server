@@ -119,4 +119,8 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		redisTemplate.opsForValue()
 			.set(REFRESH_TOKEN_KEY + publicId, refreshToken, Duration.ofMinutes(REFRESH_TOKEN_EXPIRE_TIME));
 	}
+
+	public String getRefreshToken(UUID publicId) {
+		return redisTemplate.opsForValue().get(REFRESH_TOKEN_KEY + publicId);
+	}
 }
