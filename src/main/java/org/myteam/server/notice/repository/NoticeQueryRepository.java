@@ -21,6 +21,8 @@ import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
+import org.myteam.server.global.util.redis.CommonCount;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
@@ -73,6 +75,9 @@ public class NoticeQueryRepository {
 
         for (NoticeDto noticeDto : content) {
             noticeDto.setCreatedIp(ClientUtils.maskIp(noticeDto.getCreatedIp()));
+            CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NOTICE, noticeDto.getId());
+            noticeDto.setRecommendCount(commonCountDto.getRecommendCount());
+            noticeDto.setCommentCount(commonCountDto.getCommentCount());
         }
 
         if (searchType == NoticeSearchType.COMMENT) {
@@ -183,13 +188,11 @@ public class NoticeQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long noticeId = tuple.get(notice.id);
-                    int viewCount = redisCountService.getViewCount(DomainType.NOTICE, noticeId);
-                    int recommendCount = tuple.get(noticeCount.recommendCount);
-                    int commentCount = tuple.get(noticeCount.commentCount);
+                    CommonCountDto commonCount = redisCountService.getCommonCount(DomainType.NOTICE, noticeId);
                     String title = tuple.get(notice.title);
 
-                    return new NoticeRankingDto(noticeId, viewCount, recommendCount, commentCount, title,
-                            viewCount + recommendCount);
+                    return new NoticeRankingDto(noticeId, commonCount.getViewCount(), commonCount.getRecommendCount(), commonCount.getCommentCount(), title,
+                            commonCount.getViewCount() + commonCount.getRecommendCount());
                 })
                 .sorted(Comparator.comparing(NoticeRankingDto::getRecommendCount).reversed()
                         .thenComparing(NoticeRankingDto::getTotalScore).reversed()

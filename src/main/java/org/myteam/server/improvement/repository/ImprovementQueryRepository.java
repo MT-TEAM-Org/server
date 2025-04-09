@@ -76,6 +76,9 @@ public class ImprovementQueryRepository {
 
         for (ImprovementDto improvementDto : content) {
             improvementDto.setCreatedIp(ClientUtils.maskIp(improvementDto.getCreatedIp()));
+            CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementDto.getId());
+            improvementDto.setRecommendCount(commonCountDto.getRecommendCount());
+            improvementDto.setCommentCount(commonCountDto.getCommentCount());
         }
 
         long total = getTotalImprovementCount(searchType, search);

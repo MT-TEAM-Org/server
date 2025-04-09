@@ -57,10 +57,12 @@ public class BoardDto {
     /**
      * 댓글 수
      */
+    @Setter
     private Integer commentCount;
     /**
      * 추천 수
      */
+    @Setter
     private Integer recommendCount;
     /**
      * 작성 일시

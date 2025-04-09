@@ -23,7 +23,7 @@ public record ImprovementResponse() {
     @NoArgsConstructor
     @AllArgsConstructor
     public static final class ImprovementSaveResponse {
-        private Long noticeId; // 개선요청 id
+        private Long improvementId; // 개선요청 id
         private UUID publicId; // 작성자 id
         private String nickname; // 작성자 닉네임
         private String clientIp; // 작성자 IP
@@ -52,7 +52,7 @@ public record ImprovementResponse() {
                                                              Long previousId, Long nextId,
                                                              CommonCountDto commonCountDto) {
             return ImprovementSaveResponse.builder()
-                    .noticeId(improvement.getId())
+                    .improvementId(improvement.getId())
                     .publicId(improvement.getMember().getPublicId())
                     .nickname(improvement.getMember().getNickname())
                     .clientIp(ClientUtils.maskIp(improvement.getCreatedIp()))
