@@ -160,7 +160,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(2));
 
 		assertThat(matchReadService.confirmEsportsYoutube())
-			.extracting("isLive", " videoId")
+			.extracting("isLive", "videoId")
 			.containsExactly(false, null);
 	}
 
