@@ -27,7 +27,6 @@ public class RedisCountBulkUpdater {
      * Redis에 저장된 count 정보 → DB로 벌크 업데이트
      */
     public void bulkUpdate(DomainType type) {
-        System.out.println("RedisCountBulkUpdater.bulkUpdate");
         CountStrategy strategy = strategyFactory.getStrategy(type);
         log.info("type: {}", type);
         String pattern = strategy.getRedisPattern();
@@ -56,9 +55,6 @@ public class RedisCountBulkUpdater {
                 int viewCount = safeParseCount(redisHash.get("view"), count.getViewCount());
                 int commentCount = safeParseCount(redisHash.get("comment"), count.getCommentCount());
                 int recommendCount = safeParseCount(redisHash.get("recommend"), count.getRecommendCount());
-
-                System.out.println("viewCount: " + viewCount + " commentCount: " + commentCount + " recommendCount: "
-                        + recommendCount);
 
                 count = new CommonCount<>(count.getCount(), viewCount, commentCount, recommendCount);
 

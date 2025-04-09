@@ -283,7 +283,6 @@ public class SecurityConfig {
 	}
 
 	public CorsConfigurationSource configurationSource() {
-		System.out.println("configurationSource cors 설정이 SecurityFilterChain에 등록됨");
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.addAllowedHeader("*");
 		configuration.addAllowedMethod("*");
