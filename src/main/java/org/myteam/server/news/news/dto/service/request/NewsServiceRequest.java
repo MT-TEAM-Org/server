@@ -18,16 +18,18 @@ public class NewsServiceRequest extends PageInfoServiceRequest {
 	private BoardSearchType searchType;
 	private String search;
 	private TimePeriod timePeriod;
+	private int startIndex;
 
 	@Builder
 	public NewsServiceRequest(Category category, OrderType orderType, BoardSearchType searchType, String search,
-		TimePeriod timePeriod, int size, int page) {
+		TimePeriod timePeriod, int size, int page, int startIndex) {
 		super(page, size);
 		this.category = category;
 		this.orderType = orderType;
 		this.searchType = searchType;
 		this.search = search;
 		this.timePeriod = timePeriod;
+		this.startIndex = startIndex;
 	}
 
 }
