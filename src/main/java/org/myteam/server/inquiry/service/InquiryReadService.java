@@ -8,12 +8,12 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.inquiry.domain.Inquiry;
-import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.dto.request.InquiryRequest.InquiryServiceRequest;
-import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiriesListResponse;
 import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiryDetailsResponse;
-import org.myteam.server.inquiry.dto.response.InquiryResponse.InquirySaveResponse;
+import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiryDto;
 import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
@@ -93,7 +93,8 @@ public class InquiryReadService {
         Inquiry inquiry = findInquiryById(inquiryId);
         inquiry.verifyInquiryAuthor(member);
 
-        CommonCountDto commonCount = redisCountService.getCommonCount(DomainType.INQUIRY, inquiryId);
+        CommonCountDto commonCount = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.INQUIRY, inquiryId,
+                null);
 
         log.info("요청 멤버: {}, 조회 문의내역: {} 성공", member.getPublicId(), inquiryId);
 
