@@ -14,6 +14,7 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberRoleUpdateRequest;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.dto.MemberStatusUpdateRequest;
@@ -23,6 +24,7 @@ import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.util.AESCryptoUtil;
@@ -93,6 +95,32 @@ public class MemberService {
 		log.info("회원 정보 수정 완료: {}", member.getPublicId());
 
 		return MemberResponse.createMemberResponse(member);
+	}
+
+	/**
+	 * 소셜 로그인 정보 추가
+	 */
+	public void addInfo(AddMemberInfoRequest request) {
+		log.info("소셜로그인 추가정보: {}", request.getEmail());
+		Optional<Member> existDataOP = memberJpaRepository.findByEmailAndType(
+				request.getEmail(),
+				request.getMemberType());
+
+		if (!existDataOP.isPresent()) {
+			log.warn("소셜로그인 유저 없음: {}", request.getEmail());
+			throw new PlayHiveException(USER_NOT_FOUND);
+		}
+
+		Member member = existDataOP.get();
+		if (member.getStatus() != MemberStatus.PENDING) {
+			log.warn("소셜로그인 추가 정보 권한 없음: {}", request.getEmail());
+			throw new PlayHiveException(UNAUTHORIZED);
+		}
+
+		member.update(request.getTel(), request.getNickname(), null);
+		member.updateStatus(MemberStatus.ACTIVE);
+		log.info("소셜 로그인 정보 수정: {}, nickname: {}, tel: {}",
+				request.getEmail(), request.getNickname(), request.getTel());
 	}
 
 	/**
