@@ -160,15 +160,15 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(2));
 
 		assertThat(matchReadService.confirmEsportsYoutube())
-			.extracting("isLive", "url")
+			.extracting("isLive", " videoId")
 			.containsExactly(false, null);
 	}
 
 	@DisplayName("E스포츠 경기시간이 되었으면 Youtube API를 조회한다.")
 	@Test
 	void confirmEsportsYoutubeAfterStartDate() {
-		given(matchYoutubeService.getUrl())
-			.willReturn("www.test.com");
+		given(matchYoutubeService.getVideoId())
+			.willReturn("wsawcwdwd");
 
 		Team team1 = createTeam(1, TeamCategory.ESPORTS);
 		Team team2 = createTeam(2, TeamCategory.ESPORTS);
@@ -176,8 +176,8 @@ class MatchReadServiceTest extends IntegrationTestSupport {
 		createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(1));
 
 		assertThat(matchReadService.confirmEsportsYoutube())
-			.extracting("isLive", "url")
-			.containsExactly(true, "www.test.com");
+			.extracting("isLive", "videoId")
+			.containsExactly(true, "wsawcwdwd");
 	}
 
 	@DisplayName("ESPORTS 경기일정 목록을 조회한다.")
