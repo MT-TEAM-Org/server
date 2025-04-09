@@ -21,7 +21,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 	private static final long YOUTUBE_EXPIRED_TIME = 5L * 60L * 60L * 1000L;
 	private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30;      // 30일
 	private static final String REFRESH_TOKEN_KEY = "refreshToken:";
-	private static final String ESPORTS_YOUTUBE_URL_KEY = "esports:youtube:url";
+	private static final String ESPORTS_YOUTUBE_VIDEOID_KEY = "esports:youtube:videoId";
 
 	/**
 	 * 특정 키(식별자)에 대한 요청이 제한 범위를 초과했는지 확인
@@ -106,13 +106,13 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		}
 	}
 
-	public String getEsportsYoutubeUrl() {
-		return redisTemplate.opsForValue().get(ESPORTS_YOUTUBE_URL_KEY);
+	public String getEsportsYoutubeVideoId() {
+		return redisTemplate.opsForValue().get(ESPORTS_YOUTUBE_VIDEOID_KEY);
 	}
 
-	public void putEsportsYoutubeUrl(String esportsYoutubeUrl) {
+	public void putEsportsYoutubeVideoId(String esportsYoutubeUrl) {
 		redisTemplate.opsForValue()
-			.set(ESPORTS_YOUTUBE_URL_KEY, esportsYoutubeUrl, Duration.ofMinutes(YOUTUBE_EXPIRED_TIME));
+			.set(ESPORTS_YOUTUBE_VIDEOID_KEY, esportsYoutubeUrl, Duration.ofMinutes(YOUTUBE_EXPIRED_TIME));
 	}
 
 	public void putRefreshToken(UUID publicId, String refreshToken) {
