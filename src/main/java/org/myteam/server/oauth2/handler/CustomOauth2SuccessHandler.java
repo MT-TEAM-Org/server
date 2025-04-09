@@ -69,10 +69,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 		if (status.equals(PENDING.name())) {
 			log.warn("PENDING 상태인 경우 로그인이 불가능합니다");
-
 			log.warn("cookieValue PublicId 확인용: {}", member.getPublicId());
-
-			member.updateStatus(ACTIVE);
 
 			// Authorization
 			String accessToken = generateAccessToken(member, role, status);
