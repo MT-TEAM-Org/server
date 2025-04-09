@@ -16,7 +16,6 @@ public class MatchYoutubeService {
 	private static final String channelId = "UCw1DsweY9b2AKGjV4kGJP1A";
 	private static final String eventType = "live";
 	private static final String type = "video";
-	private static final String videoUrl = "https://www.youtube.com/watch?v=";
 
 	private final GoogleFeignClient googleFeignClient;
 	private final RedisService redisService;
@@ -24,20 +23,20 @@ public class MatchYoutubeService {
 	@Value("${google.api.apiKey}")
 	private String apiKey;
 
-	public String getUrl() {
-		String url = redisService.getEsportsYoutubeUrl();
-		if (url == null) {
-			url = getUrlToGoogleApi();
-			redisService.putEsportsYoutubeUrl(url);
+	public String getVideoId() {
+		String videoId = redisService.getEsportsYoutubeVideoId();
+		if (videoId == null) {
+			videoId = getUrlToGoogleApi();
+			redisService.putEsportsYoutubeVideoId(videoId);
 		}
-		return url;
+		return videoId;
 	}
 
 	private String getUrlToGoogleApi() {
 		GoogleYoutubeResponse googleYoutubeResponse = googleFeignClient.searchLiveVideos(part,
 			channelId, eventType, type, apiKey);
 		if (googleYoutubeResponse.isLive()) {
-			return videoUrl + googleYoutubeResponse.getVideoId();
+			return googleYoutubeResponse.getVideoId();
 		}
 		return null;
 	}
