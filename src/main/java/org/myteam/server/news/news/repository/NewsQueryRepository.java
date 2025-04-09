@@ -5,7 +5,6 @@ import static org.myteam.server.comment.domain.QNewsComment.*;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +46,7 @@ public class NewsQueryRepository {
 		String search = newsServiceRequest.getSearch();
 		TimePeriod timePeriod = newsServiceRequest.getTimePeriod();
 		Pageable pageable = newsServiceRequest.toPageable();
+		int startIndex = newsServiceRequest.getStartIndex();
 
 		List<NewsDto> contents = queryFactory
 			.select(Projections.constructor(NewsDto.class,
@@ -67,7 +67,7 @@ public class NewsQueryRepository {
 				isPostDateAfter(timePeriod)
 			)
 			.orderBy(isOrderByEqualToOrderCategory(orderType))
-			.offset(pageable.getOffset())
+			.offset(pageable.getOffset() + startIndex)
 			.limit(pageable.getPageSize())
 			.fetch();
 
@@ -79,7 +79,7 @@ public class NewsQueryRepository {
 			});
 		}
 
-		long total = getTotalNewsCount(category, searchType, search, timePeriod);
+		long total = getTotalNewsCount(category, searchType, search, timePeriod, startIndex);
 
 		return new PageImpl<>(contents, pageable, total);
 	}
@@ -140,7 +140,7 @@ public class NewsQueryRepository {
 	}
 
 	private long getTotalNewsCount(Category category, BoardSearchType searchType, String search,
-		TimePeriod timePeriod) {
+		TimePeriod timePeriod, int startIndex) {
 		return ofNullable(
 			queryFactory
 				.select(news.count())
@@ -151,7 +151,7 @@ public class NewsQueryRepository {
 					isPostDateAfter(timePeriod)
 				)
 				.fetchOne()
-		).orElse(0L);
+		).orElse(0L) - startIndex;
 	}
 
 	/**
