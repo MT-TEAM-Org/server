@@ -4,6 +4,8 @@ import static org.myteam.server.global.security.jwt.JwtProvider.*;
 import static org.myteam.server.member.domain.MemberStatus.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Iterator;
@@ -73,6 +75,9 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 			// Authorization
 			String accessToken = generateAccessToken(member, role, status);
+			String refreshToken = generateRefreshToken(member, role, status);
+
+			redisService.putRefreshToken(member.getPublicId(), refreshToken);
 
 			log.debug("print accessToken: {}", accessToken);
 			log.debug("print role: {}", role);
@@ -81,7 +86,8 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 			eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
-			String redirectUrl = frontUrl + "/sign?sign=signup";
+			String redirectUrl = frontUrl + "/sign?sign=signup&?refreshToken=" + URLEncoder.encode(refreshToken,
+				StandardCharsets.UTF_8);
 			log.info("redirectUrl: {}", redirectUrl);
 			response.sendRedirect(redirectUrl);
 			return;
