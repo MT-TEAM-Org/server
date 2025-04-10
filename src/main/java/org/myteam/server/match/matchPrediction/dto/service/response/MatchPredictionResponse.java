@@ -1,5 +1,6 @@
 package org.myteam.server.match.matchPrediction.dto.service.response;
 
+import org.myteam.server.match.match.dto.service.response.TeamResponse;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.util.PercentageUtil;
 
@@ -13,13 +14,18 @@ public class MatchPredictionResponse {
 
 	private Long id;
 	private Long matchId;
+	private TeamResponse homeTeam;
+	private TeamResponse awayTeam;
 	private int home;
 	private int away;
 
 	@Builder
-	public MatchPredictionResponse(Long id, Long matchId, int home, int away) {
+	public MatchPredictionResponse(Long id, Long matchId, TeamResponse homeTeam, TeamResponse awayTeam, int home,
+		int away) {
 		this.id = id;
 		this.matchId = matchId;
+		this.homeTeam = homeTeam;
+		this.awayTeam = awayTeam;
 		this.home = home;
 		this.away = away;
 		updateAsPercentage();
@@ -29,6 +35,8 @@ public class MatchPredictionResponse {
 		return MatchPredictionResponse.builder()
 			.id(matchPrediction.getId())
 			.matchId(matchPrediction.getMatch().getId())
+			.homeTeam(TeamResponse.createResponse(matchPrediction.getMatch().getHomeTeam()))
+			.awayTeam(TeamResponse.createResponse(matchPrediction.getMatch().getAwayTeam()))
 			.home(matchPrediction.getHome())
 			.away(matchPrediction.getAway())
 			.build();
