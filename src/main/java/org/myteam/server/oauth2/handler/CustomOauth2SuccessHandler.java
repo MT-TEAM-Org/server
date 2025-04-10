@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 	@Value("${app.frontend.url.dev}")
 	private String frontUrl;
-	private final String frontSignUpPath = "/sign"; // 프론트 회원가입 주소
+	private final String frontSignUpPath = "/sign?sign=signup&refreshToken="; // 프론트 회원가입 주소
 	private final JwtProvider jwtProvider;
 	private final MemberJpaRepository memberJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
@@ -86,7 +86,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 			eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
-			String redirectUrl = frontUrl + "/sign?sign=signup&refreshToken=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
+			String redirectUrl = frontUrl + frontSignUpPath + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
 			log.info("redirectUrl: {}", redirectUrl);
 			response.sendRedirect(redirectUrl);
 			return;
@@ -119,7 +119,8 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 		eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
-		response.sendRedirect(frontUrl);
+		String redirectUrl = frontUrl + frontSignUpPath + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
+		response.sendRedirect(redirectUrl);
 		log.debug("Oauth 로그인에 성공하였습니다.");
 	}
 
