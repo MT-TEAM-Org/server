@@ -34,6 +34,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 	@Value("${app.frontend.url.dev}")
 	private String frontUrl;
 	private final String frontSignUpPath = "/sign?sign=signup&refreshToken="; // 프론트 회원가입 주소
+	private final String frontLoginPath = "?refreshToken=";
 	private final JwtProvider jwtProvider;
 	private final MemberJpaRepository memberJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
@@ -119,7 +120,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 		eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
-		String redirectUrl = frontUrl + frontSignUpPath + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
+		String redirectUrl = frontUrl + frontLoginPath + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
 		response.sendRedirect(redirectUrl);
 		log.debug("Oauth 로그인에 성공하였습니다.");
 	}
