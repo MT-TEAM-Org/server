@@ -61,7 +61,7 @@ public class BoardService {
 
         Board board = makeBoard(member, clientIP, request);
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCountAndIncr("board", board.getId());
+        int viewCount = redisViewCountService.getViewCount("board", board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -152,7 +152,7 @@ public class BoardService {
         boardRepository.save(board);
 
         BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCountAndIncr("board", boardId);
+        int viewCount = redisViewCountService.getViewCount("board", board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 

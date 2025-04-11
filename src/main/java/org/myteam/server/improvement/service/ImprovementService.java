@@ -48,7 +48,7 @@ public class ImprovementService {
 
         ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
         improvementCountRepository.save(improvementCount);
-        int viewCount = redisViewCountService.getViewCountAndIncr("improvement", improvement.getId());
+        int viewCount = redisViewCountService.getViewCount("improvement", improvement.getId());
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -58,7 +58,8 @@ public class ImprovementService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId, viewCount);
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId,
+                viewCount);
     }
 
     /**
@@ -81,7 +82,7 @@ public class ImprovementService {
         improvementRepository.save(improvement);
 
         ImprovementCount improvementCount = improvementCountReadService.findByImprovementId(improvementId);
-        int viewCount = redisViewCountService.getViewCountAndIncr("improvement", improvementId);
+        int viewCount = redisViewCountService.getViewCount("improvement", improvement.getId());
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -90,7 +91,8 @@ public class ImprovementService {
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId, viewCount);
+        return ImprovementSaveResponse.createResponse(improvement, improvementCount, isRecommended, previousId, nextId,
+                viewCount);
     }
 
     /**
