@@ -54,7 +54,7 @@ public class NoticeService {
         NoticeCount noticeCount = NoticeCount.createNoticeCount(notice);
         noticeCountRepository.save(noticeCount);
 
-        int viewCount = redisViewCountService.getViewCountAndIncr("notice", notice.getId());
+        int viewCount = redisViewCountService.getViewCount("notice", notice.getId());
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -105,7 +105,7 @@ public class NoticeService {
         noticeRepository.save(notice);
 
         NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
-        int viewCount = redisViewCountService.getViewCountAndIncr("notice", noticeId);
+        int viewCount = redisViewCountService.getViewCount("notice", notice.getId());
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
