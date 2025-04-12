@@ -45,7 +45,7 @@ public class MatchPredictionReadService {
 	public MatchPredictionResponse findOne(Long id) {
 		UUID publicId = securityReadService.getAuthenticatedPublicId();
 
-		MatchPrediction matchPrediction = findById(id);
+		MatchPrediction matchPrediction = findByMatchId(id);
 
 		MatchPredictionMember matchPredictionMember = matchPredictionMemberReadService.confirmPredictionMember(
 			matchPrediction.getId(), publicId);
