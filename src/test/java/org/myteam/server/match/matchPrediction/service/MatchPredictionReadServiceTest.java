@@ -1,6 +1,7 @@
 package org.myteam.server.match.matchPrediction.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 

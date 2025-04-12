@@ -1,6 +1,7 @@
 package org.myteam.server.match.matchPrediction.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 import java.util.concurrent.CountDownLatch;
@@ -18,6 +19,7 @@ import org.myteam.server.match.matchPrediction.dto.service.request.MatchPredicti
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
+import org.myteam.server.member.entity.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class MatchPredictionServiceTest extends IntegrationTestSupport {
@@ -70,12 +72,7 @@ class MatchPredictionServiceTest extends IntegrationTestSupport {
 		for (int i = 0; i < threadCount; i++) {
 			executorService.execute(() -> {
 				try {
-					MatchPredictionServiceRequest request = MatchPredictionServiceRequest.builder()
-						.matchPredictionId(matchPrediction.getId())
-						.side(Side.HOME)
-						.build();
-
-					matchPredictionService.update(request);
+					matchPredictionService.addCount(matchPrediction.getId(), Side.HOME);
 				} finally {
 					countDownLatch.countDown();
 				}
