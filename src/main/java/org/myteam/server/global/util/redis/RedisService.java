@@ -18,7 +18,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 	private static final int MAX_REQUESTS = 3; // 제한 횟수 (기본값: 5분 동안 3회)
 	private static final long EXPIRED_TIME = 5L; // 만료 시간 (5분)
-	private static final long YOUTUBE_EXPIRED_TIME = 5L * 60L * 60L * 1000L;
+	private static final long YOUTUBE_EXPIRED_TIME = 3L * 60L * 60L * 1000L;
 	private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30;      // 30일
 	private static final String REFRESH_TOKEN_KEY = "refreshToken:";
 	private static final String ESPORTS_YOUTUBE_VIDEOID_KEY = "esports:youtube:videoId";
