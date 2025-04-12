@@ -39,6 +39,8 @@ import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.match.repository.MatchRepository;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPrediction.repository.MatchPredictionRepository;
+import org.myteam.server.match.matchPredictionMember.domain.MatchPredictionMember;
+import org.myteam.server.match.matchPredictionMember.repository.MatchPredictionMemberRepository;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.match.team.repository.TeamRepository;
@@ -117,6 +119,8 @@ public abstract class IntegrationTestSupport {
 	protected ImprovementCountRepository improvementCountRepository;
 	@Autowired
 	protected CommentRepository commentRepository;
+	@Autowired
+	protected MatchPredictionMemberRepository matchPredictionMemberRepository;
 
 	/**
 	 * ================== Service ========================
@@ -166,6 +170,7 @@ public abstract class IntegrationTestSupport {
 
 	@AfterEach
 	void tearDown() {
+		matchPredictionMemberRepository.deleteAllInBatch();
 		commentRepository.deleteAllInBatch();
 		matchPredictionRepository.deleteAllInBatch();
 		matchRepository.deleteAllInBatch();
@@ -412,5 +417,14 @@ public abstract class IntegrationTestSupport {
 		improvementCountRepository.save(improvementCount);
 
 		return improvement;
+	}
+
+	protected MatchPredictionMember createMatchPredictionMember(Member member, MatchPrediction matchPrediction) {
+		return matchPredictionMemberRepository.save(
+			MatchPredictionMember.builder()
+				.matchPrediction(matchPrediction)
+				.member(member)
+				.build()
+		);
 	}
 }
