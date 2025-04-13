@@ -3,20 +3,22 @@ package org.myteam.server.news.news.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.response.PageableCustomResponse;
 import org.myteam.server.global.util.domain.TimePeriod;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.dto.repository.NewsDto;
@@ -448,14 +450,19 @@ class NewsReadServiceTest extends IntegrationTestSupport {
         createNews(3, Category.ESPORTS, 15);
         createNews(4, Category.BASEBALL, 12);
 
-        given(redisCountService.getViewCountAndIncr(eq(DomainType.NEWS), anyLong()))
-                .willReturn(10);
+        given(redisCountService.getCommonCount(
+                eq(ServiceType.VIEW),
+                eq(DomainType.NEWS),
+                eq(news.getId()),
+                isNull()
+        )).willReturn(new CommonCountDto(11, 10, 10));
+
         NewsResponse newsResponse = newsReadService.findOne(news.getId());
 
         assertThat(newsResponse)
                 .extracting("title", "category", "thumbImg", "recommendCount", "commentCount", "viewCount", "source",
                         "content")
-                .contains("기사타이틀1", Category.BASEBALL, "www.test.com", 10, 10, 10, "www.test.com", "뉴스본문");
+                .contains("기사타이틀1", Category.BASEBALL, "www.test.com", 10, 10, 11, "www.test.com", "뉴스본문");
     }
 
     @DisplayName("뉴스 댓글 조회시 댓글이 정상 조회 되는지 확인한다.")
