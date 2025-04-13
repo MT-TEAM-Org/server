@@ -436,10 +436,7 @@ public class BoardCountServiceTest extends TestContainerSupport {
                 .thumbnail("http://localhost:9000/devbucket/inage/1235.png")
                 .build();
 
-        BoardCount savedBoardCount = BoardCount.builder()
-                .board(board)
-                .commentCount(50)
-                .build();
+        BoardCount savedBoardCount = BoardCount.createBoardCount(board);
 
         executorService.submit(() -> {
             memberJpaRepository.save(member);
@@ -511,7 +508,7 @@ public class BoardCountServiceTest extends TestContainerSupport {
                             List.of(new SimpleGrantedAuthority("ROLE_USER"))
                     ));
                     SecurityContextHolder.setContext(context);
-
+                    System.out.println("commentMap.get(idx) = " + commentMap.get(idx));
                     commentService.deleteComment(board.getId(), commentMap.get(idx), deleteRequest);
                 } finally {
                     deleteLatch.countDown();
