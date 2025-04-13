@@ -125,6 +125,8 @@ public abstract class TestDriverSupport {
      */
     @Autowired
     protected BoardCountService boardCountService;
+    @Autowired
+    protected CommentService commentService;
 
     /**
      * ================== Config ========================

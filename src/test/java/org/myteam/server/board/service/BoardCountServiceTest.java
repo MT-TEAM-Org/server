@@ -21,6 +21,9 @@ import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.dto.request.CommentRequest;
+import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.util.redis.CommonCount;
@@ -78,6 +81,7 @@ public class BoardCountServiceTest extends TestContainerSupport {
 
     @AfterEach
     public void cleanUp() {
+        commentRepository.deleteAllInBatch();
         boardRecommendRepository.deleteAllInBatch();
         boardCountRepository.deleteAllInBatch();
         boardRepository.deleteAllInBatch();
@@ -313,7 +317,6 @@ public class BoardCountServiceTest extends TestContainerSupport {
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(0);
     }
 
-    // TODO: 이거는 어떻게 테스트하지?
     @DisplayName("게시판 댓글수 증가 동시성 테스트한다.")
     @Test
     void addCommentCountTest() throws InterruptedException, ExecutionException {
@@ -355,9 +358,41 @@ public class BoardCountServiceTest extends TestContainerSupport {
         }).get();
 
         for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
             executorService.execute(() -> {
                 try {
-                    boardCountService.recommendBoard(board.getId());
+                    CommentRequest.CommentSaveRequest commentSaveRequest = CommentRequest.CommentSaveRequest.builder()
+                            .mentionedPublicId(null)
+                            .comment("댓글" + idx)
+                            .imageUrl(null)
+                            .type(CommentType.BOARD)
+                            .parentId(null)
+                            .build();
+                    Member threadMember = Member.builder()
+                            .email("test" + idx + "@test.com")
+                            .password("1234")
+                            .tel("01012345678")
+                            .nickname("test" + idx)
+                            .role(MemberRole.USER)
+                            .type(MemberType.LOCAL)
+                            .status(MemberStatus.ACTIVE)
+                            .publicId(UUID.randomUUID())
+                            .build();
+                    memberJpaRepository.save(threadMember);
+
+                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
+                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
+                    memberActivityRepository.save(threadMemberActivity);
+
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
+
+                    commentService.addComment(board.getId(), commentSaveRequest, "0.0.0.1");
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -365,8 +400,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         }
         countDownLatch.await();
 
-        assertThat(boardCountRepository.findById(savedBoardCount.getId()).get().getCommentCount())
-                .isEqualTo(50);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        assertThat(commonCountDto.getCommentCount()).isEqualTo(50);
     }
 
     // TODO: 테스트 확인
@@ -376,7 +411,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         int threadCount = 50;
 
         ExecutorService executorService = Executors.newFixedThreadPool(25);
-        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        CountDownLatch commentLatch = new CountDownLatch(threadCount);
+        CountDownLatch deleteLatch = new CountDownLatch(threadCount);
 
         Member member = Member.builder()
                 .email("test" + 1 + "@test.com")
@@ -411,21 +447,82 @@ public class BoardCountServiceTest extends TestContainerSupport {
             boardCountRepository.save(savedBoardCount);
         }).get();
 
+        ConcurrentHashMap<Integer, Member> memberMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<Integer, Long> commentMap = new ConcurrentHashMap<>();
+
         for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
             executorService.execute(() -> {
                 try {
-                    boardCountService.deleteRecommendBoard(board.getId());
+                    CommentRequest.CommentSaveRequest commentSaveRequest = CommentRequest.CommentSaveRequest.builder()
+                            .mentionedPublicId(null)
+                            .comment("댓글" + idx)
+                            .imageUrl(null)
+                            .type(CommentType.BOARD)
+                            .parentId(null)
+                            .build();
+                    Member threadMember = Member.builder()
+                            .email("test" + idx + "@test.com")
+                            .password("1234")
+                            .tel("01012345678")
+                            .nickname("test" + idx)
+                            .role(MemberRole.USER)
+                            .type(MemberType.LOCAL)
+                            .status(MemberStatus.ACTIVE)
+                            .publicId(UUID.randomUUID())
+                            .build();
+                    memberJpaRepository.save(threadMember);
+                    memberMap.put(idx, threadMember);
+
+                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
+                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
+                    memberActivityRepository.save(threadMemberActivity);
+
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
+
+                    CommentResponse.CommentSaveResponse comment = commentService.addComment(board.getId(), commentSaveRequest, "0.0.0.1");
+                    commentMap.put(idx, comment.getCommentId());
                 } finally {
-                    countDownLatch.countDown();
+                    commentLatch.countDown();
                 }
             });
         }
+        commentLatch.await();
 
-        countDownLatch.await();
+        CommentRequest.CommentDeleteRequest deleteRequest = CommentRequest.CommentDeleteRequest.builder()
+                .type(CommentType.BOARD)
+                .build();
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            executorService.execute(() -> {
+                try {
+                    Member threadMember = memberMap.get(idx);
+
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
+
+                    commentService.deleteComment(board.getId(), commentMap.get(idx), deleteRequest);
+                } finally {
+                    deleteLatch.countDown();
+                }
+            });
+        }
+        deleteLatch.await();
 
         CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
         // 동시성 이슈로 50보다 작은 값이 나옴
-        assertThat(commonCountDto.getCommentCount()).isEqualTo(50);
+        assertThat(commonCountDto.getCommentCount()).isEqualTo(0);
     }
 
     @DisplayName("게시판 조회수 증가 동시성 테스트한다.")
