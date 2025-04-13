@@ -24,7 +24,8 @@ public class VisitEventListener {
 
     private final MemberActivityRepository memberActivityRepository;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional
+    @EventListener
     public void handleUserLoginEvent(UserLoginEvent event) {
         UUID publicId = event.getPublicId();
 
