@@ -49,7 +49,7 @@ public class NoticeQueryRepository {
                         notice.id,
                         notice.id.in(getHotNoticeIdList()).as("isHot"),
                         notice.title,
-                        notice.imgUrl,
+                        notice.imgUrl.as("thumbnail"),
                         notice.createdIp.as("createdIp"),
                         notice.member.publicId,
                         notice.member.nickname,
