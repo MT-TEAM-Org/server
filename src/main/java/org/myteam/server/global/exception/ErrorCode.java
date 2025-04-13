@@ -47,7 +47,7 @@ public enum ErrorCode {
     LIMIT_COMMENT_DEPTH(HttpStatus.BAD_REQUEST, "더이상 대댓글을 작성할 수 없습니다."),
     NOT_SUPPORT_COMMENT_TYPE(HttpStatus.BAD_REQUEST, "This comment type is not supported"),
     COMMENT_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "부모 댓글의 타입과 요청된 타입이 일치하지 않음"),
-    NOT_RECOMMENDED_YET(HttpStatus.BAD_REQUEST, "Not Supported Recommend Type"),
+    NOT_RECOMMENDED_YET(HttpStatus.BAD_REQUEST, "Not Recommend"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),

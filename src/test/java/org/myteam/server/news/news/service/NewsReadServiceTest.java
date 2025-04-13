@@ -10,11 +10,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.response.PageableCustomResponse;
 import org.myteam.server.global.util.domain.TimePeriod;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.dto.repository.NewsDto;
@@ -24,11 +26,14 @@ import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.repository.OrderType;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 class NewsReadServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private NewsReadService newsReadService;
+    @MockBean
+    private RedisCountService redisCountService;
 
     @DisplayName("야구기사의 목록을 조회한다.")
     @Test

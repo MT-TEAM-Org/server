@@ -1,6 +1,8 @@
 package org.myteam.server.global.config;
 
 import java.time.Duration;
+
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -31,8 +33,15 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-    @Value("${spring.data.redis.password}")
-    private String password;
+//    @Value("${spring.data.redis.password}")
+//    private String password;
+
+    @PostConstruct
+    public void logRedisProps() {
+        System.out.println(">>> Redis Host: " + host);
+        System.out.println(">>> Redis Port: " + port);
+    }
+
 
     /**
      * Redis Connection Factory 생성 (Lettuce 사용)
@@ -43,7 +52,6 @@ public class RedisConfig {
 
         configuration.setHostName(host);
         configuration.setPort(port);
-        configuration.setPassword(password);
 
         return new LettuceConnectionFactory(configuration);
     }
@@ -73,8 +81,7 @@ public class RedisConfig {
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://" + host + ":" + port)
-                .setPassword(password);
+                .setAddress("redis://" + host + ":" + port);
         return Redisson.create(config);
     }
 

@@ -1,6 +1,7 @@
 spring:
   datasource:
     url: jdbc:h2:mem:~/playhive;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#    url: jdbc:h2:tcp://localhost/~/spring-study
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -98,9 +99,8 @@ spring:
 
   data:
     redis:
-      host: localhost
-      password: test
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
 
 SENDER_EMAIL: test@test.com
