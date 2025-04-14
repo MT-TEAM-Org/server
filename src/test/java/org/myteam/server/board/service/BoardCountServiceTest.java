@@ -1,32 +1,27 @@
 package org.myteam.server.board.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.BDDMockito.given;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.concurrent.*;
-
-import org.assertj.core.api.Assertions;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.TestContainerSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
-import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest;
 import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.dto.CustomUserDetails;
-import org.myteam.server.global.util.redis.CommonCount;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
@@ -35,7 +30,6 @@ import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -93,7 +87,7 @@ public class BoardCountServiceTest extends TestContainerSupport {
     void recommendBoardTest() {
         // given
         Board board = createBoard(member, Category.BASEBALL, CategoryType.FREE, "야구 카테고리 제목", "야구 카테고리 내용");
-        
+
         // when
         boardCountService.recommendBoard(board.getId());
 
@@ -483,7 +477,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
                     ));
                     SecurityContextHolder.setContext(context);
 
-                    CommentResponse.CommentSaveResponse comment = commentService.addComment(board.getId(), commentSaveRequest, "0.0.0.1");
+                    CommentResponse.CommentSaveResponse comment = commentService.addComment(board.getId(),
+                            commentSaveRequest, "0.0.0.1");
                     commentMap.put(idx, comment.getCommentId());
                 } finally {
                     commentLatch.countDown();
