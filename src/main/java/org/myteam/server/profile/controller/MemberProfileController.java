@@ -83,10 +83,10 @@ public class MemberProfileController {
             @ApiResponse(responseCode = "404", description = "회원 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DeleteMapping
-    public ResponseEntity<ResponseDto<String>> delete(@RequestBody @Valid MemberDeleteRequest memberDeleteRequest) {
+    public ResponseEntity<ResponseDto<String>> delete() {
         log.info("회원 삭제 요청");
 
-        memberService.deleteMember(memberDeleteRequest);
+        memberService.deleteMember();
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),

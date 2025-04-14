@@ -11,6 +11,7 @@ import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.security.service.CustomUserDetailsService;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
 import org.myteam.server.oauth2.service.CustomOAuth2UserService;
@@ -189,6 +190,7 @@ public class SecurityConfig {
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedisService redisService;
+	private final MemberJpaRepository memberJpaRepository;
 
 	@PostConstruct
 	public void init() {
@@ -233,7 +235,7 @@ public class SecurityConfig {
 				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, eventPublisher, redisService),
 				UsernamePasswordAuthenticationFilter.class
 			)
-			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider), JwtAuthenticationFilter.class);
+			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider, memberJpaRepository), JwtAuthenticationFilter.class);
 		//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 
 		//        // cors 설정

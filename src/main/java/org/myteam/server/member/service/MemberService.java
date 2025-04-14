@@ -12,6 +12,7 @@ import org.myteam.server.common.mail.service.MailStrategy;
 import org.myteam.server.common.mail.util.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -47,9 +48,9 @@ public class MemberService {
 	private final MemberActivityRepository memberActivityRepository;
 
 	private final PasswordEncoder passwordEncoder;
-	private final AESCryptoUtil crypto;
 	private final MailStrategyFactory mailStrategyFactory;
 	private final CertifyStorage certifyStorage;
+	private final RedisService redisService;
 
 	/**
 	 * 회원 가입
@@ -126,22 +127,23 @@ public class MemberService {
 	/**
 	 * 회원 탈퇴
 	 */
-	public void deleteMember(MemberDeleteRequest memberDeleteRequest) {
+	public void deleteMember() {
 		Member member = securityReadService.getMember();
 
+		/**
+		 * 이거를 없애는 게 조금 이상한데, 일단 주석으로 남겨만 둠.
+		 */
 		// 자신의 계정인지 체크
-		boolean isOwnValid = member.verifyOwnEmail(memberDeleteRequest.getRequestEmail());
-		if (!isOwnValid)
-			throw new PlayHiveException(NO_PERMISSION);
-
-		// 비밀번호 일치 여부 확인
-		boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), passwordEncoder);
-		if (!isPWValid)
-			throw new PlayHiveException(NO_PERMISSION);
+//		boolean isOwnValid = member.verifyOwnEmail(memberDeleteRequest.getRequestEmail());
+//		if (!isOwnValid)
+//			throw new PlayHiveException(NO_PERMISSION);
+//
+//		// 비밀번호 일치 여부 확인
+//		boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), passwordEncoder);
+//		if (!isPWValid) throw new PlayHiveException(NO_PERMISSION);
 
 		member.updateStatus(MemberStatus.INACTIVE);
-
-		memberJpaRepository.save(member);
+		redisService.deleteRefreshToken(member.getPublicId());
 
 		log.info("회원 탈퇴 처리 완료: {}", member.getPublicId());
 	}
