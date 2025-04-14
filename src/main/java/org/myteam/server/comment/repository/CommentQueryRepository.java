@@ -38,6 +38,7 @@ import org.myteam.server.comment.domain.QBoardComment;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QImprovementComment;
 import org.myteam.server.comment.domain.QInquiryComment;
+import org.myteam.server.comment.domain.QMatchComment;
 import org.myteam.server.comment.domain.QNewsComment;
 import org.myteam.server.comment.domain.QNoticeComment;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentResponse;
@@ -333,6 +334,9 @@ public class CommentQueryRepository {
             }
             case NOTICE -> {
                 return comment1.as(QNoticeComment.class).notice.id.eq(contentId);
+            }
+            case MATCH -> {
+                return comment1.as(QMatchComment.class).match.id.eq(contentId);
             }
             default -> {
                 return null;
