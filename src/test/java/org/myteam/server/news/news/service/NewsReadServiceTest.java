@@ -9,9 +9,10 @@ import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.TestContainerSupport;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.response.PageableCustomResponse;
@@ -19,6 +20,9 @@ import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.dto.repository.NewsDto;
@@ -30,7 +34,7 @@ import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-class NewsReadServiceTest extends IntegrationTestSupport {
+class NewsReadServiceTest extends TestContainerSupport {
 
     @Autowired
     private NewsReadService newsReadService;
@@ -469,7 +473,18 @@ class NewsReadServiceTest extends IntegrationTestSupport {
     @Test
     void findWithComment() {
         News news = createNews(1, Category.BASEBALL, 10);
-        Member member = createMember(1);
+        Member member = Member.builder()
+                .email("test" + 1 + "@test.com")
+                .password("1234")
+                .tel("12345")
+                .nickname("test")
+                .role(MemberRole.USER)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
+        memberJpaRepository.save(member);
+
         createNewsComment(news, member, "테스트댓글");
         createNews(2, Category.BASEBALL, 14);
         createNews(3, Category.ESPORTS, 15);
