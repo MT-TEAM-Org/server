@@ -43,3 +43,10 @@ jobs:
         if: always()
         with:
           report_paths: 'build/test-results/test/TEST-*.xml'
+
+      - name: 정적 분석 실행
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
