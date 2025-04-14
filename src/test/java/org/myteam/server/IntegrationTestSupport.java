@@ -13,6 +13,8 @@ import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
+import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
+import org.myteam.server.match.matchPredictionMember.domain.MatchPredictionMember;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -120,5 +122,14 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 .willReturn(admin.getPublicId());
 
         return savedMember;
+    }
+
+    protected MatchPredictionMember createMatchPredictionMember(Member member, MatchPrediction matchPrediction) {
+        return matchPredictionMemberRepository.save(
+                MatchPredictionMember.builder()
+                        .matchPrediction(matchPrediction)
+                        .member(member)
+                        .build()
+        );
     }
 }

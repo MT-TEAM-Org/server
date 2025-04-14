@@ -30,6 +30,7 @@ import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.match.repository.MatchRepository;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPrediction.repository.MatchPredictionRepository;
+import org.myteam.server.match.matchPredictionMember.repository.MatchPredictionMemberRepository;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.match.team.repository.TeamRepository;
@@ -92,7 +93,8 @@ public abstract class TestDriverSupport {
     protected NoticeRepository noticeRepository;
     @Autowired
     protected NoticeCountRepository noticeCountRepository;
-
+    @Autowired
+    protected MatchPredictionMemberRepository matchPredictionMemberRepository;
     @Autowired
     protected ImprovementRepository improvementRepository;
     @Autowired
@@ -134,6 +136,7 @@ public abstract class TestDriverSupport {
     void tearDown() {
         commentRecommendRepository.deleteAllInBatch();
         commentRepository.deleteAllInBatch();
+        matchPredictionMemberRepository.deleteAllInBatch();
         matchPredictionRepository.deleteAllInBatch();
         matchRepository.deleteAllInBatch();
         teamRepository.deleteAllInBatch();

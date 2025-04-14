@@ -3,31 +3,35 @@ package org.myteam.server.member.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.TestContainerSupport;
+import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 
-class MemberWriteServiceTest extends TestContainerSupport {
+class MemberWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
     protected MemberService memberService;
-
     @MockBean
-    private SecurityReadService securityReadService;
+    private RedisService redisService;
+
+    private Member member;
 
     @Test
     @DisplayName("✅ 회원 가입 성공")
@@ -90,6 +94,14 @@ class MemberWriteServiceTest extends TestContainerSupport {
                 .tel("01099999999")
                 .build();
 
+        Member mockMember = Member.builder()
+                .publicId(UUID.randomUUID())
+                .email(request.getEmail())
+                .nickname("testUser")
+                .tel("01012345678")
+                .status(MemberStatus.ACTIVE)
+                .build();
+
         when(securityReadService.getMember()).thenReturn(member);
 
         // When
@@ -114,14 +126,10 @@ class MemberWriteServiceTest extends TestContainerSupport {
         MemberResponse memberResponse = memberService.create(request);
         Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
 
-        MemberDeleteRequest deleteRequest = MemberDeleteRequest.builder()
-                .requestEmail("test@example.com")
-                .password("password123")
-                .build();
-
         // When
         when(securityReadService.getMember()).thenReturn(member);
-        memberService.deleteMember(deleteRequest);
+        doNothing().when(redisService).deleteRefreshToken(any());
+        memberService.deleteMember();
 
         // Then
         assertEquals(MemberStatus.INACTIVE, member.getStatus());
