@@ -65,8 +65,8 @@ public class MatchReadService {
 		if (startDate == null || startDate.minusHours(1).isAfter(todayDate)) {
 			return MatchEsportsYoutubeResponse.createResponse(false, null);
 		}
-		String url = matchYoutubeService.getUrl();
-		return MatchEsportsYoutubeResponse.createResponse(url != null, url);
+		String videoId = matchYoutubeService.getVideoId();
+		return MatchEsportsYoutubeResponse.createResponse(videoId != null, videoId);
 	}
 
 }

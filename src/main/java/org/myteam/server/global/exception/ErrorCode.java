@@ -35,6 +35,7 @@ public enum ErrorCode {
     ALREADY_MEMBER_RECOMMEND_NEWS(HttpStatus.BAD_REQUEST, "Member Already Recommend News"),
     ALREADY_MEMBER_RECOMMEND_NEWS_COMMENT(HttpStatus.BAD_REQUEST, "Member Already Recommend News Comment"),
     ALREADY_MEMBER_RECOMMEND_NEWS_REPLY(HttpStatus.BAD_REQUEST, "Member Already Recommend News Reply"),
+    ALREADY_MEMBER_MATCH_PREDICTION(HttpStatus.BAD_REQUEST, "Member Already Match Prediction"),
     INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "Phone number is invalid"),
     INVALID_GENDER_TYPE(HttpStatus.BAD_REQUEST, "Gender Type allow M or F"),
     INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "BIRTHDATE length must be 6"),
@@ -60,6 +61,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Token"),
     MISSING_AUTH_HEADER(HttpStatus.UNAUTHORIZED, "No Authorization header or not Bearer type"),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token"),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token Expired"),
     UNAUTHORIZED_EMAIL_ACCOUNT(HttpStatus.UNAUTHORIZED,
             "Email account verification failed due to an invalid refresh token."),
 

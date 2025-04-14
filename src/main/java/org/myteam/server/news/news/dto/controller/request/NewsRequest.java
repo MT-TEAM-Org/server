@@ -36,16 +36,21 @@ public class NewsRequest extends PageInfoRequest {
 	@Schema(description = "날짜 조건", example = "DAILY(일별), WEEKLY(주별), MONTHLY(월별), YEARLY(년별)")
 	private TimePeriod timePeriod;
 
+	@Schema(description = "시작할 인덱스 번호")
+	private int startIndex;
+
+
 	@Builder
 	public NewsRequest(Category category, OrderType orderType, BoardSearchType SearchType, String search,
 		TimePeriod timePeriod, int page,
-		int size) {
+		int size, int startIndex) {
 		super(page, size);
 		this.category = category;
 		this.orderType = orderType;
 		this.searchType = SearchType;
 		this.search = search;
 		this.timePeriod = timePeriod;
+		this.startIndex = startIndex;
 	}
 
 	public NewsServiceRequest toServiceRequest() {
@@ -57,6 +62,7 @@ public class NewsRequest extends PageInfoRequest {
 			.timePeriod(timePeriod)
 			.size(getSize())
 			.page(getPage())
+			.startIndex(startIndex)
 			.build();
 	}
 }

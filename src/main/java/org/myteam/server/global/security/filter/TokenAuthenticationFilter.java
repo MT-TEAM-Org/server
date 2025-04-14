@@ -8,11 +8,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static org.myteam.server.global.exception.ErrorCode.*;
@@ -30,6 +33,17 @@ import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_A
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
+    private final MemberJpaRepository memberJpaRepository;
+
+    private static final String[] excludePath = {
+        "/api/token/regenerate",
+    };
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return Arrays.stream(excludePath).anyMatch(path::startsWith);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -68,11 +82,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 log.info("role : " + role);
                 log.info("status : " + status);
 
-                Member member = Member.builder()
-                        .publicId(publicId)
-                        .role(MemberRole.valueOf(role))
-                        .status(MemberStatus.valueOf(status))
-                        .build();
+                Member member = memberJpaRepository.findByPublicId(publicId)
+                        .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+
+                if (member.getStatus() == MemberStatus.INACTIVE) {
+                    log.warn("로그인이 불가능한 사용자입니다.");
+                    sendErrorResponse(response, HttpStatus.UNAUTHORIZED, INVALID_ACCESS_TOKEN.name());
+                    return;
+                }
 
                 CustomUserDetails customUserDetails = new CustomUserDetails(member);
                 Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());

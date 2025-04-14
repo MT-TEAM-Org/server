@@ -12,8 +12,10 @@ import org.myteam.server.common.mail.service.MailStrategy;
 import org.myteam.server.common.mail.util.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberRoleUpdateRequest;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.dto.MemberStatusUpdateRequest;
@@ -23,6 +25,7 @@ import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.myteam.server.util.AESCryptoUtil;
@@ -45,9 +48,9 @@ public class MemberService {
 	private final MemberActivityRepository memberActivityRepository;
 
 	private final PasswordEncoder passwordEncoder;
-	private final AESCryptoUtil crypto;
 	private final MailStrategyFactory mailStrategyFactory;
 	private final CertifyStorage certifyStorage;
+	private final RedisService redisService;
 
 	/**
 	 * 회원 가입
@@ -96,24 +99,51 @@ public class MemberService {
 	}
 
 	/**
+	 * 소셜 로그인 정보 추가
+	 */
+	public void addInfo(AddMemberInfoRequest request) {
+		log.info("소셜로그인 추가정보: {}", request.getEmail());
+		Optional<Member> existDataOP = memberJpaRepository.findByEmailAndType(
+				request.getEmail(),
+				request.getMemberType());
+
+		if (!existDataOP.isPresent()) {
+			log.warn("소셜로그인 유저 없음: {}", request.getEmail());
+			throw new PlayHiveException(USER_NOT_FOUND);
+		}
+
+		Member member = existDataOP.get();
+		if (member.getStatus() != MemberStatus.PENDING) {
+			log.warn("소셜로그인 추가 정보 권한 없음: {}", request.getEmail());
+			throw new PlayHiveException(UNAUTHORIZED);
+		}
+
+		member.update(request.getTel(), request.getNickname(), null);
+		member.updateStatus(MemberStatus.ACTIVE);
+		log.info("소셜 로그인 정보 수정: {}, nickname: {}, tel: {}",
+				request.getEmail(), request.getNickname(), request.getTel());
+	}
+
+	/**
 	 * 회원 탈퇴
 	 */
-	public void deleteMember(MemberDeleteRequest memberDeleteRequest) {
+	public void deleteMember() {
 		Member member = securityReadService.getMember();
 
+		/**
+		 * 이거를 없애는 게 조금 이상한데, 일단 주석으로 남겨만 둠.
+		 */
 		// 자신의 계정인지 체크
-		boolean isOwnValid = member.verifyOwnEmail(memberDeleteRequest.getRequestEmail());
-		if (!isOwnValid)
-			throw new PlayHiveException(NO_PERMISSION);
-
-		// 비밀번호 일치 여부 확인
-		boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), passwordEncoder);
-		if (!isPWValid)
-			throw new PlayHiveException(NO_PERMISSION);
+//		boolean isOwnValid = member.verifyOwnEmail(memberDeleteRequest.getRequestEmail());
+//		if (!isOwnValid)
+//			throw new PlayHiveException(NO_PERMISSION);
+//
+//		// 비밀번호 일치 여부 확인
+//		boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), passwordEncoder);
+//		if (!isPWValid) throw new PlayHiveException(NO_PERMISSION);
 
 		member.updateStatus(MemberStatus.INACTIVE);
-
-		memberJpaRepository.save(member);
+		redisService.deleteRefreshToken(member.getPublicId());
 
 		log.info("회원 탈퇴 처리 완료: {}", member.getPublicId());
 	}

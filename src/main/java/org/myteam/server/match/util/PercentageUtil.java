@@ -5,6 +5,10 @@ public class PercentageUtil {
 	private static final int STANDARD = 100;
 
 	public static int[] getCalculatedPercentages(int home, int away) {
+		if (home == 0 && away == 0) {
+			return new int[]{0, 0};
+		}
+
 		int homePercentage = getHomePercentage(home, away);
 		int awayPercentage = getAwayPercentage(home, away);
 

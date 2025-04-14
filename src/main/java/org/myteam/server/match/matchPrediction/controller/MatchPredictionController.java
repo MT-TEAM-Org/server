@@ -44,9 +44,10 @@ public class MatchPredictionController {
 	@PatchMapping
 	public ResponseEntity<ResponseDto<Long>> update(@RequestBody MatchPredictionRequest matchPredictionRequest) {
 		return ResponseEntity.ok(new ResponseDto<>(
-			SUCCESS.name(),
-			"경기예측 저장 성공",
-			matchPredictionService.update(matchPredictionRequest.toServiceRequest()))
+				SUCCESS.name(),
+				"경기예측 저장 성공",
+				matchPredictionService.update(matchPredictionRequest.toServiceRequest())
+			)
 		);
 	}
 

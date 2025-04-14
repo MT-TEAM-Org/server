@@ -27,6 +27,20 @@ public class PlayHiveExceptionController {
 			);
 	}
 
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	@ExceptionHandler(value = PlayHiveJwtException.class)
+	public ResponseEntity<?> jwtException(PlayHiveJwtException e) {
+		return ResponseEntity
+			.status(e.getErrorCode().getStatus())
+			.body(
+				new ErrorResponse(
+					e.getErrorCode().getStatus(),
+					e.getMessage(),
+					e.getErrorMap()
+				)
+			);
+	}
+
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(value = IllegalArgumentException.class)
 	public ResponseEntity<?> IllegalArgumentException(IllegalArgumentException e) {

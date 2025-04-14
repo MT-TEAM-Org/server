@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MatchEsportsYoutubeResponse {
 	private boolean isLive;
-	private String url;
+	private String videoId;
 
 	@Builder
-	public MatchEsportsYoutubeResponse(boolean isLive, String url) {
+	public MatchEsportsYoutubeResponse(boolean isLive, String videoId) {
 		this.isLive = isLive;
-		this.url = url;
+		this.videoId = videoId;
 	}
 
-	public static MatchEsportsYoutubeResponse createResponse(boolean isLive, String url) {
+	public static MatchEsportsYoutubeResponse createResponse(boolean isLive, String videoId) {
 		return MatchEsportsYoutubeResponse.builder()
 			.isLive(isLive)
-			.url(url)
+			.videoId(videoId)
 			.build();
 	}
 }
