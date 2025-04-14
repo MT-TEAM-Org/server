@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.dto.MemberSaveRequest;
@@ -18,6 +19,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +35,8 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
 
     @Autowired
     protected MemberService memberService;
-    @Mock
-    private PasswordEncoder passwordEncoder;
+    @MockBean
+    private RedisService redisService;
 
     private Member member;
 
@@ -118,32 +120,25 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
         assertEquals(updateRequest.getTel(), memberUpdateResponse.getTel());
     }
 
-    /**
-     * @Brief 레디스 사용 이슈로 테스트 불가
-     */
-//    @Test
-//    @DisplayName("✅ 회원 탈퇴 성공")
-//    void deleteMember_Success() {
-//        // Given
-//        MemberSaveRequest request = MemberSaveRequest.builder()
-//                .email("test@example.com")
-//                .password("password123")
-//                .tel("01012345678")
-//                .nickname("testUser")
-//                .build();
-//        MemberResponse memberResponse = memberService.create(request);
-//        Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
-//
-//        MemberDeleteRequest deleteRequest = MemberDeleteRequest.builder()
-//                .requestEmail("test@example.com")
-//                .password("password123")
-//                .build();
-//
-//        // When
-//        when(securityReadService.getMember()).thenReturn(member);
-//        memberService.deleteMember();
-//
-//        // Then
-//        assertEquals(MemberStatus.INACTIVE, member.getStatus());
-//    }
+    @Test
+    @DisplayName("✅ 회원 탈퇴 성공")
+    void deleteMember_Success() {
+        // Given
+        MemberSaveRequest request = MemberSaveRequest.builder()
+                .email("test@example.com")
+                .password("password123")
+                .tel("01012345678")
+                .nickname("testUser")
+                .build();
+        MemberResponse memberResponse = memberService.create(request);
+        Member member = memberJpaRepository.findByPublicId(memberResponse.getPublicId()).get();
+
+        // When
+        when(securityReadService.getMember()).thenReturn(member);
+        doNothing().when(redisService).deleteRefreshToken(any());
+        memberService.deleteMember();
+
+        // Then
+        assertEquals(MemberStatus.INACTIVE, member.getStatus());
+    }
 }
