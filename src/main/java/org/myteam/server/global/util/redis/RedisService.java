@@ -123,4 +123,8 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 	public String getRefreshToken(UUID publicId) {
 		return redisTemplate.opsForValue().get(REFRESH_TOKEN_KEY + publicId);
 	}
+
+	public void deleteRefreshToken(UUID publicId) {
+		redisTemplate.delete(REFRESH_TOKEN_KEY + publicId);
+	}
 }

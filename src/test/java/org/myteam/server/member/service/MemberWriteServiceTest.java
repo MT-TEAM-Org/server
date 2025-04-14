@@ -138,7 +138,7 @@ class MemberWriteServiceTest  extends IntegrationTestSupport {
         
         // When
         when(securityReadService.getMember()).thenReturn(member);
-        memberService.deleteMember(deleteRequest);
+        memberService.deleteMember();
 
         // Then
         assertEquals(MemberStatus.INACTIVE, member.getStatus());
