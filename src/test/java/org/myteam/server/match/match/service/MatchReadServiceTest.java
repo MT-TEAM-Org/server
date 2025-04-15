@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.TestContainerSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -23,12 +24,7 @@ import org.myteam.server.match.team.domain.TeamCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-class MatchReadServiceTest extends TestContainerSupport {
-
-    @Autowired
-    private MatchReadService matchReadService;
-    @MockBean
-    private MatchYoutubeService matchYoutubeService;
+class MatchReadServiceTest extends IntegrationTestSupport {
 
     @DisplayName("전체 경기일정 목록을 조회한다.")
     @Test
