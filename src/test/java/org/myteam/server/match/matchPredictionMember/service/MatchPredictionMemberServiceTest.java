@@ -41,8 +41,8 @@ public class MatchPredictionMemberServiceTest extends IntegrationTestSupport {
 		matchPredictionMemberService.save(matchPrediction.getId(), Side.HOME);
 
 		assertThat(matchPredictionMemberRepository.findByMatchPredictionIdAndMemberPublicId(matchPrediction.getId(), member.getPublicId()).get())
-			.extracting("matchPrediction.id", "member.publicId")
-			.contains(matchPrediction.getId(), member.getPublicId());
+				.extracting("matchPrediction.id", "member.publicId")
+				.contains(matchPrediction.getId(), member.getPublicId());
 	}
 
 	@DisplayName("사용자 추천 데이터를 삭제한다.")
@@ -61,7 +61,7 @@ public class MatchPredictionMemberServiceTest extends IntegrationTestSupport {
 		matchPredictionMemberService.deleteByMatchPredictionIdMemberId(matchPrediction.getId());
 
 		assertThatThrownBy(() -> matchPredictionMemberRepository.findById(matchPredictionMember.getId()).get())
-			.isInstanceOf(NoSuchElementException.class)
-			.hasMessage("No value present");
+				.isInstanceOf(NoSuchElementException.class)
+				.hasMessage("No value present");
 	}
 }

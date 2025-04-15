@@ -92,6 +92,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     void tearDown() {
         commentRecommendRepository.deleteAllInBatch();
         commentRepository.deleteAllInBatch();
+        matchPredictionMemberRepository.deleteAllInBatch();
         matchPredictionRepository.deleteAllInBatch();
         matchRepository.deleteAllInBatch();
         teamRepository.deleteAllInBatch();
