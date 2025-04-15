@@ -1,25 +1,27 @@
 package org.myteam.server.match.matchPrediction.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.TestContainerSupport;
+import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
-import org.myteam.server.match.matchPrediction.dto.service.request.MatchPredictionServiceRequest;
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class MatchPredictionServiceTest extends TestContainerSupport {
+class MatchPredictionServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private MatchPredictionService matchPredictionService;
@@ -69,12 +71,7 @@ class MatchPredictionServiceTest extends TestContainerSupport {
         for (int i = 0; i < threadCount; i++) {
             executorService.execute(() -> {
                 try {
-                    MatchPredictionServiceRequest request = MatchPredictionServiceRequest.builder()
-                            .matchPredictionId(matchPrediction.getId())
-                            .side(Side.HOME)
-                            .build();
-
-                    matchPredictionService.update(request);
+                    matchPredictionService.addCount(matchPrediction.getId(), Side.HOME);
                 } finally {
                     countDownLatch.countDown();
                 }

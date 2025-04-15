@@ -26,6 +26,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 class MatchReadServiceTest extends IntegrationTestSupport {
 
+    @Autowired
+    private MatchReadService matchReadService;
+    @MockBean
+    private MatchYoutubeService matchYoutubeService;
+
     @DisplayName("전체 경기일정 목록을 조회한다.")
     @Test
     void findSchedulesBetweenDateTest() {

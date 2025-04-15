@@ -87,10 +87,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected CommentReadService commentReadService;
     @Autowired
     protected RecommendService recommendService;
-    @Autowired
-    protected MatchReadService matchReadService;
-    @MockBean
-    protected MatchYoutubeService matchYoutubeService;
 
     @AfterEach
     void tearDown() {
