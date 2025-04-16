@@ -3,6 +3,7 @@ package org.myteam.server.improvement.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.aop.CountView;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
@@ -42,12 +43,13 @@ public class ImprovementReadService {
     /**
      * 개선요청 상세 조회
      */
+    @CountView(domain = DomainType.IMPROVEMENT, idParam = "improvementId")
     public ImprovementSaveResponse getImprovement(Long improvementId) {
         log.info("개선요청: {} 상세 조회 호출", improvementId);
 
         Improvement improvement = findById(improvementId);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.IMPROVEMENT,
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT,
                 improvementId, null);
 
         boolean isRecommended = false;

@@ -33,14 +33,8 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-//    @Value("${spring.data.redis.password}")
-//    private String password;
-
-    @PostConstruct
-    public void logRedisProps() {
-        System.out.println(">>> Redis Host: " + host);
-        System.out.println(">>> Redis Port: " + port);
-    }
+    @Value("${spring.data.redis.password}")
+    private String password;
 
 
     /**
@@ -52,6 +46,7 @@ public class RedisConfig {
 
         configuration.setHostName(host);
         configuration.setPort(port);
+        configuration.setPassword(password);
 
         return new LettuceConnectionFactory(configuration);
     }
@@ -81,7 +76,8 @@ public class RedisConfig {
     public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://" + host + ":" + port);
+                .setAddress("redis://" + host + ":" + port)
+                .setPassword(password);
         return Redisson.create(config);
     }
 

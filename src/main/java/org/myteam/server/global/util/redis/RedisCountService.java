@@ -73,7 +73,9 @@ public class RedisCountService {
             recommendCount = toInt(redisMap.get("recommend"));
         }
 
-        if (type.equals(ServiceType.VIEW)) {
+        if (type.equals(ServiceType.CHECK)){
+            return new CommonCountDto(viewCount, commentCount, recommendCount);
+        } else if (type.equals(ServiceType.VIEW)) {
             /**
              * 조회할 때. 조회할 시 + 1
              */

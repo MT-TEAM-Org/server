@@ -3,6 +3,7 @@ package org.myteam.server.inquiry.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.aop.CountView;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
@@ -86,6 +87,7 @@ public class InquiryReadService {
     /**
      * 문의 내역 상세 조회
      */
+    @CountView(domain = DomainType.INQUIRY, idParam = "inquiryId")
     public InquiryDetailsResponse getInquiryById(final Long inquiryId) {
         Member member = securityReadService.getMember();
         log.info("요청 멤버: {}, 조회 문의내역: {} 요청", member.getPublicId(), inquiryId);
@@ -93,7 +95,7 @@ public class InquiryReadService {
         Inquiry inquiry = findInquiryById(inquiryId);
         inquiry.verifyInquiryAuthor(member);
 
-        CommonCountDto commonCount = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.INQUIRY, inquiryId,
+        CommonCountDto commonCount = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.INQUIRY, inquiryId,
                 null);
 
         log.info("요청 멤버: {}, 조회 문의내역: {} 성공", member.getPublicId(), inquiryId);

@@ -3,6 +3,7 @@ package org.myteam.server.board.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.aop.CountView;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.CategoryType;
@@ -116,17 +117,16 @@ public class BoardService {
      * 게시글 상세 조회
      */
     @Transactional(readOnly = true)
-    public BoardResponse getBoard(final Long boardId, CustomUserDetails userDetails) {
-
+    @CountView(domain = DomainType.BOARD, idParam = "boardId")
+    public BoardResponse getBoard(final Long boardId) {
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
         Board board = boardReadService.findById(boardId);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.BOARD,
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
                 board.getId(), null);
 
         boolean isRecommended = false;
-
-        if (userDetails != null) {
-            UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+        if (loginUser != null) {
             isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
         }
 

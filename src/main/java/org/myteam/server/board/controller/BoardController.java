@@ -105,9 +105,8 @@ public class BoardController {
             @ApiResponse(responseCode = "404", description = "게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{boardId}")
-    public ResponseEntity<ResponseDto<BoardResponse>> getBoard(@PathVariable final Long boardId,
-                                                               @AuthenticationPrincipal final CustomUserDetails userDetails) {
-        final BoardResponse response = boardService.getBoard(boardId, userDetails);
+    public ResponseEntity<ResponseDto<BoardResponse>> getBoard(@PathVariable final Long boardId) {
+        final BoardResponse response = boardService.getBoard(boardId);
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "게시글 조회 성공", response));
     }
 

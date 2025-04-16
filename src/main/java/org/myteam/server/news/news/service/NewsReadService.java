@@ -2,6 +2,7 @@ package org.myteam.server.news.news.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.aop.CountView;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
@@ -41,13 +42,14 @@ public class NewsReadService {
         return NewsListResponse.createResponse(PageCustomResponse.of(newsPagingList));
     }
 
+    @CountView(domain = DomainType.NEWS, idParam = "newsId")
     public NewsResponse findOne(Long newsId) {
         UUID publicId = securityReadService.getAuthenticatedPublicId();
 
         boolean recommendYn = publicId != null && newsCountMemberReadService.confirmRecommendMember(newsId, publicId);
 
         News news = findById(newsId);
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.NEWS, newsId,
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS, newsId,
                 null);
 
         Long previousId = newsQueryRepository.findPreviousNewsId(news.getId(), news.getCategory());

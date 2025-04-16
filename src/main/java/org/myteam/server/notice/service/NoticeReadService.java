@@ -3,6 +3,7 @@ package org.myteam.server.notice.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.aop.CountView;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
@@ -45,13 +46,14 @@ public class NoticeReadService {
     /**
      * 공지사항 상세 조회
      */
+    @CountView(domain = DomainType.NOTICE, idParam = "noticeId")
     public NoticeSaveResponse getNotice(Long noticeId) {
         log.info("공지사항: {} 상세 조회 호출", noticeId);
 
         Notice notice = findById(noticeId);
         UUID memberPublicId = securityReadService.getAuthenticatedPublicId();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.NOTICE,
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NOTICE,
                 notice.getId(), null);
 
         boolean isRecommended = false;
