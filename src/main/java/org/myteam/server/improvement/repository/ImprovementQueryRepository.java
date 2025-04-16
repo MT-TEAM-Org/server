@@ -13,22 +13,23 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QImprovementComment;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
-import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementRankingDto;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,7 +42,7 @@ import org.springframework.stereotype.Repository;
 public class ImprovementQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 개선요청 목록 조회
@@ -75,6 +76,9 @@ public class ImprovementQueryRepository {
 
         for (ImprovementDto improvementDto : content) {
             improvementDto.setCreatedIp(ClientUtils.maskIp(improvementDto.getCreatedIp()));
+            CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementDto.getId());
+            improvementDto.setRecommendCount(commonCountDto.getRecommendCount());
+            improvementDto.setCommentCount(commonCountDto.getCommentCount());
         }
 
         long total = getTotalImprovementCount(searchType, search);
@@ -168,12 +172,14 @@ public class ImprovementQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long improvementId = tuple.get(improvement.id);
-                    int viewCount = redisViewCountService.getViewCount("improvement", improvementId);
-                    int recommendCount = tuple.get(improvementCount.recommendCount);
-                    int commentCount = tuple.get(improvementCount.commentCount);
+                    CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementId);
+                    int viewCount = commonCountDto.getViewCount();
+                    int recommendCount = commonCountDto.getRecommendCount();
+                    int commentCount = commonCountDto.getCommentCount();
                     String title = tuple.get(improvement.title);
 
-                    return new ImprovementRankingDto(improvementId, viewCount, recommendCount, commentCount, title, viewCount + recommendCount);
+                    return new ImprovementRankingDto(improvementId, viewCount, recommendCount, commentCount, title,
+                            viewCount + recommendCount);
                 })
                 .sorted(Comparator.comparing(ImprovementRankingDto::getRecommendCount).reversed()
                         .thenComparing(ImprovementRankingDto::getTotalScore).reversed()

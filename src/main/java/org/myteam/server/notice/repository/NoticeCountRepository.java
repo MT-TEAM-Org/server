@@ -18,4 +18,12 @@ public interface NoticeCountRepository extends JpaRepository<NoticeCount, Long> 
     @Modifying
     @Query("UPDATE NoticeCount n SET n.viewCount = :viewCount WHERE n.id = :noticeId")
     void updateViewCount(@Param("noticeId") Long noticeId, @Param("viewCount") int viewCount);
+
+    @Modifying
+    @Query("UPDATE NoticeCount n SET n.viewCount = :view, n.commentCount = :comment, n.recommendCount = :recommend WHERE n.id = :noticeId")
+    void updateAllCounts(@Param("noticeId") Long noticeId,
+                         @Param("view") int view,
+                         @Param("comment") int comment,
+                         @Param("recommend") int recommend);
+
 }

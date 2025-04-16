@@ -6,7 +6,9 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -17,6 +19,7 @@ import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
 import org.myteam.server.notice.repository.NoticeCountRepository;
 import org.myteam.server.notice.repository.NoticeQueryRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.upload.service.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +36,9 @@ public class NoticeService {
     private final SecurityReadService securityReadService;
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeReadService noticeReadService;
-    private final NoticeCountReadService noticeCountReadService;
     private final CommentService commentService;
     private final StorageService s3Service;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 공지사항 작성
@@ -54,7 +56,8 @@ public class NoticeService {
         NoticeCount noticeCount = NoticeCount.createNoticeCount(notice);
         noticeCountRepository.save(noticeCount);
 
-        int viewCount = redisViewCountService.getViewCount("notice", notice.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.NOTICE,
+                notice.getId(), null);
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -63,7 +66,7 @@ public class NoticeService {
         Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
         Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
 
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId, viewCount);
+        return NoticeSaveResponse.createResponse(notice, isRecommended, previousId, nextId, commonCountDto);
 
     }
 
@@ -104,8 +107,7 @@ public class NoticeService {
         notice.updateNotice(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         noticeRepository.save(notice);
 
-        NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
-        int viewCount = redisViewCountService.getViewCount("notice", notice.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NOTICE, notice.getId());
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -114,7 +116,7 @@ public class NoticeService {
         Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
         Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
 
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId, viewCount);
+        return NoticeSaveResponse.createResponse(notice, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**
@@ -137,7 +139,7 @@ public class NoticeService {
             s3Service.deleteFile(notice.getImgUrl());
         }
 
-        redisViewCountService.removeViewCount("notice", noticeId);
+        redisCountService.removeCount(DomainType.NOTICE, noticeId);
 
         noticeCountRepository.deleteByNoticeId(notice.getId());
         noticeRepository.delete(notice);

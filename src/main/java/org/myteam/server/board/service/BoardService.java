@@ -3,6 +3,7 @@ package org.myteam.server.board.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.aop.CountView;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.CategoryType;
@@ -18,11 +19,14 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +47,7 @@ public class BoardService {
     private final MemberReadService memberReadService;
     private final BoardRecommendReadService boardRecommendReadService;
     private final CommentService commentService;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 게시글 작성
@@ -60,8 +64,9 @@ public class BoardService {
         verifyBoardTypeAndCategoryType(request.getBoardType(), request.getCategoryType());
 
         Board board = makeBoard(member, clientIP, request);
-        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCount("board", board.getId());
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.BOARD,
+                board.getId(), null);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -72,7 +77,7 @@ public class BoardService {
                 board.getCategoryType());
 
         log.info("게시판 생성: {}", loginUser);
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount);
+        return BoardResponse.createResponse(board, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**
@@ -112,16 +117,16 @@ public class BoardService {
      * 게시글 상세 조회
      */
     @Transactional(readOnly = true)
-    public BoardResponse getBoard(final Long boardId, CustomUserDetails userDetails) {
-
+    @CountView(domain = DomainType.BOARD, idParam = "boardId")
+    public BoardResponse getBoard(final Long boardId) {
+        UUID loginUser = securityReadService.getAuthenticatedPublicId();
         Board board = boardReadService.findById(boardId);
-        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCountAndIncr("board", boardId);
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
 
         boolean isRecommended = false;
-
-        if (userDetails != null) {
-            UUID loginUser = memberRepository.findByPublicId(userDetails.getPublicId()).get().getPublicId();
+        if (loginUser != null) {
             isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
         }
 
@@ -130,8 +135,7 @@ public class BoardService {
                 board.getCategoryType());
         Long nextId = boardQueryRepository.findNextBoardId(boardId, board.getBoardType(), board.getCategoryType());
 
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId,
-                nextId, viewCount);
+        return BoardResponse.createResponse(board, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**
@@ -151,8 +155,7 @@ public class BoardService {
         board.updateBoard(request);
         boardRepository.save(board);
 
-        BoardCount boardCount = boardCountReadService.findByBoardId(board.getId());
-        int viewCount = redisViewCountService.getViewCount("board", board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -162,7 +165,7 @@ public class BoardService {
         Long nextId = boardQueryRepository.findNextBoardId(board.getId(), board.getBoardType(),
                 board.getCategoryType());
 
-        return BoardResponse.createResponse(board, boardCount, isRecommended, previousId, nextId, viewCount);
+        return BoardResponse.createResponse(board, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**
@@ -183,7 +186,7 @@ public class BoardService {
         //게시글 추천 삭제
         boardRecommendRepository.deleteAllByBoardId(board.getId());
         // 조회수 삭제
-        redisViewCountService.removeViewCount("board", boardId);
+        redisCountService.removeCount(DomainType.BOARD, boardId);
         // 게시글 카운트 삭제
         boardCountRepository.deleteByBoardId(board.getId());
         // 게시글 삭제

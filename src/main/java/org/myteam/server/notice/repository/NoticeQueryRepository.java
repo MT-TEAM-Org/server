@@ -21,10 +21,13 @@ import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.CommonCount;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeRankingDto;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -37,7 +40,7 @@ import org.springframework.stereotype.Repository;
 public class NoticeQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     /**
      * 공지사항 목록 조회
@@ -72,6 +75,9 @@ public class NoticeQueryRepository {
 
         for (NoticeDto noticeDto : content) {
             noticeDto.setCreatedIp(ClientUtils.maskIp(noticeDto.getCreatedIp()));
+            CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NOTICE, noticeDto.getId());
+            noticeDto.setRecommendCount(commonCountDto.getRecommendCount());
+            noticeDto.setCommentCount(commonCountDto.getCommentCount());
         }
 
         if (searchType == NoticeSearchType.COMMENT) {
@@ -182,13 +188,11 @@ public class NoticeQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long noticeId = tuple.get(notice.id);
-                    int viewCount = redisViewCountService.getViewCount("notice", noticeId);
-                    int recommendCount = tuple.get(noticeCount.recommendCount);
-                    int commentCount = tuple.get(noticeCount.commentCount);
+                    CommonCountDto commonCount = redisCountService.getCommonCount(DomainType.NOTICE, noticeId);
                     String title = tuple.get(notice.title);
 
-                    return new NoticeRankingDto(noticeId, viewCount, recommendCount, commentCount, title,
-                            viewCount + recommendCount);
+                    return new NoticeRankingDto(noticeId, commonCount.getViewCount(), commonCount.getRecommendCount(), commonCount.getCommentCount(), title,
+                            commonCount.getViewCount() + commonCount.getRecommendCount());
                 })
                 .sorted(Comparator.comparing(NoticeRankingDto::getRecommendCount).reversed()
                         .thenComparing(NoticeRankingDto::getTotalScore).reversed()

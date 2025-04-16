@@ -7,9 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.util.ClientUtils;
 
 @Getter
@@ -90,7 +90,8 @@ public class BoardResponse {
     private Long nextId;
 
     @Builder
-    public BoardResponse(Board board, BoardCount boardCount, boolean isRecommended, Long previousId, Long nextId, int viewCount) {
+    public BoardResponse(Board board, boolean isRecommended, Long previousId, Long nextId,
+                         CommonCountDto commonCountDto) {
         this.boardType = board.getBoardType();
         this.categoryType = board.getCategoryType();
         this.boardId = board.getId();
@@ -102,24 +103,23 @@ public class BoardResponse {
         this.link = board.getLink();
         this.thumbnail = board.getThumbnail();
         this.isRecommended = isRecommended;
-        this.recommendCount = boardCount.getRecommendCount();
-        this.commentCount = boardCount.getCommentCount();
-        this.viewCount = viewCount; // redis에서 조회한 값
+        this.recommendCount = commonCountDto.getRecommendCount();
+        this.commentCount = commonCountDto.getCommentCount();
+        this.viewCount = commonCountDto.getViewCount();
         this.createDate = board.getCreateDate();
         this.lastModifiedDate = board.getLastModifiedDate();
         this.previousId = previousId;
         this.nextId = nextId;
     }
 
-    public static BoardResponse createResponse(Board board, BoardCount boardCount, boolean isRecommended,
-                                               Long previousId, Long nextId, int viewCount) {
+    public static BoardResponse createResponse(Board board, boolean isRecommended,
+                                               Long previousId, Long nextId, CommonCountDto commonCountDto) {
         return BoardResponse.builder()
                 .board(board)
-                .boardCount(boardCount)
                 .isRecommended(isRecommended)
                 .previousId(previousId)
                 .nextId(nextId)
-                .viewCount(viewCount)
+                .commonCountDto(commonCountDto)
                 .build();
     }
 }

@@ -18,12 +18,20 @@ public class InquiryCount {
     private Inquiry inquiry;
 
     @Column(nullable = false)
+    private int recommendCount;
+
+    @Column(nullable = false)
+    private int viewCount;
+
+    @Column(nullable = false)
     private int commentCount;
 
     @Builder
     public InquiryCount(Inquiry inquiry, int commentCount) {
         this.inquiry = inquiry;
         this.commentCount = commentCount;
+        this.viewCount = 0;
+        this.recommendCount = 0;
     }
 
     public static InquiryCount createCount(Inquiry inquiry) {

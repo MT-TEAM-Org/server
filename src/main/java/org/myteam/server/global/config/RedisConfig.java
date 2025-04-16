@@ -1,8 +1,13 @@
 package org.myteam.server.global.config;
 
+import java.time.Duration;
+
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,11 +18,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import java.time.Duration;
 
 @Configuration
 @EnableCaching
@@ -34,6 +35,7 @@ public class RedisConfig {
 
     @Value("${spring.data.redis.password}")
     private String password;
+
 
     /**
      * Redis Connection Factory 생성 (Lettuce 사용)
@@ -61,8 +63,22 @@ public class RedisConfig {
 //        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.afterPropertiesSet();
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());    // 여기가 중요!
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());  // 여기도 중요!
 
         return redisTemplate;
+    }
+
+    /**
+     * RedissonClient 설정
+     */
+    @Bean
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + host + ":" + port)
+                .setPassword(password);
+        return Redisson.create(config);
     }
 
     /**

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.improvement.domain.Improvement;
-import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.util.ClientUtils;
 
@@ -20,7 +23,7 @@ public record ImprovementResponse() {
     @NoArgsConstructor
     @AllArgsConstructor
     public static final class ImprovementSaveResponse {
-        private Long noticeId; // 개선요청 id
+        private Long improvementId; // 개선요청 id
         private UUID publicId; // 작성자 id
         private String nickname; // 작성자 닉네임
         private String clientIp; // 작성자 IP
@@ -45,10 +48,11 @@ public record ImprovementResponse() {
         private Long nextId;
         private String link;
 
-        public static ImprovementSaveResponse createResponse(Improvement improvement, ImprovementCount improvementCount,
-                                                             boolean isRecommended, Long previousId, Long nextId, int viewCount) {
+        public static ImprovementSaveResponse createResponse(Improvement improvement, boolean isRecommended,
+                                                             Long previousId, Long nextId,
+                                                             CommonCountDto commonCountDto) {
             return ImprovementSaveResponse.builder()
-                    .noticeId(improvement.getId())
+                    .improvementId(improvement.getId())
                     .publicId(improvement.getMember().getPublicId())
                     .nickname(improvement.getMember().getNickname())
                     .clientIp(ClientUtils.maskIp(improvement.getCreatedIp()))
@@ -57,9 +61,9 @@ public record ImprovementResponse() {
                     .imgUrl(improvement.getImgUrl())
                     .status(improvement.getImprovementStatus())
                     .isRecommended(isRecommended)
-                    .recommendCount(improvementCount.getRecommendCount())
-                    .commentCount(improvementCount.getCommentCount())
-                    .viewCount(viewCount)
+                    .recommendCount(commonCountDto.getRecommendCount())
+                    .commentCount(commonCountDto.getCommentCount())
+                    .viewCount(commonCountDto.getViewCount())
                     .createdAt(improvement.getCreateDate())
                     .modifiedAt(improvement.getLastModifiedDate())
                     .previousId(previousId)

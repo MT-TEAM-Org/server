@@ -1,328 +1,495 @@
 package org.myteam.server.news.newsCount.service;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.NoSuchElementException;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.TestContainerSupport;
+import org.myteam.server.comment.domain.CommentType;
+import org.myteam.server.comment.dto.request.CommentRequest;
+import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.security.dto.CustomUserDetails;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
-import org.myteam.server.news.newsCount.repository.NewsCountRepository;
-import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-public class NewsCountServiceTest extends IntegrationTestSupport {
+public class NewsCountServiceTest extends TestContainerSupport {
 
-	@Autowired
-	private NewsCountService newsCountService;
-	@Autowired
-	private NewsRepository newsRepository;
-	@Autowired
-	private NewsCountRepository newsCountRepository;
+    @Autowired
+    private RedisCountService redisCountService;
 
-	@DisplayName("뉴스 추천 클릭시 사용자 좋아요 추가를 테스트한다.")
-	@Test
-	@Transactional
-	void recommendNewsTest() {
-		News news = createNews(1, Category.FOOTBALL, 10);
-		Member member = createMember(1);
+    private Member member;
 
-		// when
-		newsCountService.recommendNews(news.getId());
+    @BeforeEach
+    public void setUp() {
+        member = Member.builder()
+                .email("test@test.com")
+                .password("1234")
+                .tel("12345")
+                .nickname("test")
+                .role(MemberRole.USER)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
 
-		// then
-		assertAll(
-			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getRecommendCount()).isEqualTo(11),
-			() -> assertThat(
-				newsCountMemberRepository.findByNewsIdAndMemberPublicId(news.getId(), member.getPublicId()).get())
-				.extracting("news.id", "member.publicId")
-				.contains(news.getId(), member.getPublicId())
-		);
-	}
+        memberJpaRepository.save(member);
+        MemberActivity memberActivity = new MemberActivity(member);
+        memberActivityRepository.save(memberActivity);
 
-	@DisplayName("뉴스 추천 취소시 사용자 좋아요 제거를 테스트한다.")
-	@Test
-	@Transactional
-	void cancelRecommendNewsTest() {
-		News news = createNews(1, Category.FOOTBALL, 10);
-		Member member = createMember(1);
-		NewsCountMember newsCountMember = createNewsCountMember(member, news);
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 
-		// when
-		newsCountService.cancelRecommendNews(news.getId());
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                new CustomUserDetails(member),
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        ));
+        SecurityContextHolder.setContext(context);
+    }
 
-		// then
-		assertAll(
-			() -> assertThat(newsCountRepository.findByNewsId(news.getId()).get().getRecommendCount()).isEqualTo(9),
-			() -> assertThatThrownBy(() -> newsCountMemberRepository.findById(newsCountMember.getId()).get())
-				.isInstanceOf(NoSuchElementException.class)
-				.hasMessage("No value present")
-		);
-	}
+    @AfterEach
+    public void cleanUp() {
+        commentRepository.deleteAllInBatch();
+        newsCountMemberRepository.deleteAllInBatch();
+        newsCountRepository.deleteAllInBatch();
+        newsRepository.deleteAllInBatch();
+    }
 
-	@DisplayName("뉴스 추천수 증가 동시성 테스트한다.")
-	@Test
-	void addRecommendCountTest() throws InterruptedException, ExecutionException {
-		int threadCount = 50;
+    @DisplayName("뉴스 추천 클릭시 사용자 좋아요 추가를 테스트한다.")
+    @Test
+    @Transactional
+    void recommendNewsTest() {
+        // given
+        News news = createNews(1, Category.FOOTBALL, 0);
 
-		ExecutorService executorService = Executors.newFixedThreadPool(25);
+        // when
+        newsCountService.recommendNews(news.getId());
 
-		CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        // then
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
-		News news = News.builder()
-			.title("기사타이틀" + 1)
-			.category(Category.FOOTBALL)
-			.thumbImg("www.test.com")
-			.build();
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(1);
+    }
 
-		NewsCount savedNewsCount = NewsCount.builder()
-			.news(news)
-			.build();
+    @DisplayName("뉴스 추천 취소시 사용자 좋아요 제거를 테스트한다.")
+    @Test
+    @Transactional
+    void cancelRecommendNewsTest() {
+        // given
+        News news = createNews(1, Category.FOOTBALL, 0);
+        newsCountService.recommendNews(news.getId());
 
-		executorService.submit(() -> {
-			newsRepository.save(news);
-			newsCountRepository.save(savedNewsCount);
-		}).get();
+        // when
+        newsCountService.cancelRecommendNews(news.getId());
 
-		// when
-		for (int i = 0; i < threadCount; i++) {
-			executorService.execute(() -> {
-				try {
-					newsCountService.addRecommendCount(news.getId());
-				} finally {
-					countDownLatch.countDown();
-				}
-			});
-		}
+        //then
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
-		countDownLatch.await();
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(0);
+    }
 
-		// then
-		assertThat(newsCountRepository.findById(savedNewsCount.getId()).get().getRecommendCount())
-			.isEqualTo(50);
-	}
+    @DisplayName("뉴스 추천수 증가 동시성 테스트한다.")
+    @Test
+    void addRecommendCountTest() throws InterruptedException, ExecutionException {
+        int threadCount = 50;
 
-	@DisplayName("뉴스 추천수 감소 동시성 테스트한다.")
-	@Test
-	void minusRecommendCountTest() throws InterruptedException, ExecutionException {
-		int threadCount = 50;
+        ExecutorService executorService = Executors.newFixedThreadPool(25);
 
-		ExecutorService executorService = Executors.newFixedThreadPool(25);
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
-		CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        News news = News.builder()
+                .title("기사타이틀" + 1)
+                .category(Category.FOOTBALL)
+                .thumbImg("www.test.com")
+                .build();
 
-		News news = News.builder()
-			.title("기사타이틀" + 1)
-			.category(Category.FOOTBALL)
-			.thumbImg("www.test.com")
-			.build();
+        NewsCount savedNewsCount = NewsCount.builder()
+                .news(news)
+                .build();
 
-		NewsCount savedNewsCount = NewsCount.builder()
-			.news(news)
-			.recommendCount(50)
-			.build();
+        executorService.submit(() -> {
+            newsRepository.save(news);
+            newsCountRepository.save(savedNewsCount);
+        }).get();
 
-		executorService.submit(() -> {
-			newsRepository.save(news);
-			newsCountRepository.save(savedNewsCount);
-		}).get();
+        redisCountService.getCommonCount(DomainType.NEWS, news.getId());
 
-		// when
-		for (int i = 0; i < threadCount; i++) {
-			executorService.execute(() -> {
-				try {
-					newsCountService.minusRecommendCount(news.getId());
-				} finally {
-					countDownLatch.countDown();
-				}
-			});
-		}
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            executorService.execute(() -> {
+                try {
+                    Member threadMember = Member.builder()
+                            .email("test" + idx + "@test.com")
+                            .password("1234")
+                            .tel("01012345678")
+                            .nickname("test" + idx)
+                            .role(MemberRole.USER)
+                            .type(MemberType.LOCAL)
+                            .status(MemberStatus.ACTIVE)
+                            .publicId(UUID.randomUUID())
+                            .build();
+                    memberJpaRepository.save(threadMember);
 
-		countDownLatch.await();
+                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
+                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
+                    memberActivityRepository.save(threadMemberActivity);
 
-		// then
-		assertThat(newsCountRepository.findById(savedNewsCount.getId()).get().getRecommendCount())
-			.isEqualTo(0);
-	}
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
 
-	@DisplayName("뉴스 댓글수 증가 동시성 테스트한다.")
-	@Test
-	void addCommentCountTest() throws InterruptedException, ExecutionException {
-		int threadCount = 50;
+                    newsCountService.recommendNews(news.getId());
+                } finally {
+                    SecurityContextHolder.clearContext();
+                    countDownLatch.countDown();
+                }
+            });
+        }
 
-		ExecutorService executorService = Executors.newFixedThreadPool(25);
+        countDownLatch.await();
 
-		CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
-		News news = News.builder()
-			.title("기사타이틀" + 1)
-			.category(Category.FOOTBALL)
-			.thumbImg("www.test.com")
-			.build();
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(50);
+    }
 
-		NewsCount savedNewsCount = NewsCount.builder()
-			.news(news)
-			.build();
+    @DisplayName("뉴스 추천수 감소 동시성 테스트한다.")
+    @Test
+    void minusRecommendCountTest() throws InterruptedException, ExecutionException {
+        int threadCount = 50;
 
-		executorService.submit(() -> {
-			newsRepository.save(news);
-			newsCountRepository.save(savedNewsCount);
-		}).get();
+        ExecutorService executorService = Executors.newFixedThreadPool(25);
+        CountDownLatch recommendLatch = new CountDownLatch(threadCount);
+        CountDownLatch cancelLatch = new CountDownLatch(threadCount);
 
-		// when
-		for (int i = 0; i < threadCount; i++) {
-			executorService.execute(() -> {
-				try {
-					newsCountService.addCommentCount(news.getId());
-				} finally {
-					countDownLatch.countDown();
-				}
-			});
-		}
+        ConcurrentHashMap<Integer, Member> memberMap = new ConcurrentHashMap<>();
 
-		countDownLatch.await();
+        News news = News.builder()
+                .title("기사타이틀" + 1)
+                .category(Category.FOOTBALL)
+                .thumbImg("www.test.com")
+                .build();
 
-		// then
-		assertThat(newsCountRepository.findById(savedNewsCount.getId()).get().getCommentCount())
-			.isEqualTo(50);
-	}
+        NewsCount savedNewsCount = NewsCount.builder()
+                .news(news)
+                .recommendCount(0)
+                .build();
 
-	@DisplayName("뉴스 댓글수 감소 동시성 테스트한다.")
-	@Test
-	void minusCommentCountTest() throws InterruptedException, ExecutionException {
-		int threadCount = 50;
+        executorService.submit(() -> {
+            newsRepository.save(news);
+            newsCountRepository.save(savedNewsCount);
+        }).get();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(25);
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            executorService.execute(() -> {
+                try {
+                    Member threadMember = Member.builder()
+                            .email("test" + idx + "@test.com")
+                            .password("1234")
+                            .tel("01012345678")
+                            .nickname("test" + idx)
+                            .role(MemberRole.USER)
+                            .type(MemberType.LOCAL)
+                            .status(MemberStatus.ACTIVE)
+                            .publicId(UUID.randomUUID())
+                            .build();
+                    memberJpaRepository.save(threadMember);
+                    memberMap.put(idx, threadMember);
 
-		CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
+                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
+                    memberActivityRepository.save(threadMemberActivity);
 
-		News news = News.builder()
-			.title("기사타이틀" + 1)
-			.category(Category.FOOTBALL)
-			.thumbImg("www.test.com")
-			.build();
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
 
-		NewsCount savedNewsCount = NewsCount.builder()
-			.news(news)
-			.commentCount(50)
-			.build();
+                    newsCountService.recommendNews(news.getId());
+                } finally {
+                    SecurityContextHolder.clearContext();
+                    recommendLatch.countDown();
+                }
+            });
+        }
+        recommendLatch.await();
 
-		executorService.submit(() -> {
-			newsRepository.save(news);
-			newsCountRepository.save(savedNewsCount);
-		}).get();
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            executorService.execute(() -> {
+                try {
+                    Member threadMember = memberMap.get(idx);
 
-		// when
-		for (int i = 0; i < threadCount; i++) {
-			executorService.execute(() -> {
-				try {
-					newsCountService.minusCommentCount(news.getId());
-				} finally {
-					countDownLatch.countDown();
-				}
-			});
-		}
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
 
-		countDownLatch.await();
+                    newsCountService.cancelRecommendNews(news.getId());
+                } finally {
+                    SecurityContextHolder.clearContext();
+                    cancelLatch.countDown();
+                }
+            });
+        }
+        cancelLatch.await();
 
-		// then
-		assertThat(newsCountRepository.findById(savedNewsCount.getId()).get().getRecommendCount())
-			.isEqualTo(0);
-	}
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(0);
+    }
 
-	@DisplayName("뉴스 조회수 증가 동시성 테스트한다.")
-	@Test
-	void addViewCountTest() throws InterruptedException, ExecutionException {
-		int threadCount = 50;
+    @DisplayName("뉴스 댓글수 증가 동시성 테스트한다.")
+    @Test
+    void addCommentCountTest() throws InterruptedException, ExecutionException {
+        int threadCount = 50;
 
-		ExecutorService executorService = Executors.newFixedThreadPool(25);
+        ExecutorService executorService = Executors.newFixedThreadPool(25);
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
-		CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        News news = News.builder()
+                .title("기사타이틀" + 1)
+                .category(Category.FOOTBALL)
+                .thumbImg("www.test.com")
+                .build();
 
-		News news = News.builder()
-			.title("기사타이틀" + 1)
-			.category(Category.FOOTBALL)
-			.thumbImg("www.test.com")
-			.build();
+        NewsCount savedNewsCount = NewsCount.builder()
+                .news(news)
+                .build();
 
-		NewsCount savedNewsCount = NewsCount.builder()
-			.news(news)
-			.build();
+        executorService.submit(() -> {
+            newsRepository.save(news);
+            newsCountRepository.save(savedNewsCount);
+        }).get();
 
-		executorService.submit(() -> {
-			newsRepository.save(news);
-			newsCountRepository.save(savedNewsCount);
-		}).get();
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            executorService.execute(() -> {
+                try {
+                    CommentRequest.CommentSaveRequest commentSaveRequest = CommentRequest.CommentSaveRequest.builder()
+                            .mentionedPublicId(null)
+                            .comment("댓글" + idx)
+                            .imageUrl(null)
+                            .type(CommentType.NEWS)
+                            .parentId(null)
+                            .build();
 
-		// when
-		for (int i = 0; i < threadCount; i++) {
-			executorService.execute(() -> {
-				try {
-					newsCountService.addViewCount(news.getId());
-				} finally {
-					countDownLatch.countDown();
-				}
-			});
-		}
+                    Member threadMember = Member.builder()
+                            .email("test" + idx + "@test.com")
+                            .password("1234")
+                            .tel("01012345678")
+                            .nickname("test" + idx)
+                            .role(MemberRole.USER)
+                            .type(MemberType.LOCAL)
+                            .status(MemberStatus.ACTIVE)
+                            .publicId(UUID.randomUUID())
+                            .build();
+                    memberJpaRepository.save(threadMember);
 
-		countDownLatch.await();
+                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
+                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
+                    memberActivityRepository.save(threadMemberActivity);
 
-		// then
-		assertThat(newsCountRepository.findById(savedNewsCount.getId()).get().getViewCount())
-			.isEqualTo(50);
-	}
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
 
-	@DisplayName("뉴스 조회수 감소 동시성 테스트한다.")
-	@Test
-	void minusViewCountTest() throws InterruptedException, ExecutionException {
-		int threadCount = 50;
+                    commentService.addComment(news.getId(), commentSaveRequest, "0.0.0.1");
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
 
-		ExecutorService executorService = Executors.newFixedThreadPool(25);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        assertThat(commonCountDto.getCommentCount()).isLessThanOrEqualTo(50);
+    }
 
-		CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+    @DisplayName("뉴스 댓글수 감소 동시성 테스트한다.")
+    @Test
+    void minusCommentCountTest() throws InterruptedException, ExecutionException {
+        int threadCount = 50;
 
-		News news = News.builder()
-			.title("기사타이틀" + 1)
-			.category(Category.FOOTBALL)
-			.thumbImg("www.test.com")
-			.build();
+        ExecutorService executorService = Executors.newFixedThreadPool(25);
+        CountDownLatch commentLatch = new CountDownLatch(threadCount);
+        CountDownLatch deleteLatch = new CountDownLatch(threadCount);
 
-		NewsCount savedNewsCount = NewsCount.builder()
-			.news(news)
-			.viewCount(50)
-			.build();
+        News news = News.builder()
+                .title("기사타이틀" + 1)
+                .category(Category.FOOTBALL)
+                .thumbImg("www.test.com")
+                .build();
 
-		executorService.submit(() -> {
-			newsRepository.save(news);
-			newsCountRepository.save(savedNewsCount);
-		}).get();
+        NewsCount savedNewsCount = NewsCount.builder()
+                .news(news)
+                .commentCount(0)
+                .build();
 
-		// when
-		for (int i = 0; i < threadCount; i++) {
-			executorService.execute(() -> {
-				try {
-					newsCountService.minusViewCont(news.getId());
-				} finally {
-					countDownLatch.countDown();
-				}
-			});
-		}
+        executorService.submit(() -> {
+            newsRepository.save(news);
+            newsCountRepository.save(savedNewsCount);
+        }).get();
 
-		countDownLatch.await();
+        ConcurrentHashMap<Integer, Member> memberMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<Integer, Long> commentMap = new ConcurrentHashMap<>();
 
-		// then
-		assertThat(newsCountRepository.findById(savedNewsCount.getId()).get().getViewCount())
-			.isEqualTo(0);
-	}
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            executorService.execute(() -> {
+                try {
+                    CommentRequest.CommentSaveRequest commentSaveRequest = CommentRequest.CommentSaveRequest.builder()
+                            .mentionedPublicId(null)
+                            .comment("댓글" + idx)
+                            .imageUrl(null)
+                            .type(CommentType.NEWS)
+                            .parentId(null)
+                            .build();
+                    Member threadMember = Member.builder()
+                            .email("test" + idx + "@test.com")
+                            .password("1234")
+                            .tel("01012345678")
+                            .nickname("test" + idx)
+                            .role(MemberRole.USER)
+                            .type(MemberType.LOCAL)
+                            .status(MemberStatus.ACTIVE)
+                            .publicId(UUID.randomUUID())
+                            .build();
+                    memberJpaRepository.save(threadMember);
+                    memberMap.put(idx, threadMember);
+
+                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
+                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
+                    memberActivityRepository.save(threadMemberActivity);
+
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
+
+                    CommentResponse.CommentSaveResponse comment = commentService.addComment(news.getId(),
+                            commentSaveRequest, "0.0.0.1");
+                    commentMap.put(idx, comment.getCommentId());
+                } finally {
+                    commentLatch.countDown();
+                }
+            });
+        }
+        commentLatch.await();
+
+        CommentRequest.CommentDeleteRequest deleteRequest = CommentRequest.CommentDeleteRequest.builder()
+                .type(CommentType.NEWS)
+                .build();
+
+        for (int i = 0; i < threadCount; i++) {
+            final int idx = i;
+            executorService.execute(() -> {
+                try {
+                    Member threadMember = memberMap.get(idx);
+
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                            new CustomUserDetails(threadMember),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    ));
+                    SecurityContextHolder.setContext(context);
+                    System.out.println("commentMap.get(idx) = " + commentMap.get(idx));
+                    commentService.deleteComment(news.getId(), commentMap.get(idx), deleteRequest);
+                } finally {
+                    deleteLatch.countDown();
+                }
+            });
+        }
+        deleteLatch.await();
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+
+        assertThat(commonCountDto.getCommentCount()).isLessThanOrEqualTo(0);
+    }
+
+    @DisplayName("뉴스 조회수 증가 동시성 테스트한다.")
+    @Test
+    void addViewCountTest() throws InterruptedException, ExecutionException {
+        int threadCount = 50;
+
+        ExecutorService executorService = Executors.newFixedThreadPool(25);
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+        News news = News.builder()
+                .title("기사타이틀" + 1)
+                .category(Category.FOOTBALL)
+                .thumbImg("www.test.com")
+                .build();
+
+        NewsCount savedNewsCount = NewsCount.builder()
+                .news(news)
+                .build();
+
+        executorService.submit(() -> {
+            newsRepository.save(news);
+            newsCountRepository.save(savedNewsCount);
+        }).get();
+
+        for (int i = 0; i < threadCount; i++) {
+            executorService.execute(() -> {
+                try {
+                    redisCountService.getCommonCount(ServiceType.VIEW, DomainType.NEWS, news.getId(), null);
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+
+        assertThat(commonCountDto.getViewCount()).isLessThanOrEqualTo(50);
+    }
 }

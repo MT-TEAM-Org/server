@@ -98,11 +98,12 @@ public class ReportService {
     }
 
     private DomainType mapReportTypeToDomainType(ReportType reportType) {
-        // TODO: 문의하기, 공지사항 추후 추가
         return switch (reportType) {
             case BOARD -> DomainType.BOARD;
             case NEWS -> DomainType.NEWS;
             case INQUIRY -> DomainType.INQUIRY;
+            case NOTICE -> DomainType.NOTICE;
+            case IMPROVEMENT -> DomainType.IMPROVEMENT;
             case COMMENT -> DomainType.COMMENT;
             default -> throw new PlayHiveException(ErrorCode.INVALID_REPORT_TYPE);
         };

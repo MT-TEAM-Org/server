@@ -22,10 +22,13 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QInquiryComment;
 import org.myteam.server.comment.domain.QNoticeComment;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.domain.QInquiry;
 import org.myteam.server.inquiry.dto.response.InquiryResponse.*;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +40,7 @@ import org.springframework.stereotype.Repository;
 public class InquiryQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final RedisCountService redisCountService;
 
     public Page<InquiryDto> getInquiryList(UUID memberPublicId,
                                            InquiryOrderType orderType,
@@ -72,6 +76,12 @@ public class InquiryQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        for (InquiryDto inquiryDto : inquiries) {
+            Long id = inquiryDto.getId();
+            CommonCountDto commonCount = redisCountService.getCommonCount(DomainType.INQUIRY, id);
+            inquiryDto.setCommentCount(commonCount.getCommentCount());
+        }
 
         // 전체 개수 조회
         long total = getInquiryCount(memberPublicId, searchType, keyword, orderType);

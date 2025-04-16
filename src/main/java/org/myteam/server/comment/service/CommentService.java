@@ -18,10 +18,13 @@ import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.util.CommentFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.upload.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,67 +47,7 @@ public class CommentService {
     private final CommentRecommendReadService commentRecommendReadService;
     private final CommentRecommendRepository commentRecommendRepository;
     private final CommentRecommendService commentRecommendService;
-    private Map<CommentType, CommentCountService> countServiceMap;
-
-    @Autowired
-    public CommentService(Map<String, CommentCountService> countServices,
-                          CommentRepository commentRepository,
-                          CommentFactory commentFactory,
-                          SecurityReadService securityReadService,
-                          BadWordFilter badWordFilter,
-                          StorageService s3Service,
-                          MemberJpaRepository memberJpaRepository,
-                          CommentReadService commentReadService,
-                          CommentRecommendReadService commentRecommendReadService,
-                          CommentRecommendRepository commentRecommendRepository,
-                          CommentRecommendService commentRecommendService,
-                          CommentQueryRepository commentQueryRepository) {
-
-        this.commentRepository = commentRepository;
-        this.commentFactory = commentFactory;
-        this.securityReadService = securityReadService;
-        this.badWordFilter = badWordFilter;
-        this.s3Service = s3Service;
-        this.memberJpaRepository = memberJpaRepository;
-        this.commentReadService = commentReadService;
-        this.commentQueryRepository = commentQueryRepository;
-        this.commentRecommendReadService = commentRecommendReadService;
-        this.commentRecommendRepository = commentRecommendRepository;
-        this.commentRecommendService = commentRecommendService;
-
-        log.info("등록된 CommentCountService Bean 목록: {}", countServices.keySet());
-
-        this.countServiceMap = countServices.entrySet().stream()
-                .peek(entry -> log.info("처리 중: Bean 이름={}, 변환 결과={}",
-                        entry.getKey(), convertBeanNameToEnum(entry.getKey())))
-                .collect(Collectors.toMap(
-                        entry -> {
-                            String convertedName = convertBeanNameToEnum(entry.getKey());
-                            try {
-                                return CommentType.valueOf(convertedName);
-                            } catch (IllegalArgumentException e) {
-                                log.error("잘못된 Bean 이름: {}, 변환 실패 (변환 값: {})", entry.getKey(), convertedName, e);
-                                throw e;
-                            }
-                        },
-                        Map.Entry::getValue
-                ));
-    }
-
-    private String convertBeanNameToEnum(String beanName) {
-        int startIdx = beanName.indexOf("CountService");
-        String typeName = beanName.substring(0, startIdx);
-        return toUpperSnakeCase(typeName);
-    }
-
-    /**
-     * PascalCase를 UPPER_SNAKE_CASE로 변환하는 유틸리티 메서드 "BoardCommentCountService" -> "BOARD"
-     */
-    private String toUpperSnakeCase(String input) {
-        return input.replaceAll("([a-z])([A-Z])", "$1_$2")
-                .toUpperCase()
-                .replace("_COMMENT_COUNT_SERVICE", ""); // 불필요한 "_COMMENT_COUNT_SERVICE" 제거
-    }
+    private final RedisCountService redisCountService;
 
     /**
      * 댓글 작성
@@ -130,11 +73,9 @@ public class CommentService {
 
         // 댓글 카운트 증가
         if (!request.getType().equals(CommentType.MATCH)) {
-            CommentCountService countService = countServiceMap.get(request.getType());
-            if (countService == null) {
-                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
-            }
-            countService.addCommentCount(contentId);
+            // 댓글수 증가
+            redisCountService.getCommonCount(ServiceType.COMMENT, DomainType.changeType(request.getType()), contentId,
+                    null);
         }
 
         CommentSaveResponse response = CommentSaveResponse.createResponse(comment, false);
@@ -183,7 +124,7 @@ public class CommentService {
      */
     public void deleteComment(Long contentId, Long commentId, CommentDeleteRequest request) {
         Member member = securityReadService.getMember();
-        Comment comment = commentReadService.findById(commentId);
+        Comment comment = commentReadService.findByIdAndCommentType(commentId, request.getType());
 
         if (!comment.verifyCommentAuthor(member)) {
             log.warn("댓글 삭제 실패 - 작성자 불일치 (commentId: {}, 요청자: {}, 작성자: {})",
@@ -214,11 +155,8 @@ public class CommentService {
 
         // 댓글 카운트 감소
         if (!request.getType().equals(CommentType.MATCH)) {
-            CommentCountService countService = countServiceMap.get(request.getType());
-            if (countService == null) {
-                throw new PlayHiveException(ErrorCode.NOT_SUPPORT_COMMENT_TYPE);
-            }
-            countService.minusCommentCount(contentId, minusCount);
+            redisCountService.getCommonCount(ServiceType.COMMENT_REMOVE, DomainType.changeType(request.getType()),
+                    contentId, minusCount);
         }
     }
 
