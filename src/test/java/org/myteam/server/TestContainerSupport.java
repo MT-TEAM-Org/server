@@ -9,7 +9,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.MySQLContainer;
 
-@ActiveProfiles("test")
+@ActiveProfiles("container")
 public class TestContainerSupport extends TestDriverSupport {
 
     // MySql
@@ -49,6 +49,7 @@ public class TestContainerSupport extends TestDriverSupport {
         // Redis 컨테이너 초기화
         REDIS = new GenericContainer(REDIS_IMAGE)
                 .withExposedPorts(REDIS_PORT)
+                .withCommand("redis-server --requirepass test")
                 .withReuse(true);
         REDIS.start();
     }
@@ -97,5 +98,6 @@ public class TestContainerSupport extends TestDriverSupport {
         registry.add("spring.data.redis.host", REDIS::getHost);
         registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(REDIS_PORT)
                 .toString());
+        registry.add("spring.data.redis.password", () -> "test");
     }
 }

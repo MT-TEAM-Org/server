@@ -30,11 +30,6 @@ public class CommonCountAspect {
             "LinkedInBot",
             "WhatsApp",
             "TelegramBot",
-            "Googlebot",
-            "bingbot",
-            "Applebot",
-            "Yeti",
-            "Daumoa",
             "KAKAOTALK"
     );
 

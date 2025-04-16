@@ -455,7 +455,7 @@ class NewsReadServiceTest extends TestContainerSupport {
         createNews(4, Category.BASEBALL, 12);
 
         given(redisCountService.getCommonCount(
-                eq(ServiceType.VIEW),
+                eq(ServiceType.CHECK),
                 eq(DomainType.NEWS),
                 eq(news.getId()),
                 isNull()
