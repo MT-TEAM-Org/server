@@ -18,7 +18,6 @@ import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
@@ -65,8 +64,8 @@ public class BoardService {
 
         Board board = makeBoard(member, clientIP, request);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.BOARD,
-                board.getId(), null);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD,
+                board.getId());
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
