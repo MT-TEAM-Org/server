@@ -52,7 +52,7 @@ public class ImprovementService {
         ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
         improvementCountRepository.save(improvementCount);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.VIEW, DomainType.IMPROVEMENT,
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT,
                 improvement.getId(), null);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
@@ -86,7 +86,8 @@ public class ImprovementService {
         improvement.updateImprovement(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         improvementRepository.save(improvement);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementId);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT,
+                improvementId, null);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());

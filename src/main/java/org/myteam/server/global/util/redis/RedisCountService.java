@@ -73,7 +73,7 @@ public class RedisCountService {
             recommendCount = toInt(redisMap.get("recommend"));
         }
 
-        if (type.equals(ServiceType.CHECK)){
+        if (type.equals(ServiceType.CHECK)) {
             return new CommonCountDto(viewCount, commentCount, recommendCount);
         } else if (type.equals(ServiceType.VIEW)) {
             /**
@@ -108,38 +108,6 @@ public class RedisCountService {
              */
             return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
         }
-        return new CommonCountDto(viewCount, commentCount, recommendCount);
-    }
-
-    public CommonCountDto getCommonCount(DomainType type, Long contentId) {
-        CountStrategy strategy = strategyFactory.getStrategy(type);
-        String key = strategy.getRedisKey(contentId);
-
-        // Redis 해시 조회
-        Map<Object, Object> redisMap = redisTemplate.opsForHash().entries(key);
-        Integer viewCount, commentCount, recommendCount;
-
-        if (redisMap == null || redisMap.isEmpty()) { // cache miss
-            log.info("cache miss type: {}, id: {}", type, contentId);
-            CommonCount<?> dbValue = strategy.loadFromDatabase(contentId);
-
-            viewCount = dbValue.getViewCount();
-            commentCount = dbValue.getCommentCount();
-            recommendCount = dbValue.getRecommendCount();
-
-            redisTemplate.opsForHash().putAll(key, Map.of(
-                    "view", String.valueOf(viewCount),
-                    "comment", String.valueOf(commentCount),
-                    "recommend", String.valueOf(recommendCount)
-            ));
-            redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
-        } else { // cache hit
-            log.info("cache hit type: {}, id: {}", type, contentId);
-            viewCount = toInt(redisMap.get("view"));
-            commentCount = toInt(redisMap.get("comment"));
-            recommendCount = toInt(redisMap.get("recommend"));
-        }
-
         return new CommonCountDto(viewCount, commentCount, recommendCount);
     }
 
@@ -179,28 +147,6 @@ public class RedisCountService {
         int newCount = dbValue.getCommentCount();
 
         redisTemplate.opsForHash().put(key, "comment", String.valueOf(newCount));
-        redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
-        return newCount;
-    }
-
-    /**
-     * 특정 키 값 조회 + 조회수 증가
-     */
-    public int getViewCountAndIncr(DomainType type, Long contentId) {
-        CountStrategy strategy = strategyFactory.getStrategy(type);
-        String key = strategy.getRedisKey(contentId);
-
-        Object value = redisTemplate.opsForHash().get(key, "view");
-        if (value != null) { // cache hit
-            // TODO: 키로 바꾸기
-            Long newValue = redisTemplate.opsForHash().increment(key, "view", 1);
-            return newValue.intValue();
-        }
-        // cache miss
-        CommonCount dbValue = strategy.loadFromDatabase(contentId);
-        int newCount = dbValue.getViewCount() + 1;
-
-        redisTemplate.opsForHash().put(key, "view", String.valueOf(newCount));
         redisTemplate.expire(key, Duration.ofMinutes(EXPIRED_TIME));
         return newCount;
     }

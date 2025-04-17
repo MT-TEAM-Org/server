@@ -25,6 +25,7 @@ import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QImprovementComment;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
@@ -76,7 +77,8 @@ public class ImprovementQueryRepository {
 
         for (ImprovementDto improvementDto : content) {
             improvementDto.setCreatedIp(ClientUtils.maskIp(improvementDto.getCreatedIp()));
-            CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementDto.getId());
+            CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT,
+                    improvementDto.getId(), null);
             improvementDto.setRecommendCount(commonCountDto.getRecommendCount());
             improvementDto.setCommentCount(commonCountDto.getCommentCount());
         }
@@ -172,7 +174,9 @@ public class ImprovementQueryRepository {
         List<Long> result = improvements.stream()
                 .map(tuple -> {
                     Long improvementId = tuple.get(improvement.id);
-                    CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementId);
+                    CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK,
+                            DomainType.IMPROVEMENT,
+                            improvementId, null);
                     int viewCount = commonCountDto.getViewCount();
                     int recommendCount = commonCountDto.getRecommendCount();
                     int commentCount = commonCountDto.getCommentCount();
