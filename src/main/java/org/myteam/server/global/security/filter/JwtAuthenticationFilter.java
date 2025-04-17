@@ -111,8 +111,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			String role = auth.getAuthority();
 
 			// Authorization
-			// TODO: 테스트 끝나면 accessToken 시간 변경
-			String accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofMinutes(3), publicId, role,
+			String accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1), publicId, role,
 				status);
 			String refreshToken = jwtProvider.generateToken(TOKEN_CATEGORY_REFRESH, Duration.ofDays(30), publicId, role,
 				status);
