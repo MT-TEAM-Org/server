@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.TestContainerSupport;
-import org.myteam.server.aop.CommonCountAspect;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.CategoryType;
@@ -93,7 +92,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         boardCountService.recommendBoard(board.getId());
 
         // then
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
         System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(1);
@@ -112,7 +112,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         boardCountService.deleteRecommendBoard(board.getId());
 
         //then
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
         System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(0);
@@ -159,7 +160,7 @@ public class BoardCountServiceTest extends TestContainerSupport {
             boardCountRepository.save(savedBoardCount);
         }).get();
 
-        redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD, board.getId(), null);
 
         for (int i = 0; i < threadCount; i++) {
             final int idx = i;
@@ -199,7 +200,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
 
         countDownLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
         System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(50);
@@ -308,7 +310,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         }
         cancelLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(0);
     }
 
@@ -395,7 +398,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         }
         countDownLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
         assertThat(commonCountDto.getCommentCount()).isLessThanOrEqualTo(50);
     }
 
@@ -513,7 +517,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         }
         deleteLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
         // 동시성 이슈로 50보다 작은 값이 나옴
         assertThat(commonCountDto.getCommentCount()).isLessThanOrEqualTo(0);
     }
@@ -572,7 +577,8 @@ public class BoardCountServiceTest extends TestContainerSupport {
         }
         countDownLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
         // 동시성 이슈로 50보다 작은 값이 나옴
         assertThat(commonCountDto.getViewCount()).isLessThanOrEqualTo(50);
     }

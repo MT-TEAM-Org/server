@@ -8,6 +8,7 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -55,8 +56,8 @@ public class NoticeService {
         NoticeCount noticeCount = NoticeCount.createNoticeCount(notice);
         noticeCountRepository.save(noticeCount);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NOTICE,
-                notice.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NOTICE,
+                notice.getId(), null);
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 
@@ -106,7 +107,8 @@ public class NoticeService {
         notice.updateNotice(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         noticeRepository.save(notice);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NOTICE, notice.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NOTICE,
+                notice.getId(), null);
 
         boolean isRecommended = noticeRecommendReadService.isRecommended(notice.getId(), member.getPublicId());
 

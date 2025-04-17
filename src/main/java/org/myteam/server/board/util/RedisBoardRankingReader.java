@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RankingCacheReader;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,8 @@ public class RedisBoardRankingReader implements RankingCacheReader {
 
     @Override
     public int getTotalScore(Long boardId) {
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, boardId);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD, boardId,
+                null);
         return commonCountDto.getViewCount() + commonCountDto.getRecommendCount();
     }
 }

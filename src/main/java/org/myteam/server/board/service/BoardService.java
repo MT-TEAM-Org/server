@@ -64,8 +64,8 @@ public class BoardService {
 
         Board board = makeBoard(member, clientIP, request);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD,
-                board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 
@@ -154,7 +154,8 @@ public class BoardService {
         board.updateBoard(request);
         boardRepository.save(board);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, board.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                board.getId(), null);
 
         boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
 

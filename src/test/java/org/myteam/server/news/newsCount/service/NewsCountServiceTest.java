@@ -91,7 +91,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
         newsCountService.recommendNews(news.getId());
 
         // then
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS,
+                news.getId(), null);
         System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(1);
@@ -109,7 +110,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
         newsCountService.cancelRecommendNews(news.getId());
 
         //then
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS,
+                news.getId(), null);
         System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(0);
@@ -139,7 +141,7 @@ public class NewsCountServiceTest extends TestContainerSupport {
             newsCountRepository.save(savedNewsCount);
         }).get();
 
-        redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS, news.getId(), null);
 
         for (int i = 0; i < threadCount; i++) {
             final int idx = i;
@@ -179,7 +181,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
 
         countDownLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS,
+                news.getId(), null);
         System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
 
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(50);
@@ -274,7 +277,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
         }
         cancelLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS,
+                news.getId(), null);
         assertThat(commonCountDto.getRecommendCount()).isEqualTo(0);
     }
 
@@ -345,7 +349,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
         }
         countDownLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS,
+                news.getId(), null);
         assertThat(commonCountDto.getCommentCount()).isLessThanOrEqualTo(50);
     }
 
@@ -449,7 +454,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
         }
         deleteLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS,
+                news.getId(), null);
 
         assertThat(commonCountDto.getCommentCount()).isLessThanOrEqualTo(0);
     }
@@ -488,7 +494,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
         }
         countDownLatch.await();
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.NEWS, news.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS,
+                news.getId(), null);
 
         assertThat(commonCountDto.getViewCount()).isLessThanOrEqualTo(50);
     }

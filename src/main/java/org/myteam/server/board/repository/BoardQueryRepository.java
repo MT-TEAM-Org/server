@@ -37,6 +37,7 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.report.domain.DomainType;
@@ -92,7 +93,8 @@ public class BoardQueryRepository {
         long total = getTotalBoardCount(boardType, categoryType, searchType, search);
 
         for (BoardDto boardDto : content) {
-            CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, boardDto.getId());
+            CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                    boardDto.getId(), null);
             boardDto.setCommentCount(commonCountDto.getCommentCount());
             boardDto.setRecommendCount(commonCountDto.getRecommendCount());
         }
@@ -343,11 +345,14 @@ public class BoardQueryRepository {
         List<Long> result = boards.stream()
                 .map(tuple -> {
                     Long boardId = tuple.get(board.id);
-                    CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.BOARD, boardId);
+                    CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK,
+                            DomainType.BOARD, boardId, null);
                     String title = tuple.get(board.title);
 
-                    return new BoardRankingDto(boardId, commonCountDto.getViewCount(), commonCountDto.getRecommendCount(),
-                            commonCountDto.getCommentCount(), title, commonCountDto.getViewCount() + commonCountDto.getRecommendCount());
+                    return new BoardRankingDto(boardId, commonCountDto.getViewCount(),
+                            commonCountDto.getRecommendCount(),
+                            commonCountDto.getCommentCount(), title,
+                            commonCountDto.getViewCount() + commonCountDto.getRecommendCount());
                 })
                 .sorted(Comparator.comparing(BoardRankingDto::getRecommendCount).reversed()
                         .thenComparing(BoardRankingDto::getTotalScore).reversed()

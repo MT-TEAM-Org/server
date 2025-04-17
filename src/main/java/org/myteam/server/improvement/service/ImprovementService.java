@@ -8,6 +8,7 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
@@ -51,8 +52,8 @@ public class ImprovementService {
         ImprovementCount improvementCount = ImprovementCount.createImprovementCount(improvement);
         improvementCountRepository.save(improvementCount);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT,
-                improvement.getId());
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT,
+                improvement.getId(), null);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
@@ -85,7 +86,8 @@ public class ImprovementService {
         improvement.updateImprovement(request.getTitle(), request.getContent(), request.getImgUrl(), request.getLink());
         improvementRepository.save(improvement);
 
-        CommonCountDto commonCountDto = redisCountService.getCommonCount(DomainType.IMPROVEMENT, improvementId);
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT,
+                improvementId, null);
 
         boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
                 member.getPublicId());
