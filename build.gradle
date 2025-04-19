@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco' // jacoco
 }
 
 group = 'org.myteam'
@@ -104,6 +105,7 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // Generates report after tests are run
 }
 
 /**
@@ -123,3 +125,78 @@ clean.doLast {
     file(querydslDir).deleteDir()
 }
 
+/**
+ * Jacoco Build Options
+ */
+jacoco {
+    toolVersion = "0.8.10"
+    reportsDirectory = layout.buildDirectory.dir('jacocoReport')
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+    }
+    def Qdomains = []
+    for (qPattern in '**/QA'..'**/QZ') { // qPattern = '**/QA', '**/QB', ... '*.QZ'
+        Qdomains.add(qPattern + '*')
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/dto/**',
+                    '**/domain/**',
+                    '**/entity/**',
+                    '**/util/**',
+                    '**/repository/**',
+                    '**/controller/**',
+                    '**/aop/**',
+                    '**/exception/**',
+                    '**/config/**',
+                    '**/MemberRole*'
+            ] + Qdomains)
+        }))
+    }
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    def Qdomains = []
+    for (qPattern in '*.QA'..'*.QZ') { // qPattern = '*.QA', '*.QB', ... '*.QZ'
+        Qdomains.add(qPattern + '*')
+    }
+    violationRules {
+        rule {
+            enabled = true;
+            element = 'CLASS'
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            excludes = [
+                    '**/dto/**',
+                    '**/domain/**',
+                    '**/entity/**',
+                    '**/util/**',
+                    '**/repository/**',
+                    '**/controller/**',
+                    '**/aop/**',
+                    '**/exception/**',
+                    '**/config/**',
+                    '**/MemberRole*'
+            ] + Qdomains
+        }
+    }
+}
