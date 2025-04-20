@@ -37,6 +37,12 @@ public class NewBoardDto {
     @JsonProperty("isHot")
     private boolean isHot;
     /**
+     * New 여부
+     */
+    @Setter
+    @JsonProperty("isNew")
+    private boolean isNew;
+    /**
      * 이미지 존재 여부
      */
     @Setter
@@ -45,13 +51,14 @@ public class NewBoardDto {
 
 
     public NewBoardDto(Long id, Category boardType, CategoryType categoryType, String title, Integer commentCount,
-                       boolean isHot, boolean isImage) {
+                       boolean isHot, boolean isNew, boolean isImage) {
         this.id = id;
         this.boardType = boardType;
         this.categoryType = categoryType;
         this.title = title;
         this.commentCount = commentCount;
         this.isHot = isHot;
+        this.isNew = isNew;
         this.isImage = isImage;
     }
 }

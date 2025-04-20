@@ -69,6 +69,7 @@ public class BoardQueryRepository {
                         board.categoryType,
                         board.id,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -118,6 +119,7 @@ public class BoardQueryRepository {
                         board.categoryType,
                         board.id,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -262,6 +264,7 @@ public class BoardQueryRepository {
                         board.categoryType,
                         board.id,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -326,6 +329,21 @@ public class BoardQueryRepository {
     }
 
     /**
+     * 실시간 최신 게시글 ID 목록 조회
+     */
+    private List<Long> getNewBoardIdList() {
+        // 전체 게시글 기준 생성일 내림차순으로 최신 10개 가져오기
+        List<Long> boards = queryFactory
+                .select(board.id)
+                .from(board)
+                .orderBy(board.createDate.desc(), board.id.desc())
+                .limit(10)
+                .fetch();
+
+        return boards;
+    }
+
+    /**
      * 핫 게시글 ID 목록 조회
      */
     private List<Long> getHotBoardIdList() {
@@ -378,6 +396,7 @@ public class BoardQueryRepository {
                         board.title,
                         boardCount.commentCount,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         new CaseBuilder()
                                 .when(board.thumbnail.isNotEmpty()).then(true)
                                 .otherwise(false)
@@ -406,6 +425,7 @@ public class BoardQueryRepository {
                         board.title,
                         boardCount.commentCount,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         new CaseBuilder()
                                 .when(board.thumbnail.isNotEmpty()).then(true)
                                 .otherwise(false)
