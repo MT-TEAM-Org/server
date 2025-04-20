@@ -42,6 +42,12 @@ public class HotBoardDto {
     @JsonProperty("isHot")
     private boolean isHot;
     /**
+     * New 여부
+     */
+    @Setter
+    @JsonProperty("isNew")
+    private boolean isNew;
+    /**
      * 이미지 존재 여부
      */
     @Setter
@@ -49,7 +55,7 @@ public class HotBoardDto {
     private boolean isImage;
 
     public HotBoardDto(Integer rank, Category boardType, CategoryType categoryType, Long id, String title,
-                       Integer commentCount, boolean isHot, boolean isImage) {
+                       Integer commentCount, boolean isHot, boolean isNew, boolean isImage) {
         this.rank = rank;
         this.boardType = boardType;
         this.categoryType = categoryType;
@@ -57,6 +63,7 @@ public class HotBoardDto {
         this.title = title;
         this.commentCount = commentCount;
         this.isHot = isHot;
+        this.isNew = isNew;
         this.isImage = isImage;
     }
 }
