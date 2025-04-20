@@ -402,7 +402,8 @@ public class CommentQueryRepository {
                             selectCommentCount(),
                             selectCreateDate(),
                             selectLastModifiedDate(),
-                            isHotPost(commentType)
+                            isHotPost(commentType),
+                            isNewPost(commentType)
                     ))
                     .from(comment1)
                     .where(comment1.id.eq(comment.getCommentId()))
@@ -502,6 +503,27 @@ public class CommentQueryRepository {
         return Expressions.FALSE;
     }
 
+    private BooleanExpression isNewPost(CommentType commentType) {
+        // commentType이 BOARD일 경우에만 뉴 게시글 체크
+        if (commentType.equals(CommentType.BOARD)) {
+            List<Long> newBoardIds = getNewBoardIdList(); // 핫 게시글 ID 목록 가져오기
+
+            if (newBoardIds == null || newBoardIds.isEmpty()) {
+                return Expressions.FALSE; // 뉴 게시글이 없으면 false 반환
+            }
+
+            // 게시글 ID가 뉴 게시글 목록에 포함되는지 체크
+            return JPAExpressions.select(board.id)
+                    .from(board)
+                    .join(boardComment).on(boardComment.board.id.eq(board.id))
+                    .where(boardComment.id.eq(comment1.id))
+                    .in(newBoardIds);  // board.id가 newBoardIds 목록에 포함되는지 체크
+        }
+
+        // commentType이 BOARD가 아니면 false로 처리
+        return Expressions.FALSE;
+    }
+
 
     private OrderSpecifier<?>[] isOrderTypeEqualTo(BoardOrderType orderType) {
         // default 최신순
@@ -536,6 +558,21 @@ public class CommentQueryRepository {
                 )
                 .limit(10)
                 .fetch();
+    }
+
+    /**
+     * 실시간 최신 게시글 ID 목록 조회
+     */
+    private List<Long> getNewBoardIdList() {
+        // 전체 게시글 기준 생성일 내림차순으로 최신 10개 가져오기
+        List<Long> boards = queryFactory
+                .select(board.id)
+                .from(board)
+                .orderBy(board.createDate.desc(), board.id.desc())
+                .limit(10)
+                .fetch();
+
+        return boards;
     }
 
     /**
