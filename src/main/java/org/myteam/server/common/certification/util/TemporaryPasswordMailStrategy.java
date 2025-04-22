@@ -2,6 +2,7 @@ package org.myteam.server.common.certification.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.mail.service.AbstractMailSender;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,7 +59,7 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
         String tempPassword = password.toString();
         log.info("랜덤 비밀번호 생성: {}", tempPassword);
 
-        memberRepository.findByEmail(email).ifPresent(member -> {
+        memberRepository.findByEmailAndType(email, MemberType.LOCAL).ifPresent(member -> {
             String encodedPassword = passwordEncoder.encode(tempPassword);
             member.updatePassword(encodedPassword);
             memberRepository.save(member); // DB 저장
