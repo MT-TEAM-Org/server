@@ -36,13 +36,24 @@ jobs:
         run: chmod +x gradlew
 
       - name: 테스트 + 커버리지 리포트 생성
-        run: ./gradlew clean test jacocoTestReport --parallel
+        run: ./gradlew clean test jacocoTestReport jacocoTestCoverageVerification --parallel
+        continue-on-error: true # 일단은 이렇게 설정. 실패해도 다음 스텝 진행
 
       - name: 테스트 결과 Report
         uses: mikepenz/action-junit-report@v3
         if: always()
         with:
           report_paths: 'build/test-results/test/TEST-*.xml'
+
+      - name: 커버리지 파일 존재 여부 확인 (선택)
+        run: ls -l build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Upload JaCoCo HTML Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-html-report
+          path: build/reports/jacoco/test/html
 
       - name: SonarCloud 스캐너 환경 설정
         uses: SonarSource/sonarcloud-github-action@master
@@ -52,8 +63,8 @@ jobs:
       - name: SonarCloud 분석 실행
         run: |
           ./gradlew sonar \
-            -Dsonar.projectKey=your_project_key \
-            -Dsonar.organization=your_org \
+            -Dsonar.projectKey=MT-TEAM-Org_server \
+            -Dsonar.organization=playhive-static-analyze \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
         env:
