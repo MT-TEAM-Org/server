@@ -50,10 +50,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-html-report
-          path: build/reports/jacoco/test/html
+          path: build/jacocoReport/test/html/
 
-      - name: 커버리지 파일 존재 여부 확인 (선택)
-        run: ls -l build/reports/jacoco/test/jacocoTestReport.xml
+      - name: 커버리지 파일 존재 여부 확인
+        run: ls -l build/jacocoReport/test/jacocoTestReport.xml
 
       - name: SonarCloud 스캐너 환경 설정
         uses: SonarSource/sonarcloud-github-action@master
