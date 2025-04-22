@@ -11,6 +11,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Slf4j
 @Component
@@ -20,6 +21,7 @@ public abstract class AbstractMailSender implements MailStrategy {
     @Value("${SENDER_EMAIL}")
     protected String senderEmail;
     protected final JavaMailSender javaMailSender;
+    protected final SpringTemplateEngine templateEngine;
 
     // 📌 구체적인 본문과 제목은 구현 클래스에서 정의
     protected abstract String getSubject();
