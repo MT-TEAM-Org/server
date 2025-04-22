@@ -35,8 +35,8 @@ jobs:
       - name: gradlew 실행 권한 설정
         run: chmod +x gradlew
 
-      - name: 테스트 진행
-        run: ./gradlew test --parallel
+      - name: 테스트 + 커버리지 리포트 생성
+        run: ./gradlew clean test jacocoTestReport --parallel
 
       - name: 테스트 결과 Report
         uses: mikepenz/action-junit-report@v3
@@ -44,9 +44,16 @@ jobs:
         with:
           report_paths: 'build/test-results/test/TEST-*.xml'
 
-      - name: 정적 분석 실행
+      - name: SonarCloud 분석 실행
         uses: SonarSource/sonarcloud-github-action@master
         with:
           projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: -Xmx512m
+        run: |
+          ./gradlew sonar \
+            -Dsonar.projectKey=your_project_key \
+            -Dsonar.organization=your_org \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
