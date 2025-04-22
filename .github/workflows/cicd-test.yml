@@ -63,12 +63,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: SonarCloud 분석 실행
-        run: |
-          ./gradlew sonar \
-            -Dsonar.projectKey=MT-TEAM-Org_server \
-            -Dsonar.organization=playhive-static-analyze \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+        run: ./gradlew clean test jacocoTestReport sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: -Xmx512m

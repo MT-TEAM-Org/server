@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'jacoco' // jacoco
+    id 'org.sonarqube' version '4.4.1.3373'
 }
 
 group = 'org.myteam'
@@ -199,5 +200,15 @@ jacocoTestCoverageVerification {
                     '**/MemberRole*'
             ] + Qdomains
         }
+    }
+}
+
+// SonarCloud config
+sonar {
+    properties {
+        property "sonar.projectKey", "MT-TEAM-Org_server"
+        property "sonar.organization", "playhive-static-analyze"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
