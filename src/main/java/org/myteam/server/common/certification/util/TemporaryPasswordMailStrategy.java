@@ -35,7 +35,7 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
 
     @Override
     protected String getSubject() {
-        return "임시 비밀번호 안내";
+        return "PlayHive 임시비밀번호";
     }
 
     @Override

@@ -7,11 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.io.File;
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -57,8 +61,14 @@ public abstract class AbstractMailSender implements MailStrategy {
             helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(body, true);
+
+            File imgFile = new ClassPathResource("static/images/Logo.svg").getFile();
+            helper.addInline("logo", imgFile);
         } catch (MessagingException e) {
             log.error("이메일 생성 중 에러 발생: {}", e.getMessage());
+            throw new PlayHiveException(ErrorCode.CREATE_EMAIL_ACCOUNT_ERROR);
+        } catch (IOException e) {
+            log.error("이메일 생성 중 이미지 로드 에러 발생: {}", e.getMessage());
             throw new PlayHiveException(ErrorCode.CREATE_EMAIL_ACCOUNT_ERROR);
         }
         return message;

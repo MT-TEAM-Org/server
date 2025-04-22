@@ -23,7 +23,7 @@ public class CertifyMailStrategy extends AbstractMailSender {
 
     @Override
     protected String getSubject() {
-        return "이메일 인증 코드";
+        return "PlayHive 인증 메일";
     }
 
     @Override
