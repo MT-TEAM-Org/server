@@ -50,7 +50,7 @@ jobs:
 
       - name: Upload JaCoCo HTML Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: jacoco-html-report
           path: build/reports/jacoco/test/html
