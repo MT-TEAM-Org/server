@@ -61,14 +61,8 @@ public abstract class AbstractMailSender implements MailStrategy {
             helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(body, true);
-
-            File imgFile = new ClassPathResource("static/images/Logo.svg").getFile();
-            helper.addInline("logo", imgFile);
         } catch (MessagingException e) {
             log.error("이메일 생성 중 에러 발생: {}", e.getMessage());
-            throw new PlayHiveException(ErrorCode.CREATE_EMAIL_ACCOUNT_ERROR);
-        } catch (IOException e) {
-            log.error("이메일 생성 중 이미지 로드 에러 발생: {}", e.getMessage());
             throw new PlayHiveException(ErrorCode.CREATE_EMAIL_ACCOUNT_ERROR);
         }
         return message;
