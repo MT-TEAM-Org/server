@@ -78,6 +78,6 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
         context.setVariable("tempPassword", tempPassword);
         context.setVariable("email", email);
 
-        return templateEngine.process("/mail/temporary-password-template", context);
+        return templateEngine.process("mail/temporary-password-template", context);
     }
 }

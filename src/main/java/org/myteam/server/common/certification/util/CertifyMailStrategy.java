@@ -60,6 +60,6 @@ public class CertifyMailStrategy extends AbstractMailSender {
         context.setVariable("code", code);
         context.setVariable("email", email);
 
-        return templateEngine.process("/mail/certify-template", context);
+        return templateEngine.process("mail/certify-template", context);
     }
 }
