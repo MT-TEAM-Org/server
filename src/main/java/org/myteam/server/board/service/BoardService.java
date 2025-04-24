@@ -64,7 +64,7 @@ public class BoardService {
         CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
                 board.getId(), null);
 
-        boolean isRecommended = boardRecommendReadService.isRecommended(board.getId(), loginUser);
+        boolean isRecommended = false;
 
         // 이전글/다음글 ID 조회 (게시판 타입(BASEBALL, FOOTBALL...), 카테고리 타입(FREE,QUESTION...) 기준으로 조회)
         Long previousId = boardQueryRepository.findPreviousBoardId(board.getId(), board.getBoardType(),

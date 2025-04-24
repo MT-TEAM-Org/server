@@ -67,14 +67,10 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected MemberService memberService;
     @Autowired
     protected MyPageReadService myPageReadService;
-    @MockBean
-    protected BoardService boardService;
     @Autowired
     protected BoardReadService boardReadService;
     @MockBean
     protected MemberReadService memberReadService;
-    @Autowired
-    protected BoardRecommendReadService boardRecommendReadService;
     @Autowired
     protected BoardCountService boardCountService;
     @Autowired
