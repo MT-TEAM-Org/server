@@ -6,8 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.newsCount.domain.NewsCount;
 
 @Getter
 @NoArgsConstructor
@@ -41,17 +41,16 @@ public class NewsResponse {
     private Long nextId;
 
     @Builder
-    public NewsResponse(Long id, Category category, String title, String thumbImg, int recommendCount,
-                        int commentCount,
-                        int viewCount, LocalDateTime postDate, boolean isRecommend, String source, String content,
+    public NewsResponse(Long id, Category category, String title, String thumbImg, CommonCountDto commonCountDto,
+                        LocalDateTime postDate, boolean isRecommend, String source, String content,
                         Long previousId, Long nextId) {
         this.id = id;
         this.category = category;
         this.title = title;
         this.thumbImg = thumbImg;
-        this.recommendCount = recommendCount;
-        this.commentCount = commentCount;
-        this.viewCount = viewCount;
+        this.recommendCount = commonCountDto.getRecommendCount();
+        this.commentCount = commonCountDto.getCommentCount();
+        this.viewCount = commonCountDto.getViewCount();
         this.postDate = postDate;
         this.isRecommend = isRecommend;
         this.source = source;
@@ -60,17 +59,15 @@ public class NewsResponse {
         this.nextId = nextId;
     }
 
-    public static NewsResponse createResponse(News news, NewsCount newsCount, boolean isRecommend, Long previousId,
-                                              Long nextId, int viewCount) {
+    public static NewsResponse createResponse(News news, boolean isRecommend, Long previousId,
+                                              Long nextId, CommonCountDto commonCountDto) {
         return NewsResponse.builder()
                 .id(news.getId())
                 .category(news.getCategory())
                 .title(news.getTitle())
                 .thumbImg(news.getThumbImg())
                 .postDate(news.getPostDate())
-                .recommendCount(newsCount.getRecommendCount())
-                .commentCount(newsCount.getCommentCount())
-                .viewCount(viewCount)
+                .commonCountDto(commonCountDto)
                 .isRecommend(isRecommend)
                 .source(news.getSource())
                 .content(news.getContent())

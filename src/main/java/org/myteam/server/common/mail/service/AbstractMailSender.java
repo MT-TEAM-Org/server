@@ -7,10 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.io.File;
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -20,6 +25,7 @@ public abstract class AbstractMailSender implements MailStrategy {
     @Value("${SENDER_EMAIL}")
     protected String senderEmail;
     protected final JavaMailSender javaMailSender;
+    protected final SpringTemplateEngine templateEngine;
 
     // 📌 구체적인 본문과 제목은 구현 클래스에서 정의
     protected abstract String getSubject();

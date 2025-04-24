@@ -2,10 +2,13 @@ package org.myteam.server.common.certification.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.mail.service.AbstractMailSender;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -23,8 +26,9 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
     public TemporaryPasswordMailStrategy(JavaMailSender javaMailSender,
                                          MemberJpaRepository memberRepository,
                                          PasswordEncoder passwordEncoder,
-                                         CertifyStorage certifyStorage) {
-        super(javaMailSender);
+                                         CertifyStorage certifyStorage,
+                                         SpringTemplateEngine templateEngine) {
+        super(javaMailSender, templateEngine);
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
         this.certifyStorage = certifyStorage;
@@ -32,13 +36,13 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
 
     @Override
     protected String getSubject() {
-        return "임시 비밀번호 안내";
+        return "PlayHive 임시비밀번호";
     }
 
     @Override
     protected String getBody(String email) {
         String tempPassword = generateRandomPassword(email);
-        return buildTemporaryPasswordEmailContent(tempPassword);
+        return buildTemporaryPasswordEmailContent(tempPassword, email);
     }
 
     private String generateRandomPassword(String email) {
@@ -58,7 +62,7 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
         String tempPassword = password.toString();
         log.info("랜덤 비밀번호 생성: {}", tempPassword);
 
-        memberRepository.findByEmail(email).ifPresent(member -> {
+        memberRepository.findByEmailAndType(email, MemberType.LOCAL).ifPresent(member -> {
             String encodedPassword = passwordEncoder.encode(tempPassword);
             member.updatePassword(encodedPassword);
             memberRepository.save(member); // DB 저장
@@ -68,14 +72,12 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
         return tempPassword;
     }
 
-    public String buildTemporaryPasswordEmailContent(String tempPassword) {
+    public String buildTemporaryPasswordEmailContent(String tempPassword, String email) {
         // 이메일 본문 생성
-        String body = "<h3>임시 비밀번호 안내</h3>";
-        body += "<p>귀하의 임시 비밀번호는 다음과 같습니다.</p>";
-        body += "<h2 style=\"color: red;\">" + tempPassword + "</h2>";
-        body += "<p>로그인 후 반드시 비밀번호를 변경해주세요.</p>";
-        body += "<p style=\"color: #555555; font-size: 12px; text-align: left; margin-top: 20px;\">";
-        body += "</p>";
-        return body;
+        Context context = new Context();
+        context.setVariable("tempPassword", tempPassword);
+        context.setVariable("email", email);
+
+        return templateEngine.process("mail/temporary-password-template", context);
     }
 }

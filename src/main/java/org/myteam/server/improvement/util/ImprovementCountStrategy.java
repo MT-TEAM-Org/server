@@ -6,15 +6,15 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCount;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
-import org.myteam.server.util.ViewCountStrategy;
+import org.myteam.server.util.CountStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ImprovementViewCountStrategy implements ViewCountStrategy {
+public class ImprovementCountStrategy implements CountStrategy {
 
-    private final String KEY = "view:improvement:";
+    private final String KEY = "improvement:count:";
     private final ImprovementCountRepository improvementCountRepository;
 
     @Override
@@ -33,15 +33,29 @@ public class ImprovementViewCountStrategy implements ViewCountStrategy {
     }
 
     @Override
-    public CommonCount loadFromDatabase(Long contentId) {
+    public CommonCount<ImprovementCount> loadFromDatabase(Long contentId) {
         ImprovementCount improvementCount = improvementCountRepository.findByImprovementId(contentId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.IMPROVEMENT_NOT_FOUND));
-        return new CommonCount(improvementCount, improvementCount.getViewCount());
+
+        return new CommonCount<>(
+                improvementCount,
+                improvementCount.getViewCount(),
+                improvementCount.getCommentCount(),
+                improvementCount.getRecommendCount()
+        );
     }
 
     @Override
     @Transactional
-    public void updateToDatabase(Long id, int viewCount) {
-        improvementCountRepository.updateViewCount(id, viewCount);
+    public void updateToDatabase(CommonCount<?> count) {
+        ImprovementCount improvementCount = (ImprovementCount) count.getCount();
+        Long improvementId = improvementCount.getImprovement().getId();
+
+        improvementCountRepository.updateAllCounts(
+                improvementId,
+                count.getViewCount(),
+                count.getCommentCount(),
+                count.getRecommendCount()
+        );
     }
 }

@@ -4,14 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.domain.CertificationCode;
 import org.myteam.server.common.mail.service.AbstractMailSender;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 @Slf4j
@@ -19,20 +16,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CertifyMailStrategy extends AbstractMailSender {
     private final CertifyStorage certifyStorage;
 
-    public CertifyMailStrategy(JavaMailSender javaMailSender, CertifyStorage certifyStorage) {
-        super(javaMailSender);
+    public CertifyMailStrategy(JavaMailSender javaMailSender, CertifyStorage certifyStorage, SpringTemplateEngine templateEngine) {
+        super(javaMailSender, templateEngine);
         this.certifyStorage = certifyStorage;
     }
 
     @Override
     protected String getSubject() {
-        return "이메일 인증 코드";
+        return "PlayHive 인증 메일";
     }
 
     @Override
     protected String getBody(String email) {
         CertificationCode certificationCode = certifyStorage.putCertificationCode(email);
-        return buildEmailContent(certificationCode.getCode(), certificationCode.getExpirationTime());
+        return buildEmailContent(certificationCode.getCode(), email);
     }
 
     // 인증번호가 유효한지 검사한다.
@@ -58,16 +55,11 @@ public class CertifyMailStrategy extends AbstractMailSender {
     }
 
     // 메일 내용을 작성한다.
-    public String buildEmailContent(String code, LocalDateTime expirationTime) {
-        String expirationTimeStr = expirationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    public String buildEmailContent(String code, String email) {
+        Context context = new Context();
+        context.setVariable("code", code);
+        context.setVariable("email", email);
 
-        // 이메일 본문 생성
-        String body = "<h3>요청하신 인증 번호입니다.</h3>";
-        body += "<h1>" + code + "</h1>";
-        body += "<h3>감사합니다.</h3>";
-        body += "<p style=\"color: #555555; font-size: 12px; text-align: left; margin-top: 20px;\">";
-        body += "인증 코드는 유효 기간은 5분이며 " + expirationTimeStr + "까지 유효합니다.";
-        body += "</p>";
-        return body;
+        return templateEngine.process("mail/certify-template", context);
     }
 }

@@ -34,6 +34,12 @@ public class BoardDto {
     @JsonProperty("isHot")
     private boolean isHot;
     /**
+     * New 여부
+     */
+    @Setter
+    @JsonProperty("isNew")
+    private boolean isNew;
+    /**
      * 게시글 제목
      */
     private String title;
@@ -57,10 +63,12 @@ public class BoardDto {
     /**
      * 댓글 수
      */
+    @Setter
     private Integer commentCount;
     /**
      * 추천 수
      */
+    @Setter
     private Integer recommendCount;
     /**
      * 작성 일시
@@ -77,13 +85,14 @@ public class BoardDto {
     @JsonInclude(Include.NON_EMPTY)
     private CommentSearchDto boardCommentSearchList;
 
-    public BoardDto(Category boardType, CategoryType categoryType, Long id, boolean isHot, String title,
+    public BoardDto(Category boardType, CategoryType categoryType, Long id, boolean isHot, boolean isNew, String title,
                     String createdIp, String thumbnail, UUID publicId, String nickname, Integer commentCount,
                     Integer recommendCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.boardType = boardType;
         this.categoryType = categoryType;
         this.id = id;
         this.isHot = isHot;
+        this.isNew = isNew;
         this.title = title;
         this.createdIp = ClientUtils.maskIp(createdIp);
         this.thumbnail = thumbnail;

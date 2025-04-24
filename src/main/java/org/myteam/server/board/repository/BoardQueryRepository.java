@@ -29,14 +29,18 @@ import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.myteam.server.board.dto.reponse.BoardRankingDto;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
+import org.myteam.server.board.util.RedisBoardRankingReader;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QBoardComment;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
+import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -49,7 +53,8 @@ import org.springframework.stereotype.Repository;
 public class BoardQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisBoardRankingReader rankingReader;
+    private final RedisCountService redisCountService;
 
     /**
      * 게시글 목록 조회
@@ -64,6 +69,7 @@ public class BoardQueryRepository {
                         board.categoryType,
                         board.id,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -87,6 +93,13 @@ public class BoardQueryRepository {
 
         long total = getTotalBoardCount(boardType, categoryType, searchType, search);
 
+        for (BoardDto boardDto : content) {
+            CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
+                    boardDto.getId(), null);
+            boardDto.setCommentCount(commonCountDto.getCommentCount());
+            boardDto.setRecommendCount(commonCountDto.getRecommendCount());
+        }
+
         // searchType이 COMMENT일 경우, 댓글 데이터 추가
         if (searchType == BoardSearchType.COMMENT) {
             content.forEach(boardDto -> {
@@ -106,6 +119,7 @@ public class BoardQueryRepository {
                         board.categoryType,
                         board.id,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -250,6 +264,7 @@ public class BoardQueryRepository {
                         board.categoryType,
                         board.id,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         board.title,
                         board.createdIp,
                         board.thumbnail,
@@ -314,6 +329,21 @@ public class BoardQueryRepository {
     }
 
     /**
+     * 실시간 최신 게시글 ID 목록 조회
+     */
+    private List<Long> getNewBoardIdList() {
+        // 전체 게시글 기준 생성일 내림차순으로 최신 10개 가져오기
+        List<Long> boards = queryFactory
+                .select(board.id)
+                .from(board)
+                .orderBy(board.createDate.desc(), board.id.desc())
+                .limit(10)
+                .fetch();
+
+        return boards;
+    }
+
+    /**
      * 핫 게시글 ID 목록 조회
      */
     private List<Long> getHotBoardIdList() {
@@ -333,13 +363,14 @@ public class BoardQueryRepository {
         List<Long> result = boards.stream()
                 .map(tuple -> {
                     Long boardId = tuple.get(board.id);
-                    int viewCount = redisViewCountService.getViewCount("board", boardId);
-                    int recommendCount = tuple.get(boardCount.recommendCount);
-                    int commentCount = tuple.get(boardCount.commentCount);
+                    CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK,
+                            DomainType.BOARD, boardId, null);
                     String title = tuple.get(board.title);
 
-                    return new BoardRankingDto(boardId, viewCount, recommendCount, commentCount, title,
-                            viewCount + recommendCount);
+                    return new BoardRankingDto(boardId, commonCountDto.getViewCount(),
+                            commonCountDto.getRecommendCount(),
+                            commonCountDto.getCommentCount(), title,
+                            commonCountDto.getViewCount() + commonCountDto.getRecommendCount());
                 })
                 .sorted(Comparator.comparing(BoardRankingDto::getRecommendCount).reversed()
                         .thenComparing(BoardRankingDto::getTotalScore).reversed()
@@ -365,6 +396,7 @@ public class BoardQueryRepository {
                         board.title,
                         boardCount.commentCount,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         new CaseBuilder()
                                 .when(board.thumbnail.isNotEmpty()).then(true)
                                 .otherwise(false)
@@ -393,6 +425,7 @@ public class BoardQueryRepository {
                         board.title,
                         boardCount.commentCount,
                         board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
                         new CaseBuilder()
                                 .when(board.thumbnail.isNotEmpty()).then(true)
                                 .otherwise(false)

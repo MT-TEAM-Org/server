@@ -3,20 +3,23 @@ package org.myteam.server.notice.service;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.aop.CountView;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
-import org.myteam.server.global.util.redis.RedisViewCountService;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.notice.domain.Notice;
-import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeServiceRequest;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeListResponse;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
 import org.myteam.server.notice.repository.NoticeQueryRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,7 @@ public class NoticeReadService {
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeQueryRepository noticeQueryRepository;
     private final SecurityReadService securityReadService;
-    private final RedisViewCountService redisViewCountService;
+    private final RedisCountService redisCountService;
 
     public Notice findById(Long noticeId) {
         return noticeRepository.findById(noticeId)
@@ -43,13 +46,15 @@ public class NoticeReadService {
     /**
      * 공지사항 상세 조회
      */
+    @CountView(domain = DomainType.NOTICE, idParam = "noticeId")
     public NoticeSaveResponse getNotice(Long noticeId) {
         log.info("공지사항: {} 상세 조회 호출", noticeId);
 
         Notice notice = findById(noticeId);
-        NoticeCount noticeCount = noticeCountReadService.findByNoticeId(noticeId);
         UUID memberPublicId = securityReadService.getAuthenticatedPublicId();
-        int viewCount = redisViewCountService.getViewCountAndIncr("notice", noticeId);
+
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NOTICE,
+                notice.getId(), null);
 
         boolean isRecommended = false;
 
@@ -62,7 +67,7 @@ public class NoticeReadService {
         Long previousId = noticeQueryRepository.findPreviousNoticeId(notice.getId());
         Long nextId = noticeQueryRepository.findNextNoticeId(notice.getId());
 
-        return NoticeSaveResponse.createResponse(notice, noticeCount, isRecommended, previousId, nextId, viewCount);
+        return NoticeSaveResponse.createResponse(notice, isRecommended, previousId, nextId, commonCountDto);
     }
 
     /**

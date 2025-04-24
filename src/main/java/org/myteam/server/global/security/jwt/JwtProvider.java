@@ -108,6 +108,12 @@ public class JwtProvider {
         return UUID.fromString(idString);
     }
 
+    public UUID getPublicIdWithoutExpired(final String token) {
+        Claims claims = getClaimsWithoutExpirationCheck(token);
+        String idString = claims.get("id", String.class);
+        return UUID.fromString(idString);
+    }
+
     /**
      * 토큰으로부터 사용자 권한(Authorities)을 추출
      *
@@ -139,6 +145,20 @@ public class JwtProvider {
     private Claims getClaims(String token) {
         Jws<Claims> claimsJws = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
         return claimsJws.getPayload();
+    }
+
+    public Claims getClaimsWithoutExpirationCheck(String token) {
+        try {
+            // 기본적으로 만료도 체크됨
+            Jws<Claims> claimsJws = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token);
+            return claimsJws.getPayload();
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰이어도 Claims는 여기서 꺼낼 수 있음
+            return e.getClaims();
+        }
     }
 
     /**

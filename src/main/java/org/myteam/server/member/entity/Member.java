@@ -23,6 +23,7 @@ import java.util.UUID;
 import static org.myteam.server.member.domain.MemberRole.ADMIN;
 import static org.myteam.server.member.domain.MemberRole.USER;
 import static org.myteam.server.member.domain.MemberStatus.PENDING;
+import static org.myteam.server.member.domain.MemberType.GOOGLE;
 import static org.myteam.server.member.domain.MemberType.LOCAL;
 
 @Slf4j

@@ -33,7 +33,7 @@ public class TokenService {
 		String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
 		String accessToken = jwtProvider.getAccessToken(authorizationHeader);
 
-		UUID publicId = jwtProvider.getPublicId(accessToken);
+		UUID publicId = jwtProvider.getPublicIdWithoutExpired(accessToken);
 
 		String refreshToken = redisService.getRefreshToken(publicId);
 		// 리프레시 토큰 검증

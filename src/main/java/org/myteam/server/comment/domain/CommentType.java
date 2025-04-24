@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CommentType {
+    ALL(null),
     BOARD(BoardComment.class),
     IMPROVEMENT(ImprovementComment.class),
     INQUIRY(InquiryComment.class),

@@ -6,13 +6,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.dto.request.BoardSearchRequest;
-import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
@@ -20,7 +17,10 @@ import org.myteam.server.home.dto.TotalListResponse;
 import org.myteam.server.home.dto.TotalSearchRequest;
 import org.myteam.server.home.service.TotalReadService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -61,7 +61,8 @@ public class HomeController {
      * 통합 검색
      */
     @GetMapping("/search")
-    public ResponseEntity<ResponseDto<TotalListResponse<?>>> getTotalSearch(@Valid @ModelAttribute TotalSearchRequest request) {
+    public ResponseEntity<ResponseDto<TotalListResponse<?>>> getTotalSearch(
+            @Valid @ModelAttribute TotalSearchRequest request) {
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),

@@ -1,111 +1,24 @@
 package org.myteam.server.board.service;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.domain.BoardRecommend;
-import org.myteam.server.board.repository.BoardRecommendRepository;
-import org.myteam.server.comment.service.CommentCountService;
-import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.service.SecurityReadService;
+import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class BoardCountService implements CommentCountService {
+public class BoardCountService {
 
-    private final SecurityReadService securityReadService;
-    private final BoardReadService boardReadService;
-    private final BoardCountReadService boardCountReadService;
-    private final BoardRecommendReadService boardRecommendReadService;
-
-    private final BoardRecommendRepository boardRecommendRepository;
+    private final RedisCountService redisCountService;
 
     public void recommendBoard(Long boardId) {
-        Board board = boardReadService.findById(boardId);
-        Member member = securityReadService.getMember();
-
-        verifyMemberAlreadyRecommend(board, member);
-
-        recommend(board, member);
-
-        addRecommendCount(board.getId());
+        redisCountService.getCommonCount(ServiceType.RECOMMEND, DomainType.BOARD, boardId, null);
     }
 
     public void deleteRecommendBoard(Long boardId) {
-
-        Board board = boardReadService.findById(boardId);
-        Member member = securityReadService.getMember();
-
-        isAlreadyRecommended(board, member);
-
-        boardRecommendRepository.deleteByBoardIdAndMemberPublicId(board.getId(), member.getPublicId());
-
-        minusRecommendCount(boardId);
-    }
-
-    /**
-     * 추천이 되어있는 상태인지 검사
-     */
-    private void isAlreadyRecommended(Board board, Member member) {
-        boardRecommendReadService.isAlreadyRecommended(board.getId(), member.getPublicId());
-    }
-
-    /**
-     * 이미 추천한 상태인지 검사
-     */
-    private void verifyMemberAlreadyRecommend(Board board, Member member) {
-        boardRecommendReadService.confirmExistBoardRecommend(board.getId(), member.getPublicId());
-    }
-
-    /**
-     * 게시글 추천 생성
-     */
-    private void recommend(Board board, Member member) {
-        BoardRecommend recommend = BoardRecommend.builder().board(board).member(member).build();
-        boardRecommendRepository.save(recommend);
-    }
-
-    /**
-     * recommendCount 증가
-     */
-    public void addRecommendCount(Long boardId) {
-        boardCountReadService.findByBoardIdLock(boardId).addRecommendCount();
-    }
-
-    /**
-     * recommendCount 감소
-     */
-    public void minusRecommendCount(Long boardId) {
-        boardCountReadService.findByBoardIdLock(boardId).minusRecommendCount();
-    }
-
-    /**
-     * commentCount 증가
-     */
-    @Override
-    public void addCommentCount(Long boardId) {
-        boardCountReadService.findByBoardIdLock(boardId).addCommentCount();
-    }
-
-    /**
-     * commentCount 감소 (1 감소)
-     */
-    @Override
-    public void minusCommentCount(Long boardId) {
-        boardCountReadService.findByBoardIdLock(boardId).minusCommentCount();
-    }
-
-    /**
-     * commentCount 감소 (본 댓글 + 대댓글)
-     */
-    @Override
-    public void minusCommentCount(Long boardId, int count) {
-        boardCountReadService.findByBoardIdLock(boardId).minusCommentCount(count);
-    }
-
-    public void addViewCount(Long boardId) {
-        boardCountReadService.findByBoardIdLock(boardId).addViewCount();
+        redisCountService.getCommonCount(ServiceType.RECOMMEND_CANCEL, DomainType.BOARD, boardId, null);
     }
 }

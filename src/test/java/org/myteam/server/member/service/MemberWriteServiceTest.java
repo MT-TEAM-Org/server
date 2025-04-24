@@ -1,14 +1,16 @@
 package org.myteam.server.member.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.myteam.server.global.exception.ErrorCode.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 
 import java.util.UUID;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.RedisService;
@@ -16,22 +18,13 @@ import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
-
-
-class MemberWriteServiceTest  extends IntegrationTestSupport {
+class MemberWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
     protected MemberService memberService;

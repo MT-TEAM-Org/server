@@ -68,10 +68,16 @@ public class PostResponse {
     @Setter
     @JsonProperty("isHot")
     private boolean isHot;
+    /**
+     * New 게시글 여부
+     */
+    @Setter
+    @JsonProperty("isNew")
+    private boolean isNew;
 
     public PostResponse(CommentType commentType, Long id, String thumbnail, String title, Category boardType,
                         CategoryType categoryType, String createdIp, UUID publicId, String nickname, int commentCount,
-                        LocalDateTime createDate, LocalDateTime lastModifiedDate, boolean isHot) {
+                        LocalDateTime createDate, LocalDateTime lastModifiedDate, boolean isHot, boolean isNew) {
         this.commentType = commentType;
         this.id = id;
         this.thumbnail = thumbnail;
@@ -85,5 +91,6 @@ public class PostResponse {
         this.createDate = createDate;
         this.lastModifiedDate = lastModifiedDate;
         this.isHot = isHot;
+        this.isNew = isNew;
     }
 }

@@ -139,7 +139,7 @@ public class NoticeController {
             @Valid @ModelAttribute NoticeSearchRequest request) {
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
-                "게시글 목록 조회",
+                "공지사항 목록 조회",
                 noticeReadService.getNoticeList(request.toServiceRequest())
         ));
     }

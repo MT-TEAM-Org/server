@@ -99,8 +99,8 @@ spring:
   data:
     redis:
       host: localhost
-      password: test
       port: 6379
+      password: test
 
 
 SENDER_EMAIL: test@test.com

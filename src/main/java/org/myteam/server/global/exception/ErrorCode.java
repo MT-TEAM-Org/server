@@ -48,6 +48,7 @@ public enum ErrorCode {
     LIMIT_COMMENT_DEPTH(HttpStatus.BAD_REQUEST, "더이상 대댓글을 작성할 수 없습니다."),
     NOT_SUPPORT_COMMENT_TYPE(HttpStatus.BAD_REQUEST, "This comment type is not supported"),
     COMMENT_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "부모 댓글의 타입과 요청된 타입이 일치하지 않음"),
+    NOT_RECOMMENDED_YET(HttpStatus.BAD_REQUEST, "Not Recommend"),
 
     // 401 Unauthorized,
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -128,6 +129,7 @@ public enum ErrorCode {
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),
     BAN_ALREADY_EXISTS(HttpStatus.CONFLICT, "This user already exists"),
     INQUIRY_ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "This inquiry already exists"),
+    ALREADY_MEMBER_RECOMMEND(HttpStatus.CONFLICT, "Already Recommend"),
     ALREADY_MEMBER_RECOMMEND_NOTICE(HttpStatus.CONFLICT, "Member Already Recommend NOTICE"),
     ALREADY_MEMBER_RECOMMEND_BOARD(HttpStatus.CONFLICT, "Member Already Recommend Board"),
     ALREADY_MEMBER_RECOMMEND_REPLY(HttpStatus.CONFLICT, "Member Already Recommend Reply"),

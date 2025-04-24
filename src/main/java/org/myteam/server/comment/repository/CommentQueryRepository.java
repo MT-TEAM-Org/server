@@ -5,6 +5,10 @@ import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.comment.domain.QBoardComment.boardComment;
 import static org.myteam.server.comment.domain.QComment.comment1;
+import static org.myteam.server.comment.domain.QImprovementComment.improvementComment;
+import static org.myteam.server.comment.domain.QInquiryComment.inquiryComment;
+import static org.myteam.server.comment.domain.QNewsComment.newsComment;
+import static org.myteam.server.comment.domain.QNoticeComment.noticeComment;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;
@@ -375,9 +379,20 @@ public class CommentQueryRepository {
                 .from(comment1)
                 .leftJoin(comment1.member, member) // 작성자 정보 조인
                 .leftJoin(comment1.mentionedMember, mentionedMember) // 언급된 사용자 정보 조인
+                .leftJoin(boardComment).on(comment1.id.eq(boardComment.id))
+                .leftJoin(board).on(boardComment.board.id.eq(board.id))
+                .leftJoin(newsComment).on(comment1.id.eq(newsComment.id))
+                .leftJoin(news).on(newsComment.news.id.eq(news.id))
+                .leftJoin(noticeComment).on(comment1.id.eq(noticeComment.id))
+                .leftJoin(notice).on(noticeComment.notice.id.eq(notice.id))
+                .leftJoin(improvementComment).on(comment1.id.eq(improvementComment.id))
+                .leftJoin(improvement).on(improvementComment.improvement.id.eq(improvement.id))
+                .leftJoin(inquiryComment).on(comment1.id.eq(inquiryComment.id))
+                .leftJoin(inquiry).on(inquiryComment.inquiry.id.eq(inquiry.id))
                 .where(
                         comment1.member.publicId.eq(publicId),
-                        comment1.commentType.stringValue().eq(commentType.name()),
+                        commentType != CommentType.ALL ? comment1.commentType.stringValue().eq(commentType.name())
+                                : null,
                         isSearchTypeLikeTo(searchType, search, commentType)
                 )
                 .orderBy(isOrderTypeEqualTo(orderType))
@@ -402,7 +417,8 @@ public class CommentQueryRepository {
                             selectCommentCount(),
                             selectCreateDate(),
                             selectLastModifiedDate(),
-                            isHotPost(commentType)
+                            isHotPost(commentType),
+                            isNewPost(commentType)
                     ))
                     .from(comment1)
                     .where(comment1.id.eq(comment.getCommentId()))
@@ -427,30 +443,57 @@ public class CommentQueryRepository {
         long totalCount = queryFactory
                 .select(comment1.count())
                 .from(comment1)
-                .where(comment1.member.publicId.eq(publicId))
+                .leftJoin(boardComment).on(comment1.id.eq(boardComment.id))
+                .leftJoin(board).on(boardComment.board.id.eq(board.id))
+                .leftJoin(newsComment).on(comment1.id.eq(newsComment.id))
+                .leftJoin(news).on(newsComment.news.id.eq(news.id))
+                .leftJoin(noticeComment).on(comment1.id.eq(noticeComment.id))
+                .leftJoin(notice).on(noticeComment.notice.id.eq(notice.id))
+                .leftJoin(improvementComment).on(comment1.id.eq(improvementComment.id))
+                .leftJoin(improvement).on(improvementComment.improvement.id.eq(improvement.id))
+                .leftJoin(inquiryComment).on(comment1.id.eq(inquiryComment.id))
+                .leftJoin(inquiry).on(inquiryComment.inquiry.id.eq(inquiry.id))
+                .where(
+                        comment1.member.publicId.eq(publicId),
+                        commentType != CommentType.ALL ? comment1.commentType.stringValue().eq(commentType.name())
+                                : null,
+                        isSearchTypeLikeTo(searchType, search, commentType)
+                )
                 .fetchOne();
 
         return new PageImpl<>(commentList, pageable, totalCount);
     }
 
     private BooleanExpression isSearchTypeLikeTo(BoardSearchType searchType, String search, CommentType commentType) {
-        if (searchType == null) {
+        if (searchType == null || search == null || search.isBlank()) {
             return null;
         }
 
         switch (searchType) {
             case TITLE:
                 return switch (commentType) {
+                    // MATCH는 title 검색이 없으므로 제외, INQUIRY는 content를 title처럼 검색하게 해뒀음
+                    case ALL -> board.title.like("%" + search + "%")
+                            .or(improvement.title.like("%" + search + "%"))
+                            .or(news.title.like("%" + search + "%"))
+                            .or(notice.title.like("%" + search + "%"))
+                            .or(inquiry.content.like("%" + search + "%"));
                     case BOARD -> board.title.like("%" + search + "%");
                     case IMPROVEMENT -> improvement.title.like("%" + search + "%");
                     case NEWS -> news.title.like("%" + search + "%");
                     case NOTICE -> notice.title.like("%" + search + "%");
-                    case INQUIRY -> null;
+                    case INQUIRY -> inquiry.content.like("%" + search + "%");
                     case MATCH -> null;
                 };
 
             case CONTENT:
                 return switch (commentType) {
+                    // MATCH는 content 없음
+                    case ALL -> board.content.like("%" + search + "%")
+                            .or(improvement.content.like("%" + search + "%"))
+                            .or(news.content.like("%" + search + "%"))
+                            .or(notice.content.like("%" + search + "%"))
+                            .or(inquiry.content.like("%" + search + "%"));
                     case BOARD -> board.content.like("%" + search + "%");
                     case IMPROVEMENT -> improvement.content.like("%" + search + "%");
                     case NEWS -> news.content.like("%" + search + "%");
@@ -461,6 +504,12 @@ public class CommentQueryRepository {
 
             case TITLE_CONTENT:
                 return switch (commentType) {
+                    case ALL -> board.title.like("%" + search + "%").or(board.content.like("%" + search + "%"))
+                            .or(improvement.title.like("%" + search + "%")
+                                    .or(improvement.content.like("%" + search + "%")))
+                            .or(news.title.like("%" + search + "%").or(news.content.like("%" + search + "%")))
+                            .or(notice.title.like("%" + search + "%").or(notice.content.like("%" + search + "%")))
+                            .or(inquiry.content.like("%" + search + "%"));
                     case BOARD -> board.title.like("%" + search + "%").or(board.content.like("%" + search + "%"));
                     case IMPROVEMENT ->
                             improvement.title.like("%" + search + "%").or(improvement.content.like("%" + search + "%"));
@@ -496,6 +545,27 @@ public class CommentQueryRepository {
                     .join(boardComment).on(boardComment.board.id.eq(board.id))
                     .where(boardComment.id.eq(comment1.id))
                     .in(hotBoardIds);  // board.id가 hotBoardIds 목록에 포함되는지 체크
+        }
+
+        // commentType이 BOARD가 아니면 false로 처리
+        return Expressions.FALSE;
+    }
+
+    private BooleanExpression isNewPost(CommentType commentType) {
+        // commentType이 BOARD일 경우에만 뉴 게시글 체크
+        if (commentType.equals(CommentType.BOARD)) {
+            List<Long> newBoardIds = getNewBoardIdList(); // 핫 게시글 ID 목록 가져오기
+
+            if (newBoardIds == null || newBoardIds.isEmpty()) {
+                return Expressions.FALSE; // 뉴 게시글이 없으면 false 반환
+            }
+
+            // 게시글 ID가 뉴 게시글 목록에 포함되는지 체크
+            return JPAExpressions.select(board.id)
+                    .from(board)
+                    .join(boardComment).on(boardComment.board.id.eq(board.id))
+                    .where(boardComment.id.eq(comment1.id))
+                    .in(newBoardIds);  // board.id가 newBoardIds 목록에 포함되는지 체크
         }
 
         // commentType이 BOARD가 아니면 false로 처리
@@ -539,6 +609,21 @@ public class CommentQueryRepository {
     }
 
     /**
+     * 실시간 최신 게시글 ID 목록 조회
+     */
+    private List<Long> getNewBoardIdList() {
+        // 전체 게시글 기준 생성일 내림차순으로 최신 10개 가져오기
+        List<Long> boards = queryFactory
+                .select(board.id)
+                .from(board)
+                .orderBy(board.createDate.desc(), board.id.desc())
+                .limit(10)
+                .fetch();
+
+        return boards;
+    }
+
+    /**
      * 게시글의 썸네일을 가져오는 메서드
      *
      * @brief: BOARD
@@ -551,28 +636,28 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.BOARD))
                 .then(JPAExpressions.select(board.thumbnail)
                         .from(board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id)))
+                        .join(boardComment).on(boardComment.board.id.eq(board.id))
+                        .where(boardComment.id.eq(comment1.id)))
                 .when(comment1.commentType.eq(CommentType.NEWS))
                 .then(JPAExpressions.select(news.thumbImg)
                         .from(news)
-                        .join(QNewsComment.newsComment)
-                        .on(QNewsComment.newsComment.news.id.eq(news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                        .join(newsComment)
+                        .on(newsComment.news.id.eq(news.id))
+                        .where(newsComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.imgUrl)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.imgUrl)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
@@ -591,37 +676,37 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.BOARD))
                 .then(JPAExpressions.select(board.id)
                         .from(board)
-                        .join(QBoardComment.boardComment)
-                        .on(QBoardComment.boardComment.board.id.eq(board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                        .join(boardComment)
+                        .on(boardComment.board.id.eq(board.id))
+                        .where(boardComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NEWS))
                 .then(JPAExpressions.select(news.id)
                         .from(news)
-                        .join(QNewsComment.newsComment)
-                        .on(QNewsComment.newsComment.news.id.eq(news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                        .join(newsComment)
+                        .on(newsComment.news.id.eq(news.id))
+                        .where(newsComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.id)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.id)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.INQUIRY))
                 .then(JPAExpressions.select(inquiry.id)
                         .from(inquiry)
-                        .join(QInquiryComment.inquiryComment)
-                        .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
-                        .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
@@ -633,34 +718,42 @@ public class CommentQueryRepository {
      * @brief: NOTICE
      * @brief: NEWS
      * @brief: IMPROVEMENT
+     * @brief: INQUIRY
      */
     private Expression<String> selectTitle() {
         return new CaseBuilder()
                 .when(comment1.commentType.eq(CommentType.BOARD))
                 .then(JPAExpressions.select(board.title)
                         .from(board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                        .join(boardComment).on(boardComment.board.id.eq(board.id))
+                        .where(boardComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NEWS))
                 .then(JPAExpressions.select(news.title)
                         .from(news)
-                        .join(QNewsComment.newsComment).on(QNewsComment.newsComment.news.id.eq(news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                        .join(newsComment).on(newsComment.news.id.eq(news.id))
+                        .where(newsComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.title)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.title)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
+                )
+                .when(comment1.commentType.eq(CommentType.INQUIRY))
+                .then(JPAExpressions.select(inquiry.content)
+                        .from(inquiry)
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
@@ -676,14 +769,14 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.BOARD))
                 .then(JPAExpressions.select(board.boardType)
                         .from(board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                        .join(boardComment).on(boardComment.board.id.eq(board.id))
+                        .where(boardComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NEWS))
                 .then(JPAExpressions.select(news.category)
                         .from(news)
-                        .join(QNewsComment.newsComment).on(QNewsComment.newsComment.news.id.eq(news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                        .join(newsComment).on(newsComment.news.id.eq(news.id))
+                        .where(newsComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.constant(Category.UNKNOWN));
     }
@@ -698,8 +791,8 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.BOARD))
                 .then(JPAExpressions.select(board.categoryType)
                         .from(board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                        .join(boardComment).on(boardComment.board.id.eq(board.id))
+                        .where(boardComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.constant(CategoryType.UNKNOWN));
     }
@@ -718,38 +811,38 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.BOARD))
                 .then(JPAExpressions.select(board.boardCount.commentCount)
                         .from(board)
-                        .join(QBoardComment.boardComment).on(QBoardComment.boardComment.board.id.eq(board.id))
-                        .where(QBoardComment.boardComment.id.eq(comment1.id))
+                        .join(boardComment).on(boardComment.board.id.eq(board.id))
+                        .where(boardComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NEWS))
                 .then(JPAExpressions.select(newsCount.commentCount)
                         .from(news)
                         .join(newsCount)
                         .on(newsCount.news.id.eq(news.id))
-                        .join(QNewsComment.newsComment)
-                        .on(QNewsComment.newsComment.news.id.eq(news.id))
-                        .where(QNewsComment.newsComment.id.eq(comment1.id))
+                        .join(newsComment)
+                        .on(newsComment.news.id.eq(news.id))
+                        .where(newsComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.noticeCount.commentCount)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.improvementCount.commentCount)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.INQUIRY))
                 .then(JPAExpressions.select(inquiry.inquiryCount.commentCount)
                         .from(inquiry)
-                        .join(QInquiryComment.inquiryComment)
-                        .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
-                        .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.constant(0));
     }
@@ -772,23 +865,23 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.createdIp)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.createdIp)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.INQUIRY))
                 .then(JPAExpressions.select(inquiry.clientIp)
                         .from(inquiry)
-                        .join(QInquiryComment.inquiryComment)
-                        .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
-                        .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
@@ -811,23 +904,23 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.member.publicId)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.member.publicId)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.INQUIRY))
                 .then(JPAExpressions.select(inquiry.member.publicId)
                         .from(inquiry)
-                        .join(QInquiryComment.inquiryComment)
-                        .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
-                        .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
@@ -850,23 +943,23 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.member.nickname)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.member.nickname)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.INQUIRY))
                 .then(JPAExpressions.select(inquiry.member.nickname)
                         .from(inquiry)
-                        .join(QInquiryComment.inquiryComment)
-                        .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
-                        .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
@@ -895,23 +988,23 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.member.createDate)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.member.createDate)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.INQUIRY))
                 .then(JPAExpressions.select(inquiry.member.createDate)
                         .from(inquiry)
-                        .join(QInquiryComment.inquiryComment)
-                        .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
-                        .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
@@ -940,23 +1033,23 @@ public class CommentQueryRepository {
                 .when(comment1.commentType.eq(CommentType.NOTICE))
                 .then(JPAExpressions.select(notice.member.lastModifiedDate)
                         .from(notice)
-                        .join(QNoticeComment.noticeComment)
-                        .on(QNoticeComment.noticeComment.notice.id.eq(notice.id))
-                        .where(QNoticeComment.noticeComment.id.eq(comment1.id))
+                        .join(noticeComment)
+                        .on(noticeComment.notice.id.eq(notice.id))
+                        .where(noticeComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.IMPROVEMENT))
                 .then(JPAExpressions.select(improvement.member.lastModifiedDate)
                         .from(improvement)
-                        .join(QImprovementComment.improvementComment)
-                        .on(QImprovementComment.improvementComment.improvement.id.eq(improvement.id))
-                        .where(QImprovementComment.improvementComment.id.eq(comment1.id))
+                        .join(improvementComment)
+                        .on(improvementComment.improvement.id.eq(improvement.id))
+                        .where(improvementComment.id.eq(comment1.id))
                 )
                 .when(comment1.commentType.eq(CommentType.INQUIRY))
                 .then(JPAExpressions.select(inquiry.member.lastModifiedDate)
                         .from(inquiry)
-                        .join(QInquiryComment.inquiryComment)
-                        .on(QInquiryComment.inquiryComment.inquiry.id.eq(inquiry.id))
-                        .where(QInquiryComment.inquiryComment.id.eq(comment1.id))
+                        .join(inquiryComment)
+                        .on(inquiryComment.inquiry.id.eq(inquiry.id))
+                        .where(inquiryComment.id.eq(comment1.id))
                 )
                 .otherwise(Expressions.nullExpression());
     }
