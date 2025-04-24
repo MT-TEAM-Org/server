@@ -13,6 +13,7 @@ import org.myteam.server.board.util.RedisBoardRankingReader;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.match.service.MatchReadService;
@@ -55,6 +56,8 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected RedisCountService redisCountService;
     @MockBean
     protected RedisBoardRankingReader redisBoardRankingReader;
+    @MockBean
+    protected RedisService redisService;
 
     /**
      * =================== Service ===================

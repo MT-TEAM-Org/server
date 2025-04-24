@@ -2,6 +2,7 @@ package org.myteam.server;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
+import org.myteam.server.aop.CommonCountAspect;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
@@ -131,6 +132,8 @@ public abstract class TestDriverSupport {
     protected RedisConfig redisConfig;
     @Autowired
     protected CommentFactory commentFactory;
+    @Autowired
+    protected CommonCountAspect commonCountAspect;
 
     @AfterEach
     void tearDown() {
