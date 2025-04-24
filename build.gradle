@@ -113,8 +113,8 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
-//    finalizedBy jacocoTestReport // Generates report after tests are run
-    finalizedBy tasks.named('jacocoTestReport')
+    finalizedBy jacocoTestReport // Generates report after tests are run
+//    finalizedBy tasks.named('jacocoTestReport')
 }
 
 /**

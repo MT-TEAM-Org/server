@@ -107,7 +107,6 @@ class TokenServiceTest extends IntegrationTestSupport {
 
         // then
         verify(jwtProvider).isExpired(tokenCaptor.capture());
-        System.out.println("❗ isExpired() called with: " + tokenCaptor.getValue());
 
         assertEquals(EXPIRED_REFRESH_TOKEN, exception.getErrorCode());
     }

@@ -4,7 +4,6 @@ import static org.mockito.BDDMockito.given;
 
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
-import org.myteam.server.board.service.BoardCountReadService;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
@@ -16,8 +15,6 @@ import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
-import org.myteam.server.match.match.service.MatchReadService;
-import org.myteam.server.match.match.service.MatchYoutubeService;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPredictionMember.domain.MatchPredictionMember;
 import org.myteam.server.member.domain.MemberRole;
@@ -76,8 +73,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected BoardReadService boardReadService;
     @MockBean
     protected MemberReadService memberReadService;
-    @Autowired
-    protected BoardCountReadService boardCountReadService;
     @Autowired
     protected BoardRecommendReadService boardRecommendReadService;
     @Autowired

@@ -22,7 +22,6 @@ import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.report.domain.DomainType;
@@ -37,12 +36,10 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardCountRepository boardCountRepository;
     private final BoardRecommendRepository boardRecommendRepository;
-    private final MemberRepository memberRepository;
     private final BoardQueryRepository boardQueryRepository;
 
     private final SecurityReadService securityReadService;
     private final BoardReadService boardReadService;
-    private final BoardCountReadService boardCountReadService;
     private final MemberReadService memberReadService;
     private final BoardRecommendReadService boardRecommendReadService;
     private final CommentService commentService;
