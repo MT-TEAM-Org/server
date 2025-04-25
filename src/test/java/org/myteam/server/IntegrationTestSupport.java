@@ -75,8 +75,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected BoardCountService boardCountService;
     @Autowired
     protected InquiryService inquiryService;
-    @MockBean
-    protected CommentService commentService;
     @Autowired
     protected CommentReadService commentReadService;
     @Autowired
