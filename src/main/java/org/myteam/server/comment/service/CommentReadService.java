@@ -15,6 +15,7 @@ import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
+import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.dto.request.MyCommentServiceRequest;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
@@ -108,7 +109,8 @@ public class CommentReadService {
      * 내가 쓴 댓글 목록 조회
      */
     public MyCommentListResponse getMyCommentList(MyCommentServiceRequest request) {
-        UUID loginUser = securityReadService.getAuthenticatedPublicId();
+        Member member = securityReadService.getMember();
+        UUID loginUser = member.getPublicId();
         Page<MyCommentDto> list = commentQueryRepository.getMyCommentList(
                 loginUser,
                 request.getCommentType(),
