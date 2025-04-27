@@ -1,6 +1,7 @@
 package org.myteam.server.improvement.service;
 
 import org.assertj.core.api.IntegerAssert;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,12 @@ class ImprovementSaveServiceTest extends IntegrationTestSupport {
         publicId = member.getPublicId();
     }
 
+    @AfterEach
+    void clear() {
+        improvementCountRepository.deleteAllInBatch();
+        improvementRepository.deleteAllInBatch();
+    }
+
     @Test
     @DisplayName("로그인 멤버 개선요청 저장 성공")
     void saveImprovement_success() {
@@ -85,7 +92,6 @@ class ImprovementSaveServiceTest extends IntegrationTestSupport {
                 null
         );
 
-        // when
         // when
         PlayHiveException exception = assertThrows(PlayHiveException.class, () -> {
             improvementService.saveImprovement(request, "127.0.0.1");

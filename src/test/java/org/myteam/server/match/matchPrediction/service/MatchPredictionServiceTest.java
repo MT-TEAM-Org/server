@@ -1,30 +1,55 @@
 package org.myteam.server.match.matchPrediction.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.TestContainerSupport;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
+import org.myteam.server.match.matchPrediction.dto.service.request.MatchPredictionServiceRequest;
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
+import org.myteam.server.match.matchPrediction.dto.service.response.MatchPredictionResponse;
+import org.myteam.server.match.matchPredictionMember.service.MatchPredictionMemberReadService;
+import org.myteam.server.match.matchPredictionMember.service.MatchPredictionMemberService;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
+import org.myteam.server.member.entity.Member;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 class MatchPredictionServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private MatchPredictionService matchPredictionService;
+    @MockBean
+    private MatchPredictionMemberReadService matchPredictionMemberReadService;
+
+    private Member member;
+    private Match match;
+    private MatchPrediction matchPrediction;
+
+    @BeforeEach
+    void setUp() {
+        member = createMember(1);
+        Team home = createTeam(1, TeamCategory.FOOTBALL);
+        Team away = createTeam(2, TeamCategory.FOOTBALL);
+        match = createMatch(home, away, MatchCategory.FOOTBALL, LocalDate.now().atStartOfDay());
+        matchPrediction = createMatchPrediction(match, 5, 5);
+    }
 
     @DisplayName("경기예측을 저장한다. 동시성 테스트")
     @Test
@@ -83,6 +108,49 @@ class MatchPredictionServiceTest extends IntegrationTestSupport {
         assertThat(matchPredictionRepository.findById(matchPrediction.getId()).get())
                 .extracting("home", "away")
                 .contains(50, 0);
+    }
+
+    @Test
+    @DisplayName("1. 예측이 존재하는 경우 update 성공")
+    void update_success() {
+        // given
+        MatchPredictionServiceRequest request = new MatchPredictionServiceRequest(matchPrediction.getId(), Side.HOME);
+        when(securityReadService.getMember()).thenReturn(member);
+
+        // when
+        Long resultId = matchPredictionService.update(request);
+
+        // then
+        assertThat(resultId).isEqualTo(matchPrediction.getId());
+    }
+
+    @Test
+    @DisplayName("2. 예측 기록 검증 실패시 예외 발생")
+    void update_fail_when_alreadyPredicted() {
+        // given
+        MatchPredictionServiceRequest request = new MatchPredictionServiceRequest(matchPrediction.getId(), Side.AWAY);
+        when(securityReadService.getMember()).thenReturn(member);
+
+        // ✅ confirmExistMember 호출 시 PlayHiveException 던지도록 세팅
+        doThrow(new PlayHiveException(ErrorCode.ALREADY_MEMBER_MATCH_PREDICTION))
+                .when(matchPredictionMemberReadService)
+                .confirmExistMember(matchPrediction.getId(), member.getPublicId());
+
+        // when & then
+        assertThatThrownBy(() -> matchPredictionService.update(request))
+                .isInstanceOf(PlayHiveException.class)
+                .hasMessage(ErrorCode.ALREADY_MEMBER_MATCH_PREDICTION.getMsg());
+    }
+
+    @Test
+    @DisplayName("3. addCount 정상 동작")
+    void addCount_success() {
+        // when
+        MatchPrediction result = matchPredictionService.addCount(matchPrediction.getId(), Side.HOME);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(matchPrediction.getId());
     }
 
 }

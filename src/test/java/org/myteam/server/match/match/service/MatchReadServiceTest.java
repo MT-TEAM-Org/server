@@ -183,7 +183,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
     void findByIdThrowException() {
         assertThatThrownBy(() -> matchReadService.findOne(1L))
                 .isInstanceOf(PlayHiveException.class)
-                .hasMessage(ErrorCode.MATCH_NOT_FOUNT.getMsg());
+                .hasMessage(ErrorCode.MATCH_NOT_FOUND.getMsg());
     }
 
     @DisplayName("E스포츠 경기시간이 아직 되지 않았으면 Youtube API를 조회하지 않는다.")
@@ -264,7 +264,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
         // when & then
         assertThatThrownBy(() -> matchReadService.findOne(999L))
                 .isInstanceOf(PlayHiveException.class)
-                .hasMessage(ErrorCode.MATCH_NOT_FOUNT.getMsg());
+                .hasMessage(ErrorCode.MATCH_NOT_FOUND.getMsg());
     }
 
     @DisplayName("E-스포츠 경기 시작 전이면 Youtube 조회 X")

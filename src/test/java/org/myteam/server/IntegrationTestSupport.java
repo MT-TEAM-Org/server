@@ -15,6 +15,7 @@ import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
+import org.myteam.server.match.matchPrediction.dto.service.request.Side;
 import org.myteam.server.match.matchPredictionMember.domain.MatchPredictionMember;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
@@ -150,6 +151,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 MatchPredictionMember.builder()
                         .matchPrediction(matchPrediction)
                         .member(member)
+                        .side(Side.HOME)
                         .build()
         );
     }

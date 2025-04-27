@@ -1,5 +1,6 @@
 package org.myteam.server.board.service;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,12 @@ class SaveBoardServiceTest extends IntegrationTestSupport {
     void setUp() {
         member = createMember(0);
         publicId = member.getPublicId();
+    }
+
+    @AfterEach
+    void clear() {
+        boardCountRepository.deleteAllInBatch();
+        boardRepository.deleteAllInBatch();
     }
 
     @Test
