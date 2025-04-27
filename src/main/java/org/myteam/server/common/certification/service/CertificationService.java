@@ -32,8 +32,4 @@ public class CertificationService {
         }
         throw new PlayHiveException(ErrorCode.NOT_SUPPORT_TYPE);
     }
-
-    public String generateCertificationUrl(String email, String certificationCode) {
-        return "http://localhost:8080/api/users/" + email + "/certify?certificationCode=" + certificationCode;
-    }
 }

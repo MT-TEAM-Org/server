@@ -16,6 +16,7 @@ import org.myteam.server.comment.repository.CommentRecommendRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.comment.util.CommentFactory;
+import org.myteam.server.common.mail.util.MailStrategyFactory;
 import org.myteam.server.global.config.RedisConfig;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.improvement.domain.Improvement;
@@ -132,6 +133,8 @@ public abstract class TestDriverSupport {
     protected RedisConfig redisConfig;
     @Autowired
     protected CommentFactory commentFactory;
+    @MockBean
+    protected MailStrategyFactory mailStrategyFactory;
     @Autowired
     protected CommonCountAspect commonCountAspect;
 
