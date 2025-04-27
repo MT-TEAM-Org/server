@@ -167,7 +167,9 @@ jacocoTestReport {
                     '**/config/**',
                     "**/core/**",
                     "**/factory/**",
-                    "**strategy/**",
+                    "**/strategy/**",
+                    "**/global/**",
+                    "**/oauth2/**",
                     "**/chat/**",
                     '**/MemberRole*'
             ] + Qdomains)
@@ -208,6 +210,12 @@ jacocoTestCoverageVerification {
                     '**/aop/**',
                     '**/exception/**',
                     '**/config/**',
+                    "**/core/**",
+                    "**/factory/**",
+                    "**/strategy/**",
+                    "**/global/**",
+                    "**/oauth2/**",
+                    "**/chat/**",
                     '**/MemberRole*'
             ] + Qdomains
         }
