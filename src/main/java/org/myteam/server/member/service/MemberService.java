@@ -1,6 +1,5 @@
 package org.myteam.server.member.service;
 
-import static org.myteam.server.global.domain.PlayHiveValidator.*;
 import static org.myteam.server.global.exception.ErrorCode.*;
 
 import java.util.Optional;
@@ -144,17 +143,9 @@ public class MemberService {
 	}
 
 	@Transactional
-	public MemberResponse updateRole(MemberRoleUpdateRequest memberRoleUpdateRequest) {
-		boolean isValid = validate(memberRoleUpdateRequest);
-		log.info("playHive updateRole isValid: {}", isValid);
-
-		if (!isValid) {
-			// 빈 Response 객체 반환
-			throw new PlayHiveException(NO_PERMISSION, "인증 키와 패스워드가 일치하지 않습니다");
-		}
-
+	public MemberResponse updateRole(MemberRoleUpdateRequest request) {
 		// 1. 동일한 유저 이름 존재 검사
-		Optional<Member> memberOP = memberJpaRepository.findByEmail(memberRoleUpdateRequest.getEmail());
+		Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(request.getEmail(), request.getType());
 
 		// 2. 아이디 미존재 체크
 		if (memberOP.isEmpty()) {
@@ -162,7 +153,7 @@ public class MemberService {
 		}
 
 		Member member = memberOP.get();
-		member.updateType(memberRoleUpdateRequest.getRole());
+		member.updateType(request.getRole());
 
 		// 5. dto 응답
 		return MemberResponse.createMemberResponse(member);
@@ -172,9 +163,11 @@ public class MemberService {
 	public void changePassword(String email, PasswordChangeRequest passwordChangeRequest) {
 		Member findMember = memberJpaRepository.findByEmail(email)
 				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+
 		boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
 		if (!isEqual)
 			throw new PlayHiveException(INVALID_PARAMETER, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+
 		boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), passwordEncoder);
 		if (!isValid)
 			throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");

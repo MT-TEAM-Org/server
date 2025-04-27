@@ -20,6 +20,7 @@ import org.myteam.server.match.matchPredictionMember.domain.MatchPredictionMembe
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
+import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.MemberService;
@@ -34,6 +35,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoCo
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @ActiveProfiles("test")
 @ImportAutoConfiguration(exclude = {
@@ -98,6 +100,20 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         memberJpaRepository.deleteAllInBatch();
     }
 
+    @Transactional
+    protected Member createMemberByService(int index) {
+        memberService.create(
+                MemberSaveRequest.builder()
+                        .email("test" + index + "@test.com")
+                        .nickname("nickname")
+                        .tel("01001011010")
+                        .password("1234")
+                        .build()
+        );
+
+        return memberJpaRepository.findByEmail("test" + index + "@test.com").get();
+    }
+
     protected Member createMember(int index) {
         Member member = Member.builder()
                 .email("test" + index + "@test.com")
@@ -108,6 +124,29 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 .type(MemberType.LOCAL)
                 .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
+                .build();
+
+        Member savedMember = memberJpaRepository.save(member);
+
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
+
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
+
+        return savedMember;
+    }
+
+    protected Member createOAuthMember(int index) {
+        Member member = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel(null)
+                .nickname(null)
+                .role(MemberRole.USER)
+                .type(MemberType.KAKAO)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.PENDING)
                 .build();
 
         Member savedMember = memberJpaRepository.save(member);
