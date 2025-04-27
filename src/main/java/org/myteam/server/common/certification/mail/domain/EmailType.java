@@ -1,4 +1,4 @@
-package org.myteam.server.common.mail.domain;
+package org.myteam.server.common.certification.mail.domain;
 
 public enum EmailType {
     CERTIFICATION, // 인증 코드 메일

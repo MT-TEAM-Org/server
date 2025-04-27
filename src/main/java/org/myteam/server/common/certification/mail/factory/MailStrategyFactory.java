@@ -1,10 +1,10 @@
-package org.myteam.server.common.mail.util;
+package org.myteam.server.common.certification.mail.factory;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.common.certification.util.CertifyMailStrategy;
-import org.myteam.server.common.certification.util.TemporaryPasswordMailStrategy;
-import org.myteam.server.common.mail.domain.EmailType;
-import org.myteam.server.common.mail.service.MailStrategy;
+import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
+import org.myteam.server.common.certification.mail.strategy.TemporaryPasswordMailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.beans.factory.annotation.Autowired;

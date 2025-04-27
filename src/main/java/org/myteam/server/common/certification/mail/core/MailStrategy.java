@@ -1,4 +1,4 @@
-package org.myteam.server.common.mail.service;
+package org.myteam.server.common.certification.mail.core;
 
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;

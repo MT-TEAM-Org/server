@@ -1,4 +1,4 @@
-package org.myteam.server.common.mail.config;
+package org.myteam.server.common.certification.mail.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

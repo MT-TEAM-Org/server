@@ -5,11 +5,10 @@ import static org.myteam.server.global.exception.ErrorCode.*;
 
 import java.util.Optional;
 
-import jakarta.servlet.http.HttpSession;
-import org.myteam.server.common.certification.util.CertifyStorage;
-import org.myteam.server.common.mail.domain.EmailType;
-import org.myteam.server.common.mail.service.MailStrategy;
-import org.myteam.server.common.mail.util.MailStrategyFactory;
+import org.myteam.server.common.certification.mail.util.CertifyStorage;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.RedisService;
@@ -26,9 +25,7 @@ import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
-import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package org.myteam.server.common.certification.util;
+package org.myteam.server.common.certification.mail.util;
 
 
 import lombok.extern.slf4j.Slf4j;

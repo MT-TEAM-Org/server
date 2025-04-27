@@ -3,17 +3,16 @@ package org.myteam.server.common.certification.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.common.certification.util.CertifyMailStrategy;
-import org.myteam.server.common.certification.util.TemporaryPasswordMailStrategy;
-import org.myteam.server.common.mail.domain.EmailType;
-import org.myteam.server.common.mail.service.MailStrategy;
+import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
+import org.myteam.server.common.certification.mail.strategy.TemporaryPasswordMailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class CertificationServiceTest extends IntegrationTestSupport {

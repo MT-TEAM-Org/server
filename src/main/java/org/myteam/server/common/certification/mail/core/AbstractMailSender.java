@@ -1,4 +1,4 @@
-package org.myteam.server.common.mail.service;
+package org.myteam.server.common.certification.mail.core;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -7,15 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
-import java.io.File;
-import java.io.IOException;
 
 @Slf4j
 @Component

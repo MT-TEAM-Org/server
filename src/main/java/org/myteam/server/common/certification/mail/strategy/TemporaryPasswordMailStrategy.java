@@ -1,7 +1,8 @@
-package org.myteam.server.common.certification.util;
+package org.myteam.server.common.certification.mail.strategy;
 
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.common.mail.service.AbstractMailSender;
+import org.myteam.server.common.certification.mail.util.CertifyStorage;
+import org.myteam.server.common.certification.mail.core.AbstractMailSender;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.mail.javamail.JavaMailSender;

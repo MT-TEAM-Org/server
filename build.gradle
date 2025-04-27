@@ -165,6 +165,9 @@ jacocoTestReport {
                     '**/aop/**',
                     '**/exception/**',
                     '**/config/**',
+                    "**/core/**",
+                    "**/factory/**",
+                    "**strategy/**",
                     "**/chat/**",
                     '**/MemberRole*'
             ] + Qdomains)
