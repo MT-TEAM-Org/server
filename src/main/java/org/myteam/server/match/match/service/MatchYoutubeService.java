@@ -1,5 +1,7 @@
 package org.myteam.server.match.match.service;
 
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.match.match.client.GoogleFeignClient;
 import org.myteam.server.match.match.dto.client.reponse.GoogleYoutubeResponse;
@@ -27,7 +29,11 @@ public class MatchYoutubeService {
 		String videoId = redisService.getEsportsYoutubeVideoId();
 		if (videoId == null) {
 			videoId = getUrlToGoogleApi();
-			redisService.putEsportsYoutubeVideoId(videoId);
+			if (videoId != null) {
+				redisService.putEsportsYoutubeVideoId(videoId);
+			} else {
+				throw new PlayHiveException(ErrorCode.API_SERVER_ERROR);
+			}
 		}
 		return videoId;
 	}
