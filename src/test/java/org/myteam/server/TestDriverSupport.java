@@ -22,6 +22,7 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
+import org.myteam.server.improvement.repository.ImprovementRecommendRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
@@ -101,6 +102,8 @@ public abstract class TestDriverSupport {
     protected ImprovementRepository improvementRepository;
     @Autowired
     protected ImprovementCountRepository improvementCountRepository;
+    @Autowired
+    protected ImprovementRecommendRepository improvementRecommendRepository;
     @Autowired
     protected CommentRepository commentRepository;
     @Autowired
@@ -328,13 +331,13 @@ public abstract class TestDriverSupport {
         return inquiry;
     }
 
-    protected Improvement createImprovement(Member member) {
+    protected Improvement createImprovement(Member member, boolean isImage) {
         Improvement improvement = Improvement.builder()
                 .member(member)
                 .title("개선요처어엉ㅇ 제목")
                 .content("개선개선개선")
                 .createdIp("0.0.0.1")
-                .imgUrl(null)
+                .imgUrl(isImage ? "test.co.kr" : null)
                 .build();
         improvementRepository.save(improvement);
 

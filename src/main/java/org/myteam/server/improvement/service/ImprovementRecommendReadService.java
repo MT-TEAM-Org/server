@@ -24,14 +24,6 @@ public class ImprovementRecommendReadService {
                 .isPresent();
     }
 
-    public void confirmExistImprovementRecommend(Long improvementId, UUID publicId) {
-        improvementRecommendRepository
-                .findByImprovementIdAndMemberPublicId(improvementId, publicId)
-                .ifPresent(member -> {
-                    throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_NOTICE);
-                });
-    }
-
     public boolean isAlreadyRecommended(Long improvementId, UUID publicId) {
         if (!improvementRecommendRepository
                 .findByImprovementIdAndMemberPublicId(improvementId, publicId)
