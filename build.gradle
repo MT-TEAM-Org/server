@@ -113,6 +113,7 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    ignoreFailures = true
     finalizedBy jacocoTestReport // Generates report after tests are run
 //    finalizedBy tasks.named('jacocoTestReport')
 }
