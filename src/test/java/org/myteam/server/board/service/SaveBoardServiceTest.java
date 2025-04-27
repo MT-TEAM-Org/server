@@ -17,11 +17,13 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.myteam.server.global.exception.ErrorCode.INVALID_TYPE;
@@ -52,8 +54,12 @@ class SaveBoardServiceTest extends IntegrationTestSupport {
         // given
         when(securityReadService.getMember()).thenReturn(member);
         when(memberReadService.findById(publicId)).thenReturn(member);
-        when(redisCountService.getCommonCount((ServiceType.CHECK), DomainType.BOARD, 1L, null))
-                .thenReturn(new CommonCountDto(0, 0, 0));
+        when(redisCountService.getCommonCount(
+                eq(ServiceType.CHECK),
+                eq(DomainType.BOARD),
+                anyLong(),
+                isNull()
+        )).thenReturn(new CommonCountDto(0, 0, 0));
         BoardRequest request = new BoardRequest(Category.ESPORTS, CategoryType.FREE,
                 "테스트 제목", "테스트 내용", "http://example.com", "http://example.com/thumb.png");
 

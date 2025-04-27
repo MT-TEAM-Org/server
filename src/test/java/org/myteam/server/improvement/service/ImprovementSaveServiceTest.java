@@ -59,8 +59,12 @@ class ImprovementSaveServiceTest extends IntegrationTestSupport {
     void saveImprovement_success() {
         // given
         when(securityReadService.getMember()).thenReturn(member);
-        when(redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT, 1L, null))
-                .thenReturn(new CommonCountDto(0, 0, 0));
+        when(redisCountService.getCommonCount(
+                eq(ServiceType.CHECK),
+                eq(DomainType.IMPROVEMENT),
+                anyLong(),
+                isNull()
+        )).thenReturn(new CommonCountDto(0, 0, 0));
 
         ImprovementSaveRequest request = new ImprovementSaveRequest(
                 "제목",

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
 class MatchReadServiceTest extends IntegrationTestSupport {
 
@@ -283,14 +285,15 @@ class MatchReadServiceTest extends IntegrationTestSupport {
         assertThat(response.getVideoId()).isNull();
     }
 
+    @Transactional
     @DisplayName("E-스포츠 경기 시작되면 Youtube 조회 O")
     @Test
     void confirmEsportsYoutube_afterStart() {
         // given
         Team home = createTeam(1, TeamCategory.ESPORTS);
         Team away = createTeam(2, TeamCategory.ESPORTS);
-        createMatch(home, away, MatchCategory.ESPORTS, LocalDateTime.now().minusHours(1)); // 이미 시작함
-        given(matchYoutubeService.getVideoId()).willReturn("testVideoId");
+        createMatch(home, away, MatchCategory.ESPORTS, LocalDateTime.now().minusMinutes(1)); // 이미 시작함
+        when(matchYoutubeService.getVideoId()).thenReturn("testVideoId");
 
         // when
         MatchEsportsYoutubeResponse response = matchReadService.confirmEsportsYoutube();
