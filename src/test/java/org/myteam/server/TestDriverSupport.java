@@ -27,6 +27,7 @@ import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryCount;
 import org.myteam.server.inquiry.repository.InquiryCountRepository;
+import org.myteam.server.inquiry.repository.InquiryQueryRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
@@ -84,6 +85,8 @@ public abstract class TestDriverSupport {
     protected InquiryRepository inquiryRepository;
     @Autowired
     protected InquiryCountRepository inquiryCountRepository;
+    @Autowired
+    protected InquiryQueryRepository inquiryQueryRepository;
     @Autowired
     protected MatchPredictionRepository matchPredictionRepository;
     @Autowired
@@ -149,6 +152,7 @@ public abstract class TestDriverSupport {
         matchPredictionRepository.deleteAllInBatch();
         matchRepository.deleteAllInBatch();
         teamRepository.deleteAllInBatch();
+        inquiryCountRepository.deleteAllInBatch();
         inquiryRepository.deleteAllInBatch();
         newsCountMemberRepository.deleteAllInBatch();
         newsCountRepository.deleteAllInBatch();

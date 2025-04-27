@@ -33,7 +33,6 @@ public class InquiryReadService {
     private final InquiryQueryRepository inquiryQueryRepository;
     private final InquiryRepository inquiryRepository;
     private final SecurityReadService securityReadService;
-    private final InquiryCountReadService inquiryCountReadService;
     private final RedisCountService redisCountService;
 
     /**

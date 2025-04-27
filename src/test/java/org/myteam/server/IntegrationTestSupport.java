@@ -13,7 +13,6 @@ import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.RedisService;
-import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPredictionMember.domain.MatchPredictionMember;
@@ -59,8 +58,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     /**
      * =================== Service ===================
      */
-    @MockBean
-    protected InquiryReadService inquiryReadService;
     @MockBean
     protected SecurityReadService securityReadService;
     @Autowired
