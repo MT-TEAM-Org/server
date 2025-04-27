@@ -36,6 +36,8 @@ public class UpdateBoardServiceTest extends IntegrationTestSupport {
     private BoardService boardService;
     @MockBean
     private BoardRecommendReadService boardRecommendReadService;
+    @MockBean
+    protected MemberReadService memberReadService;
     private Member author;
     private Member other;
     private Member admin;

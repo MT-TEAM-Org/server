@@ -8,7 +8,6 @@ import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
-import org.myteam.server.member.repository.MemberRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

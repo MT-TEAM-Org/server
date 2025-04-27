@@ -67,8 +67,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected MyPageReadService myPageReadService;
     @Autowired
     protected BoardReadService boardReadService;
-    @MockBean
-    protected MemberReadService memberReadService;
     @Autowired
     protected BoardCountService boardCountService;
     @Autowired
@@ -104,12 +102,35 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         Member member = Member.builder()
                 .email("test" + index + "@test.com")
                 .password("1234")
-                .tel("12345")
-                .nickname("test")
+                .tel("01012345678")
+                .nickname("test" + index)
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
                 .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
+                .build();
+
+        Member savedMember = memberJpaRepository.save(member);
+
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
+
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
+
+        return savedMember;
+    }
+
+    protected Member createNonAuthMember(int index) {
+        Member member = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel("01012345678")
+                .nickname("test")
+                .role(MemberRole.USER)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.INACTIVE)
                 .build();
 
         Member savedMember = memberJpaRepository.save(member);
