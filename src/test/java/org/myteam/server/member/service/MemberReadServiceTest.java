@@ -113,6 +113,14 @@ class MemberReadServiceTest extends IntegrationTestSupport {
     }
 
     @Test
+    @DisplayName("6-1. 존재하지 않는 publicId로 멤버 조회시 예외")
+    void getByPublicId_fail() {
+        assertThatThrownBy(() -> memberReadService.getByPublicId(UUID.randomUUID()))
+                .isInstanceOf(PlayHiveException.class)
+                .hasMessage(ErrorCode.USER_NOT_FOUND.getMsg());
+    }
+
+    @Test
     @DisplayName("7. 이메일로 MemberResponse 조회 성공")
     void getByEmail_success() {
         assertThat(memberReadService.getByEmail(member.getEmail()))
@@ -232,5 +240,18 @@ class MemberReadServiceTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> memberReadService.findUserId("01099999999"))
                 .isInstanceOf(PlayHiveException.class)
                 .hasMessage(ErrorCode.USER_NOT_FOUND.getMsg());
+    }
+
+    @Test
+    @DisplayName("전화번호 길이가 10자리 또는 11자리가 아니면 INVALID_PHONE_NUMBER 예외 발생")
+    void findUserId_whenPhoneNumberLengthInvalid_thenThrowException() {
+        // when & then
+        assertThatThrownBy(() -> memberReadService.findUserId("010123")) // 너무 짧은 번호
+                .isInstanceOf(PlayHiveException.class)
+                .hasMessage(ErrorCode.INVALID_PHONE_NUMBER.getMsg());
+
+        assertThatThrownBy(() -> memberReadService.findUserId("010123456789")) // 너무 긴 번호
+                .isInstanceOf(PlayHiveException.class)
+                .hasMessage(ErrorCode.INVALID_PHONE_NUMBER.getMsg());
     }
 }

@@ -89,7 +89,7 @@ public class MemberReadService {
      */
     public String getCurrentLoginUserEmail(UUID publicId) {
         MemberResponse response = getByPublicId(publicId);
-        return response != null ? response.getEmail() : null;
+        return response.getEmail();
     }
 
     /**
