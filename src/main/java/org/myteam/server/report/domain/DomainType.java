@@ -3,7 +3,7 @@ package org.myteam.server.report.domain;
 import org.myteam.server.comment.domain.CommentType;
 
 public enum DomainType {
-    NEWS, BOARD, INQUIRY, COMMENT, IMPROVEMENT, NOTICE;
+    NEWS, BOARD, INQUIRY, COMMENT, IMPROVEMENT, NOTICE, NONE;
 
     public static DomainType changeType(CommentType type) {
         return switch (type) {
