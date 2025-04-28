@@ -172,6 +172,7 @@ jacocoTestReport {
                     "**/global/**",
                     "**/oauth2/**",
                     "**/chat/**",
+                    "**/uplodd/**",
                     '**/MemberRole*',
                     '**/SecurityReadService*'
             ] + Qdomains)
@@ -218,6 +219,7 @@ jacocoTestCoverageVerification {
                     "**/global/**",
                     "**/oauth2/**",
                     "**/chat/**",
+                    "**/uplodd/**",
                     '**/MemberRole*',
                     '**/SecurityReadService*'
             ] + Qdomains

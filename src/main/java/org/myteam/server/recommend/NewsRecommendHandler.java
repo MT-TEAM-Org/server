@@ -36,7 +36,7 @@ public class NewsRecommendHandler implements RecommendHandler {
     public void saveRecommendation(Long contentId, Member member) {
         // 저장 또는 큐에 넣기
         News news = newsRepository.findById(contentId)
-                .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_NOT_FOUND));
         NewsCountMember recommend = NewsCountMember.builder().news(news).member(member).build();
         newsCountMemberRepository.save(recommend);
     }

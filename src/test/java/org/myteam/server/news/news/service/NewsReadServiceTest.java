@@ -1,7 +1,6 @@
 package org.myteam.server.news.news.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -10,11 +9,16 @@ import static org.mockito.BDDMockito.given;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.IntegrationTestSupport;
 import org.myteam.server.TestContainerSupport;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageableCustomResponse;
 import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.CommonCountDto;
@@ -30,16 +34,25 @@ import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
 import org.myteam.server.news.news.dto.service.response.NewsListResponse;
 import org.myteam.server.news.news.dto.service.response.NewsResponse;
 import org.myteam.server.news.news.repository.OrderType;
+import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
-class NewsReadServiceTest extends TestContainerSupport {
+class NewsReadServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private NewsReadService newsReadService;
     @MockBean
-    private RedisCountService redisCountService;
+    private NewsCountMemberReadService newsCountMemberReadService;
+    private Member member;
+    private News news;
+
+    @BeforeEach
+    void setUp() {
+        member = createMember(1);
+    }
 
     @DisplayName("야구기사의 목록을 조회한다.")
     @Test
@@ -519,4 +532,77 @@ class NewsReadServiceTest extends TestContainerSupport {
         );
     }
 
+    @Test
+    @DisplayName("1. 뉴스 리스트 조회 성공")
+    void findAll_success() {
+        // given
+        news = createNews(100, Category.BASEBALL, 8);
+        NewsServiceRequest request = NewsServiceRequest.builder()
+                .page(1)
+                .size(10)
+                .build();
+
+        // when
+        NewsListResponse response = newsReadService.findAll(request);
+
+        // then
+        assertThat(response).isNotNull();
+    }
+
+    @Test
+    @DisplayName("2. findOne - 로그인 + 추천한 경우")
+    void findOne_recommend_true() {
+        // given
+        news = createNews(100, Category.BASEBALL, 8);
+        given(securityReadService.getAuthenticatedPublicId()).willReturn(member.getPublicId());
+        given(newsCountMemberReadService.confirmRecommendMember(news.getId(), member.getPublicId())).willReturn(true);
+        given(redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS, news.getId(), null))
+                .willReturn(new CommonCountDto(0, 0, 0));
+
+        // when
+        NewsResponse response = newsReadService.findOne(news.getId());
+
+        // then
+        assertThat(response.isRecommend()).isTrue();
+    }
+
+    @Test
+    @DisplayName("3. findOne - 로그인 + 추천 안한 경우")
+    void findOne_recommend_false() {
+        // given
+        news = createNews(100, Category.BASEBALL, 8);
+        given(securityReadService.getAuthenticatedPublicId()).willReturn(member.getPublicId());
+        given(newsCountMemberReadService.confirmRecommendMember(news.getId(), member.getPublicId())).willReturn(false);
+        given(redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS, news.getId(), null))
+                .willReturn(new CommonCountDto(0, 0, 0));
+
+        // when
+        NewsResponse response = newsReadService.findOne(news.getId());
+
+        // then
+        assertThat(response.isRecommend()).isFalse();
+    }
+
+    @Test
+    @DisplayName("4. findById - 뉴스 없을 때 예외 발생")
+    void findById_throwException() {
+        // given
+        news = createNews(100, Category.BASEBALL, 8);
+
+        // when & then
+        assertThatThrownBy(() -> newsReadService.findById(9999L))
+                .isInstanceOf(PlayHiveException.class)
+                .hasMessage(ErrorCode.NEWS_NOT_FOUND.getMsg());
+    }
+
+    @Test
+    @DisplayName("5. existsById - 뉴스 존재 여부 확인")
+    void existsById_test() {
+        // given
+        news = createNews(100, Category.BASEBALL, 8);
+
+        // when & then
+        assertThat(newsReadService.existsById(news.getId())).isTrue();
+        assertThat(newsReadService.existsById(9999L)).isFalse();
+    }
 }
