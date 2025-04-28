@@ -101,6 +101,9 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         improvementRecommendRepository.deleteAllInBatch();
         improvementCountRepository.deleteAllInBatch();
         improvementRepository.deleteAllInBatch();
+        noticeRecommendRepository.deleteAllInBatch();
+        noticeCountRepository.deleteAllInBatch();
+        noticeRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
     }

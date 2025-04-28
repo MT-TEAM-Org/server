@@ -51,7 +51,9 @@ import org.myteam.server.news.newsCountMember.repository.NewsCountMemberReposito
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.repository.NoticeCountRepository;
+import org.myteam.server.notice.repository.NoticeRecommendRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
+import org.myteam.server.notice.service.NoticeRecommendReadService;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
 import org.myteam.server.upload.service.StorageService;
@@ -99,6 +101,8 @@ public abstract class TestDriverSupport {
     protected NoticeRepository noticeRepository;
     @Autowired
     protected NoticeCountRepository noticeCountRepository;
+    @Autowired
+    protected NoticeRecommendRepository noticeRecommendRepository;
     @Autowired
     protected MatchPredictionMemberRepository matchPredictionMemberRepository;
     @Autowired
@@ -295,13 +299,13 @@ public abstract class TestDriverSupport {
         return recommend;
     }
 
-    protected Notice createNotice(Member member) {
+    protected Notice createNotice(Member member, String title, String content, String imgUrl) {
         Notice notice = Notice.builder()
                 .member(member)
-                .title("공지사하아앙 제목")
-                .content("공지공지공지")
+                .title(title)
+                .content(content)
                 .createdIp("0.0.0.1")
-                .imgUrl(null)
+                .imgUrl(imgUrl)
                 .build();
 
         noticeRepository.save(notice);

@@ -20,13 +20,6 @@ public class NoticeRecommendReadService {
         return noticeRecommendRepository.findByNoticeIdAndMemberPublicId(noticeId, memberPublicId).isPresent();
     }
 
-    public void confirmExistNoticeRecommend(Long noticeId, UUID publicId) {
-        noticeRecommendRepository.findByNoticeIdAndMemberPublicId(noticeId, publicId)
-                .ifPresent(member -> {
-                    throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_NOTICE);
-                });
-    }
-
     public boolean isAlreadyRecommended(Long noticeId, UUID publicId) {
         if (!noticeRecommendRepository.findByNoticeIdAndMemberPublicId(noticeId, publicId).isPresent()) {
             throw new PlayHiveException(ErrorCode.NO_MEMBER_RECOMMEND_RECORD);

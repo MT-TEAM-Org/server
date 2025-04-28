@@ -22,8 +22,8 @@ public class NoticeCountService {
     }
 
     public void deleteRecommendNotice(Long noticeId) {
-        log.info("개선요청: {} 추천 삭제 요청", noticeId);
+        log.info("공지사항: {} 추천 삭제 요청", noticeId);
         redisCountService.getCommonCount(ServiceType.RECOMMEND_CANCEL, DomainType.NOTICE, noticeId, null);
-        log.info("개선요청: {} 추천 삭제 성공", noticeId);
+        log.info("공지사항: {} 추천 삭제 성공", noticeId);
     }
 }

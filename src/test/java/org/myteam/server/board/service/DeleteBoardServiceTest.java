@@ -32,8 +32,6 @@ import static org.mockito.Mockito.when;
 import static org.myteam.server.global.exception.ErrorCode.INVALID_TYPE;
 import static org.myteam.server.global.exception.ErrorCode.POST_AUTHOR_MISMATCH;
 
-import java.util.UUID;
-
 public class DeleteBoardServiceTest extends IntegrationTestSupport {
 
     @Autowired

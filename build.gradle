@@ -173,6 +173,7 @@ jacocoTestReport {
                     "**/oauth2/**",
                     "**/chat/**",
                     "**/uplodd/**",
+                    "**/recommend/**",
                     '**/MemberRole*',
                     '**/SecurityReadService*'
             ] + Qdomains)
@@ -220,6 +221,7 @@ jacocoTestCoverageVerification {
                     "**/oauth2/**",
                     "**/chat/**",
                     "**/uplodd/**",
+                    "**/recommend/**",
                     '**/MemberRole*',
                     '**/SecurityReadService*'
             ] + Qdomains
