@@ -13,6 +13,7 @@ import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.inquiry.service.InquiryReadService;
 import org.myteam.server.inquiry.service.InquiryService;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
@@ -22,6 +23,8 @@ import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberActivity;
+import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
@@ -74,6 +77,8 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     @Autowired
     protected InquiryService inquiryService;
     @Autowired
+    protected InquiryReadService inquiryReadService;
+    @Autowired
     protected CommentReadService commentReadService;
     @Autowired
     protected RecommendService recommendService;
@@ -114,6 +119,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         return memberJpaRepository.findByEmail("test" + index + "@test.com").get();
     }
 
+    @Transactional
     protected Member createMember(int index) {
         Member member = Member.builder()
                 .email("test" + index + "@test.com")
@@ -126,6 +132,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 .status(MemberStatus.ACTIVE)
                 .build();
 
+        MemberActivity memberActivity = new MemberActivity(member);
         Member savedMember = memberJpaRepository.save(member);
 
         given(securityReadService.getMember())
@@ -149,6 +156,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 .status(MemberStatus.PENDING)
                 .build();
 
+        MemberActivity memberActivity = new MemberActivity(member);
         Member savedMember = memberJpaRepository.save(member);
 
         given(securityReadService.getMember())
@@ -172,6 +180,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 .status(MemberStatus.ACTIVE)
                 .build();
 
+        MemberActivity memberActivity = new MemberActivity(member);
         Member savedMember = memberJpaRepository.save(member);
 
         given(securityReadService.getMember())
@@ -195,6 +204,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 .status(MemberStatus.INACTIVE)
                 .build();
 
+        MemberActivity memberActivity = new MemberActivity(member);
         Member savedMember = memberJpaRepository.save(member);
 
         given(securityReadService.getMember())
@@ -218,6 +228,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                 .status(MemberStatus.ACTIVE)
                 .build();
 
+        MemberActivity memberActivity = new MemberActivity(admin);
         Member savedMember = memberJpaRepository.save(admin);
 
         given(securityReadService.getMember())
