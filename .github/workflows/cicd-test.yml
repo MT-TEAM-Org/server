@@ -55,14 +55,14 @@ jobs:
       - name: 커버리지 파일 존재 여부 확인
         run: ls -l build/jacocoReport/test/jacocoTestReport.xml
 
-#      - name: SonarCloud 스캐너 환경 설정
-#        uses: SonarSource/sonarcloud-github-action@master
-#        with:
-#          projectBaseDir: .
-#        env:
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#
-#      - name: SonarCloud 분석 실행
-#        run: ./gradlew sonar
-#        env:
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud 스캐너 환경 설정
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud 분석 실행
+        run: ./gradlew sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

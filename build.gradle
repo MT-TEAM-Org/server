@@ -3,7 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'jacoco' // jacoco
-//    id 'org.sonarqube' version '4.4.1.3373'
+    id 'org.sonarqube' version '4.4.1.3373'
 }
 
 group = 'org.myteam'
@@ -113,7 +113,7 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
-    ignoreFailures = true
+//    ignoreFailures = true // 테스트 실패해도 report 파일 생성.
 //    finalizedBy jacocoTestReport // Generates report after tests are run
     finalizedBy tasks.named('jacocoTestReport')
 }
@@ -230,11 +230,11 @@ jacocoTestCoverageVerification {
 }
 
 // SonarCloud config
-//sonar {
-//    properties {
-//        property "sonar.projectKey", "MT-TEAM-Org_server"
-//        property "sonar.organization", "playhive-static-analyze"
-//        property "sonar.host.url", "https://sonarcloud.io"
-//        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-//    }
-//}
+sonar {
+    properties {
+        property "sonar.projectKey", "MT-TEAM-Org_server"
+        property "sonar.organization", "playhive-static-analyze"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    }
+}
