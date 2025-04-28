@@ -160,6 +160,29 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         return savedMember;
     }
 
+    protected Member createOAuthMemberNonPending(int index) {
+        Member member = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel(null)
+                .nickname(null)
+                .role(MemberRole.USER)
+                .type(MemberType.KAKAO)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
+
+        Member savedMember = memberJpaRepository.save(member);
+
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
+
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
+
+        return savedMember;
+    }
+
     protected Member createNonAuthMember(int index) {
         Member member = Member.builder()
                 .email("test" + index + "@test.com")

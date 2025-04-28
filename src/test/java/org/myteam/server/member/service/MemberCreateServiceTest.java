@@ -127,6 +127,25 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     }
 
     @Test
+    @DisplayName("소셜 로그인 추가정보 - 권한 없는 상태에서 수정 시도 → 예외 발생")
+    void addInfo_unauthorized_pendingStatus() {
+        // given
+        Member member = createOAuthMemberNonPending(1); // ACTIVE 상태로 생성됨
+
+        AddMemberInfoRequest request = AddMemberInfoRequest.builder()
+                .email(member.getEmail())
+                .memberType(member.getType())
+                .tel("01000000000")
+                .nickname("nickname")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> memberService.addInfo(request))
+                .isInstanceOf(PlayHiveException.class)
+                .hasMessage(ErrorCode.UNAUTHORIZED.getMsg());
+    }
+
+    @Test
     @DisplayName("임시 비밀번호 발급 성공")
     void generateTemporaryPassword_success() {
         // given
