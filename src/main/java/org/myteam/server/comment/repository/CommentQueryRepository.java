@@ -292,12 +292,12 @@ public class CommentQueryRepository {
                 .leftJoin(comment1.parent, parentComment)
                 .leftJoin(parentComment.member, parentMember)
                 .where(
-                        isTypeAndIdEqualTo(type, contentId)
+                        isTypeAndIdEqualTo(type, contentId),
+                        comment1.recommendCount.goe(1) // 추천수가 1 이상인 댓글
                 )
                 .orderBy(
-                        comment1.recommendCount.desc(),
-                        comment1.comment.asc(),
-                        comment1.createDate.desc()
+                        comment1.recommendCount.desc(), // 추천수 내림차순
+                        comment1.createDate.desc() // 날짜 내림차순
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -313,7 +313,10 @@ public class CommentQueryRepository {
                 queryFactory
                         .select(comment1.count())
                         .from(comment1)
-                        .where(isTypeAndIdEqualTo(type, contentId))
+                        .where(
+                                isTypeAndIdEqualTo(type, contentId),
+                                comment1.recommendCount.goe(1)
+                        )
                         .fetchOne()
         ).orElse(0L);
     }
