@@ -32,7 +32,6 @@ public class BoardRequest {
     /**
      * 내용
      */
-    @Size(max = 1000, message = "내용은 1000자 이내로 입력해주세요")
     private String content;
     /**
      * 출처 링크
