@@ -11,6 +11,7 @@ import org.myteam.server.board.repository.BoardCountRepository;
 import org.myteam.server.board.repository.BoardRecommendRepository;
 import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.board.service.BoardCountService;
+import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.NewsComment;
 import org.myteam.server.comment.repository.CommentRecommendRepository;
 import org.myteam.server.comment.repository.CommentRepository;
@@ -54,6 +55,7 @@ import org.myteam.server.notice.repository.NoticeCountRepository;
 import org.myteam.server.notice.repository.NoticeRecommendRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
 import org.myteam.server.notice.service.NoticeRecommendReadService;
+import org.myteam.server.report.repository.ReportRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
 import org.myteam.server.upload.service.StorageService;
@@ -115,6 +117,8 @@ public abstract class TestDriverSupport {
     protected CommentRepository commentRepository;
     @Autowired
     protected CommentRecommendRepository commentRecommendRepository;
+    @Autowired
+    protected ReportRepository reportRepository;
 
     /**
      * ================== Service ========================
@@ -191,7 +195,7 @@ public abstract class TestDriverSupport {
         return savedNews;
     }
 
-    protected void createNewsComment(News news, Member member, String comment) {
+    protected Comment createNewsComment(News news, Member member, String comment) {
         NewsComment savedNewsComment = commentRepository.save(
                 NewsComment.builder()
                         .news(news)
@@ -200,6 +204,7 @@ public abstract class TestDriverSupport {
                         .member(member)
                         .build()
         );
+        return savedNewsComment;
     }
 
     protected News createNewsWithPostDate(int index, Category category, int count, LocalDateTime postTime) {

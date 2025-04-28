@@ -9,6 +9,7 @@ import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
+import org.myteam.server.chat.domain.BanReason;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.util.redis.RedisCountService;
@@ -30,6 +31,8 @@ import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.service.MyPageReadService;
 import org.myteam.server.recommend.RecommendService;
+import org.myteam.server.report.domain.Report;
+import org.myteam.server.report.domain.ReportType;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -104,6 +107,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         noticeRecommendRepository.deleteAllInBatch();
         noticeCountRepository.deleteAllInBatch();
         noticeRepository.deleteAllInBatch();
+        reportRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
     }
@@ -249,6 +253,20 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                         .matchPrediction(matchPrediction)
                         .member(member)
                         .side(Side.HOME)
+                        .build()
+        );
+    }
+
+    protected Report createReport(Member reporter, Member reported, BanReason reason,
+                                  ReportType type, Long reportedContentId) {
+        return reportRepository.save(
+                Report.builder()
+                        .reporter(reporter)
+                        .reported(reported)
+                        .reason(reason)
+                        .reportIp("127.0.0.1")
+                        .reportType(type)
+                        .reportedContentId(reportedContentId)
                         .build()
         );
     }

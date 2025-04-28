@@ -71,7 +71,8 @@ class NoticeReadServiceTest extends IntegrationTestSupport {
                 eq(ServiceType.CHECK),
                 eq(DomainType.NOTICE),
                 anyLong(),
-                isNull()));
+                isNull()))
+                .thenReturn(new CommonCountDto(0, 0, 0));
         Notice notice = createNotice(admin, "특별 공지", "특별 공지 내용", null);
 
         // when
