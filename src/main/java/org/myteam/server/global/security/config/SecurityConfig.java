@@ -14,7 +14,6 @@ import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
-import org.myteam.server.oauth2.resolver.CustomAuthorizationRequestResolver;
 import org.myteam.server.oauth2.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,7 +31,6 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.HstsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -207,7 +205,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// HTTP 헤더 설정
 		http.headers(headers -> headers
 			.httpStrictTransportSecurity(HstsConfig::disable) // HSTS 비활성화
@@ -230,11 +228,6 @@ public class SecurityConfig {
 			.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
 			.successHandler(customOauth2SuccessHandler)
 			.failureHandler(oAuth2LoginFailureHandler)
-				.authorizationEndpoint(authorization -> authorization
-						.authorizationRequestResolver(new CustomAuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization"
-						)
-					)
-				)
 		);
 
 		// JWT 인증 및 토큰 검증 필터 추가
