@@ -1,6 +1,9 @@
 package org.myteam.server.oauth2.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.common.mail.domain.EmailType;
+import org.myteam.server.common.mail.service.MailStrategy;
+import org.myteam.server.common.mail.util.MailStrategyFactory;
 import org.myteam.server.global.exception.ExistingUserAuthenticationException;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.util.PasswordUtil;
@@ -33,10 +36,14 @@ import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberJpaRepository memberJpaRepository;
     private final MemberActivityRepository memberActivityRepository;
+    private final MailStrategyFactory mailStrategyFactory;
 
-    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository, MemberActivityRepository memberActivityRepository) {
+    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository,
+                                   MemberActivityRepository memberActivityRepository,
+                                   MailStrategyFactory mailStrategyFactory) {
         this.memberJpaRepository = memberJpaRepository;
         this.memberActivityRepository = memberActivityRepository;
+        this.mailStrategyFactory = mailStrategyFactory;
     }
 
     @Override
@@ -130,6 +137,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         MemberActivity memberActivity = new MemberActivity(newMember);
         memberActivityRepository.save(memberActivity);
+
+        // 메일 전송
+        MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
+        strategy.send(newMember.getEmail());
 
         return new CustomOAuth2User(oAuth2Response.getEmail(), USER.name(), publicId, newMember.getStatus(), MemberType.fromOAuth2Provider(oAuth2Response.getProvider()));
     }

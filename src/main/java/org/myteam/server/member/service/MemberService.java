@@ -60,7 +60,7 @@ public class MemberService {
 	 * @throws PlayHiveException
 	 */
 	public MemberResponse create(MemberSaveRequest memberSaveRequest) throws PlayHiveException {
-		// 1. 동일한 유저 이름 존재 검사
+		// 동일한 유저 이름 존재 검사
 		Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(memberSaveRequest.getEmail(), MemberType.LOCAL);
 
 		if (memberOP.isPresent()) {
@@ -68,15 +68,19 @@ public class MemberService {
 			throw new PlayHiveException(USER_ALREADY_EXISTS);
 		}
 
-		// 2. 패스워드인코딩 + 회원 가입
+		// 패스워드인코딩 + 회원 가입
 		Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
 		member.updateStatus(MemberStatus.ACTIVE);
 
-		// ✅ 3. MemberActivity 생성 및 연관 관계 설정
+		// MemberActivity 생성 및 연관 관계 설정
 		MemberActivity memberActivity = new MemberActivity(member);  // 멤버와 연결된 활동 생성
 		memberActivityRepository.save(memberActivity);  // DB에 저장
 
-		// 4. dto 응답
+		// 메일 전송
+		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
+		strategy.send(member.getEmail());
+
+		// dto 응답
 		return MemberResponse.createMemberResponse(member);
 	}
 
