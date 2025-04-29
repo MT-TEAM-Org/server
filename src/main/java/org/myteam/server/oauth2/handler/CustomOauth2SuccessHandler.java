@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
+import org.myteam.server.global.util.cookie.CookieUtil;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
