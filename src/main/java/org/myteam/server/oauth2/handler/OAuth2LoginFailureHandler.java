@@ -23,7 +23,7 @@ public class OAuth2LoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 
         if ("interaction_required".equals(errorMessage)) {
             // 다시 prompt=consent로 리다이렉트
-            getRedirectStrategy().sendRedirect(request, response, "/oauth2/authorization/google?prompt=consent");
+            getRedirectStrategy().sendRedirect(request, response, "/oauth2/authorization/google?prompt=select_account");
         } else {
             super.onAuthenticationFailure(request, response, exception);
         }
