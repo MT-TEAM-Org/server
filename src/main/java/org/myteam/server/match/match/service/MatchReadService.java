@@ -31,7 +31,7 @@ public class MatchReadService {
 
 	public Match findById(Long id) {
 		return matchRepository.findById(id)
-			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_NOT_FOUNT));
+			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_NOT_FOUND));
 	}
 
 	@SuppressWarnings("unchecked")

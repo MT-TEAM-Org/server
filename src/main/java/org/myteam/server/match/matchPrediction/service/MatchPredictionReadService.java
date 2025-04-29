@@ -29,17 +29,17 @@ public class MatchPredictionReadService {
 
 	public MatchPrediction findByMatchId(Long id) {
 		return matchPredictionRepository.findByMatchId(id)
-			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_PREDICTION_NOT_FOUNT));
+			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_PREDICTION_NOT_FOUND));
 	}
 
 	public MatchPrediction findByIdLock(Long newsId) {
 		return matchPredictionLockRepository.findById(newsId)
-			.orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_COUNT_NOT_FOUND));
+			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_PREDICTION_NOT_FOUND));
 	}
 
 	public MatchPrediction findById(Long id) {
 		return matchPredictionRepository.findById(id)
-			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_PREDICTION_NOT_FOUNT));
+			.orElseThrow(() -> new PlayHiveException(ErrorCode.MATCH_PREDICTION_NOT_FOUND));
 	}
 
 	public MatchPredictionResponse findOne(Long id) {

@@ -15,13 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class NewsCountReadService {
 
-	private final NewsCountLockRepository newsCountLockRepository;
 	private final NewsCountRepository newsCountRepository;
-
-	public NewsCount findByNewsIdLock(Long newsId) {
-		return newsCountLockRepository.findByNewsId(newsId)
-			.orElseThrow(() -> new PlayHiveException(ErrorCode.NEWS_COUNT_NOT_FOUND));
-	}
 
 	public NewsCount findByNewsId(Long newsId) {
 		return newsCountRepository.findByNewsId(newsId)

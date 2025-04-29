@@ -10,20 +10,16 @@ import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.common.certification.util.SignUpStrategy;
-import org.myteam.server.common.mail.domain.EmailType;
-import org.myteam.server.common.mail.service.MailStrategy;
-import org.myteam.server.common.mail.util.MailStrategyFactory;
+import org.myteam.server.support.IntegrationTestSupport;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -31,11 +27,6 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
     protected MemberService memberService;
-    @MockBean
-    private RedisService redisService;
-
-    @MockBean
-    private MailStrategyFactory mailStrategyFactory;
 
     @Test
     @DisplayName("✅ 회원 가입 성공")

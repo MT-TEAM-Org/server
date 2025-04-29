@@ -10,7 +10,6 @@ import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeServiceRequest;
@@ -31,8 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class NoticeReadService {
 
     private final NoticeRepository noticeRepository;
-    private final NoticeCountReadService noticeCountReadService;
-    private final MemberRepository memberRepository;
     private final NoticeRecommendReadService noticeRecommendReadService;
     private final NoticeQueryRepository noticeQueryRepository;
     private final SecurityReadService securityReadService;

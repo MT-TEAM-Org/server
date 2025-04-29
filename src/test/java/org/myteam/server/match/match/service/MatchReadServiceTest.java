@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,18 +12,20 @@ import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.TestContainerSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.match.dto.service.response.MatchEsportsScheduleResponse;
+import org.myteam.server.match.match.dto.service.response.MatchEsportsYoutubeResponse;
+import org.myteam.server.match.match.dto.service.response.MatchResponse;
 import org.myteam.server.match.match.dto.service.response.MatchScheduleListResponse;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
 class MatchReadServiceTest extends IntegrationTestSupport {
 
@@ -34,6 +37,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
     @DisplayName("전체 경기일정 목록을 조회한다.")
     @Test
     void findSchedulesBetweenDateTest() {
+        // given
         Team team1 = createTeam(1, TeamCategory.FOOTBALL);
         Team team2 = createTeam(2, TeamCategory.FOOTBALL);
         Team team3 = createTeam(3, TeamCategory.ESPORTS);
@@ -43,8 +47,10 @@ class MatchReadServiceTest extends IntegrationTestSupport {
         createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDateTime.now());
         createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now());
 
+        // when
         MatchScheduleListResponse schedules = matchReadService.findSchedulesBetweenDate(MatchCategory.ALL);
 
+        // then
         assertThat(schedules.getList())
                 .extracting(
                         "homeTeam.name", "homeTeam.logo", "homeTeam.category",
@@ -67,6 +73,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
     @DisplayName("이전날짜나 일주일 이후의 경기는 조회되지 않는다.")
     @Test
     void findSchedulesBetweenDateTest2() {
+        // given
         Team team1 = createTeam(1, TeamCategory.FOOTBALL);
         Team team2 = createTeam(2, TeamCategory.FOOTBALL);
         Team team3 = createTeam(3, TeamCategory.FOOTBALL);
@@ -76,8 +83,10 @@ class MatchReadServiceTest extends IntegrationTestSupport {
         createMatch(team3, team1, MatchCategory.FOOTBALL,
                 LocalDate.now().plusWeeks(1).atTime(LocalTime.of(7, 0)));
 
+        // when
         MatchScheduleListResponse schedules = matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL);
 
+        // then
         assertThat(schedules.getList())
                 .extracting(
                         "homeTeam.name", "homeTeam.logo", "homeTeam.category",
@@ -89,6 +98,31 @@ class MatchReadServiceTest extends IntegrationTestSupport {
                                 team3.getName(), team3.getLogo(), team3.getCategory().name(),
                                 MatchCategory.FOOTBALL.name()
                         )
+                );
+    }
+
+
+    @DisplayName("FOOTBALL 카테고리 경기 일정만 조회")
+    @Test
+    void findSchedulesBetweenDate_football_success() {
+        // given
+        Team team1 = createTeam(1, TeamCategory.FOOTBALL);
+        Team team2 = createTeam(2, TeamCategory.FOOTBALL);
+        Team team3 = createTeam(3, TeamCategory.ESPORTS);
+
+        createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDateTime.now());
+        createMatch(team2, team3, MatchCategory.ESPORTS, LocalDateTime.now());
+
+        // when
+        MatchScheduleListResponse response = matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL);
+
+        // then
+        assertThat(response.getList())
+                .extracting(
+                        "homeTeam.name", "awayTeam.name", "category"
+                )
+                .containsExactly(
+                        tuple(team1.getName(), team2.getName(), MatchCategory.FOOTBALL.name())
                 );
     }
 
@@ -150,7 +184,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
     void findByIdThrowException() {
         assertThatThrownBy(() -> matchReadService.findOne(1L))
                 .isInstanceOf(PlayHiveException.class)
-                .hasMessage(ErrorCode.MATCH_NOT_FOUNT.getMsg());
+                .hasMessage(ErrorCode.MATCH_NOT_FOUND.getMsg());
     }
 
     @DisplayName("E스포츠 경기시간이 아직 되지 않았으면 Youtube API를 조회하지 않는다.")
@@ -175,7 +209,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
         Team team1 = createTeam(1, TeamCategory.ESPORTS);
         Team team2 = createTeam(2, TeamCategory.ESPORTS);
 
-        createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(1));
+        createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now());
 
         assertThat(matchReadService.confirmEsportsYoutube())
                 .extracting("isLive", "videoId")
@@ -225,4 +259,139 @@ class MatchReadServiceTest extends IntegrationTestSupport {
                 );
     }
 
+    @DisplayName("존재하지 않는 경기를 조회하면 예외 발생")
+    @Test
+    void findOne_throwException() {
+        // when & then
+        assertThatThrownBy(() -> matchReadService.findOne(999L))
+                .isInstanceOf(PlayHiveException.class)
+                .hasMessage(ErrorCode.MATCH_NOT_FOUND.getMsg());
+    }
+
+    @DisplayName("E-스포츠 경기 시작 전이면 Youtube 조회 X")
+    @Test
+    void confirmEsportsYoutube_beforeStart() {
+        // given
+        Team home = createTeam(1, TeamCategory.ESPORTS);
+        Team away = createTeam(2, TeamCategory.ESPORTS);
+        createMatch(home, away, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(2)); // 아직 시작 안 함
+
+        // when
+        MatchEsportsYoutubeResponse response = matchReadService.confirmEsportsYoutube();
+
+        // then
+        assertThat(response.isLive()).isFalse();
+        assertThat(response.getVideoId()).isNull();
+    }
+
+    @Transactional
+    @DisplayName("E-스포츠 경기 시작되면 Youtube 조회 O")
+    @Test
+    void confirmEsportsYoutube_afterStart() {
+        // given
+        Team home = createTeam(1, TeamCategory.ESPORTS);
+        Team away = createTeam(2, TeamCategory.ESPORTS);
+        createMatch(home, away, MatchCategory.ESPORTS, LocalDateTime.now().minusMinutes(1)); // 이미 시작함
+        when(matchYoutubeService.getVideoId()).thenReturn("testVideoId");
+
+        // when
+        MatchEsportsYoutubeResponse response = matchReadService.confirmEsportsYoutube();
+
+        // then
+        assertThat(response.isLive()).isTrue();
+        assertThat(response.getVideoId()).isEqualTo("testVideoId");
+    }
+
+    @DisplayName("E-스포츠 경기 스케줄 목록 조회")
+    @Test
+    void findSchedulesBetweenDate_esports_success() {
+        // given
+        Team team1 = createTeam(1, TeamCategory.ESPORTS);
+        Team team2 = createTeam(2, TeamCategory.ESPORTS);
+
+        createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now());
+        createMatch(team2, team1, MatchCategory.ESPORTS, LocalDateTime.now().plusDays(1));
+
+        // when
+        List<MatchEsportsScheduleResponse> response = matchReadService.findSchedulesBetweenDate(MatchCategory.ESPORTS);
+
+        // then
+        assertThat(response)
+                .flatExtracting(MatchEsportsScheduleResponse::getList)
+                .extracting(
+                        match -> match.getHomeTeam().getName(),
+                        match -> match.getAwayTeam().getName()
+                )
+                .containsExactlyInAnyOrder(
+                        tuple(team1.getName(), team2.getName()),
+                        tuple(team2.getName(), team1.getName())
+                );
+    }
+
+    @DisplayName("ALL 카테고리 전체 경기일정 목록 조회")
+    @Test
+    void findSchedulesBetweenDate_all_success() {
+        // given
+        Team team1 = createTeam(1, TeamCategory.FOOTBALL);
+        Team team2 = createTeam(2, TeamCategory.FOOTBALL);
+        Team team3 = createTeam(3, TeamCategory.ESPORTS);
+        Team team4 = createTeam(4, TeamCategory.ESPORTS);
+
+        createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDateTime.now());
+        createMatch(team2, team3, MatchCategory.FOOTBALL, LocalDateTime.now());
+        createMatch(team3, team4, MatchCategory.ESPORTS, LocalDateTime.now());
+
+        // when
+        MatchScheduleListResponse response = matchReadService.findSchedulesBetweenDate(MatchCategory.ALL);
+
+        // then
+        assertThat(response.getList())
+                .extracting(
+                        "homeTeam.name", "awayTeam.name", "category"
+                )
+                .containsExactlyInAnyOrder(
+                        tuple(team1.getName(), team2.getName(), MatchCategory.FOOTBALL.name()),
+                        tuple(team2.getName(), team3.getName(), MatchCategory.FOOTBALL.name())
+                );
+    }
+
+    @DisplayName("기간이 벗어난 경기는 조회되지 않는다.")
+    @Test
+    void findSchedulesBetweenDate_exclude_invalid_dates() {
+        // given
+        Team team1 = createTeam(1, TeamCategory.FOOTBALL);
+        Team team2 = createTeam(2, TeamCategory.FOOTBALL);
+
+        createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDateTime.now().minusDays(1)); // 제외
+        createMatch(team2, team1, MatchCategory.FOOTBALL, LocalDateTime.now()); // 포함
+        createMatch(team1, team2, MatchCategory.FOOTBALL, LocalDateTime.now().plusWeeks(2)); // 제외
+
+        // when
+        MatchScheduleListResponse response = matchReadService.findSchedulesBetweenDate(MatchCategory.FOOTBALL);
+
+        // then
+        assertThat(response.getList())
+                .hasSize(1)
+                .extracting("homeTeam.name", "awayTeam.name", "category")
+                .containsExactly(
+                        tuple(team2.getName(), team1.getName(), MatchCategory.FOOTBALL.name())
+                );
+    }
+
+    @DisplayName("개별 경기 조회 성공")
+    @Test
+    void findOne_success() {
+        // given
+        Team home = createTeam(1, TeamCategory.FOOTBALL);
+        Team away = createTeam(2, TeamCategory.FOOTBALL);
+        Match match = createMatch(home, away, MatchCategory.FOOTBALL, LocalDateTime.now());
+
+        // when
+        MatchResponse response = matchReadService.findOne(match.getId());
+
+        // then
+        assertThat(response)
+                .extracting("homeTeam.name", "awayTeam.name", "category")
+                .containsExactly(home.getName(), away.getName(), MatchCategory.FOOTBALL.name());
+    }
 }

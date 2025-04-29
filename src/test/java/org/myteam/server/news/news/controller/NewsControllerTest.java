@@ -8,8 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.ControllerTestSupport;
-import org.myteam.server.board.domain.BoardOrderType;
+import org.myteam.server.support.ControllerTestSupport;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.news.news.dto.controller.request.NewsRequest;

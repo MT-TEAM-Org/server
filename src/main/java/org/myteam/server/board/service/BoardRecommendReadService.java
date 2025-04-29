@@ -13,13 +13,6 @@ public class BoardRecommendReadService {
 
     private final BoardRecommendRepository boardRecommendRepository;
 
-    public void confirmExistBoardRecommend(Long boardId, UUID publicId) {
-        boardRecommendRepository.findByBoardIdAndMemberPublicId(boardId, publicId)
-                .ifPresent(member -> {
-                    throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND_BOARD);
-                });
-    }
-
     public boolean isAlreadyRecommended(Long boardId, UUID publicId) {
         if (!boardRecommendRepository.findByBoardIdAndMemberPublicId(boardId, publicId).isPresent()) {
             throw new PlayHiveException(ErrorCode.NO_MEMBER_RECOMMEND_RECORD);

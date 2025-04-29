@@ -1,15 +1,13 @@
 package org.myteam.server.member.service;
 
-import static org.myteam.server.global.domain.PlayHiveValidator.*;
 import static org.myteam.server.global.exception.ErrorCode.*;
 
 import java.util.Optional;
 
-import jakarta.servlet.http.HttpSession;
-import org.myteam.server.common.certification.util.CertifyStorage;
-import org.myteam.server.common.mail.domain.EmailType;
-import org.myteam.server.common.mail.service.MailStrategy;
-import org.myteam.server.common.mail.util.MailStrategyFactory;
+import org.myteam.server.common.certification.mail.util.CertifyStorage;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.RedisService;
@@ -24,11 +22,8 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.repository.MemberRepository;
 import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
-import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberDeleteRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
-import org.myteam.server.util.AESCryptoUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class MemberService {
 
-	private final MemberRepository memberRepository;
 	private final MemberJpaRepository memberJpaRepository;
 	private final SecurityReadService securityReadService;
 	private final MemberActivityRepository memberActivityRepository;
@@ -157,17 +151,9 @@ public class MemberService {
 	}
 
 	@Transactional
-	public MemberResponse updateRole(MemberRoleUpdateRequest memberRoleUpdateRequest) {
-		boolean isValid = validate(memberRoleUpdateRequest);
-		log.info("playHive updateRole isValid: {}", isValid);
-
-		if (!isValid) {
-			// 빈 Response 객체 반환
-			throw new PlayHiveException(NO_PERMISSION, "인증 키와 패스워드가 일치하지 않습니다");
-		}
-
+	public MemberResponse updateRole(MemberRoleUpdateRequest request) {
 		// 1. 동일한 유저 이름 존재 검사
-		Optional<Member> memberOP = memberRepository.findByEmail(memberRoleUpdateRequest.getEmail());
+		Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(request.getEmail(), request.getType());
 
 		// 2. 아이디 미존재 체크
 		if (memberOP.isEmpty()) {
@@ -175,7 +161,7 @@ public class MemberService {
 		}
 
 		Member member = memberOP.get();
-		member.updateType(memberRoleUpdateRequest.getRole());
+		member.updateType(request.getRole());
 
 		// 5. dto 응답
 		return MemberResponse.createMemberResponse(member);
@@ -183,10 +169,13 @@ public class MemberService {
 
 	@Transactional
 	public void changePassword(String email, PasswordChangeRequest passwordChangeRequest) {
-		Member findMember = memberRepository.getByEmail(email);
+		Member findMember = memberJpaRepository.findByEmail(email)
+				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+
 		boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
 		if (!isEqual)
 			throw new PlayHiveException(INVALID_PARAMETER, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+
 		boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), passwordEncoder);
 		if (!isValid)
 			throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");
@@ -202,8 +191,10 @@ public class MemberService {
 			targetEmail, memberStatusUpdateRequest.getEmail(), memberStatusUpdateRequest.getStatus().name());
 
 		// 요청자와 대상 사용자 정보 조회
-		Member requester = memberRepository.getByEmail(targetEmail); // 요청자
-		Member targetMember = memberRepository.getByEmail(memberStatusUpdateRequest.getEmail()); // 상태 변경 대상자
+		Member requester = memberJpaRepository.findByEmail(targetEmail)
+				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+		Member targetMember = memberJpaRepository.findByEmail(memberStatusUpdateRequest.getEmail())
+				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
 		// 1. 요청자가 본인의 상태를 변경하려는 경우
 		if (requester.verifyOwnEmail(memberStatusUpdateRequest.getEmail())) {

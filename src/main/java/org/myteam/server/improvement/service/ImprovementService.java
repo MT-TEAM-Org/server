@@ -35,7 +35,6 @@ public class ImprovementService {
     private final ImprovementCountRepository improvementCountRepository;
     private final SecurityReadService securityReadService;
     private final ImprovementRecommendReadService improvementRecommendReadService;
-    private final ImprovementCountReadService improvementCountReadService;
     private final ImprovementReadService improvementReadService;
     private final CommentService commentService;
     private final StorageService s3Service;
@@ -56,16 +55,13 @@ public class ImprovementService {
         CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.IMPROVEMENT,
                 improvement.getId(), null);
 
-        boolean isRecommended = improvementRecommendReadService.isRecommended(improvement.getId(),
-                member.getPublicId());
-
         log.info("개선요청 생성: {}", improvement.getId());
 
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());
 
-        return ImprovementSaveResponse.createResponse(improvement, isRecommended, previousId, nextId,
-                commonCountDto);
+        return ImprovementSaveResponse.createResponse(improvement, false,
+                previousId, nextId, commonCountDto);
     }
 
     /**

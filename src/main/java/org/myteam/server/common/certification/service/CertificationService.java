@@ -2,10 +2,10 @@ package org.myteam.server.common.certification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.common.certification.util.CertifyMailStrategy;
-import org.myteam.server.common.mail.domain.EmailType;
-import org.myteam.server.common.mail.service.MailStrategy;
-import org.myteam.server.common.mail.util.MailStrategyFactory;
+import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.springframework.stereotype.Component;
@@ -31,9 +31,5 @@ public class CertificationService {
             return certifyMailStrategy.verify(email, certificationCode);
         }
         throw new PlayHiveException(ErrorCode.NOT_SUPPORT_TYPE);
-    }
-
-    public String generateCertificationUrl(String email, String certificationCode) {
-        return "http://localhost:8080/api/users/" + email + "/certify?certificationCode=" + certificationCode;
     }
 }

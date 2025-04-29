@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.TestContainerSupport;
+import org.myteam.server.support.TestContainerSupport;
 import org.myteam.server.match.matchPrediction.dto.service.response.MatchPredictionResponse;
 
 public class MatchPredictionResponseTest extends TestContainerSupport {

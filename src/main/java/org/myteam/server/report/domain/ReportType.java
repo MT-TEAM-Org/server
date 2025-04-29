@@ -19,4 +19,6 @@ public enum ReportType {
     // 댓글
     COMMENT,
 
+    NONE
+
 }

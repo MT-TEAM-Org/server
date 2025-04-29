@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco' // jacoco
+    id 'org.sonarqube' version '4.4.1.3373'
 }
 
 group = 'org.myteam'
@@ -113,8 +115,15 @@ dependencies {
 
 }
 
+test {
+    jvmArgs '-Xms512m', '-Xmx1024m', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=build/heapdump.hprof'
+}
+
 tasks.named('test') {
     useJUnitPlatform()
+//    ignoreFailures = true // 테스트 실패해도 report 파일 생성.
+//    finalizedBy jacocoTestReport // Generates report after tests are run
+    finalizedBy tasks.named('jacocoTestReport')
 }
 
 /**
@@ -134,3 +143,106 @@ clean.doLast {
     file(querydslDir).deleteDir()
 }
 
+/**
+ * Jacoco Build Options
+ */
+jacoco {
+    toolVersion = "0.8.10"
+    reportsDirectory = layout.buildDirectory.dir('jacocoReport')
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+    }
+    def Qdomains = []
+    for (qPattern in '**/QA'..'**/QZ') { // qPattern = '**/QA', '**/QB', ... '*.QZ'
+        Qdomains.add(qPattern + '*')
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/dto/**',
+                    '**/domain/**',
+                    '**/entity/**',
+                    '**/util/**',
+                    '**/repository/**',
+                    '**/controller/**',
+                    '**/aop/**',
+                    '**/exception/**',
+                    '**/config/**',
+                    "**/core/**",
+                    "**/factory/**",
+                    "**/strategy/**",
+                    "**/global/**",
+                    "**/oauth2/**",
+                    "**/chat/**",
+                    "**/upload/**",
+                    "**/recommend/**",
+                    '**/MemberRole*',
+                    '**/SecurityReadService*'
+            ] + Qdomains)
+        }))
+    }
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    def Qdomains = []
+    for (qPattern in '*.QA'..'*.QZ') { // qPattern = '*.QA', '*.QB', ... '*.QZ'
+        Qdomains.add(qPattern + '*')
+    }
+    violationRules {
+        rule {
+            enabled = true;
+            element = 'CLASS'
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            excludes = [
+                    '**/dto/**',
+                    '**/domain/**',
+                    '**/entity/**',
+                    '**/util/**',
+                    '**/repository/**',
+                    '**/controller/**',
+                    '**/aop/**',
+                    '**/exception/**',
+                    '**/config/**',
+                    "**/core/**",
+                    "**/factory/**",
+                    "**/strategy/**",
+                    "**/global/**",
+                    "**/oauth2/**",
+                    "**/chat/**",
+                    "**/upload/**",
+                    "**/recommend/**",
+                    '**/MemberRole*',
+                    '**/SecurityReadService*'
+            ] + Qdomains
+        }
+    }
+}
+
+// SonarCloud config
+sonar {
+    properties {
+        property "sonar.projectKey", "MT-TEAM-Org_server"
+        property "sonar.organization", "playhive-static-analyze"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    }
+}

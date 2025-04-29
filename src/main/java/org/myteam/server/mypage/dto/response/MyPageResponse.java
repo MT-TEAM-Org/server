@@ -35,7 +35,7 @@ public record MyPageResponse() {
                     .createdPostCount(postCount)
                     .createdCommentCount(commentCount)
                     .createdInquiryCount(inquiryCount)
-                    .totalInviteCount(member.getMemberActivity().getVisitCount())
+                    .totalInviteCount(member.getMemberActivity().getInviteCount())
                     .nickname(member.getNickname())
                     .img(member.getImgUrl())
                     .role(member.getRole())

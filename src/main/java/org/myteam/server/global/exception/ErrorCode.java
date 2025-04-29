@@ -112,9 +112,7 @@ public enum ErrorCode {
     BOARD_COMMENT_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Comment Recommend not found"),
     BOARD_REPLY_RECOMMEND_NOT_FOUND(HttpStatus.NOT_FOUND, "Board Reply Recommend not found"),
 
-    MATCH_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match not found"),
-
-    MATCH_PREDICTION_NOT_FOUNT(HttpStatus.NOT_FOUND, "Match Prediction not found"),
+    MATCH_PREDICTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Match Prediction not found"),
 
 
     MATCH_NOT_FOUND(HttpStatus.NOT_FOUND, "Match not found"),

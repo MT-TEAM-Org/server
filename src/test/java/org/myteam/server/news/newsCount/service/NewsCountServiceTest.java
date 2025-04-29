@@ -1,6 +1,9 @@
 package org.myteam.server.news.newsCount.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.TestContainerSupport;
+import org.myteam.server.support.TestContainerSupport;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest;
 import org.myteam.server.comment.dto.response.CommentResponse;
@@ -41,6 +44,8 @@ public class NewsCountServiceTest extends TestContainerSupport {
 
     @Autowired
     private RedisCountService redisCountService;
+    @Autowired
+    private NewsCountService newsCountService;
 
     private Member member;
 
@@ -498,5 +503,37 @@ public class NewsCountServiceTest extends TestContainerSupport {
                 news.getId(), null);
 
         assertThat(commonCountDto.getViewCount()).isLessThanOrEqualTo(50);
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("뉴스 추천 처리 시 RECOMMEND 요청이 RedisCountService에 전달된다.")
+    void recommendNews_호출시_RECOMMEND() {
+        // given
+        newsCountRepository.deleteAllInBatch();
+        newsRepository.deleteAllInBatch();
+        News news = createNews(1, Category.FOOTBALL, 1);
+
+        // when
+        newsCountService.recommendNews(news.getId());
+
+        // then
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS, news.getId(), null);
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("뉴스 추천 취소 처리 시 RECOMMEND_CANCEL 요청이 RedisCountService에 전달된다.")
+    void cancelRecommendNews_호출시_RECOMMEND_CANCEL() {
+        // given
+        News news = createNews(1, Category.FOOTBALL, 1);
+        newsCountService.recommendNews(news.getId());
+
+        // when
+        newsCountService.cancelRecommendNews(news.getId());
+
+        // then
+        CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.NEWS, news.getId(), null);
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(1);
     }
 }

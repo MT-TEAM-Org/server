@@ -10,10 +10,10 @@ import lombok.*;
 public class InquiryCount {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long inquiryId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
     @JoinColumn(name = "Inquiry_id")
     private Inquiry inquiry;
 

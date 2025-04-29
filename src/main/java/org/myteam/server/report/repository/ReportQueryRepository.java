@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.chat.domain.BanReason;
+import org.myteam.server.member.entity.QMember;
 import org.myteam.server.report.domain.ReportType;
 import org.myteam.server.report.dto.response.ReportResponse.*;
 import org.springframework.data.domain.Page;
@@ -83,6 +84,9 @@ public class ReportQueryRepository {
      * 🚀 특정 사용자가 받은 신고 목록 조회 (페이징)
      */
     public Page<ReportSaveResponse> getReportsByReportedUser(UUID reportedPublicId, Pageable pageable) {
+        QMember reporterMember = new QMember("reporterMember");
+        QMember reportedMember = new QMember("reportedMember");
+
         List<ReportSaveResponse> content = queryFactory
                 .select(Projections.constructor(ReportSaveResponse.class,
                         report.id,
@@ -95,8 +99,8 @@ public class ReportQueryRepository {
                         report.reportIp
                 ))
                 .from(report)
-                .leftJoin(report.reporter, member)
-                .leftJoin(report.reported, member)
+                .join(report.reporter, reporterMember)
+                .join(report.reported, reportedMember)
                 .where(report.reported.publicId.eq(reportedPublicId))
                 .orderBy(report.createDate.desc())
                 .offset(pageable.getOffset())
@@ -111,6 +115,9 @@ public class ReportQueryRepository {
      * 🚀 특정 사용자가 보낸 신고 목록 조회 (페이징)
      */
     public Page<ReportSaveResponse> getReportsByReporter(UUID reporterPublicId, Pageable pageable) {
+        QMember reporterMember = new QMember("reporterMember");
+        QMember reportedMember = new QMember("reportedMember");
+
         List<ReportSaveResponse> content = queryFactory
                 .select(Projections.constructor(ReportSaveResponse.class,
                         report.id,
@@ -123,8 +130,8 @@ public class ReportQueryRepository {
                         report.reportIp
                 ))
                 .from(report)
-                .leftJoin(report.reporter, member)
-                .leftJoin(report.reported, member)
+                .join(report.reporter, reporterMember)
+                .join(report.reported, reportedMember)
                 .where(report.reporter.publicId.eq(reporterPublicId))
                 .orderBy(report.createDate.desc())
                 .offset(pageable.getOffset())
