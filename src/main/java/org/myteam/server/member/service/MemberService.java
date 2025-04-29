@@ -126,6 +126,10 @@ public class MemberService {
 		member.updateStatus(MemberStatus.ACTIVE);
 		log.info("소셜 로그인 정보 수정: {}, nickname: {}, tel: {}",
 				request.getEmail(), request.getNickname(), request.getTel());
+
+		// 메일 전송
+		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
+		strategy.send(member.getEmail());
 	}
 
 	/**
