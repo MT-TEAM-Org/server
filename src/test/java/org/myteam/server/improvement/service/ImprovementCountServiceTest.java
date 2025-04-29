@@ -1,9 +1,8 @@
 package org.myteam.server.improvement.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.report.domain.DomainType;

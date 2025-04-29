@@ -1,4 +1,4 @@
-package org.myteam.server;
+package org.myteam.server.support;
 
 import org.myteam.server.match.match.controller.MatchController;
 import org.myteam.server.match.match.service.MatchReadService;

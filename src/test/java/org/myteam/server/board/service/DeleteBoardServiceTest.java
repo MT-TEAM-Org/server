@@ -1,23 +1,16 @@
 package org.myteam.server.board.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
-import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.board.dto.reponse.BoardResponse;
-import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
-import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.when;
-import static org.myteam.server.global.exception.ErrorCode.INVALID_TYPE;
-import static org.myteam.server.global.exception.ErrorCode.POST_AUTHOR_MISMATCH;
 
 public class DeleteBoardServiceTest extends IntegrationTestSupport {
 

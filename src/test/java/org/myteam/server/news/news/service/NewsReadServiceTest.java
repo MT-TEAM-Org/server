@@ -13,8 +13,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.TestContainerSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
@@ -22,7 +21,6 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageableCustomResponse;
 import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
@@ -38,7 +36,6 @@ import org.myteam.server.news.newsCountMember.service.NewsCountMemberReadService
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.transaction.annotation.Transactional;
 
 class NewsReadServiceTest extends IntegrationTestSupport {
 

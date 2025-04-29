@@ -2,7 +2,7 @@ package org.myteam.server.common.certification.service;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
 import org.myteam.server.common.certification.mail.strategy.TemporaryPasswordMailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;

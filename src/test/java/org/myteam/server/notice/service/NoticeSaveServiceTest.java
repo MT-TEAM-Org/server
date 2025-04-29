@@ -1,16 +1,14 @@
 package org.myteam.server.notice.service;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.notice.dto.request.NoticeRequest.*;
 import org.myteam.server.notice.dto.response.NoticeResponse.*;
 import org.myteam.server.report.domain.DomainType;
@@ -25,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.myteam.server.global.exception.ErrorCode.INVALID_TYPE;
-import static org.myteam.server.global.exception.ErrorCode.USER_NOT_FOUND;
 
 class NoticeSaveServiceTest extends IntegrationTestSupport {
 

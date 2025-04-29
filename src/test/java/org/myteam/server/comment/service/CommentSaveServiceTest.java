@@ -3,17 +3,14 @@ package org.myteam.server.comment.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.comment.domain.Comment;
-import org.myteam.server.comment.domain.CommentRecommend;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest.*;
 import org.myteam.server.comment.dto.response.CommentResponse.*;
 import org.myteam.server.global.domain.Category;
-import org.myteam.server.global.exception.ErrorCode;
-import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.match.match.domain.Match;
@@ -21,11 +18,8 @@ import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.mypage.dto.request.MyCommentServiceRequest;
-import org.myteam.server.mypage.dto.response.MyCommentListResponse;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -34,10 +28,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.Mockito.*;
-import static org.myteam.server.global.exception.ErrorCode.*;
 
 class CommentSaveServiceTest extends IntegrationTestSupport {
 

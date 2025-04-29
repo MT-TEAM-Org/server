@@ -3,14 +3,12 @@ package org.myteam.server.notice.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.exception.PlayHiveJwtException;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.mypage.dto.request.MyBoardServiceRequest;
 import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.notice.dto.request.NoticeRequest.*;
 import org.myteam.server.notice.dto.response.NoticeResponse.*;
@@ -20,16 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.myteam.server.global.exception.ErrorCode.BOARD_NOT_FOUND;
-import static org.myteam.server.global.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 
 @Transactional
 class NoticeReadServiceTest extends IntegrationTestSupport {

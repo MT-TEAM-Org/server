@@ -11,11 +11,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.TestContainerSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.PlayHiveJwtException;
 import org.myteam.server.global.security.jwt.JwtProvider;
-import org.myteam.server.global.util.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

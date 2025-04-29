@@ -3,32 +3,20 @@ package org.myteam.server.board.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardRecommend;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.board.dto.reponse.BoardListResponse;
-import org.myteam.server.board.dto.request.BoardServiceRequest;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.exception.PlayHiveJwtException;
-import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.mypage.dto.request.MyBoardServiceRequest;
-import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class BoardRecommendReadServiceTest extends IntegrationTestSupport {
 

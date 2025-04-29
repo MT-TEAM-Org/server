@@ -1,22 +1,14 @@
 package org.myteam.server.home.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardDto;
 import org.myteam.server.board.repository.BoardQueryRepository;
-import org.myteam.server.common.certification.domain.CertificationCode;
-import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
-import org.myteam.server.common.certification.mail.util.CertifyStorage;
-import org.myteam.server.game.dto.response.GameEventDto;
-import org.myteam.server.game.dto.response.GameEventListResponse;
-import org.myteam.server.game.repository.GameQueryRepository;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.page.request.PageInfoServiceRequest;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.home.dto.TotalListResponse;
@@ -29,8 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.time.LocalDateTime;
 import java.util.List;

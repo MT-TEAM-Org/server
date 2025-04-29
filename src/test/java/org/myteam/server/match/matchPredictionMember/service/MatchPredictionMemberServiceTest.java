@@ -10,8 +10,7 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.global.domain.Category;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.match.match.domain.Match;
 import org.myteam.server.match.match.domain.MatchCategory;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
@@ -22,9 +21,6 @@ import org.myteam.server.match.matchPredictionMember.dto.service.response.MatchP
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.news.news.domain.News;
-import org.myteam.server.news.newsCountMember.domain.NewsCountMember;
-import org.myteam.server.news.newsCountMember.service.NewsCountMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,4 +1,4 @@
-package org.myteam.server;
+package org.myteam.server.support;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -8,13 +8,10 @@ import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
-import org.myteam.server.board.service.BoardRecommendReadService;
-import org.myteam.server.board.service.BoardService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
 import org.myteam.server.chat.config.WebSocketConfig;
 import org.myteam.server.chat.domain.BanReason;
 import org.myteam.server.comment.service.CommentReadService;
-import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.global.util.redis.RedisCountService;
@@ -30,8 +27,6 @@ import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
-import org.myteam.server.member.repository.MemberActivityRepository;
-import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.service.MyPageReadService;

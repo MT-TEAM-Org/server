@@ -3,10 +3,7 @@ package org.myteam.server.member.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.common.certification.mail.core.MailStrategy;
-import org.myteam.server.common.certification.mail.domain.EmailType;
-import org.myteam.server.global.domain.Category;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.controller.response.MemberResponse;
@@ -14,18 +11,14 @@ import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberRoleUpdateRequest;
-import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.dto.MemberStatusUpdateRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 

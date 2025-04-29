@@ -4,8 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
-import org.myteam.server.board.domain.BoardRecommend;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.dto.reponse.BoardResponse;
 import org.myteam.server.board.dto.request.BoardRequest;
@@ -18,7 +17,6 @@ import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 

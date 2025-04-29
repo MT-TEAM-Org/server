@@ -1,4 +1,4 @@
-package org.myteam.server;
+package org.myteam.server.support;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;

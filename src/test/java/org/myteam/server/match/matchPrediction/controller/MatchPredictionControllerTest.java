@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.ControllerTestSupport;
+import org.myteam.server.support.ControllerTestSupport;
 import org.myteam.server.match.matchPrediction.dto.controller.MatchPredictionRequest;
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
 import org.springframework.security.test.context.support.WithMockUser;

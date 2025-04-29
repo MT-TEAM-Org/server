@@ -3,7 +3,7 @@ package org.myteam.server.common.certification.util;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.common.certification.domain.CertificationCode;
 import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
 import org.myteam.server.common.certification.mail.util.CertifyStorage;
