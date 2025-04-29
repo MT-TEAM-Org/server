@@ -19,7 +19,8 @@ public interface NewsCountRepository extends JpaRepository<NewsCount, Long> {
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE p_news_count SET view_count = :view, comment_count = :comment, recommend_count = :recommend WHERE id = :newsId", nativeQuery = true)
+    @Query(value = "UPDATE p_news_count SET view_count = :view, comment_count = :comment, recommend_count = :recommend "
+            + "WHERE news_id = :newsId", nativeQuery = true)
     void updateAllCounts(@Param("newsId") Long newsId,
                          @Param("view") int view,
                          @Param("comment") int comment,
