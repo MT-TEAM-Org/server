@@ -115,6 +115,10 @@ dependencies {
 
 }
 
+test {
+    jvmArgs '-Xms512m', '-Xmx1024m', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:HeapDumpPath=build/heapdump.hprof'
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 //    ignoreFailures = true // 테스트 실패해도 report 파일 생성.

@@ -60,6 +60,7 @@ class MyPageReadServiceTest extends IntegrationTestSupport {
         }
     }
 
+    @Transactional
     @Test
     @DisplayName("1. 회원 통계 정보 조회 성공")
     void getMemberInfo_success() {

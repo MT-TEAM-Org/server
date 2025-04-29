@@ -11,6 +11,7 @@ import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.service.BoardRecommendReadService;
 import org.myteam.server.board.service.BoardService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
+import org.myteam.server.chat.config.WebSocketConfig;
 import org.myteam.server.chat.domain.BanReason;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
@@ -50,7 +51,8 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 @ImportAutoConfiguration(exclude = {
         RedisAutoConfiguration.class,
-        RedisRepositoriesAutoConfiguration.class
+        RedisRepositoriesAutoConfiguration.class,
+        WebSocketConfig.class
 })
 public abstract class IntegrationTestSupport extends TestDriverSupport {
 
