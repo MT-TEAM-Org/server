@@ -62,7 +62,11 @@ public class Improvement extends BaseTime {
         this.link = link;
     }
 
-    public void updateState() {
-        this.improvementStatus = this.improvementStatus.nextStatus();
+    public void updateState(ImprovementStatus status) {
+        if (status == null) {
+            this.improvementStatus = this.improvementStatus.nextStatus();
+        } else {
+            this.improvementStatus = status;
+        }
     }
 }

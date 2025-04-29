@@ -12,6 +12,7 @@ import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementCount;
+import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSaveRequest;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementSaveResponse;
 import org.myteam.server.improvement.repository.ImprovementCountRepository;
@@ -103,7 +104,7 @@ public class ImprovementService {
     /**
      * 개선요청 상태 업데이트
      */
-    public void updateImprovementStatus(Long improvementId) {
+    public ImprovementStatus updateImprovementStatus(Long improvementId, ImprovementStatus status) {
         Member member = securityReadService.getMember();
         Improvement improvement = improvementReadService.findById(improvementId);
 
@@ -111,7 +112,9 @@ public class ImprovementService {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
-        improvement.updateState();
+        improvement.updateState(status);
+
+        return improvement.getImprovementStatus();
     }
 
     /**

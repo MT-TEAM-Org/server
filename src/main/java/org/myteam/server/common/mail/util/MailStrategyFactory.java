@@ -2,6 +2,7 @@ package org.myteam.server.common.mail.util;
 
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.common.certification.util.CertifyMailStrategy;
+import org.myteam.server.common.certification.util.SignUpStrategy;
 import org.myteam.server.common.certification.util.TemporaryPasswordMailStrategy;
 import org.myteam.server.common.mail.domain.EmailType;
 import org.myteam.server.common.mail.service.MailStrategy;
@@ -27,6 +28,8 @@ public class MailStrategyFactory {
                 mailStrategyMap.put(EmailType.CERTIFICATION, strategy);
             } else if (strategy instanceof TemporaryPasswordMailStrategy) {
                 mailStrategyMap.put(EmailType.TEMPORARY_PASSWORD, strategy);
+            } else if (strategy instanceof SignUpStrategy) {
+                mailStrategyMap.put(EmailType.WELCOME, strategy);
             }
         });
     }

@@ -21,17 +21,14 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
     private final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private final MemberJpaRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CertifyStorage certifyStorage;
 
     public TemporaryPasswordMailStrategy(JavaMailSender javaMailSender,
                                          MemberJpaRepository memberRepository,
                                          PasswordEncoder passwordEncoder,
-                                         CertifyStorage certifyStorage,
                                          SpringTemplateEngine templateEngine) {
         super(javaMailSender, templateEngine);
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
-        this.certifyStorage = certifyStorage;
     }
 
     @Override

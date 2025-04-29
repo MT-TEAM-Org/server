@@ -98,7 +98,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 log.info("SecurityContext 에 인증 정보 저장 완료");
             } catch (JwtException e) {
                 log.error("JWT 처리 중 오류 발생: {}", e.getMessage());
-                filterChain.doFilter(request, response);
+                sendErrorResponse(response, HttpStatus.UNAUTHORIZED, INVALID_ACCESS_TOKEN.name());
                 return;
             }
         }

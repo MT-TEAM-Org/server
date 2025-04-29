@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 public class CertificationService {
     private final MailStrategyFactory mailStrategyFactory;
 
-    public void send(String email, EmailType type) {
-        log.info("{} 메일 전송 시작 - email: {}", type.name(), email);
-        MailStrategy strategy = mailStrategyFactory.getStrategy(type);
+    public void send(String email) {
+        log.info("{} 메일 전송 시작 - email: {}", email);
+        MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.CERTIFICATION);
         strategy.send(email);
     }
 

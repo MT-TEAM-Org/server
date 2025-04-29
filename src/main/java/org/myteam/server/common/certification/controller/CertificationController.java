@@ -46,7 +46,7 @@ public class CertificationController {
     @PostMapping("/send")
     public ResponseEntity<?> sendCertificationEmail(@Valid @RequestBody CertificationEmailRequest certificationEmailRequest, BindingResult bindingResult) {
         log.info("send-certification email: {}", certificationEmailRequest.getEmail());
-        certificationService.send(certificationEmailRequest.getEmail(), EmailType.CERTIFICATION);
+        certificationService.send(certificationEmailRequest.getEmail());
         return new ResponseEntity<>(new ResponseDto<>(SUCCESS.name(), "인증 코드 이메일 전송 성공", null), HttpStatus.OK);
     }
 

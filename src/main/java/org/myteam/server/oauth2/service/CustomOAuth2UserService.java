@@ -34,7 +34,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberJpaRepository memberJpaRepository;
     private final MemberActivityRepository memberActivityRepository;
 
-    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository, MemberActivityRepository memberActivityRepository) {
+    public CustomOAuth2UserService(MemberJpaRepository memberJpaRepository,
+                                   MemberActivityRepository memberActivityRepository) {
         this.memberJpaRepository = memberJpaRepository;
         this.memberActivityRepository = memberActivityRepository;
     }
