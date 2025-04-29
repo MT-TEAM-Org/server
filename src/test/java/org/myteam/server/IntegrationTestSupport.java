@@ -1,6 +1,8 @@
 package org.myteam.server;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -12,6 +14,8 @@ import org.myteam.server.board.util.RedisBoardRankingReader;
 import org.myteam.server.chat.domain.BanReason;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.comment.service.CommentService;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.inquiry.service.InquiryReadService;
@@ -114,6 +118,10 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
 
     @Transactional
     protected Member createMemberByService(int index) {
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         memberService.create(
                 MemberSaveRequest.builder()
                         .email("test" + index + "@test.com")

@@ -30,11 +30,6 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
     protected MemberService memberService;
-    @MockBean
-    private RedisService redisService;
-
-    @MockBean
-    private MailStrategyFactory mailStrategyFactory;
 
     @Test
     @DisplayName("✅ 회원 가입 성공")

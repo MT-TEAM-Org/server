@@ -44,7 +44,6 @@ class ReportCreateFailureTest extends IntegrationTestSupport {
     private ReportService reportService;
     @MockBean
     private ReportedContentValidatorFactory reportedContentValidatorFactory;
-    private ReportedContentValidator reportedContentValidator;
     private Member reporter;
     private Member reported;
     private Board board;

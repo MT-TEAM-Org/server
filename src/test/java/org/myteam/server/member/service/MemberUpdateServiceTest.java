@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -24,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @Transactional
@@ -219,7 +221,6 @@ class MemberUpdateServiceTest extends IntegrationTestSupport {
     @DisplayName("3. 관리자가 다른 사람 상태를 변경 성공")
     void updateStatus_admin_changeOthers_success() {
         // given
-
         MemberStatusUpdateRequest request = MemberStatusUpdateRequest.builder()
                 .email(target.getEmail())
                 .status(MemberStatus.INACTIVE)

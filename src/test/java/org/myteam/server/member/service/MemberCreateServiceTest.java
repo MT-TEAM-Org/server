@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.common.certification.mail.util.CertifyStorage;
@@ -22,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Transactional
 class MemberCreateServiceTest extends IntegrationTestSupport {
@@ -48,6 +49,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("회원가입 성공")
     void createMember_success() {
         // when
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         MemberResponse response = memberService.create(saveRequest);
 
         // then
@@ -60,6 +65,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("이미 가입된 이메일로 회원가입 시도 → 예외 발생")
     void createMember_alreadyExists() {
         // given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         memberService.create(saveRequest);
 
         // when & then
@@ -72,6 +81,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("소셜 로그인 추가정보 입력 성공")
     void addInfo_success() {
         // given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         Member member = createOAuthMember(1);
         AddMemberInfoRequest request = AddMemberInfoRequest.builder()
                 .email(member.getEmail())
@@ -94,6 +107,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("소셜 로그인 추가정보 - 존재하지 않는 사용자 → 예외 발생")
     void addInfo_userNotFound() {
         // given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         AddMemberInfoRequest request = AddMemberInfoRequest.builder()
                 .email("notExist@test.com")
                 .memberType(MemberType.KAKAO)
@@ -111,6 +128,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("소셜 로그인 추가정보 - 권한 없는 상태에서 수정 시도 → 예외 발생")
     void addInfo_unauthorizedStatus() {
         // given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         Member member = createMember(1); // ACTIVE 상태로 생성됨
 
         AddMemberInfoRequest request = AddMemberInfoRequest.builder()
@@ -130,6 +151,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("소셜 로그인 추가정보 - 권한 없는 상태에서 수정 시도 → 예외 발생")
     void addInfo_unauthorized_pendingStatus() {
         // given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         Member member = createOAuthMemberNonPending(1); // ACTIVE 상태로 생성됨
 
         AddMemberInfoRequest request = AddMemberInfoRequest.builder()
@@ -149,6 +174,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("임시 비밀번호 발급 성공")
     void generateTemporaryPassword_success() {
         // given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         String email = "test@test.com";
         when(certifyStorage.isCertified(email)).thenReturn(true);
         when(mailStrategyFactory.getStrategy(EmailType.TEMPORARY_PASSWORD))
@@ -163,6 +192,10 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     @DisplayName("임시 비밀번호 발급 실패 - 인증 안된 경우")
     void generateTemporaryPassword_fail_notCertified() {
         // given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         String email = "test@test.com";
         when(certifyStorage.isCertified(email)).thenReturn(false);
 

@@ -210,7 +210,7 @@ class MatchReadServiceTest extends IntegrationTestSupport {
         Team team1 = createTeam(1, TeamCategory.ESPORTS);
         Team team2 = createTeam(2, TeamCategory.ESPORTS);
 
-        createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now().plusHours(1));
+        createMatch(team1, team2, MatchCategory.ESPORTS, LocalDateTime.now());
 
         assertThat(matchReadService.confirmEsportsYoutube())
                 .extracting("isLive", "videoId")
