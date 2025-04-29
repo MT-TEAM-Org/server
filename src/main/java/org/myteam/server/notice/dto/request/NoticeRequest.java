@@ -1,7 +1,7 @@
 package org.myteam.server.notice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +18,7 @@ public record NoticeRequest() {
     @AllArgsConstructor
     public static final class NoticeSaveRequest {
         @NotBlank(message = "제목을 입력해주세요")
+        @Size(max = 30, message = "제목은 30자 이내로 입력해주세요")
         private String title;
         @NotBlank(message = "내용을 입력해주세요")
         private String content;

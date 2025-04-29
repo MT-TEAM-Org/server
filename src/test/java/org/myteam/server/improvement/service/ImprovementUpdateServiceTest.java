@@ -171,7 +171,7 @@ class ImprovementUpdateServiceTest extends IntegrationTestSupport {
         when(securityReadService.getMember()).thenReturn(admin);
 
         // when
-        improvementService.updateImprovementStatus(improvement.getId());
+        improvementService.updateImprovementStatus(improvement.getId(), ImprovementStatus.RECEIVED);
         Improvement newImprovement = improvementReadService.findById(improvement.getId());
 
         // then
@@ -187,7 +187,7 @@ class ImprovementUpdateServiceTest extends IntegrationTestSupport {
 
         // when
         PlayHiveException exception = assertThrows(PlayHiveException.class, () -> {
-            improvementService.updateImprovementStatus(improvement.getId());
+            improvementService.updateImprovementStatus(improvement.getId(), ImprovementStatus.RECEIVED);
         });
 
         // then

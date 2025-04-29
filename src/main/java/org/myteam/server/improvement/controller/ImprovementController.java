@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
+import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSaveRequest;
 import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSearchRequest;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementListResponse;
@@ -22,15 +23,7 @@ import org.myteam.server.improvement.service.ImprovementReadService;
 import org.myteam.server.improvement.service.ImprovementService;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -146,20 +139,20 @@ public class ImprovementController {
     /**
      * 개선요청 상태 업데이트(관리자)
      */
-    @Operation(summary = "개선 요청 삭제", description = "기존의 개선 요청을 삭제합니다.")
+    @Operation(summary = "개선 요청 상태 변경", description = "기존의 개선 요청의 상태를 변경합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "개선 요청 삭제 성공"),
-            @ApiResponse(responseCode = "401", description = "작성자나 관리자만 삭제 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "200", description = "개선 요청 상태 변경 성공"),
+            @ApiResponse(responseCode = "401", description = "작성자나 관리자만 상태변경 가능", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/{improvementId}")
-    public ResponseEntity<ResponseDto<Void>> updateImprovementStatus(@PathVariable Long improvementId) {
-        improvementService.updateImprovementStatus(improvementId);
+    public ResponseEntity<ResponseDto<ImprovementStatus>> updateImprovementStatus(@PathVariable Long improvementId, @RequestParam ImprovementStatus status) {
+        ImprovementStatus updateStatus = improvementService.updateImprovementStatus(improvementId, status);
 
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "개선요청 상태 업데이트 성공",
-                null
+                updateStatus
         ));
     }
 }

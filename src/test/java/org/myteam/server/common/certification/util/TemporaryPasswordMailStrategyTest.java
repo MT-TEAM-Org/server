@@ -29,9 +29,6 @@ class TemporaryPasswordMailStrategyTest extends IntegrationTestSupport{
     private PasswordEncoder passwordEncoder;
 
     @MockBean
-    private CertifyStorage certifyStorage;
-
-    @MockBean
     private SpringTemplateEngine templateEngine;
 
     private TemporaryPasswordMailStrategy tempPasswordStrategy;
@@ -39,7 +36,7 @@ class TemporaryPasswordMailStrategyTest extends IntegrationTestSupport{
     @BeforeEach
     void setUp() {
         tempPasswordStrategy = new TemporaryPasswordMailStrategy(
-                javaMailSender, memberJpaRepository, passwordEncoder, certifyStorage, templateEngine
+                javaMailSender, memberJpaRepository, passwordEncoder, templateEngine
         );
         ReflectionTestUtils.setField(tempPasswordStrategy, "senderEmail", "test@test.com");
     }

@@ -31,7 +31,7 @@ class CertificationServiceTest extends IntegrationTestSupport {
         when(mailStrategyFactory.getStrategy(type)).thenReturn(mockStrategy);
 
         // when
-        certificationService.send(email, type);
+        certificationService.send(email);
 
         // then
         verify(mockStrategy).send(email);

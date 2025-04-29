@@ -4,14 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.IntegrationTestSupport;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
@@ -28,12 +30,21 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
 
     @Autowired
     protected MemberService memberService;
+    @MockBean
+    private RedisService redisService;
+
+    @MockBean
+    private MailStrategyFactory mailStrategyFactory;
 
     @Test
     @DisplayName("✅ 회원 가입 성공")
     @Transactional
     void createMember_Success() {
         // Given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
                 .password("password123")
@@ -54,6 +65,10 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
     @DisplayName("❌ 회원 가입 실패 - 이메일 중복")
     void createMember_Failure_DuplicateEmail() {
         // Given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
                 .password("password123")
@@ -74,6 +89,10 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
     @DisplayName("✅ 회원 프로필 수정 성공")
     void updateMemberProfile_Success() {
         // Given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
                 .password("password123")
@@ -113,6 +132,10 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
     @DisplayName("✅ 회원 탈퇴 성공")
     void deleteMember_Success() {
         // Given
+        MailStrategy mockStrategy = mock(MailStrategy.class);
+        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
+        doNothing().when(mockStrategy).send(anyString());
+
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
                 .password("password123")

@@ -1,18 +1,15 @@
 package org.myteam.server.aop;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
-import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Aspect
 @Component
@@ -36,8 +33,11 @@ public class CommonCountAspect {
     @Around("@annotation(countView)")
     public Object handleCommonCount(ProceedingJoinPoint joinPoint, CountView countView) throws Throwable {
         String userAgent = request.getHeader("User-Agent");
-        boolean isBot = userAgent != null && BOT_AGENTS.stream()
-                .anyMatch(bot -> userAgent.toLowerCase().contains(bot.toLowerCase()));
+        String openGraphParam = request.getParameter("openGraph");
+
+        boolean isBot = (userAgent != null && BOT_AGENTS.stream()
+                .anyMatch(bot -> userAgent.toLowerCase().contains(bot.toLowerCase())))
+                || ("true".equalsIgnoreCase(openGraphParam));
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String[] paramNames = signature.getParameterNames();
