@@ -136,7 +136,7 @@ jobs:
            exit 0
           fi
           echo "Waiting for server to be ready... Retry ($i/5)"
-          sleep 5
+          sleep 30
           done
           echo ":x: Health Check Failed after retries."
           exit 1
