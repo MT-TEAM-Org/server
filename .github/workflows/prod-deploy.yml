@@ -130,7 +130,7 @@ jobs:
           echo "Starting Health Check..."
           for i in {1..5}
           do
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.PROD_HEALTH_CHECK_URL }})
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.PROD_HEALTH_CHECK_URL }})
           if [ "$HTTP_STATUS" -eq 200 ]; then
            echo ":흰색_확인_표시: Health Check Passed (200 OK)"
            exit 0
