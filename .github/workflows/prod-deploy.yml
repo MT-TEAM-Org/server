@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/prod:latest .
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/play-hive:latest .
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -48,7 +48,7 @@ jobs:
 
       - name: Push Docker Image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/prod:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/play-hive:latest
 
   deploy:
     needs: build-and-push
