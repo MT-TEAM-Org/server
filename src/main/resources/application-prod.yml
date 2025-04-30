@@ -18,7 +18,7 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
       #  create	기존테이블을 삭제하고 다시 생성
       #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
       #  update	변경된 스키마 적용 (운영 DB 에서 사용X)
