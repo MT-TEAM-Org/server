@@ -1,23 +1,24 @@
 spring:
+  jackson:
+    time-zone: Asia/Seoul
 
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password: password
-
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_NAME}?useSSL=false&serverTimezone=Asia/Seoul
+    username: playhive
+    password: ${DB_PASSWORD}
 
   jpa:
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: false
         use_sql_comments: false
         default_batch_fetch_size: 1000 #최적화 옵션
+        jdbc:
+          time_zone: Asia/Seoul
     hibernate:
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      ddl-auto: create-drop
+      ddl-auto: none
       #  create	기존테이블을 삭제하고 다시 생성
       #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
       #  update	변경된 스키마 적용 (운영 DB 에서 사용X)
@@ -25,17 +26,44 @@ spring:
       #  none 기존테이블을 더 이상 건드리지 않음.
     open-in-view: true
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+      port: ${REDIS_PORT}
+
 logging:
   level:
-    root: INFO  # 전체 로그를 INFO, DEBUG, WARN 수준으로 설정
-    org.springframework.security: TRACE
-    org.springframework.web: INFO
-    com.myteam.server: DEBUG
+    root: info  # 전체 로그를 INFO, DEBUG, WARN 수준으로 설정
+    org.springframework.security: warn
+    org.springframework.web: warn
+    com.myteam.server: info
     # 필요 시 특정 SQL 로그를 추가하거나 Hibernate SQL 로그를 설정
-    hibernate.SQL: INFO
+    hibernate.SQL: warn
     org.springframework.boot.autoconfigure: INFO
     org.springframework.beans.factory.support.DefaultListableBeanFactory: WARN
     # 아직 Thymeleaf 를 사용하지 않기 때문에, 경고 메세지를 제거합니다.
     spring.thymeleaf.check-template-location: false
     org.hibernate.type: INFO
 
+slack:
+  webhook:
+    url: ${SLACK_WEBHOOK_URL}
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  region: ${MINIO_REGION}
+  bucket: ${MINIO_BUCKET}
+
+playhive:
+  control:
+    aesSecretKey: ${AES_SECRET_KEY}
+    aesIv: ${AES_IV}
+
+google:
+  api:
+    name: googleApi
+    url: https://www.googleapis.com
+    apiKey: ${GOOGLE_API_KEY}

@@ -1,17 +1,16 @@
 package org.myteam.server.oauth2.response;
 
-import org.apache.commons.lang3.StringUtils;
-import org.myteam.server.member.domain.GenderType;
-import org.myteam.server.util.validator.UserValidator;
+import static org.apache.commons.lang3.math.NumberUtils.*;
+import static org.myteam.server.member.domain.GenderType.*;
+import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.apache.commons.lang3.math.NumberUtils.toInt;
-import static org.myteam.server.member.domain.GenderType.F;
-import static org.myteam.server.member.domain.GenderType.M;
-import static org.myteam.server.oauth2.constant.OAuth2ServiceProvider.KAKAO;
+import org.apache.commons.lang3.StringUtils;
+import org.myteam.server.member.domain.GenderType;
+import org.myteam.server.member.domain.validator.MemberValidator;
 
 /**
  https://developers.kakao.com/console/app/1171473/product/login/scope
@@ -23,9 +22,6 @@ public class KakaoResponse implements OAuth2Response {
     private final Map<String, Object> attribute;
 
     public KakaoResponse(Map<String, Object> attribute) {
-        System.out.println("Raw Kakao attribute: " + attribute);
-        System.out.println("Kakao account: " + kakaoAccount(attribute));
-        System.out.println("Kakao profile: " + kakaoProfile(attribute));
         this.attribute = attribute;
     }
 
@@ -52,7 +48,8 @@ public class KakaoResponse implements OAuth2Response {
 
     @Override
     public String getProviderId() {
-        return StringUtils.defaultString((String) attribute.get("id"), null);
+        Object id = attribute.get("id");
+        return id != null ? String.valueOf(id) : null;
     }
 
     @Override
@@ -85,7 +82,7 @@ public class KakaoResponse implements OAuth2Response {
                 .replace("-", "")                  // 하이픈 제거
                 .replace(" ", "");                 // 공백 제거
 
-        return UserValidator.validateTel(phoneNumber);
+        return MemberValidator.validateTel(phoneNumber);
     }
 
     /**

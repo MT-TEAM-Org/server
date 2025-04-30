@@ -1,0 +1,68 @@
+name: ✋ Test
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    branches: [ "dev" ]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Gradle 캐시 설정
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: gradlew 실행 권한 설정
+        run: chmod +x gradlew
+
+      - name: 테스트 + 커버리지 리포트 생성
+        run: ./gradlew clean test jacocoTestReport jacocoTestCoverageVerification --parallel
+        continue-on-error: true # 일단은 이렇게 설정. 실패해도 다음 스텝 진행
+
+      - name: 테스트 결과 Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: 'build/test-results/test/TEST-*.xml'
+
+      - name: Upload JaCoCo HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-html-report
+          path: build/jacocoReport/test/html/
+
+      - name: 커버리지 파일 존재 여부 확인
+        run: ls -l build/jacocoReport/test/jacocoTestReport.xml
+
+      - name: SonarCloud 스캐너 환경 설정
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud 분석 실행
+        run: ./gradlew sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

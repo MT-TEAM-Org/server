@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_PREFIX;
+
 /**
  * 기능 미구현 상태. 추후 구현 계획이 확실해 지면 그 때 추가 계발 계획 예정
  */
@@ -41,8 +43,8 @@ public class OAuth2UnlinkController {
             // Authorization 헤더에서 값 추출
             String authorizationHeader = httpServletRequest.getHeader("Authorization");
 
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String accessToken = authorizationHeader.replace("Bearer ", "");
+            if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
+                String accessToken = authorizationHeader.replace(TOKEN_PREFIX, "");
                 oAuth2UnlinkHelper.revokeToken(OAuth2ServiceProvider.NAVER, accessToken);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)

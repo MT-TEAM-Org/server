@@ -1,11 +1,11 @@
 #TODO: 환경변수로 변경
 jwt:
-  issuer: "myteam.org"
-  secret-key: "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429080fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1"
+  issuer: ${JWT_ISSUER}
+  secret-key: ${JWT_SECRET_KEY}
 app:
   frontend:
     url:
-      dev: http://localhost:3000
+      dev: ${FRONTEND_URL}
       prod: https://your-production-domain.com
 ---
 # dev
@@ -19,7 +19,7 @@ spring:
         registration:
           discord:
             client-name: discord
-            client-id: ${DISCORD_CLIENT_ID}
+            client-id: ${DISCORD_APPLICATION_ID}
             client-secret: ${DISCORD_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
@@ -46,6 +46,7 @@ spring:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
             scope: # 기본 값 openid,profile,email => profile, email 로 설정 변경
               - profile
               - email
@@ -93,7 +94,7 @@ spring:
         registration:
           discord:
             client-name: discord
-            client-id: ${DISCORD_CLIENT_ID}
+            client-id: ${DISCORD_APPLICATION_ID}
             client-secret: ${DISCORD_CLIENT_SECRET}
             client-authentication-method: client_secret_post
             redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
@@ -120,6 +121,7 @@ spring:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "https://api.playhive.co.kr/login/oauth2/code/google"
             scope: # 기본 값 openid,profile,email => profile, email 로 설정 변경
               - profile
               - email

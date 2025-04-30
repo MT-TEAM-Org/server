@@ -1,32 +1,26 @@
 package org.myteam.server.member.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.myteam.server.member.domain.GenderType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
+@Builder
+@AllArgsConstructor
 public class MemberResponse {
-    private Long id;
 
     private String email; // 계정
 
     private String tel;
 
-    private String name;
-
     private String nickname;
-
-    private GenderType gender;
-
-    private LocalDate birthdate;
 
     private MemberRole role;
 
@@ -34,24 +28,33 @@ public class MemberResponse {
 
     private MemberStatus status;
 
-    @JsonIgnore
     private UUID publicId;
+    private String imgUrl;
 
     public MemberResponse() {
     }
 
-    @Builder
     public MemberResponse(final Member member) {
-        this.id = member.getId();
         this.email = member.getEmail();
         this.tel = member.getTel();
-        this.name = member.getName();
         this.nickname = member.getNickname();
-        this.gender = member.getGender();
-        this.birthdate = member.getBirthdate();
         this.role = member.getRole();
         this.type = member.getType();
         this.status = member.getStatus();
         this.publicId = member.getPublicId();
+        this.imgUrl = member.getImgUrl();
+    }
+
+    public static MemberResponse createMemberResponse(Member member) {
+        return MemberResponse.builder()
+                .email(member.getEmail())
+                .tel(member.getTel())
+                .nickname(member.getNickname())
+                .role(member.getRole())
+                .type(member.getType())
+                .status(member.getStatus())
+                .publicId(member.getPublicId())
+                .imgUrl(member.getImgUrl())
+                .build();
     }
 }

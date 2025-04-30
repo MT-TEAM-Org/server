@@ -1,7 +1,12 @@
 spring:
   profiles:
-    active: dev
+    active: prod
     include: auth, mail, swagger
   application:
     name: myteam-server
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

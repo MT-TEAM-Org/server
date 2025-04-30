@@ -36,4 +36,9 @@ public class PlayHiveException extends RuntimeException {
         super(message);
         this.errorCode = errorCode;
     }
+
+    public PlayHiveException(ErrorCode errorCode, Object... args) {
+        super(errorCode.getFormattedMessage(args));
+        this.errorCode = errorCode;
+    }
 }

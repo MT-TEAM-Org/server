@@ -1,6 +1,8 @@
 package org.myteam.server.global.security.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.global.exception.ErrorCode;
+import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
@@ -26,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("일반 로그인 CustomUserDetailsService 실행됨");
         log.info("username : {}", username);
-        Optional<Member> memberOP = userRepository.findByEmail(username);
+        Optional<Member> memberOP = userRepository.findByEmailAndType(username, LOCAL);
 
         if (memberOP.isPresent()) {
             // 로컬 회원인지 소셜 회원인지 확인
@@ -40,6 +42,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         log.warn("사용자를 찾을수 없습니다.");
-        return null;
+        throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
     }
 }

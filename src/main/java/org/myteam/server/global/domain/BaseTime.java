@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Getter
 public class BaseTime {
-
     @CreatedDate
-    @Column(updatable = false)
+    @Column(name = "create_date", updatable = false)
     private LocalDateTime createDate;
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate;
 
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private LocalDateTime lastModifiedDate;
 }

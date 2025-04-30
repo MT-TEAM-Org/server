@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  app:
+    image: ${DOCKER_USERNAME}/play-hive:latest # 사용할 이미지 이름
+    build:
+      context: . # Dockerfile이 위치한 디렉토리
+      dockerfile: Dockerfile # 빌드에 사용할 Dockerfile
+    ports:
+      - "8080:8080" # 호스트와 컨테이너의 포트 매핑
+    environment:
+      SPRING_PROFILES_ACTIVE: prod # application-prod.yml 파일
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      DISCORD_APPLICATION_ID: ${DISCORD_APPLICATION_ID}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      SENDER_EMAIL: ${EMAIL_USERNAME}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      DOCKER_USERNAME: ${DOCKER_USERNAME}
+      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+      DB_ENDPOINT: ${DB_ENDPOINT}
+      FRONTEND_URL: ${FRONTEND_URL}
+      DB_NAME: ${DB_NAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_BUCKET: ${AWS_BUCKET}
+      AWS_URL: ${AWS_URL}
+      TZ: ${TZ}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: ${REDIS_HOST}
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}

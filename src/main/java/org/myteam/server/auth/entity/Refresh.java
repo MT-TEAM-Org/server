@@ -15,8 +15,7 @@ public class Refresh {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-//    private String email;
-    @Column(name = "public_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(nullable = false, columnDefinition = "BINARY(16)")
     private UUID publicId;
     @Column(nullable = false, columnDefinition="BLOB")
     private String refresh;

@@ -1,21 +1,23 @@
 package org.myteam.server.global.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
-import javax.crypto.SecretKey;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Set;
+import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -23,6 +25,7 @@ public class JwtProvider {
     public final static String TOKEN_CATEGORY_ACCESS = "access"; // 어세스 토큰 카테고리
     public final static String TOKEN_CATEGORY_REFRESH = "refresh"; // 리프레시 토큰 카테고리
     public final static String HEADER_AUTHORIZATION = "Authorization";
+    public static final String REFRESH_TOKEN_KEY = "X-Refresh-Token";
     public final static String TOKEN_PREFIX = "Bearer ";
     private final JwtProperties jwtProperties;
 
@@ -30,7 +33,7 @@ public class JwtProvider {
      * 토큰 발급
      *
      * @param duration Duration 만료 기간
-     * @param publicId   UUID
+     * @param publicId UUID
      * @param role     String
      * @return String
      */
@@ -41,10 +44,11 @@ public class JwtProvider {
 
     /**
      * 토큰 생성
-     * @param category 토큰 종류 구분 (access | refresh)
+     *
+     * @param category       토큰 종류 구분 (access | refresh)
      * @param expirationDate 만료 기간
-     * @param publicId publicId
-     * @param role 권한
+     * @param publicId       publicId
+     * @param role           권한
      * @return
      */
     private String makeToken(String category, Date expirationDate, UUID publicId, String role, String status) {
@@ -69,6 +73,9 @@ public class JwtProvider {
     public boolean validToken(final String token) {
         try {
             getClaims(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰은 구조적으로 유효하다고 판단
             return true;
         } catch (Exception e) {
             return false;
@@ -97,6 +104,12 @@ public class JwtProvider {
      */
     public UUID getPublicId(final String token) {
         Claims claims = getClaims(token);
+        String idString = claims.get("id", String.class);
+        return UUID.fromString(idString);
+    }
+
+    public UUID getPublicIdWithoutExpired(final String token) {
+        Claims claims = getClaimsWithoutExpirationCheck(token);
         String idString = claims.get("id", String.class);
         return UUID.fromString(idString);
     }
@@ -132,6 +145,20 @@ public class JwtProvider {
     private Claims getClaims(String token) {
         Jws<Claims> claimsJws = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
         return claimsJws.getPayload();
+    }
+
+    public Claims getClaimsWithoutExpirationCheck(String token) {
+        try {
+            // 기본적으로 만료도 체크됨
+            Jws<Claims> claimsJws = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token);
+            return claimsJws.getPayload();
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰이어도 Claims는 여기서 꺼낼 수 있음
+            return e.getClaims();
+        }
     }
 
     /**
@@ -175,6 +202,11 @@ public class JwtProvider {
      */
     public Boolean isExpired(String token) {
         // throws JwtException, IllegalArgumentException
-        return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        try {
+            return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            // 토큰 만료로 인한 예외 처리
+            return true; // 만료된 것으로 판단
+        }
     }
 }

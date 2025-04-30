@@ -1,231 +1,240 @@
 package org.myteam.server.member.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.myteam.server.global.exception.ErrorCode.*;
+
+import java.util.Optional;
+
+import org.myteam.server.common.certification.mail.util.CertifyStorage;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.security.jwt.JwtProvider;
-import org.myteam.server.member.domain.MemberRole;
-import org.myteam.server.member.domain.MemberStatus;
-import org.myteam.server.member.dto.*;
+import org.myteam.server.global.util.redis.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
+import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.domain.MemberType;
+import org.myteam.server.member.dto.MemberRoleUpdateRequest;
+import org.myteam.server.member.dto.MemberSaveRequest;
+import org.myteam.server.member.dto.MemberStatusUpdateRequest;
+import org.myteam.server.member.dto.PasswordChangeRequest;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberActivity;
+import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.repository.MemberRepository;
+import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
+import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.myteam.server.global.domain.PlayHiveValidator.validate;
-import static org.myteam.server.global.exception.ErrorCode.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class MemberService {
-    private final MemberJpaRepository memberJpaRepository;
 
-    private final PasswordEncoder passwordEncoder;
+	private final MemberJpaRepository memberJpaRepository;
+	private final SecurityReadService securityReadService;
+	private final MemberActivityRepository memberActivityRepository;
 
-    private final JwtProvider jwtProvider;
+	private final PasswordEncoder passwordEncoder;
+	private final MailStrategyFactory mailStrategyFactory;
+	private final CertifyStorage certifyStorage;
+	private final RedisService redisService;
 
-    private final MemberRepository memberRepository;
+	/**
+	 * 회원 가입
+	 *
+	 * @param memberSaveRequest
+	 * @return
+	 * @throws PlayHiveException
+	 */
+	public MemberResponse create(MemberSaveRequest memberSaveRequest) throws PlayHiveException {
+		// 동일한 유저 이름 존재 검사
+		Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(memberSaveRequest.getEmail(), MemberType.LOCAL);
 
-    @Transactional
-    public MemberResponse create(MemberSaveRequest memberSaveRequest) throws PlayHiveException {
-        // 1. 동일한 유저 이름 존재 검사
-        Optional<Member> memberOP = memberRepository.findByEmail(memberSaveRequest.getEmail());
+		if (memberOP.isPresent()) {
+			// 아이디가 중복 되었다는 것
+			throw new PlayHiveException(USER_ALREADY_EXISTS);
+		}
 
-        if (memberOP.isPresent()) {
-            // 아이디가 중복 되었다는 것
-            throw new PlayHiveException(USER_ALREADY_EXISTS);
-        }
+		// 패스워드인코딩 + 회원 가입
+		Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
+		member.updateStatus(MemberStatus.ACTIVE);
 
-        // 2. 패스워드인코딩 + 회원 가입
-        Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
+		// MemberActivity 생성 및 연관 관계 설정
+		MemberActivity memberActivity = new MemberActivity(member);  // 멤버와 연결된 활동 생성
+		memberActivityRepository.save(memberActivity);  // DB에 저장
 
-        // 4. dto 응답
-        return new MemberResponse(member);
-    }
+		// 메일 전송
+		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
+		strategy.send(member.getEmail());
 
-    @Transactional
-    public MemberResponse update(String email, MemberUpdateRequest memberUpdateRequest) {
-        // 1. 동일한 유저 이름 존재 검사
-        Optional<Member> memberOP = memberRepository.findByEmail(email);
+		// dto 응답
+		return MemberResponse.createMemberResponse(member);
+	}
 
-        // 2. 아이디 미존재 체크
-        if (memberOP.isEmpty()) {
-            throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
-        }
+	/**
+	 * 회원 프로필 수정
+	 */
+	public MemberResponse updateMemberProfile(MemberUpdateRequest memberUpdateRequest) {
+		Member member = securityReadService.getMember();
 
-        // 3. 자신의 계정이 아닌 다른 계정을 수정하려고 함
-        if (!memberOP.get().verifyOwnEmail(email)) {
-            throw new PlayHiveException(NO_PERMISSION);
-        }
+		if (!member.getEmail().equals(memberUpdateRequest.getEmail())) {
+			throw new PlayHiveException(NO_PERMISSION);
+		}
 
-        // 4. 패스워드인코딩 + 회원 정보 변경
-        Member member = memberOP.get();
-        member.update(memberUpdateRequest, passwordEncoder);
+		member.update(memberUpdateRequest, passwordEncoder);
 
-        // 5. dto 응답
-        return new MemberResponse(member);
-    }
+		memberJpaRepository.save(member);
+		log.info("회원 정보 수정 완료: {}", member.getPublicId());
 
-    public MemberResponse getByPublicId(UUID publicId) {
-        return new MemberResponse(memberRepository.getByPublicId(publicId));
-    }
+		return MemberResponse.createMemberResponse(member);
+	}
 
-    // 엔티티 반환 get~
-    // public Member getByEmail(String email) {
-    //     return memberJpaRepository.findByEmail(email)
-    //             .orElseThrow(() -> new PlayHiveException(email + " 는 존재하지 않는 사용자 입니다"));
-    // }
+	/**
+	 * 소셜 로그인 정보 추가
+	 */
+	public void addInfo(AddMemberInfoRequest request) {
+		log.info("소셜로그인 추가정보: {}", request.getEmail());
+		Optional<Member> existDataOP = memberJpaRepository.findByEmailAndType(
+				request.getEmail(),
+				request.getMemberType());
 
-    // Optional 반환은 find~
-    // public Member findByNickname(String nickname) {
-    //     return memberJpaRepository.findByNickname(nickname)
-    //             .orElseThrow(() -> new PlayHiveException(nickname + " 는 존재하지 않는 사용자 입니다"));
-    // }
+		if (!existDataOP.isPresent()) {
+			log.warn("소셜로그인 유저 없음: {}", request.getEmail());
+			throw new PlayHiveException(USER_NOT_FOUND);
+		}
 
-    public MemberResponse getByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .map(MemberResponse::new)
-                .orElseThrow(() -> new PlayHiveException(RESOURCE_NOT_FOUND, email + " 는 존재하지 않는 이메일 입니다"));
-    }
+		Member member = existDataOP.get();
+		if (member.getStatus() != MemberStatus.PENDING) {
+			log.warn("소셜로그인 추가 정보 권한 없음: {}", request.getEmail());
+			throw new PlayHiveException(UNAUTHORIZED);
+		}
 
-    public MemberResponse getByNickname(String nickname) {
-        return memberRepository.findByNickname(nickname)
-                .map(MemberResponse::new)
-                .orElseThrow(() -> new PlayHiveException(RESOURCE_NOT_FOUND, nickname + " 는 존재하지 않는 닉네임 입니다"));
-    }
+		member.update(request.getTel(), request.getNickname(), null);
+		member.updateStatus(MemberStatus.ACTIVE);
+		log.info("소셜 로그인 정보 수정: {}, nickname: {}, tel: {}",
+				request.getEmail(), request.getNickname(), request.getTel());
 
-    @Transactional
-    public void delete(String email, String password) {
-        Member findMember = memberRepository.getByEmail(email);
+		// 메일 전송
+		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
+		strategy.send(member.getEmail());
+	}
 
-        // 자신의 계정인지 체크
-        boolean isOwnValid = findMember.verifyOwnEmail(email);
-        if (!isOwnValid) throw new PlayHiveException(NO_PERMISSION);
+	/**
+	 * 회원 탈퇴
+	 */
+	public void deleteMember() {
+		Member member = securityReadService.getMember();
 
-        // 비밀번호 일치 여부 확인
-        boolean isPWValid = findMember.validatePassword(password, passwordEncoder);
-        if (!isPWValid) throw new PlayHiveException(NO_PERMISSION);
+		/**
+		 * 이거를 없애는 게 조금 이상한데, 일단 주석으로 남겨만 둠.
+		 */
+		// 자신의 계정인지 체크
+//		boolean isOwnValid = member.verifyOwnEmail(memberDeleteRequest.getRequestEmail());
+//		if (!isOwnValid)
+//			throw new PlayHiveException(NO_PERMISSION);
+//
+//		// 비밀번호 일치 여부 확인
+//		boolean isPWValid = member.validatePassword(memberDeleteRequest.getPassword(), passwordEncoder);
+//		if (!isPWValid) throw new PlayHiveException(NO_PERMISSION);
 
-        memberJpaRepository.delete(findMember);
-    }
+		member.updateStatus(MemberStatus.INACTIVE);
+		redisService.deleteRefreshToken(member.getPublicId());
 
-    @Transactional
-    public void delete(String email) {
-        Member findMember = memberRepository.getByEmail(email);
-        memberJpaRepository.delete(findMember);
-    }
+		log.info("회원 탈퇴 처리 완료: {}", member.getPublicId());
+	}
 
-    @Transactional
-    public MemberResponse updateRole(MemberRoleUpdateRequest memberRoleUpdateRequest) {
-        boolean isValid = validate(memberRoleUpdateRequest);
-        log.info("playHive updateRole isValid: {}", isValid);
+	@Transactional
+	public MemberResponse updateRole(MemberRoleUpdateRequest request) {
+		// 1. 동일한 유저 이름 존재 검사
+		Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(request.getEmail(), request.getType());
 
-        if (!isValid) {
-              // 빈 Response 객체 반환
-            throw new PlayHiveException(NO_PERMISSION, "인증 키와 패스워드가 일치하지 않습니다");
-        }
+		// 2. 아이디 미존재 체크
+		if (memberOP.isEmpty()) {
+			throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
+		}
 
-        // 1. 동일한 유저 이름 존재 검사
-        Optional<Member> memberOP = memberRepository.findByEmail(memberRoleUpdateRequest.getEmail());
+		Member member = memberOP.get();
+		member.updateType(request.getRole());
 
-        // 2. 아이디 미존재 체크
-        if (memberOP.isEmpty()) {
-            throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
-        }
+		// 5. dto 응답
+		return MemberResponse.createMemberResponse(member);
+	}
 
-        Member member = memberOP.get();
-        member.updateType(memberRoleUpdateRequest.getRole());
+	@Transactional
+	public void changePassword(String email, PasswordChangeRequest passwordChangeRequest) {
+		Member findMember = memberJpaRepository.findByEmail(email)
+				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
-        // 5. dto 응답
-        return new MemberResponse(member);
-    }
+		boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
+		if (!isEqual)
+			throw new PlayHiveException(INVALID_PARAMETER, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
 
-    public List<Member> list() {
-        return Optional.of(memberJpaRepository.findAll()).orElse(Collections.emptyList());
-    }
+		boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), passwordEncoder);
+		if (!isValid)
+			throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");
 
-    @Transactional
-    public void changePassword(String email, PasswordChangeRequest passwordChangeRequest) {
-        Member findMember = memberRepository.getByEmail(email);
-        boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
-        if (!isEqual) throw new PlayHiveException(INVALID_PARAMETER, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
-        boolean isValid = findMember.validatePassword(passwordChangeRequest.getPassword(), passwordEncoder);
-        if (!isValid) throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");
+		String password = passwordEncoder.encode(passwordChangeRequest.getNewPassword());
 
-        findMember.updatePassword(passwordChangeRequest, passwordEncoder); // 비밀번호 변경
-    }
+		findMember.updatePassword(password); // 비밀번호 변경
+	}
 
-    @Transactional
-    public void updateStatus(String targetEmail, MemberStatusUpdateRequest memberStatusUpdateRequest) {
-        log.info("토큰에서 추출된 이메일: {}, 상태를 변경할 대상 이메일: {}, 새로운 상태: {}",
-                targetEmail, memberStatusUpdateRequest.getEmail(), memberStatusUpdateRequest.getStatus().name());
+	@Transactional
+	public void updateStatus(String targetEmail, MemberStatusUpdateRequest memberStatusUpdateRequest) {
+		log.info("토큰에서 추출된 이메일: {}, 상태를 변경할 대상 이메일: {}, 새로운 상태: {}",
+			targetEmail, memberStatusUpdateRequest.getEmail(), memberStatusUpdateRequest.getStatus().name());
 
-        // 요청자와 대상 사용자 정보 조회
-        Member requester = memberRepository.getByEmail(targetEmail); // 요청자
-        Member targetMember = memberRepository.getByEmail(memberStatusUpdateRequest.getEmail()); // 상태 변경 대상자
+		// 요청자와 대상 사용자 정보 조회
+		Member requester = memberJpaRepository.findByEmail(targetEmail)
+				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+		Member targetMember = memberJpaRepository.findByEmail(memberStatusUpdateRequest.getEmail())
+				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
-        // 1. 요청자가 본인의 상태를 변경하려는 경우
-        if (requester.verifyOwnEmail(memberStatusUpdateRequest.getEmail())) {
-            log.info("사용자가 자신의 상태를 변경 중: {}", targetEmail);
-            requester.updateStatus(memberStatusUpdateRequest.getStatus());
-            return;
-        }
+		// 1. 요청자가 본인의 상태를 변경하려는 경우
+		if (requester.verifyOwnEmail(memberStatusUpdateRequest.getEmail())) {
+			log.info("사용자가 자신의 상태를 변경 중: {}", targetEmail);
+			if (!requester.getStatus().equals(MemberStatus.PENDING))
+				throw new PlayHiveException(NO_PERMISSION); // PENDING 인 경우에만 본인의 상태 변경 가능하도록 처리
+			requester.updateStatus(memberStatusUpdateRequest.getStatus());
+			return;
+		}
 
-        // 2. 관리자가 다른 사용자의 상태를 변경하려는 경우
-        if (requester.isAdmin()) {
-            log.info("관리자가 상태를 변경 중: {}, 대상자: {}", targetEmail, memberStatusUpdateRequest.getEmail());
-            targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
-            return;
-        }
+		// 2. 관리자가 다른 사용자의 상태를 변경하려는 경우
+		if (requester.isAdmin()) {
+			log.info("관리자가 상태를 변경 중: {}, 대상자: {}", targetEmail, memberStatusUpdateRequest.getEmail());
+			targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
+			return;
+		}
 
-        // 3. 권한 없는 사용자가 다른 사용자의 상태를 변경하려고 시도한 경우
-        log.warn("권한 없는 요청: 요청자 {}, 대상자 {}", targetEmail, memberStatusUpdateRequest.getEmail());
-        throw new PlayHiveException(NO_PERMISSION, "상태 수정 권한이 없습니다.");
-    }
+		// 3. 권한 없는 사용자가 다른 사용자의 상태를 변경하려고 시도한 경우
+		log.warn("권한 없는 요청: 요청자 {}, 대상자 {}", targetEmail, memberStatusUpdateRequest.getEmail());
+		throw new PlayHiveException(NO_PERMISSION, "상태 수정 권한이 없습니다.");
+	}
 
-    public boolean existsByEmail(String email) {
-        return memberJpaRepository.existsByEmail(email);
-    }
+	public void delete(String email) {
+		Member member = memberJpaRepository.findByEmail(email)
+			.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
-    public boolean existsByNickname(String nickname) {
-        return memberJpaRepository.existsByNickname(nickname);
-    }
+		memberJpaRepository.delete(member);
+	}
 
-    /**
-     * publicId 를 통한 사용자 아이디 조회
-     *
-     * @param publicId token 에 저장할 고유 번호
-     * @return
-     */
-    public String getCurrentLoginUserEmail(UUID publicId) {
-        MemberResponse response = getByPublicId(publicId);
-        return response != null ? response.getEmail() : null;
-    }
+	public void generateTemporaryPassword(String email) {
+		log.info("랜덤 비번 생성 시도: {}", email);
+		boolean isValid = certifyStorage.isCertified(email);
 
-    /**
-     * jwt 토큰에서 publicId 를 추출한다.
-     *
-     * @param authorizationHeader JWT 토큰
-     * @return
-     */
-    public MemberResponse getAuthenticatedMember(String authorizationHeader) {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new PlayHiveException(NO_PERMISSION);
-        }
+		if (!isValid) {
+			throw new PlayHiveException(ErrorCode.UNAUTHORIZED_EMAIL_ACCOUNT);
+		}
 
-        String accessToken = jwtProvider.getAccessToken(authorizationHeader);
-        UUID publicId = jwtProvider.getPublicId(accessToken);
-        return getByPublicId(publicId);
-    }
+		log.info("메일 전송 시작 - email: {}", email);
+		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.TEMPORARY_PASSWORD);
+		strategy.send(email);
+		log.info("임시 비밀번호 완료");
+	}
 }
