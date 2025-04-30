@@ -1,7 +1,8 @@
 package org.myteam.server.common.certification.mail.strategy;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.common.certification.mail.util.CertifyStorage;
 import org.myteam.server.common.certification.mail.core.AbstractMailSender;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.repository.MemberJpaRepository;
@@ -10,9 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 @Slf4j
 @Component
@@ -73,7 +71,7 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
     public String buildTemporaryPasswordEmailContent(String tempPassword, String email) {
         // 이메일 본문 생성
         Context context = new Context();
-        context.setVariable("tempPassword", tempPassword);
+        context.setVariable("password", tempPassword);
         context.setVariable("email", email);
 
         return templateEngine.process("mail/temporary-password-template", context);
