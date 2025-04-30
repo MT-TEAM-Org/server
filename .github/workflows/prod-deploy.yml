@@ -30,7 +30,7 @@ jobs:
           host: ${{ secrets.PROD_AWS_SERVER_IP }}
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: ./docker-compose-prod.yml
+          source: ./docker-compose.yml
           target: ~/play-hive/
 
       - name: Grant execute permission for gradlew
@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/play-hive:latest .
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/prod:latest .
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -48,7 +48,7 @@ jobs:
 
       - name: Push Docker Image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/play-hive:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/prod:latest
 
   deploy:
     needs: build-and-push
