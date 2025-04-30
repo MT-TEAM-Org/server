@@ -2,8 +2,8 @@ name: ✋ Test
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
-    branches: ["main", "dev"]
+    types: [ opened, reopened, synchronize ]
+    branches: [ "dev" ]
 
 permissions:
   contents: read
