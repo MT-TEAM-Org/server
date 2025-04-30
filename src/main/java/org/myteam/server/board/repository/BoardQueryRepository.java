@@ -372,7 +372,7 @@ public class BoardQueryRepository {
                     return new BoardRankingDto(boardId, commonCountDto.getViewCount(),
                             commonCountDto.getRecommendCount(),
                             commonCountDto.getCommentCount(), title,
-                            commonCountDto.getViewCount() + commonCountDto.getRecommendCount());
+                            commonCountDto.getViewCount() + commonCountDto.getCommentCount());
                 })
                 .sorted(Comparator.comparing(BoardRankingDto::getRecommendCount).reversed()
                         .thenComparing(BoardRankingDto::getTotalScore).reversed()
