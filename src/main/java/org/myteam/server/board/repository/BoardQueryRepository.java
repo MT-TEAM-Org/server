@@ -17,10 +17,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.board.domain.BoardOrderType;
@@ -415,8 +417,12 @@ public class BoardQueryRepository {
 
     /**
      * 실시간 HOT 게시글 목록
+     * <p>
+     * 추천수가 제일많은 게시글 (추천수 동일시 조회수+댓글수, 조회수+댓글수도 동일할 경우 가나다 순)
      */
     public List<HotBoardDto> getHotBoardList() {
+        List<Long> hotIds = getHotBoardIdList(); // Redis 기준 정렬된 게시글 ID 리스트
+
         List<HotBoardDto> hotBoardList = queryFactory
                 .select(Projections.fields(HotBoardDto.class,
                         board.boardType,
@@ -424,7 +430,7 @@ public class BoardQueryRepository {
                         board.id,
                         board.title,
                         boardCount.commentCount,
-                        board.id.in(getHotBoardIdList()).as("isHot"),
+                        board.id.in(hotIds).as("isHot"),
                         board.id.in(getNewBoardIdList()).as("isNew"),
                         new CaseBuilder()
                                 .when(board.thumbnail.isNotEmpty()).then(true)
@@ -433,21 +439,23 @@ public class BoardQueryRepository {
                 ))
                 .from(board)
                 .join(boardCount).on(boardCount.board.id.eq(board.id))
-                .orderBy(
-                        boardCount.recommendCount.desc(),
-                        boardCount.viewCount.add(boardCount.commentCount).desc(),
-                        board.title.asc(),
-                        board.id.asc()
-                )
-                .limit(10)
+                .where(board.id.in(hotIds))
                 .fetch();
 
-        // 순위를 부여
+        // Redis 기준 순서대로 정렬
+        Map<Long, Integer> orderMap = IntStream.range(0, hotIds.size())
+                .boxed()
+                .collect(Collectors.toMap(hotIds::get, i -> i));
+
+        hotBoardList.sort(Comparator.comparingInt(dto -> orderMap.get(dto.getId())));
+
+        // 순위 부여
         AtomicInteger rankCounter = new AtomicInteger(1);
         hotBoardList.forEach(dto -> dto.setRank(rankCounter.getAndIncrement()));
 
         return hotBoardList;
     }
+
 
     public Long findPreviousBoardId(Long boardId, Category boardType, CategoryType categoryType) {
         return queryFactory
