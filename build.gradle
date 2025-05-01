@@ -113,6 +113,9 @@ dependencies {
     // cookie-session
     implementation 'org.springframework.session:spring-session-core'
 
+    // prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 test {

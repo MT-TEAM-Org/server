@@ -37,3 +37,7 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/generated
+
+# grafana
+/monitoring/grafana_data/
+

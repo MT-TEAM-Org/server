@@ -158,3 +158,23 @@ jobs:
           fields: repo,message,commit,author
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Copy Monitoring Files to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.PROD_AWS_SERVER_IP }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: ./monitoring/
+          target: ~/play-hive/monitoring/
+
+      - name: Deploy Prometheus & Grafana
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.PROD_AWS_SERVER_IP }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/play-hive/monitoring
+            echo "Launching Prometheus & Grafana containers..."
+            docker-compose -f docker-compose.monitoring.yml up -d
