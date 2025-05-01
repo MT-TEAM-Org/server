@@ -47,6 +47,8 @@ services:
       JWT_ISSUER: ${JWT_ISSUER}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+    networks:
+      - playhive-net
     restart: always
 
   #  zookeeper:
@@ -94,6 +96,10 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+networks:
+  playhive-net:
+    external: true
 
 volumes:
   minio_data:
