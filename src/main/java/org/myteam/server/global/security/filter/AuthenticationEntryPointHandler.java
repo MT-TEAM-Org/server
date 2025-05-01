@@ -18,7 +18,7 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         logger.info("get in AuthenticationEntryPointHandler");
-        logger.error("Authentication error: {}, url: {}", authException, request.getRequestURI());
+        logger.error("Authentication error: {}, url: {}", authException.toString(), request.getRequestURI());
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write("{\"error\": \"UNAUTHORIZED\", \"message\": \"Invalid or expired token.\"}");
