@@ -41,7 +41,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
+        String path = request.getRequestURI();
         boolean shouldExclude = Arrays.stream(excludePath).anyMatch(path::startsWith);
         log.info("[shouldNotFilter] path={}, excluded={}", path, shouldExclude); // 로그 추가
         return Arrays.stream(excludePath).anyMatch(path::startsWith);
