@@ -85,6 +85,8 @@ services:
     volumes:
       - minio_data:/data
     command: server /data
+    networks:
+      - playhive-net
     restart: always
 
   redis:
@@ -94,6 +96,8 @@ services:
     ports:
       - "6379:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      - playhive-net
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
 
