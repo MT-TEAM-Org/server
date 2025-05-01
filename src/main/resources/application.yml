@@ -13,3 +13,5 @@ management:
   endpoint:
     prometheus:
       enabled: true
+  server:
+    base-path: /
