@@ -52,6 +52,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
         String accessToken = jwtProvider.getAccessToken(authorizationHeader);
 
+        String uri = request.getRequestURI();
+        if (uri.equals("/actuator/prometheus") || uri.equals("/actuator/health")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         log.info("accessToken : " + accessToken);
         if (StringUtils.isNotBlank(accessToken)) {
             try {
