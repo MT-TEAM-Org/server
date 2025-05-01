@@ -62,7 +62,7 @@ public class SecurityConfig {
 		/** @brief health check */
 		"/status",
 		/** @brief prometheus config */
-		"api/v1/actuator/**", "/api/v1/query",
+		"/api/v1/actuator/**", "/api/v1/query", "/actuator/**",
 		// Swagger Documents
 		/** @brief Swagger Docs */
 		"/v3/api-docs/**", "/swagger-ui/**",
