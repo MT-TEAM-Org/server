@@ -33,23 +33,15 @@ jobs:
           source: ./docker-compose.yml
           target: ~/play-hive/
 
-      - name: Copy Monitoring Files to EC2 (monitoring)
-        uses: appleboy/scp-action@v0.1.4
+      - name: Copy Monitoring Files to EC2
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.PROD_AWS_SERVER_IP }}
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: monitoring/docker-compose.monitoring.yml
+          source: ./monitoring/
           target: ~/play-hive/monitoring/
-
-      - name: Copy Prometheus Config
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.PROD_AWS_SERVER_IP }}
-          username: ${{ secrets.AWS_USERNAME }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: monitoring/prometheus.yml
-          target: ~/play-hive/monitoring/
+          strip_components: 1
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
