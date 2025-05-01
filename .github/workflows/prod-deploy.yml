@@ -39,7 +39,7 @@ jobs:
           host: ${{ secrets.PROD_AWS_SERVER_IP }}
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: ./monitoring/docker-compose.monitoring.yml
+          source: docker-compose.monitoring.yml
           target: ~/play-hive/monitoring/
 
       - name: Copy Prometheus Config
@@ -48,7 +48,7 @@ jobs:
           host: ${{ secrets.PROD_AWS_SERVER_IP }}
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: ./monitoring/prometheus.yml
+          source: prometheus.yml
           target: ~/play-hive/monitoring/
 
       - name: Grant execute permission for gradlew
