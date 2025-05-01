@@ -184,6 +184,6 @@ jobs:
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            cd ~/play-hive/monitoring/
+            cd ~/play-hive/monitoring/monitoring
             echo "Launching Prometheus & Grafana containers..."
-            docker-compose -f docker-compose.monitoring.yml up -d
+            sudo docker-compose -f docker-compose.monitoring.yml up -d
