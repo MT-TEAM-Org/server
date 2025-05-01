@@ -36,12 +36,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final MemberJpaRepository memberJpaRepository;
 
     private static final String[] excludePath = {
-        "/api/token/regenerate",
+        "/api/token/regenerate", "/actuator/prometheus"
     };
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
+        boolean shouldExclude = Arrays.stream(excludePath).anyMatch(path::startsWith);
+        log.info("[shouldNotFilter] path={}, excluded={}", path, shouldExclude); // 로그 추가
         return Arrays.stream(excludePath).anyMatch(path::startsWith);
     }
 
