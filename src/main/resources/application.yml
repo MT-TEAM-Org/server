@@ -13,3 +13,5 @@ management:
   endpoint:
     prometheus:
       enabled: true
+  security:
+    enabled: false
