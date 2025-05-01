@@ -185,5 +185,16 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             cd ~/play-hive/monitoring/monitoring
+            echo "Stopping & Removing Existing Prometheus/Grafana containers..."
+            sudo docker-compose -f docker-compose.monitoring.yml down -v --remove-orphans
+
+            echo "Removing old images (optional fallback)..."
+            sudo docker image rm -f grafana/grafana || true
+            sudo docker image rm -f prom/prometheus || true
+
+            echo "Pulling latest images..."
+            sudo docker-compose -f docker-compose.monitoring.yml pull
+
             echo "Launching Prometheus & Grafana containers..."
             sudo docker-compose -f docker-compose.monitoring.yml up -d
+      
