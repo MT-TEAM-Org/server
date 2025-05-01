@@ -233,7 +233,7 @@ public class SecurityConfig {
 		);
 
 		// JWT 인증 및 토큰 검증 필터 추가
-		http.addFilterAt(
+		http.addFilterBefore(
 				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, eventPublisher, redisService),
 				UsernamePasswordAuthenticationFilter.class
 			)
