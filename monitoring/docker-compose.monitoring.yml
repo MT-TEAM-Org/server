@@ -7,6 +7,8 @@ services:
     restart: always
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - playhive-net
     ports:
       - "9090:9090"
 
@@ -16,8 +18,14 @@ services:
     restart: always
     ports:
       - "3000:3000"
+    networks:
+      - playhive-net
     volumes:
       - grafana_data:/var/lib/grafana
+
+networks:
+  playhive-net:
+    external: true
 
 volumes:
   grafana_data:
