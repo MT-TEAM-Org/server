@@ -5,4 +5,4 @@ scrape_configs:
   - job_name: 'spring-app'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['play-hive_app_1:8080']
+      - targets: ['app:8080']
