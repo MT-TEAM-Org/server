@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   app:
-    image: ${DOCKER_USERNAME}/play-hive:latest # 사용할 이미지 이름
+    image: ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest # 사용할 이미지 이름
     build:
       context: . # Dockerfile이 위치한 디렉토리
       dockerfile: Dockerfile # 빌드에 사용할 Dockerfile
@@ -47,6 +47,7 @@ services:
       JWT_ISSUER: ${JWT_ISSUER}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      DOCKER_IMAGE_NAME: ${DOCKER_IMAGE_NAME}
     networks:
       - playhive-net
     restart: always
