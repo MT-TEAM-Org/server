@@ -9,8 +9,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: *
-  #        include: health, prometheus
+        include: health, prometheus
   endpoint:
     prometheus:
       enabled: true
