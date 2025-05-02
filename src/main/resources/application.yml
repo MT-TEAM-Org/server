@@ -4,19 +4,3 @@ spring:
     include: auth, mail, swagger
   application:
     name: myteam-server
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  #        include: health, prometheus
-  endpoint:
-    prometheus:
-      enabled: true
-    env:
-      enabled: true
-    health:
-      show-details: always
-  security:
-    enabled: false
