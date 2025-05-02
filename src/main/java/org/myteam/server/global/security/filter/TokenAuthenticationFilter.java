@@ -36,7 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final MemberJpaRepository memberJpaRepository;
 
     private static final String[] excludePath = {
-        "/api/token/regenerate", "/actuator/prometheus"
+        "/api/token/regenerate", "/actuator/prometheus", "/health-check"
     };
 
     @Override
