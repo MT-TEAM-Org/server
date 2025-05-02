@@ -54,6 +54,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader(HEADER_AUTHORIZATION);
         String accessToken = jwtProvider.getAccessToken(authorizationHeader);
 
+        String path = request.getRequestURI();
+        log.info("request uri: {}", path);
+        if (path.startsWith("/actuator/prometheus") || path.startsWith("/actuator/health")) {
+            log.info("[TokenAuthenticationFilter] 요청 제외 path = {}", path);
+            filterChain.doFilter(request, response);  // 인증 필터 건너뜀
+            return;
+        }
+
         log.info("accessToken : " + accessToken);
         if (StringUtils.isNotBlank(accessToken)) {
             try {
