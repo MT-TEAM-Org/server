@@ -9,9 +9,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, prometheus
+        include: *
+  #        include: health, prometheus
   endpoint:
     prometheus:
       enabled: true
+      access: read_only
+    health:
+      show-details: always
   security:
     enabled: false
