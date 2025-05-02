@@ -61,6 +61,8 @@ public class SecurityConfig {
 		// Health Check
 		/** @brief health check */
 		"/status",
+		/** @brief prometheus config */
+		"/actuator/prometheus",
 		// Swagger Documents
 		/** @brief Swagger Docs */
 		"/v3/api-docs/**", "/swagger-ui/**",
@@ -231,11 +233,15 @@ public class SecurityConfig {
 		);
 
 		// JWT 인증 및 토큰 검증 필터 추가
-		http.addFilterAt(
-				new JwtAuthenticationFilter(authenticationManager(), jwtProvider, eventPublisher, redisService),
-				UsernamePasswordAuthenticationFilter.class
+		http
+			.addFilterBefore(
+					new JwtAuthenticationFilter(authenticationManager(), jwtProvider, eventPublisher, redisService),
+					UsernamePasswordAuthenticationFilter.class
 			)
-			.addFilterAfter(new TokenAuthenticationFilter(jwtProvider, memberJpaRepository), JwtAuthenticationFilter.class);
+			.addFilterBefore(
+					new TokenAuthenticationFilter(jwtProvider, memberJpaRepository),
+					JwtAuthenticationFilter.class);
+
 		//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 
 		//        // cors 설정

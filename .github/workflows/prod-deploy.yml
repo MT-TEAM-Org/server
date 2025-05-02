@@ -24,7 +24,7 @@ jobs:
       - name: List Files in Current Directory
         run: ls -la
 
-      - name: Copy docker-compose-prod.yml to EC2
+      - name: Copy docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.PROD_AWS_SERVER_IP }}
@@ -32,6 +32,24 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: ./docker-compose.yml
           target: ~/play-hive/
+
+      - name: Copy Monitoring Files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_AWS_SERVER_IP }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: monitoring/docker-compose.monitoring.yml
+          target: ~/play-hive/monitoring/
+
+      - name: Copy Prometheus Config
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_AWS_SERVER_IP }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: monitoring/prometheus.yml
+          target: ~/play-hive/monitoring/
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
@@ -136,7 +154,7 @@ jobs:
            exit 0
           fi
           echo "Waiting for server to be ready... Retry ($i/5)"
-          sleep 5
+          sleep 30
           done
           echo ":x: Health Check Failed after retries."
           exit 1
@@ -159,15 +177,6 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Copy Monitoring Files to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.PROD_AWS_SERVER_IP }}
-          username: ${{ secrets.AWS_USERNAME }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: ./monitoring/
-          target: ~/play-hive/monitoring/
-
       - name: Deploy Prometheus & Grafana
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -175,6 +184,17 @@ jobs:
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            cd ~/play-hive/monitoring
+            cd ~/play-hive/monitoring/monitoring
+            echo "Stopping & Removing Existing Prometheus/Grafana containers..."
+            sudo docker-compose -f docker-compose.monitoring.yml down -v --remove-orphans
+
+            echo "Removing old images (optional fallback)..."
+            sudo docker image rm -f grafana/grafana || true
+            sudo docker image rm -f prom/prometheus || true
+
+            echo "Pulling latest images..."
+            sudo docker-compose -f docker-compose.monitoring.yml pull
+
             echo "Launching Prometheus & Grafana containers..."
-            docker-compose -f docker-compose.monitoring.yml up -d
+            sudo docker-compose -f docker-compose.monitoring.yml up -d
+      
