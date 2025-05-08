@@ -186,10 +186,17 @@ jobs:
           script: |
             cd ~/play-hive/monitoring/monitoring
             
+            echo "Stopping & Removing existing containers (volumes preserved)..."
+            sudo docker-compose -f docker-compose.monitoring.yml down --remove-orphans
+            
+            echo "Removing old Prometheus & Grafana images..."
+            sudo docker image rm -f prom/prometheus || true
+            sudo docker image rm -f grafana/grafana || true
+            
             echo "Pulling latest images..."
             sudo docker-compose -f docker-compose.monitoring.yml pull
-
-            echo "Applying changes (recreate only if needed)..."
+      
+            echo "Recreating containers..."
             sudo docker-compose -f docker-compose.monitoring.yml up -d
             
             echo "Prometheus & Grafana deployment complete (without downtime)."
