@@ -354,36 +354,39 @@ public class BoardQueryRepository {
         List<Tuple> boards = queryFactory
                 .select(
                         board.id,
-                        board.title,
-                        boardCount.recommendCount,
-                        boardCount.commentCount
+                        board.title
                 )
                 .from(board)
-                .join(board).on(boardCount.board.id.eq(board.id))
                 .fetch();
 
-        List<Long> result = boards.stream()
+        List<BoardRankingDto> rankingList = boards.stream()
                 .map(tuple -> {
                     Long boardId = tuple.get(board.id);
-                    CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK,
-                            DomainType.BOARD, boardId, null);
                     String title = tuple.get(board.title);
 
-                    return new BoardRankingDto(boardId, commonCountDto.getViewCount(),
-                            commonCountDto.getRecommendCount(),
-                            commonCountDto.getCommentCount(), title,
-                            commonCountDto.getViewCount() + commonCountDto.getCommentCount());
+                    // Redis에서 모든 카운트 조회
+                    CommonCountDto countDto = redisCountService.getCommonCount(
+                            ServiceType.CHECK, DomainType.BOARD, boardId, null);
+
+                    int viewCount = countDto.getViewCount();
+                    int recommendCount = countDto.getRecommendCount();
+                    int commentCount = countDto.getCommentCount();
+                    int totalScore = viewCount + commentCount;
+
+                    // BoardRankingDto 생성
+                    return new BoardRankingDto(boardId, viewCount, recommendCount, commentCount, title, totalScore);
                 })
                 .sorted(Comparator.comparing(BoardRankingDto::getRecommendCount).reversed()
                         .thenComparing(BoardRankingDto::getTotalScore).reversed()
-                        .thenComparing(BoardRankingDto::getId)
-
-                )
-                .limit(10)
-                .map(BoardRankingDto::getId)
+                        .thenComparing(BoardRankingDto::getTitle)
+                        .thenComparing(BoardRankingDto::getId))
+                .limit(10) // 최대 10개로 제한
                 .collect(Collectors.toList());
 
-        return result;
+        // 최종 정렬된 ID 리스트 반환
+        return rankingList.stream()
+                .map(BoardRankingDto::getId)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -421,7 +424,9 @@ public class BoardQueryRepository {
      * 추천수가 제일많은 게시글 (추천수 동일시 조회수+댓글수, 조회수+댓글수도 동일할 경우 가나다 순)
      */
     public List<HotBoardDto> getHotBoardList() {
-        List<Long> hotIds = getHotBoardIdList(); // Redis 기준 정렬된 게시글 ID 리스트
+
+        //  Redis 기준으로 정렬된 핫 게시글 ID 조회
+        List<Long> hotIds = getHotBoardIdList();
 
         List<HotBoardDto> hotBoardList = queryFactory
                 .select(Projections.fields(HotBoardDto.class,
@@ -429,7 +434,6 @@ public class BoardQueryRepository {
                         board.categoryType,
                         board.id,
                         board.title,
-                        boardCount.commentCount,
                         board.id.in(hotIds).as("isHot"),
                         board.id.in(getNewBoardIdList()).as("isNew"),
                         new CaseBuilder()
@@ -438,16 +442,22 @@ public class BoardQueryRepository {
                                 .as("isImage")
                 ))
                 .from(board)
-                .join(boardCount).on(boardCount.board.id.eq(board.id))
                 .where(board.id.in(hotIds))
                 .fetch();
 
-        // Redis 기준 순서대로 정렬
+        // 댓글 수 설정 (Redis에서 조회)
+        hotBoardList.forEach(dto -> {
+            CommonCountDto countDto = redisCountService.getCommonCount(
+                    ServiceType.CHECK, DomainType.BOARD, dto.getId(), null);
+            dto.setCommentCount(countDto != null ? countDto.getCommentCount() : 0);
+        });
+
+        // ID 순서 맞추기
         Map<Long, Integer> orderMap = IntStream.range(0, hotIds.size())
                 .boxed()
                 .collect(Collectors.toMap(hotIds::get, i -> i));
 
-        hotBoardList.sort(Comparator.comparingInt(dto -> orderMap.get(dto.getId())));
+        hotBoardList.sort(Comparator.comparingInt(dto -> orderMap.getOrDefault(dto.getId(), Integer.MAX_VALUE)));
 
         // 순위 부여
         AtomicInteger rankCounter = new AtomicInteger(1);
@@ -455,7 +465,6 @@ public class BoardQueryRepository {
 
         return hotBoardList;
     }
-
 
     public Long findPreviousBoardId(Long boardId, Category boardType, CategoryType categoryType) {
         return queryFactory

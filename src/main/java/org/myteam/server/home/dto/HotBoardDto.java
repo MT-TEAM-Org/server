@@ -34,6 +34,7 @@ public class HotBoardDto {
     /**
      * 게시글 댓글수
      */
+    @Setter
     private Integer commentCount;
     /**
      * Hot 여부
