@@ -376,10 +376,28 @@ public class BoardQueryRepository {
                     // BoardRankingDto 생성
                     return new BoardRankingDto(boardId, viewCount, recommendCount, commentCount, title, totalScore);
                 })
-                .sorted(Comparator.comparing(BoardRankingDto::getRecommendCount).reversed()
-                        .thenComparing(BoardRankingDto::getTotalScore).reversed()
-                        .thenComparing(BoardRankingDto::getTitle)
-                        .thenComparing(BoardRankingDto::getId))
+                .sorted((a, b) -> {
+                    // 1. 추천수 비교 (내림차순)
+                    int recommendCompare = Integer.compare(b.getRecommendCount(), a.getRecommendCount());
+                    if (recommendCompare != 0) {
+                        return recommendCompare;
+                    }
+
+                    // 2. 조회수 + 댓글수 비교 (내림차순)
+                    int totalScoreCompare = Integer.compare(b.getTotalScore(), a.getTotalScore());
+                    if (totalScoreCompare != 0) {
+                        return totalScoreCompare;
+                    }
+
+                    // 3. 제목 비교 (오름차순)
+                    int titleCompare = a.getTitle().compareTo(b.getTitle());
+                    if (titleCompare != 0) {
+                        return titleCompare;
+                    }
+
+                    // 4. ID 비교 (오름차순)
+                    return Long.compare(a.getId(), b.getId());
+                })
                 .limit(10) // 최대 10개로 제한
                 .collect(Collectors.toList());
 
