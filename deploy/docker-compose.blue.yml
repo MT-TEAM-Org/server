@@ -1,13 +1,11 @@
 version: '3.9'
 
 services:
-  app:
-    image: ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest # 사용할 이미지 이름
-    build:
-      context: . # Dockerfile이 위치한 디렉토리
-      dockerfile: Dockerfile # 빌드에 사용할 Dockerfile
+  app-blue:
+    image: ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest
+    container_name: app-blue
     ports:
-      - "8080:8080" # 호스트와 컨테이너의 포트 매핑
+      - "8081:8080"  # 외부는 8081, 내부는 그대로
     environment:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
@@ -52,26 +50,6 @@ services:
       - playhive-net
     restart: always
 
-  redis:
-    image: redis:latest
-    container_name: ${REDIS_HOST}
-    restart: always
-    ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
-    networks:
-      - playhive-net
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    volumes:
-      - redis_data:/data
-
 networks:
   playhive-net:
     external: true
-
-volumes:
-  minio_data:
-    driver: local
-  redis_data:
-    driver: local
