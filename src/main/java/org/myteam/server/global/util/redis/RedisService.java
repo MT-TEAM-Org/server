@@ -112,12 +112,12 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 	public void putEsportsYoutubeVideoId(String esportsYoutubeUrl) {
 		redisTemplate.opsForValue()
-			.set(ESPORTS_YOUTUBE_VIDEOID_KEY, esportsYoutubeUrl, Duration.ofMinutes(YOUTUBE_EXPIRED_TIME));
+			.set(ESPORTS_YOUTUBE_VIDEOID_KEY, esportsYoutubeUrl, Duration.ofMillis(YOUTUBE_EXPIRED_TIME));
 	}
 
 	public void putRefreshToken(UUID publicId, String refreshToken) {
 		redisTemplate.opsForValue()
-			.set(REFRESH_TOKEN_KEY + publicId, refreshToken, Duration.ofMinutes(REFRESH_TOKEN_EXPIRE_TIME));
+			.set(REFRESH_TOKEN_KEY + publicId, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
 	}
 
 	public String getRefreshToken(UUID publicId) {
