@@ -24,7 +24,7 @@ jobs:
       - name: List Files in Current Directory
         run: ls -la
 
-      - name: Copy docker-compose.yml to EC2
+      - name: Copy docker-compose-prod.yml to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.PROD_AWS_SERVER_IP }}
@@ -200,4 +200,3 @@ jobs:
             sudo docker-compose -f docker-compose.monitoring.yml up -d
             
             echo "Prometheus & Grafana deployment complete (without downtime)."
-      
