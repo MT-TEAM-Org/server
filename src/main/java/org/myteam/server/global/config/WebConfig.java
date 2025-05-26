@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
@@ -15,8 +16,8 @@ import static org.myteam.server.global.security.jwt.JwtProvider.REFRESH_TOKEN_KE
 @Configuration
 public class WebConfig {
 
-    @Value("${FRONT_URL:http://localhost:3000}")
-    private String frontUrl;
+    private final String[] ALLOWED_ORIGIN = {"http://localhost:3000", "https://main.dbbilwoxps3tu.amplifyapp.com",
+            "https://playhive.co.kr", "https://www.playhive.co.kr"};
 
     protected WebConfig() {
     }
@@ -25,8 +26,6 @@ public class WebConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-
-        final String[] ALLOWED_ORIGIN = {frontUrl, "http://localhost:3000"};
 
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList(ALLOWED_ORIGIN));
@@ -40,5 +39,22 @@ public class WebConfig {
 
         // TODO: 타입 확인해보기
         return new CorsFilter(source);
+    }
+
+    @Bean
+    public CorsConfigurationSource configurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowedOrigins(Arrays.asList(ALLOWED_ORIGIN));
+        configuration.setAllowCredentials(true);
+        
+        configuration.addExposedHeader(HEADER_AUTHORIZATION);
+        configuration.addExposedHeader(REFRESH_TOKEN_KEY);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

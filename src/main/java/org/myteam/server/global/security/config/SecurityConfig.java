@@ -2,6 +2,7 @@ package org.myteam.server.global.security.config;
 
 import static org.myteam.server.global.security.jwt.JwtProvider.*;
 
+import org.myteam.server.global.config.WebConfig;
 import org.myteam.server.global.security.filter.AuthenticationEntryPointHandler;
 import org.myteam.server.global.security.filter.CustomAccessDeniedHandler;
 import org.myteam.server.global.security.filter.JwtAuthenticationFilter;
@@ -183,8 +184,6 @@ public class SecurityConfig {
 		/** @brief Check Access Member */"/test/cert",
 	};
 
-	@Value("${FRONT_URL:http://localhost:3000}")
-	private String frontUrl;
 	private final JwtProvider jwtProvider;
 	private final CustomUserDetailsService customUserDetailsService;
 	private final CustomOAuth2UserService customOAuth2UserService;
@@ -193,12 +192,7 @@ public class SecurityConfig {
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedisService redisService;
 	private final MemberJpaRepository memberJpaRepository;
-
-	@PostConstruct
-	public void init() {
-		log.debug("init security config");
-		log.debug("frontUrl = {}", frontUrl);
-	}
+	private final WebConfig webConfig;
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
@@ -245,7 +239,7 @@ public class SecurityConfig {
 		//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 
 		//        // cors 설정
-		http.cors((corsCustomizer) -> corsCustomizer.configurationSource(configurationSource()));
+		http.cors((corsCustomizer) -> corsCustomizer.configurationSource(webConfig.configurationSource()));
 
 		// 예외 처리 핸들러 설정
 		http.exceptionHandling(exceptionHandling -> exceptionHandling
@@ -285,22 +279,6 @@ public class SecurityConfig {
 		provider.setPasswordEncoder(passwordEncoder());
 		provider.setUserDetailsService(customUserDetailsService);
 		return new ProviderManager(provider);
-	}
-
-	public CorsConfigurationSource configurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.addAllowedHeader("*");
-		configuration.addAllowedMethod("*");
-		configuration.addAllowedOriginPattern(frontUrl); // TODO_ 추후 변경 해야함 배포시
-		configuration.addAllowedOriginPattern("http://localhost:3000"); // TODO_ 추후 변경 해야함 배포시
-		configuration.addAllowedOriginPattern("https://main.dbbilwoxps3tu.amplifyapp.com");
-		configuration.addAllowedOriginPattern("https://playhive.co.kr");
-		configuration.setAllowCredentials(true);
-		configuration.addExposedHeader(HEADER_AUTHORIZATION);
-		configuration.addExposedHeader(REFRESH_TOKEN_KEY);
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
 	}
 
 }
