@@ -1,4 +1,4 @@
-package org.myteam.server.chat.domain;
+package org.myteam.server.chat.block.domain;
 
 public enum BanReason {
     HARASSMENT("회원에 대한 상습 비방"),

@@ -10,7 +10,7 @@ import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
 import org.myteam.server.chat.config.WebSocketConfig;
-import org.myteam.server.chat.domain.BanReason;
+import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;

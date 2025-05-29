@@ -2,13 +2,11 @@ package org.myteam.server.report.repository;
 
 import static org.myteam.server.report.domain.QReport.report;
 import static org.myteam.server.member.entity.QMember.member;
-import static org.myteam.server.report.domain.QReportReason.reportReason;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.chat.domain.BanReason;
 import org.myteam.server.member.entity.QMember;
 import org.myteam.server.report.domain.ReportType;
 import org.myteam.server.report.dto.response.ReportResponse.*;
