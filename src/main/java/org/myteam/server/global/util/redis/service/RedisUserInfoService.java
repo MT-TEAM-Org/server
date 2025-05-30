@@ -18,16 +18,17 @@ public class RedisUserInfoService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String PREFIX = "token:";
+    private static final int LIMIT_DAYS = 1;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public void saveUserInfo(String token, UserInfo userInfo, Duration ttl) {
+    public void saveUserInfo(String token, UserInfo userInfo) {
         try {
             String key = PREFIX + token;
             String value = objectMapper.writeValueAsString(userInfo);
 
-            redisTemplate.opsForValue().set(key, value, ttl);
-            log.info("Saved user info to Redis. Key={}, TTL={}", key, ttl);
+            redisTemplate.opsForValue().set(key, value, Duration.ofDays(LIMIT_DAYS));
+            log.info("Saved user info to Redis. Key={}, TTL={}", key, Duration.ofDays(LIMIT_DAYS));
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize userInfo", e);
         }

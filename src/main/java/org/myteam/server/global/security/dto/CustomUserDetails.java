@@ -46,6 +46,13 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public String getStatus() {return member.getStatus().name(); }
+    public String getNickname() {
+        return member.getNickname();
+    }
+
+    public String getImg() {
+        return member.getImgUrl();
+    }
 
     @Override
     public boolean isAccountNonExpired() {

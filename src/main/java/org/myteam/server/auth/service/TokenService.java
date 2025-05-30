@@ -5,10 +5,14 @@ import static org.myteam.server.global.security.jwt.JwtProvider.*;
 import java.time.Duration;
 import java.util.UUID;
 
+import org.myteam.server.chat.info.domain.UserInfo;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveJwtException;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.util.redis.service.RedisService;
+import org.myteam.server.global.util.redis.service.RedisUserInfoService;
+import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TokenService {
 	private final JwtProvider jwtProvider;
 	private final RedisService redisService;
+	private final RedisUserInfoService redisUserInfoService;
+	private final MemberReadService memberReadService;
 
 	/**
 	 * Refresh Token 검증
@@ -40,7 +46,13 @@ public class TokenService {
 		existRefreshToken(refreshToken);
 		expireRefreshToken(refreshToken);
 
-		generateAccessToken(refreshToken, response);
+		String newAccessToken = generateAccessToken(refreshToken, response);
+		log.info("member: {} regenerated new Access Token", publicId);
+		Member member = memberReadService.findById(publicId);
+
+		redisUserInfoService.saveUserInfo(newAccessToken,
+				new UserInfo(member.getPublicId(), member.getNickname(), member.getImgUrl()));
+		log.info("member: {} caching user info", publicId);
 	}
 
 	private void existRefreshToken(String refreshToken) {
@@ -57,7 +69,7 @@ public class TokenService {
 		}
 	}
 
-	private void generateAccessToken(String refreshToken, HttpServletResponse response) {
+	private String generateAccessToken(String refreshToken, HttpServletResponse response) {
 		UUID publicId = jwtProvider.getPublicId(refreshToken);
 		String role = jwtProvider.getRole(refreshToken);
 		String status = jwtProvider.getStatus(refreshToken);
@@ -66,5 +78,7 @@ public class TokenService {
 			status);
 
 		response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + newAccessToken);
+
+		return newAccessToken;
 	}
 }
