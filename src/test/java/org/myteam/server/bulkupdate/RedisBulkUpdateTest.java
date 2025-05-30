@@ -16,7 +16,7 @@ import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.board.util.BoardCountStrategy;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.redis.RedisCountBulkUpdater;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.util.CountStrategyFactory;
 import org.springframework.beans.factory.annotation.Autowired;

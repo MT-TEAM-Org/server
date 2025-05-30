@@ -1,10 +1,11 @@
-package org.myteam.server.chat.block.domain;
+package org.myteam.server.chat.block.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 

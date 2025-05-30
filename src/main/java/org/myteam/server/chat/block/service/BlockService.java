@@ -2,7 +2,7 @@ package org.myteam.server.chat.block.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.chat.block.domain.MemberBlock;
+import org.myteam.server.chat.block.domain.entity.MemberBlock;
 import org.myteam.server.chat.block.dto.request.BlockRequest.*;
 import org.myteam.server.chat.block.dto.response.BlockResponse.*;
 import org.myteam.server.chat.block.repository.MemberBlockRepository;

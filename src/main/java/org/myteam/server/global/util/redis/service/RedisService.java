@@ -1,4 +1,4 @@
-package org.myteam.server.global.util.redis;
+package org.myteam.server.global.util.redis.service;
 
 import java.time.Duration;
 import java.util.UUID;

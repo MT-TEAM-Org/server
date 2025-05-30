@@ -1,7 +1,7 @@
 package org.myteam.server.board.service;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Service;

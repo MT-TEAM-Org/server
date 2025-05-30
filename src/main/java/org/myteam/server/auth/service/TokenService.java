@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveJwtException;
 import org.myteam.server.global.security.jwt.JwtProvider;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

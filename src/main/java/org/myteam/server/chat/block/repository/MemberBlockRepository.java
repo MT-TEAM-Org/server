@@ -1,6 +1,6 @@
 package org.myteam.server.chat.block.repository;
 
-import org.myteam.server.chat.block.domain.MemberBlock;
+import org.myteam.server.chat.block.domain.entity.MemberBlock;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

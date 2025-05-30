@@ -38,7 +38,7 @@ import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;

@@ -23,7 +23,7 @@ import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;

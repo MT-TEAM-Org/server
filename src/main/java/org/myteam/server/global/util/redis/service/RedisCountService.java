@@ -1,10 +1,13 @@
-package org.myteam.server.global.util.redis;
+package org.myteam.server.global.util.redis.service;
 
 import static org.myteam.server.util.ClientUtils.toInt;
 
 import java.time.Duration;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.global.util.redis.CommonCount;
+import org.myteam.server.global.util.redis.CommonCountDto;
+import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.recommend.RecommendActionType;
 import org.myteam.server.recommend.RecommendService;
 import org.myteam.server.report.domain.DomainType;

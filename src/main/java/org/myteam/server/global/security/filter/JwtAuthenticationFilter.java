@@ -15,7 +15,7 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.myteam.server.chat.block.domain.MemberBlock;
+import org.myteam.server.chat.block.domain.entity.MemberBlock;
 
-import java.util.List;
 import java.util.UUID;
 
 public record BlockResponse() {
