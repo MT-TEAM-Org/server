@@ -5,7 +5,7 @@ import org.myteam.server.global.security.filter.AuthenticationEntryPointHandler;
 import org.myteam.server.global.security.filter.CustomAccessDeniedHandler;
 import org.myteam.server.global.security.filter.JwtAuthenticationFilter;
 import org.myteam.server.global.security.filter.TokenAuthenticationFilter;
-import org.myteam.server.global.security.handler.LogoutSuccessHandler;
+import org.myteam.server.global.security.handler.CustomLogoutSuccessHandler;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.security.service.CustomUserDetailsService;
 import org.myteam.server.global.util.redis.service.RedisService;
@@ -246,7 +246,7 @@ public class SecurityConfig {
 		http.logout(logout -> logout
 			.logoutUrl("/logout")
 			.invalidateHttpSession(true)
-			.logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider))
+			.logoutSuccessHandler(new CustomLogoutSuccessHandler(jwtProvider, redisUserInfoService))
 			.permitAll()
 		);
 
