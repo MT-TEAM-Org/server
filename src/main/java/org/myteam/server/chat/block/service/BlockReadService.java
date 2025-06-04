@@ -25,7 +25,7 @@ public class BlockReadService {
      */
     public BlockedMembersResponse getBlockedUsers(UUID blockerId) {
         log.debug("차단 목록 조회 요청: blockerId={}", blockerId);
-        List<UUID> blockedIds = memberBlockRepository.findBlockedMemberIdsByBlockerPublicId(blockerId);
+        List<UUID> blockedIds = memberBlockRepository.existsByBlockerPublicId(blockerId);
         return BlockedMembersResponse.from(blockedIds);
     }
 }

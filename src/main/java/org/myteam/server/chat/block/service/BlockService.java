@@ -2,7 +2,7 @@ package org.myteam.server.chat.block.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.chat.block.domain.entity.MemberBlock;
+import org.myteam.server.chat.block.domain.MemberBlock;
 import org.myteam.server.chat.block.dto.request.BlockRequest.*;
 import org.myteam.server.chat.block.dto.response.BlockResponse.*;
 import org.myteam.server.chat.block.repository.MemberBlockRepository;
@@ -35,7 +35,7 @@ public class BlockService {
         log.info("This user: {} has received a blocking request.", blocker.getPublicId());
 
         // 이미 밴된 유저인지 확인
-        if (memberBlockRepository.existsByBlockerIdAndBlockedId(blocker.getPublicId(), request.getBlockedId())) {
+        if (memberBlockRepository.existsByBlockerPublicIdAndBlockedPublicId(blocker.getPublicId(), request.getBlockedId())) {
             log.error("This user: {} is already ban this user: {}", blocker.getPublicId(), blocked.getPublicId());
             throw new PlayHiveException(ErrorCode.BAN_ALREADY_EXISTS);
         }
@@ -54,7 +54,7 @@ public class BlockService {
         Member blocked = memberReadService.findById(blockedId);
         log.info("This user: {} has received a unblocking request.", blocker.getPublicId());
 
-        MemberBlock block = memberBlockRepository.findByBlockerIdAndBlockedId(
+        MemberBlock block = memberBlockRepository.findByBlockerPublicIdAndBlockedPublicId(
                         blocker.getPublicId(), blocked.getPublicId())
                 .orElseThrow(() -> {
                     log.error("This user: {} is not banned this user: {}", blocker.getPublicId(), blocked.getPublicId());

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.myteam.server.chat.block.domain.entity.MemberBlock;
+import org.myteam.server.chat.block.domain.MemberBlock;
 
 import java.util.UUID;
 

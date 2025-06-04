@@ -18,7 +18,7 @@ public class MemberBlockQueryRepositoryImpl implements MemberBlockQueryRepositor
     QMember member = QMember.member;
 
     @Override
-    public List<UUID> findBlockedMemberIdsByBlockerPublicId(UUID blockerPublicId) {
+    public List<UUID> existsByBlockerPublicId(UUID blockerPublicId) {
         return queryFactory
                 .select(memberBlock.blocked.publicId)
                 .from(memberBlock)

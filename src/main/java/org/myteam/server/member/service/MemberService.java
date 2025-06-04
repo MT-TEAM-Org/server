@@ -72,7 +72,7 @@ public class MemberService {
 
 		// 메일 전송
 		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
-		strategy.send(member.getEmail());
+//		strategy.send(member.getEmail());
 
 		// dto 응답
 		return MemberResponse.createMemberResponse(member);

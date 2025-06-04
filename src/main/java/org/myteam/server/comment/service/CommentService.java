@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.chat.domain.BadWordFilter;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentDeleteRequest;
@@ -15,6 +14,7 @@ import org.myteam.server.comment.repository.CommentQueryRepository;
 import org.myteam.server.comment.repository.CommentRecommendRepository;
 import org.myteam.server.comment.repository.CommentRepository;
 import org.myteam.server.comment.util.CommentFactory;
+import org.myteam.server.common.filter.util.BadWordFilter;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.service.RedisCountService;
