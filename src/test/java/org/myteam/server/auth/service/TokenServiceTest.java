@@ -11,6 +11,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.myteam.server.chat.info.domain.UserInfo;
+import org.myteam.server.global.util.redis.service.RedisUserInfoService;
+import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.PlayHiveJwtException;
 import org.myteam.server.global.security.jwt.JwtProvider;
@@ -21,8 +25,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.myteam.server.global.exception.ErrorCode.EXPIRED_REFRESH_TOKEN;
 import static org.myteam.server.global.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 import static org.myteam.server.global.security.jwt.JwtProvider.HEADER_AUTHORIZATION;
@@ -32,6 +35,10 @@ class TokenServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private TokenService tokenService;
+    @MockBean
+    private MemberReadService memberReadService;
+    @MockBean
+    private RedisUserInfoService redisUserInfoService;
     @MockBean
     private JwtProvider jwtProvider;
     @Mock
@@ -64,6 +71,12 @@ class TokenServiceTest extends IntegrationTestSupport {
         when(jwtProvider.getRole(mockRefreshToken)).thenReturn("USER");
         when(jwtProvider.getStatus(mockRefreshToken)).thenReturn("ACTIVE");
         when(jwtProvider.generateToken(any(), any(), any(), anyString(), anyString())).thenReturn("newAccessToken");
+
+        Member mockMember = mock(Member.class);
+        when(memberReadService.findById(mockPublicId)).thenReturn(mockMember);
+
+        doNothing().when(redisUserInfoService)
+                .saveUserInfo(anyString(), any(UserInfo.class));
 
         // when
         tokenService.regenerateAccessToken(request, response);

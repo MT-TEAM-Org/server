@@ -7,7 +7,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.springframework.stereotype.Component;
 

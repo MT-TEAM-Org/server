@@ -21,7 +21,7 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QInquiryComment;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;

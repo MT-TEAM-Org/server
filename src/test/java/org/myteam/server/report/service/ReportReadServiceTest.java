@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
-import org.myteam.server.chat.domain.BanReason;
+import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;

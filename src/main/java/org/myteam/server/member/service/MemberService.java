@@ -10,7 +10,7 @@ import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -72,7 +72,7 @@ public class MemberService {
 
 		// 메일 전송
 		MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
-		strategy.send(member.getEmail());
+//		strategy.send(member.getEmail());
 
 		// dto 응답
 		return MemberResponse.createMemberResponse(member);

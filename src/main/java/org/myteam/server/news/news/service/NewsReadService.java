@@ -7,7 +7,7 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.news.domain.News;

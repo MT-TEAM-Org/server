@@ -7,7 +7,7 @@ import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;

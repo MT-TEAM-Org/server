@@ -22,7 +22,7 @@ import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.notice.domain.NoticeSearchType;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
