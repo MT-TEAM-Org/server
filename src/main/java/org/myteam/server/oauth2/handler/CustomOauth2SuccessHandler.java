@@ -10,10 +10,11 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.myteam.server.chat.info.domain.UserInfo;
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
-import org.myteam.server.global.util.cookie.CookieUtil;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
+import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.dto.CustomOAuth2User;
@@ -40,15 +41,19 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 	private final MemberJpaRepository memberJpaRepository;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedisService redisService;
+	private final RedisUserInfoService redisUserInfoService;
 
 	public CustomOauth2SuccessHandler(JwtProvider jwtProvider,
-		MemberJpaRepository memberJpaRepository,
-		ApplicationEventPublisher eventPublisher,
-		RedisService redisService) {
+									  MemberJpaRepository memberJpaRepository,
+									  ApplicationEventPublisher eventPublisher,
+									  RedisService redisService,
+									  RedisUserInfoService redisUserInfoService) {
+
 		this.jwtProvider = jwtProvider;
 		this.memberJpaRepository = memberJpaRepository;
 		this.eventPublisher = eventPublisher;
 		this.redisService = redisService;
+		this.redisUserInfoService = redisUserInfoService;
 	}
 
 	@Override
@@ -117,6 +122,9 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 		log.debug("print role: {}", role);
 
 		redisService.putRefreshToken(member.getPublicId(), refreshToken);
+		redisUserInfoService.saveUserInfo(accessToken,
+				new UserInfo(member.getPublicId(), member.getNickname(), member.getImgUrl()));
+		log.info("member: {} caching user info", member.getPublicId());
 		response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
 
 		eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));

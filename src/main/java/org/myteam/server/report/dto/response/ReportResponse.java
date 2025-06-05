@@ -4,15 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.myteam.server.chat.domain.BanReason;
+import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.report.domain.Report;
-import org.myteam.server.report.domain.ReportReason;
 import org.myteam.server.report.domain.ReportType;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public record ReportResponse() {
 

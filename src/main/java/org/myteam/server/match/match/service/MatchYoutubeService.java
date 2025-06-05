@@ -2,7 +2,7 @@ package org.myteam.server.match.match.service;
 
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.match.match.client.GoogleFeignClient;
 import org.myteam.server.match.match.dto.client.reponse.GoogleYoutubeResponse;
 import org.springframework.beans.factory.annotation.Value;

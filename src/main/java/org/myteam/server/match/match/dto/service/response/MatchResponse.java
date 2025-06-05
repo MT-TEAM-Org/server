@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static org.myteam.server.chat.block.domain.Topic.TOPIC_PREFIX;
+
 @Getter
 @NoArgsConstructor
 public class MatchResponse {
@@ -26,6 +28,9 @@ public class MatchResponse {
 	@Schema(description = "경기 유형 ID")
 	private String category;
 
+	@Schema(description = "채팅방 이름")
+	private String topicName;
+
 	@Builder
 	public MatchResponse(Long id, TeamResponse homeTeam, TeamResponse awayTeam, String place, String leagueName, LocalDateTime startTime, String category) {
 		this.id = id;
@@ -35,6 +40,7 @@ public class MatchResponse {
 		this.leagueName = leagueName;
 		this.startTime = startTime;
 		this.category = category;
+		this.topicName = TOPIC_PREFIX + category + "-" + id;
 	}
 
 	public static MatchResponse createResponse(Match match) {

@@ -1,15 +1,13 @@
 package org.myteam.server.report.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.myteam.server.chat.domain.BanReason;
+import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.report.domain.ReportType;
 
-import java.util.List;
 import java.util.UUID;
 
 public record ReportRequest() {

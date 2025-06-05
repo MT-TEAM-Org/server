@@ -1,22 +1,20 @@
 package org.myteam.server.global.security.config;
 
-import static org.myteam.server.global.security.jwt.JwtProvider.*;
-
 import org.myteam.server.global.config.WebConfig;
 import org.myteam.server.global.security.filter.AuthenticationEntryPointHandler;
 import org.myteam.server.global.security.filter.CustomAccessDeniedHandler;
 import org.myteam.server.global.security.filter.JwtAuthenticationFilter;
 import org.myteam.server.global.security.filter.TokenAuthenticationFilter;
-import org.myteam.server.global.security.handler.LogoutSuccessHandler;
+import org.myteam.server.global.security.handler.CustomLogoutSuccessHandler;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.security.service.CustomUserDetailsService;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
+import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
 import org.myteam.server.oauth2.service.CustomOAuth2UserService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,11 +32,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -191,6 +185,7 @@ public class SecurityConfig {
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedisService redisService;
+	private final RedisUserInfoService redisUserInfoService;
 	private final MemberJpaRepository memberJpaRepository;
 	private final WebConfig webConfig;
 
@@ -229,7 +224,7 @@ public class SecurityConfig {
 		// JWT 인증 및 토큰 검증 필터 추가
 		http
 			.addFilterBefore(
-					new JwtAuthenticationFilter(authenticationManager(), jwtProvider, eventPublisher, redisService),
+					new JwtAuthenticationFilter(authenticationManager(), jwtProvider, eventPublisher, redisService, redisUserInfoService),
 					UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterBefore(
@@ -251,7 +246,7 @@ public class SecurityConfig {
 		http.logout(logout -> logout
 			.logoutUrl("/logout")
 			.invalidateHttpSession(true)
-			.logoutSuccessHandler(new LogoutSuccessHandler(jwtProvider))
+			.logoutSuccessHandler(new CustomLogoutSuccessHandler(jwtProvider, redisUserInfoService))
 			.permitAll()
 		);
 

@@ -10,12 +10,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import org.myteam.server.chat.info.domain.UserInfo;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
+import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,16 +41,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private final JwtProvider jwtProvider;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedisService redisService;
+	private final RedisUserInfoService redisUserInfoService;
 
 	public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
-		JwtProvider jwtProvider,
-		ApplicationEventPublisher eventPublisher,
-		RedisService redisService) {
+								   JwtProvider jwtProvider,
+								   ApplicationEventPublisher eventPublisher,
+								   RedisService redisService,
+								   RedisUserInfoService redisUserInfoService) {
 		setFilterProcessesUrl("/login");
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
 		this.eventPublisher = eventPublisher;
 		this.redisService = redisService;
+		this.redisUserInfoService = redisUserInfoService;
 	}
 
 	@Override
@@ -121,6 +126,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			log.debug("print role: {}", role);
 
 			redisService.putRefreshToken(publicId, refreshToken);
+			redisUserInfoService.saveUserInfo(accessToken,
+					new UserInfo(publicId, customUserDetails.getNickname(), customUserDetails.getImg()));
+			log.info("member: {} caching user info", publicId);
 			response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
 			response.setStatus(HttpStatus.OK.value());
 

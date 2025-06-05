@@ -2,7 +2,7 @@ package org.myteam.server.report.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.myteam.server.chat.domain.BanReason;
+import org.myteam.server.chat.block.domain.BanReason;
 
 @Entity
 @Getter

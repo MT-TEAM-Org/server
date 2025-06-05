@@ -1,7 +1,7 @@
 package org.myteam.server.news.newsCount.service;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.news.newsCount.dto.service.response.NewsRecommendResponse;
 import org.myteam.server.report.domain.DomainType;

@@ -2,14 +2,12 @@ package org.myteam.server.report.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.RedisService;
+import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
-import org.myteam.server.news.news.service.NewsReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.report.domain.ReportType;
 import org.myteam.server.report.dto.request.ReportRequest.*;

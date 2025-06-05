@@ -3,7 +3,7 @@ package org.myteam.server.board.util;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.RankingCacheReader;
-import org.myteam.server.global.util.redis.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Component;
