@@ -1,5 +1,6 @@
 package org.myteam.server.notice.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.CommentType;
@@ -7,8 +8,8 @@ import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -123,7 +124,7 @@ public class NoticeService {
     /**
      * 공지사항 삭제
      */
-    public void deleteNotice(Long noticeId) {
+    public void deleteNotice(List<Long> noticeIdList) {
         log.info("delete Notice 실행");
 
         Member member = securityReadService.getMember();
@@ -131,22 +132,25 @@ public class NoticeService {
             throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
         }
 
-        Notice notice = noticeReadService.findById(noticeId);
-        if (notice.getMember().getPublicId() != member.getPublicId()) {
-            throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+        for (Long noticeId : noticeIdList) {
+
+            Notice notice = noticeReadService.findById(noticeId);
+            if (notice.getMember().getPublicId() != member.getPublicId()) {
+                throw new PlayHiveException(ErrorCode.UNAUTHORIZED);
+            }
+
+            if (notice.getImgUrl() != null) {
+                s3Service.deleteFile(notice.getImgUrl());
+            }
+
+            redisCountService.removeCount(DomainType.NOTICE, noticeId);
+
+            noticeCountRepository.deleteByNoticeId(notice.getId());
+            noticeRepository.delete(notice);
+
+            log.info("공지사항 삭제: {}", noticeId);
+
+            commentService.deleteCommentByPost(CommentType.NOTICE, noticeId);
         }
-
-        if (notice.getImgUrl() != null) {
-            s3Service.deleteFile(notice.getImgUrl());
-        }
-
-        redisCountService.removeCount(DomainType.NOTICE, noticeId);
-
-        noticeCountRepository.deleteByNoticeId(notice.getId());
-        noticeRepository.delete(notice);
-
-        log.info("공지사항 삭제: {}", noticeId);
-
-        commentService.deleteCommentByPost(CommentType.NOTICE, noticeId);
     }
 }

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorResponse;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -98,9 +100,9 @@ public class NoticeController {
             @ApiResponse(responseCode = "404", description = "해당 공지사항이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @DeleteMapping("/{noticeId}")
-    public ResponseEntity<ResponseDto<Void>> deleteNotice(@PathVariable Long noticeId) {
-        noticeService.deleteNotice(noticeId);
+    @DeleteMapping
+    public ResponseEntity<ResponseDto<Void>> deleteNotice(@RequestParam List<Long> noticeIdList) {
+        noticeService.deleteNotice(noticeIdList);
         return ResponseEntity.ok(new ResponseDto<>(
                 SUCCESS.name(),
                 "공지사항 삭제 성공",
