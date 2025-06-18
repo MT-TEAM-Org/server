@@ -93,7 +93,10 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 			eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
 
-			String redirectUrl = frontUrl + frontSignUpPath + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
+			String encodedRefreshToken = URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
+			String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+			String redirectUrl = frontUrl + frontSignUpPath + encodedRefreshToken + "&email=" + encodedEmail;
+
 			log.info("redirectUrl: {}", redirectUrl);
 			response.sendRedirect(redirectUrl);
 			return;
