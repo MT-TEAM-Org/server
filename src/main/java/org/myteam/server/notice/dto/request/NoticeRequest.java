@@ -18,7 +18,7 @@ public record NoticeRequest() {
     @AllArgsConstructor
     public static final class NoticeSaveRequest {
         @NotBlank(message = "제목을 입력해주세요")
-        @Size(max = 30, message = "제목은 30자 이내로 입력해주세요")
+        @Size(max = 40, message = "제목은 40자 이내로 입력해주세요")
         private String title;
         @NotBlank(message = "내용을 입력해주세요")
         private String content;
