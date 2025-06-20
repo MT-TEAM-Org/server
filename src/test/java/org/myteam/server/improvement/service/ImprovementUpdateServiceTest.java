@@ -1,32 +1,31 @@
 package org.myteam.server.improvement.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.media.MediaUtils;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.ServiceType;
-import org.myteam.server.global.util.upload.MediaUtils;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementStatus;
-import org.myteam.server.improvement.dto.request.ImprovementRequest.*;
-import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
+import org.myteam.server.improvement.dto.request.ImprovementRequest.ImprovementSaveRequest;
+import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementSaveResponse;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.report.domain.DomainType;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 class ImprovementUpdateServiceTest extends IntegrationTestSupport {
 
@@ -121,7 +120,8 @@ class ImprovementUpdateServiceTest extends IntegrationTestSupport {
         );
 
         try (MockedStatic<MediaUtils> utilities = mockStatic(MediaUtils.class)) {
-            utilities.when(() -> MediaUtils.verifyImageUrlAndRequestImageUrl(improvement.getImgUrl(), request.getImgUrl()))
+            utilities.when(
+                            () -> MediaUtils.verifyImageUrlAndRequestImageUrl(improvement.getImgUrl(), request.getImgUrl()))
                     .thenReturn(true);
 
             // when

@@ -2,7 +2,6 @@ package org.myteam.server.comment.service;
 
 import java.util.List;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
@@ -17,9 +16,9 @@ import org.myteam.server.comment.util.CommentFactory;
 import org.myteam.server.common.filter.util.BadWordFilter;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
-import org.myteam.server.global.util.redis.service.RedisCountService;
+import org.myteam.server.global.util.media.MediaUtils;
 import org.myteam.server.global.util.redis.ServiceType;
-import org.myteam.server.global.util.upload.MediaUtils;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.SecurityReadService;
