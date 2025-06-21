@@ -1,5 +1,7 @@
 package org.myteam.server.news.news.dto.service.response;
 
+import static org.myteam.server.global.util.media.ThumbnailUrlUtils.extractCleanThumbImg;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -61,11 +63,12 @@ public class NewsResponse {
 
     public static NewsResponse createResponse(News news, boolean isRecommend, Long previousId,
                                               Long nextId, CommonCountDto commonCountDto) {
+
         return NewsResponse.builder()
                 .id(news.getId())
                 .category(news.getCategory())
                 .title(news.getTitle())
-                .thumbImg(news.getThumbImg())
+                .thumbImg(extractCleanThumbImg(news.getThumbImg(), news.getCategory()))
                 .postDate(news.getPostDate())
                 .commonCountDto(commonCountDto)
                 .isRecommend(isRecommend)

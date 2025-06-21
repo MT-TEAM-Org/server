@@ -1,4 +1,4 @@
-package org.myteam.server.global.util.upload;
+package org.myteam.server.global.util.media;
 
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
