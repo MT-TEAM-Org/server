@@ -128,6 +128,7 @@ public class RedisAndRedissonRecommendTest extends TestContainerSupport {
                 } catch (Exception e) {
                     System.err.println("❗예외 발생: " + e.getMessage());
                 } finally {
+                    SecurityContextHolder.clearContext();
                     latch.countDown();
                 }
             });
