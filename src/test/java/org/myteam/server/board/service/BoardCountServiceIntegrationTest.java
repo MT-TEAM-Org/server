@@ -47,6 +47,11 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
 
     @BeforeEach
     public void setUp() {
+        commentRepository.deleteAllInBatch();
+        boardRecommendRepository.deleteAllInBatch();
+        boardCountRepository.deleteAllInBatch();
+        boardRepository.deleteAllInBatch();
+
         member = Member.builder()
                 .email("test@test.com")
                 .password("1234")
@@ -121,36 +126,44 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
 
     @DisplayName("게시글 추천수 증가 동시성 테스트한다.")
     @Test
-    void addRecommendCountTest() throws InterruptedException {
+    void addRecommendCountTest() throws InterruptedException, ExecutionException {
         int threadCount = 50;
+
         ExecutorService executorService = Executors.newFixedThreadPool(25);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
-        Member mainMember = Member.builder()
-                .email("TTEESSTT@test.com")
+        Member member = Member.builder()
+                .email("test" + 1 + "@test.com")
                 .password("1234")
-                .tel("01000000000")
-                .nickname("main")
+                .tel("12345")
+                .nickname("test")
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
                 .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
                 .build();
-        memberJpaRepository.save(mainMember);
-        memberActivityRepository.save(new MemberActivity(mainMember));
+        MemberActivity memberActivity = new MemberActivity(member);
 
         Board board = Board.builder()
-                .member(mainMember)
+                .member(member)
                 .boardType(Category.BASEBALL)
                 .categoryType(CategoryType.FREE)
                 .title("title")
                 .content("content")
                 .link("https://www.naver.com")
                 .createdIp("127.0.0.1")
-                .thumbnail("http://localhost:9000/devbucket/image/1235.png")
+                .thumbnail("http://localhost:9000/devbucket/inage/1235.png")
                 .build();
-        boardRepository.save(board);
-        boardCountRepository.save(BoardCount.builder().board(board).build());
+
+        BoardCount savedBoardCount = BoardCount.builder()
+                .board(board)
+                .build();
+
+        executorService.submit(() -> {
+            memberJpaRepository.save(member);
+            boardRepository.save(board);
+            boardCountRepository.save(savedBoardCount);
+        }).get();
 
         redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD, board.getId(), null);
 
@@ -169,9 +182,11 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
                             .publicId(UUID.randomUUID())
                             .build();
                     memberJpaRepository.save(threadMember);
-                    memberActivityRepository.save(new MemberActivity(threadMember));
 
-                    // ✅ 인증 정보 설정
+                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
+                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
+                    memberActivityRepository.save(threadMemberActivity);
+
                     SecurityContext context = SecurityContextHolder.createEmptyContext();
                     context.setAuthentication(new UsernamePasswordAuthenticationToken(
                             new CustomUserDetails(threadMember),
@@ -181,9 +196,6 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
                     SecurityContextHolder.setContext(context);
 
                     boardCountService.recommendBoard(board.getId());
-
-                } catch (Exception e) {
-                    System.err.println("❗ 예외 발생: " + e.getMessage());
                 } finally {
                     SecurityContextHolder.clearContext();
                     countDownLatch.countDown();
@@ -195,8 +207,9 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
 
         CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
                 board.getId(), null);
-        System.out.println("✅ 최종 추천 수: " + commonCountDto.getRecommendCount());
-        assertThat(commonCountDto.getRecommendCount()).isEqualTo(threadCount);
+        System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
+
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(50);
     }
 
     @DisplayName("게시글 추천수 감소 동시성 테스트한다.")
