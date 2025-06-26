@@ -127,7 +127,7 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
         Member mainMember = Member.builder()
-                .email("main@test.com")
+                .email("TTEESSTT@test.com")
                 .password("1234")
                 .tel("01000000000")
                 .nickname("main")
@@ -169,6 +169,7 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
                             .publicId(UUID.randomUUID())
                             .build();
                     memberJpaRepository.save(threadMember);
+                    memberActivityRepository.save(new MemberActivity(threadMember));
 
                     // ✅ 인증 정보 설정
                     SecurityContext context = SecurityContextHolder.createEmptyContext();
