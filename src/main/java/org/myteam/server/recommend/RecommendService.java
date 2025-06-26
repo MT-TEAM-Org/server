@@ -40,7 +40,15 @@ public class RecommendService {
         Long updateCount;
 
         if (actionType == RecommendActionType.RECOMMEND) {
+
+            // Redis Set은 중복을 허용하지 않음.
+            // 그래서 userId가 이미 Set안에 존재하면 add()는 아무것도 하지 않고 0을 반환한다.
+
+            // added == 0 -> userId가 이미 존재 (이미 추천함)
+            // added == null -> 비정상 상황(Redis 문제 등...)
+            // added == 1 -> userId가 처음 추가 됨 (추천 성공)
             Long added = redisTemplate.opsForSet().add(recommendSetKey, userId);
+
             if (added == null || added == 0) {
                 throw new PlayHiveException(ErrorCode.ALREADY_MEMBER_RECOMMEND);
             }
