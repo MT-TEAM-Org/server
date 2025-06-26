@@ -19,8 +19,8 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
@@ -182,7 +182,7 @@ public class BoardService {
         commentService.deleteCommentByPost(CommentType.BOARD, boardId);
         //게시글 추천 삭제
         boardRecommendRepository.deleteAllByBoardId(board.getId());
-        // 조회수 삭제
+        // Redis 카운트 삭제
         redisCountService.removeCount(DomainType.BOARD, boardId);
         // 게시글 카운트 삭제
         boardCountRepository.deleteByBoardId(board.getId());

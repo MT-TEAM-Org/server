@@ -13,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.support.TestContainerSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.CategoryType;
@@ -23,15 +22,17 @@ import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.report.domain.DomainType;
+import org.myteam.server.support.TestContainerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,11 +43,21 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
 
     @Autowired
     private RedisCountService redisCountService;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     private Member member;
 
     @BeforeEach
     public void setUp() {
+        // Redis Key 초기화
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
+
+        commentRepository.deleteAllInBatch();
+        boardRecommendRepository.deleteAllInBatch();
+        boardCountRepository.deleteAllInBatch();
+        boardRepository.deleteAllInBatch();
+
         member = Member.builder()
                 .email("test@test.com")
                 .password("1234")
@@ -392,6 +403,7 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
 
                     commentService.addComment(board.getId(), commentSaveRequest, "0.0.0.1");
                 } finally {
+                    SecurityContextHolder.clearContext();
                     countDownLatch.countDown();
                 }
             });
@@ -485,6 +497,7 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
                             commentSaveRequest, "0.0.0.1");
                     commentMap.put(idx, comment.getCommentId());
                 } finally {
+                    SecurityContextHolder.clearContext();
                     commentLatch.countDown();
                 }
             });
@@ -510,6 +523,7 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
                     System.out.println("commentMap.get(idx) = " + commentMap.get(idx));
                     commentService.deleteComment(board.getId(), commentMap.get(idx), deleteRequest);
                 } finally {
+                    SecurityContextHolder.clearContext();
                     deleteLatch.countDown();
                 }
             });

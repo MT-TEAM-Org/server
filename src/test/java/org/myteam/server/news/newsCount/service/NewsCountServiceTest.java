@@ -34,6 +34,7 @@ import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.newsCount.domain.NewsCount;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -46,11 +47,16 @@ public class NewsCountServiceTest extends TestContainerSupport {
     private RedisCountService redisCountService;
     @Autowired
     private NewsCountService newsCountService;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     private Member member;
 
     @BeforeEach
     public void setUp() {
+        // Redis Key 초기화
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
+
         member = Member.builder()
                 .email("test@test.com")
                 .password("1234")
@@ -128,7 +134,6 @@ public class NewsCountServiceTest extends TestContainerSupport {
         int threadCount = 50;
 
         ExecutorService executorService = Executors.newFixedThreadPool(25);
-
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
         News news = News.builder()
@@ -348,6 +353,7 @@ public class NewsCountServiceTest extends TestContainerSupport {
 
                     commentService.addComment(news.getId(), commentSaveRequest, "0.0.0.1");
                 } finally {
+                    SecurityContextHolder.clearContext();
                     countDownLatch.countDown();
                 }
             });
