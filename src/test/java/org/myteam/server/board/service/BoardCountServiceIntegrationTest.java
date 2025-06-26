@@ -13,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.support.TestContainerSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.CategoryType;
@@ -23,14 +22,15 @@ import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.report.domain.DomainType;
+import org.myteam.server.support.TestContainerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -121,44 +121,36 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
 
     @DisplayName("게시글 추천수 증가 동시성 테스트한다.")
     @Test
-    void addRecommendCountTest() throws InterruptedException, ExecutionException {
+    void addRecommendCountTest() throws InterruptedException {
         int threadCount = 50;
-
         ExecutorService executorService = Executors.newFixedThreadPool(25);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
-        Member member = Member.builder()
-                .email("test" + 1 + "@test.com")
+        Member mainMember = Member.builder()
+                .email("main@test.com")
                 .password("1234")
-                .tel("12345")
-                .nickname("test")
+                .tel("01000000000")
+                .nickname("main")
                 .role(MemberRole.USER)
                 .type(MemberType.LOCAL)
                 .publicId(UUID.randomUUID())
                 .status(MemberStatus.ACTIVE)
                 .build();
-        MemberActivity memberActivity = new MemberActivity(member);
+        memberJpaRepository.save(mainMember);
+        memberActivityRepository.save(new MemberActivity(mainMember));
 
         Board board = Board.builder()
-                .member(member)
+                .member(mainMember)
                 .boardType(Category.BASEBALL)
                 .categoryType(CategoryType.FREE)
                 .title("title")
                 .content("content")
                 .link("https://www.naver.com")
                 .createdIp("127.0.0.1")
-                .thumbnail("http://localhost:9000/devbucket/inage/1235.png")
+                .thumbnail("http://localhost:9000/devbucket/image/1235.png")
                 .build();
-
-        BoardCount savedBoardCount = BoardCount.builder()
-                .board(board)
-                .build();
-
-        executorService.submit(() -> {
-            memberJpaRepository.save(member);
-            boardRepository.save(board);
-            boardCountRepository.save(savedBoardCount);
-        }).get();
+        boardRepository.save(board);
+        boardCountRepository.save(BoardCount.builder().board(board).build());
 
         redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD, board.getId(), null);
 
@@ -178,10 +170,7 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
                             .build();
                     memberJpaRepository.save(threadMember);
 
-                    // member로 로그인 시큐리티 컨텍스트 세팅 필요시 여기에
-                    MemberActivity threadMemberActivity = new MemberActivity(threadMember);
-                    memberActivityRepository.save(threadMemberActivity);
-
+                    // ✅ 인증 정보 설정
                     SecurityContext context = SecurityContextHolder.createEmptyContext();
                     context.setAuthentication(new UsernamePasswordAuthenticationToken(
                             new CustomUserDetails(threadMember),
@@ -191,6 +180,9 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
                     SecurityContextHolder.setContext(context);
 
                     boardCountService.recommendBoard(board.getId());
+
+                } catch (Exception e) {
+                    System.err.println("❗ 예외 발생: " + e.getMessage());
                 } finally {
                     SecurityContextHolder.clearContext();
                     countDownLatch.countDown();
@@ -202,9 +194,8 @@ public class BoardCountServiceIntegrationTest extends TestContainerSupport {
 
         CommonCountDto commonCountDto = redisCountService.getCommonCount(ServiceType.CHECK, DomainType.BOARD,
                 board.getId(), null);
-        System.out.println("commonCountDto.getRecommendCount( = " + commonCountDto.getRecommendCount());
-
-        assertThat(commonCountDto.getRecommendCount()).isEqualTo(50);
+        System.out.println("✅ 최종 추천 수: " + commonCountDto.getRecommendCount());
+        assertThat(commonCountDto.getRecommendCount()).isEqualTo(threadCount);
     }
 
     @DisplayName("게시글 추천수 감소 동시성 테스트한다.")
