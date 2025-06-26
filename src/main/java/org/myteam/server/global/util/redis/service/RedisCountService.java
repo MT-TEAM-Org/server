@@ -4,6 +4,7 @@ import static org.myteam.server.util.ClientUtils.toInt;
 
 import java.time.Duration;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.util.redis.CommonCount;
 import org.myteam.server.global.util.redis.CommonCountDto;
@@ -13,34 +14,22 @@ import org.myteam.server.recommend.RecommendService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.CountStrategy;
 import org.myteam.server.util.CountStrategyFactory;
-import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RedisCountService {
 
     private static final long EXPIRED_TIME = 5L; // 조회수 만료 시간. 5분보다 큰 값으로 설정
 
-    private final RedissonClient redissonClient;
     private final RedisTemplate<String, Object> redisTemplate;
     private final CountStrategyFactory strategyFactory;
     private final RecommendService recommendService;
 
-    public RedisCountService(RedissonClient redissonClient,
-                             RedisTemplate<String, Object> redisTemplate,
-                             CountStrategyFactory strategyFactory,
-                             RecommendService recommendService) {
-        this.redissonClient = redissonClient;
-        this.redisTemplate = redisTemplate;
-        this.strategyFactory = strategyFactory;
-        this.recommendService = recommendService;
-    }
-
     /**
      * 각 서비스에서 호출하는 함수.
-     * TODO: redisTemplate 타입 변경 RedisTemplate<String, Object>
      *
      * @param type:      레디스를 호출하는 목적("view", "comment", "recommend", "normal")
      * @param content:   어떤 게시판인지("board", "news" ...)
@@ -76,42 +65,40 @@ public class RedisCountService {
             recommendCount = toInt(redisMap.get("recommend"));
         }
 
-        if (type.equals(ServiceType.CHECK)) {
-            return new CommonCountDto(viewCount, commentCount, recommendCount);
-        } else if (type.equals(ServiceType.VIEW)) {
+        switch (type) {
+            case CHECK:
+                return new CommonCountDto(viewCount, commentCount, recommendCount);
             /**
              * 조회할 때. 조회할 시 + 1
              */
-            Long updateCount = redisTemplate.opsForHash().increment(key, "view", 1);
-
-            return new CommonCountDto(updateCount.intValue(), commentCount, recommendCount);
-        } else if (type.equals(ServiceType.COMMENT)) {
+            case VIEW:
+                Long updateViewCount = redisTemplate.opsForHash().increment(key, "view", 1);
+                return new CommonCountDto(updateViewCount.intValue(), commentCount, recommendCount);
             /**
              * 댓글 쓸 때. 댓글 쓸 시 + 1
              */
-            Long updateCount = redisTemplate.opsForHash().increment(key, "comment", 1);
-
-            return new CommonCountDto(viewCount, updateCount.intValue(), recommendCount);
-        } else if (type.equals(ServiceType.COMMENT_REMOVE)) {
+            case COMMENT:
+                Long updateCommentCount = redisTemplate.opsForHash().increment(key, "comment", 1);
+                return new CommonCountDto(viewCount, updateCommentCount.intValue(), recommendCount);
             /**
              * 댓글 삭제 할 때, 댓글 삭제 시 -1
              */
-            Long updateCount = redisTemplate.opsForHash().increment(key, "comment", -minusCount);
-
-            return new CommonCountDto(viewCount, updateCount.intValue(), recommendCount);
-        } else if (type.equals(ServiceType.RECOMMEND)) {
+            case COMMENT_REMOVE:
+                Long updateCommentRemoveCount = redisTemplate.opsForHash().increment(key, "comment", -minusCount);
+                return new CommonCountDto(viewCount, updateCommentRemoveCount.intValue(), recommendCount);
             /**
              * 추천할 때. 추천할 시 + 1
-             * TODO 여기서 분산락 적용하면 됨.
              */
-            return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
-        } else if (type.equals(ServiceType.RECOMMEND_CANCEL)) {
+            case RECOMMEND:
+                return recommendService.handleRecommend(content, contentId, RecommendActionType.RECOMMEND, key);
             /**
              * 추천 취소
              */
-            return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
+            case RECOMMEND_CANCEL:
+                return recommendService.handleRecommend(content, contentId, RecommendActionType.CANCEL, key);
+            default:
+                return new CommonCountDto(viewCount, commentCount, recommendCount);
         }
-        return new CommonCountDto(viewCount, commentCount, recommendCount);
     }
 
     /**
@@ -159,7 +146,11 @@ public class RedisCountService {
      */
     public void removeCount(DomainType type, Long contentId) {
         CountStrategy strategy = strategyFactory.getStrategy(type);
-        String key = strategy.getRedisKey(contentId);
-        redisTemplate.delete(key);
+        String countKey = strategy.getRedisKey(contentId);
+        String recommendSetKey = "recommend:users:" + type.name().toLowerCase() + ":" + contentId;
+        
+        redisTemplate.delete(countKey);
+        redisTemplate.delete(recommendSetKey);
+
     }
 }

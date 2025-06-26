@@ -23,7 +23,6 @@ public class RedisCountBulkUpdater {
     }
 
     /**
-     * TODO: println 지우기
      * Redis에 저장된 count 정보 → DB로 벌크 업데이트
      */
     public void bulkUpdate(DomainType type) {
