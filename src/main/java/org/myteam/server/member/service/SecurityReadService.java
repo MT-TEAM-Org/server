@@ -22,6 +22,8 @@ import java.util.Optional;
 public class SecurityReadService {
 	private final MemberJpaRepository memberRepository;
 
+
+
 	public Member getMember() {
 		return memberRepository.findByPublicId(getAuthenticatedUser().getPublicId())
 				.orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));

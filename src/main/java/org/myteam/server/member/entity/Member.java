@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.domain.Base;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -15,8 +16,10 @@ import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
+import org.springframework.cglib.core.Local;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,7 +38,20 @@ public class Member extends Base {
 
     @Id
     @Column(name = "public_id", nullable = false, updatable = false, unique = true, columnDefinition = "BINARY(16)")
-    private UUID publicId;
+    protected UUID publicId;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    protected MemberRole role = USER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    protected MemberStatus status = PENDING;
+
+    protected String imgUrl;
+
+
 
     @Column(nullable = false)
     private String email; // 계정
@@ -49,17 +65,11 @@ public class Member extends Base {
     @Column(length = 60)
     private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MemberRole role = USER;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberType type = LOCAL;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MemberStatus status = PENDING;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private MemberActivity memberActivity;
@@ -71,7 +81,10 @@ public class Member extends Base {
     private int birthMonth;
     private int birthDay;
 
-    private String imgUrl;
+
+
+
+    private LocalDateTime deleteDate;
 
     @Builder
     public Member(String email, String password, String tel, String nickname, MemberRole role, MemberType type, UUID publicId, MemberStatus status) {
@@ -80,7 +93,7 @@ public class Member extends Base {
         this.tel = tel;
         this.nickname = nickname;
         this.role = role;
-        this.type = type;
+        //this.type = type;
         this.publicId = publicId;
         this.status = status;
     }
@@ -131,13 +144,22 @@ public class Member extends Base {
     public void updateType(MemberRole role) {
         this.role = role;
     }
+    public void updateImgUrl(String imgUrl) {
+        this.imgUrl =imgUrl;
+    }
+    public void updateNickName(String nickName) {
+        this.nickname=nickName;
+    }
+
+
 
     public boolean verifyOwnEmail(String email) {
         return email.equals(this.email);
     }
 
     public boolean verifyMemberStatus() {
-        return this.getStatus() == MemberStatus.ACTIVE;
+        //return this.getStatus() == MemberStatus.ACTIVE;
+        return this.getStatus() != MemberStatus.INACTIVE;
     }
 
     public boolean isAdmin() {
@@ -167,9 +189,16 @@ public class Member extends Base {
         this.genderType = genderType;
     }
 
+
+    // 기존에 02 24 4 였는대 년도를 4자리수로 받는게 맏지않나싶어서
     public void updateBirthDate(String birthDate) {
-        this.birthYear = Integer.parseInt(birthDate.substring(0, 2));
+        this.birthYear = Integer.parseInt(birthDate.substring(0,2));
         this.birthMonth = Integer.parseInt(birthDate.substring(2, 4));
         this.birthDay = Integer.parseInt(birthDate.substring(4));
+    }
+
+    public void updateDeleteTime(LocalDateTime deleteDate){
+
+        this.deleteDate=deleteDate;
     }
 }

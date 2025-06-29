@@ -6,14 +6,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.report.domain.Report;
+import org.myteam.server.report.domain.ReportType;
 import org.myteam.server.report.dto.response.ReportResponse.*;
 import org.myteam.server.report.repository.ReportQueryRepository;
 import org.myteam.server.report.repository.ReportRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -58,4 +62,24 @@ public class ReportReadService {
     public Page<ReportSaveResponse> getSentReports(UUID reporterPublicId, Pageable pageable) {
         return reportQueryRepository.getReportsByReporter(reporterPublicId, pageable);
     }
+
+
+
+
+    /**
+    * 🚀 가장 최근 신고 리스트 구해오기
+    * */
+
+    public Page<ReportSaveResponse> getLatestReportList(){
+
+
+        Pageable pageable= PageRequest.of(0,10);
+
+
+       return reportQueryRepository.getAllReport(pageable);
+
+
+    }
+
+
 }

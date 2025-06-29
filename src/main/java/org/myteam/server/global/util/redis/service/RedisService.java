@@ -2,7 +2,9 @@ package org.myteam.server.global.util.redis.service;
 
 import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 	private final RedisTemplate<String, String> redisTemplate;
 
 	private static final int MAX_REQUESTS = 3; // 제한 횟수 (기본값: 5분 동안 3회)
+
+
 	private static final long EXPIRED_TIME = 5L; // 만료 시간 (5분)
 	private static final long YOUTUBE_EXPIRED_TIME = 3L * 60L * 60L * 1000L;
 	private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30;      // 30일
@@ -48,12 +52,17 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 		// TTL(만료 시간)이 없으면 5분 설정
 		if (newCount == 1) {
-			redisTemplate.expire(redisKey, Duration.ofMinutes(EXPIRED_TIME));
+
+			if(!category.equals("LOGIN_ADMIN")){
+				redisTemplate.expire(redisKey, Duration.ofMinutes(EXPIRED_TIME));
+			}
+
 		}
 
 		log.info("✅ [RateLimit] 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
 		return true;
 	}
+
 
 	/**
 	 * 요청 제한을 적용할 Redis Key 생성
@@ -70,6 +79,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 	 * 특정 키의 현재 요청 횟수 조회
 	 */
 	public int getRequestCount(String category, String identifier) {
+
 		String redisKey = getRateLimitKey(category, identifier);
 		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
 
@@ -78,7 +88,6 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 		return count;
 	}
-
 	/**
 	 * 특정 키의 제한 시간(TTL) 조회
 	 */
@@ -127,4 +136,14 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 	public void deleteRefreshToken(UUID publicId) {
 		redisTemplate.delete(REFRESH_TOKEN_KEY + publicId);
 	}
+
+
+	public void putRedisKeyWithTimeOut(String category, String key, TimeUnit timeUnit, Long value){
+
+		String redisKey=getRateLimitKey(category,key);
+		redisTemplate.opsForValue().set(redisKey,key,value,timeUnit);
+
+	}
+
+
 }

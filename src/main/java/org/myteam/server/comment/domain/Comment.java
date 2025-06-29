@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.admin.utils.AdminControlType;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 
@@ -57,6 +58,11 @@ public abstract class Comment extends BaseTime {
     @Column(nullable = false)
     private CommentType commentType;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AdminControlType adminControlType=AdminControlType.INIT;
+
     public Comment(Member member, Member mentionedMember, String comment,
                    String imageUrl, String createdIp, Comment parent, CommentType type) {
         this.member = member;
@@ -74,6 +80,11 @@ public abstract class Comment extends BaseTime {
         this.comment = comment;
         this.mentionedMember = mentionedMember;
     }
+
+    public void updateCommentAdminControlType(AdminControlType adminControlType){
+        this.adminControlType=adminControlType;
+    }
+
 
     // 작성자 true
     public boolean isAuthor(Member member) {

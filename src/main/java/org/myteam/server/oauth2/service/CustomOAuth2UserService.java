@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ExistingUserAuthenticationException;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.util.PasswordUtil;
+import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;

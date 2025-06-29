@@ -83,6 +83,42 @@ public class JwtProvider {
     }
 
     /**
+    *
+     * 관리자용 토큰 생성기
+     * */
+    public String generateAdminToken(String category, Duration duration, Long publicId, String role) {
+        Date now = new Date();
+        return makeAdminToken(category, new Date(now.getTime() + duration.toMillis()), publicId, role);
+    }
+    /**
+     *
+     * 관리자용 만들기
+     * **/
+    private String makeAdminToken(String category, Date expirationDate,Long publicId, String role) {
+        return Jwts.builder()
+                .issuer(jwtProperties.getIssuer())
+                .issuedAt(new Date())
+                .expiration(expirationDate)
+                .claim("category", category)
+                .claim("id", publicId)
+                .claim("role", role)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    public Long getId(final String token) {
+        Claims claims = getClaims(token);
+        Long id = claims.get("id",Long.class);
+        return id;
+    }
+
+
+
+
+
+
+
+    /**
      * 토큰으로부터 Authentication 객체를 가져옴
      *
      * @param token String

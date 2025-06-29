@@ -1,5 +1,7 @@
 package org.myteam.server.member.service;
 
+
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -9,14 +11,17 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.member.controller.response.MemberResponse;
+import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.FindIdResponse;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
+
+
 import org.myteam.server.profile.dto.response.ProfileResponseDto.ProfileResponse;
-import org.myteam.server.util.AESCryptoUtil;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +37,12 @@ public class MemberReadService {
     private final SecurityReadService securityReadService;
     private final JwtProvider jwtProvider;
 
+
+
+
+
     public Member findById(UUID publicId) {
+
         Member member = memberJpaRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
 
@@ -44,9 +54,14 @@ public class MemberReadService {
     }
 
     public Member findByEmail(String email) {
+
+
         return memberJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
     }
+
+
+
 
     public ProfileResponse getProfile() {
         Member member = securityReadService.getMember();
@@ -55,17 +70,28 @@ public class MemberReadService {
     }
 
     public MemberResponse getByPublicId(UUID publicId) {
+
+
+
         return MemberResponse.createMemberResponse(
                 memberJpaRepository.findByPublicId(publicId)
                         .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND))
         );
+
     }
 
+
+
+
     public MemberResponse getByEmail(String email) {
+
         return memberJpaRepository.findByEmail(email)
                 .map(MemberResponse::new)
                 .orElseThrow(() -> new PlayHiveException(RESOURCE_NOT_FOUND, email + " 는 존재하지 않는 이메일 입니다"));
     }
+
+
+
 
     public MemberResponse getByNickname(String nickname) {
         return memberJpaRepository.findByNickname(nickname)
@@ -73,13 +99,30 @@ public class MemberReadService {
                 .orElseThrow(() -> new PlayHiveException(RESOURCE_NOT_FOUND, nickname + " 는 존재하지 않는 닉네임 입니다"));
     }
 
+
+
+
+
+
+
     public List<Member> list() {
         return Optional.of(memberJpaRepository.findAll()).orElse(Collections.emptyList());
     }
 
+
+
     public boolean existsByNickname(String nickname) {
+
         return memberJpaRepository.existsByNickname(nickname);
     }
+
+
+
+
+
+
+
+
 
     /**
      * publicId 를 통한 사용자 아이디 조회
@@ -109,10 +152,14 @@ public class MemberReadService {
     }
 
     public MemberType getMemberTypeByEmail(String email) {
+
         return memberJpaRepository.findByEmail(email)
                 .map(Member::getType)
                 .orElse(null);
     }
+
+
+
 
     public FindIdResponse findUserId(String phoneNumber) {
         if (phoneNumber.length() != 11 && phoneNumber.length() != 10) {
@@ -127,4 +174,13 @@ public class MemberReadService {
 
         return FindIdResponse.createResponse(memberList);
     }
+
+    public Member findByEmailAndRole(String mail,MemberRole role){
+        return memberJpaRepository.findByEmailAndRole(mail,role)
+                .orElse(null);
+
+    }
+
+
+
 }

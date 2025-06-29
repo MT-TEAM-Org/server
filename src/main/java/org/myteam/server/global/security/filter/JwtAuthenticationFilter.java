@@ -5,11 +5,16 @@ import static org.myteam.server.member.domain.MemberStatus.*;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.myteam.server.admin.entity.UserAccessLog;
+import org.myteam.server.admin.service.UserAccessLogService;
 import org.myteam.server.chat.info.domain.UserInfo;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -18,9 +23,13 @@ import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +43,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -43,17 +54,25 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private final RedisService redisService;
 	private final RedisUserInfoService redisUserInfoService;
 
+
 	public JwtAuthenticationFilter(AuthenticationManager authenticationManager,
 								   JwtProvider jwtProvider,
 								   ApplicationEventPublisher eventPublisher,
 								   RedisService redisService,
 								   RedisUserInfoService redisUserInfoService) {
-		setFilterProcessesUrl("/login");
+		setRequiresAuthenticationRequestMatcher((
+				new OrRequestMatcher(
+						new AntPathRequestMatcher("/login"),
+						new AntPathRequestMatcher("/api/admin/login")
+				)
+		));
+		//setFilterProcessesUrl("/login");
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
 		this.eventPublisher = eventPublisher;
 		this.redisService = redisService;
 		this.redisUserInfoService = redisUserInfoService;
+
 	}
 
 	@Override
@@ -66,11 +85,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			String username = credentials.get("username");
 			String password = credentials.get("password");
-
+			request.setAttribute("username",username);
 			log.info("로그인 요청 - username: {}, password: {}", username, password);
+			String path=request.getRequestURI();
+			UsernamePasswordAuthenticationToken authToken;
 
-			UsernamePasswordAuthenticationToken authToken =
-				new UsernamePasswordAuthenticationToken(username, password);
+			if(path.equals("/login")){
+				authToken = new UsernamePasswordAuthenticationToken(username+"_USER", password);
+
+			}
+			else{
+				authToken=new UsernamePasswordAuthenticationToken(username+"_ADMIN", password);
+			}
+
 
 			return authenticationManager.authenticate(authToken);
 		} catch (IOException e) {
@@ -86,6 +113,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			// UserDetails
 			CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
 
+			String path=request.getRequestURI();
 			String username = customUserDetails.getUsername();
 			UUID publicId = customUserDetails.getPublicId();
 			String status = customUserDetails.getStatus();
@@ -111,6 +139,24 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				sendErrorResponse(response, HttpStatus.FORBIDDEN, "알 수 없는 유저 상태 코드 : " + status);
 				return;
 			}
+			else if(path.equals("/login")){
+				if(!redisService.isAllowed("LOGIN_NORMAL",username)){
+
+					sendErrorResponse(response,HttpStatus.BAD_REQUEST,"잠긴 계정입니다. 잠시후에 시도해주세요");
+					return;
+				}
+
+
+			}
+			else if(path.equals("/api/admin/login")){
+				if(!redisService.isAllowed("LOGIN_ADMIN",username)){
+
+					sendErrorResponse(response,HttpStatus.BAD_REQUEST,"잠긴 관리자 계정입니다.");
+					return;
+				}
+
+			}
+
 
 			// 권한 획득
 			String role = auth.getAuthority();
@@ -125,6 +171,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			log.debug("print refreshToken: {}", refreshToken);
 			log.debug("print role: {}", role);
 
+			if(path.equals("/login")){
+				redisService.resetRequestCount("LOGIN_NORMAL",username);
+			}
+			else{
+				redisService.resetRequestCount("LOGIN_ADMIN",username);
+
+			}
 			redisService.putRefreshToken(publicId, refreshToken);
 			redisUserInfoService.saveUserInfo(accessToken,
 					new UserInfo(publicId, customUserDetails.getNickname(), customUserDetails.getImg()));
@@ -134,6 +187,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			eventPublisher.publishEvent(new UserLoginEvent(this, publicId));
 
+
 			log.info("자체 서비스 로그인에 성공하였습니다.");
 		} catch (InternalAuthenticationServiceException e) {
 			System.out.println("successfulAuthentication 메서드 에러 발생 : " + e.getMessage());
@@ -142,12 +196,52 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-		AuthenticationException failed) {
-		String message = failed.getMessage();
-		//로그인 실패시 401 응답 코드 반환
-		response.setStatus(401);
-		log.debug("message : {}", message);
-		System.out.println("fail authentication");
+		AuthenticationException failed) throws IOException {
+		String path=request.getRequestURI();
+		if(path.equals("/login")){
+			if(failed.getClass().equals(BadCredentialsException.class)){
+
+
+				String username =(String) request.getAttribute("username");
+
+				if(redisService.isAllowed("LOGIN_NORMAL",username)){
+					int count=redisService.getRequestCount("LOGIN_NORMAL",username);
+					sendErrorResponse(response,HttpStatus.BAD_REQUEST,"남은 로그인 횟수:%s".formatted(String.valueOf(3-count)));
+					return;
+				}
+				sendErrorResponse(response,HttpStatus.BAD_REQUEST,"잠긴 계정입니다. 잠시후에 시도해주세요");
+				return;
+			}
+			String message = failed.getMessage();
+			//로그인 실패시 401 응답 코드 반환
+			response.setStatus(401);
+			log.debug("message : {}", message);
+			System.out.println("normal fail authentication");
+
+		}
+
+		else{
+			if(failed.getClass().equals(BadCredentialsException.class)){
+
+
+				String username =(String) request.getAttribute("username");
+
+				if(redisService.isAllowed("LOGIN_ADMIN",username)){
+					int count=redisService.getRequestCount("LOGIN_ADMIN",username);
+					sendErrorResponse(response,HttpStatus.BAD_REQUEST,"남은 로그인 횟수:%s".formatted(String.valueOf(3-count)));
+					return;
+				}
+				sendErrorResponse(response,HttpStatus.BAD_REQUEST,"잠긴 계정입니다.");
+				return;
+			}
+			String message = failed.getMessage();
+			//로그인 실패시 401 응답 코드 반환
+			response.setStatus(401);
+			log.debug("message : {}", message);
+			System.out.println("admin fail authentication");
+
+		}
+
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package org.myteam.server.inquiry.repository;
 
+import static org.myteam.server.admin.dto.AdminDetail.*;
+import static org.myteam.server.admin.dto.AdminSearch.*;
 import static org.myteam.server.comment.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.inquiry.domain.QInquiryCount.inquiryCount;
@@ -8,14 +10,19 @@ import static org.myteam.server.member.entity.QMember.member;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.dto.AdminDetail;
+import org.myteam.server.admin.dto.AdminSearch;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
@@ -23,6 +30,8 @@ import org.myteam.server.comment.domain.QInquiryComment;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.improvement.domain.ImprovementStatus;
+import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.inquiry.domain.InquiryOrderType;
 import org.myteam.server.inquiry.domain.InquirySearchType;
 import org.myteam.server.inquiry.domain.QInquiry;
@@ -30,6 +39,7 @@ import org.myteam.server.inquiry.dto.response.InquiryResponse.InquiryDto;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -124,6 +134,12 @@ public class InquiryQueryRepository {
                 .fetchOne()
         ).orElse(0L);
     }
+
+
+
+
+
+
 
     private CommentSearchDto getSearchInquiryComment(Long inquiryId, String search) {
         JPQLQuery<CommentSearchDto> query = queryFactory

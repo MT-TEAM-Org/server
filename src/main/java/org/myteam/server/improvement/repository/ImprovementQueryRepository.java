@@ -1,24 +1,36 @@
 package org.myteam.server.improvement.repository;
 
 import static java.util.Optional.ofNullable;
+import static org.myteam.server.admin.dto.AdminDetail.*;
+import static org.myteam.server.admin.dto.AdminStatic.*;
+import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.comment.domain.QImprovementComment.improvementComment;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.improvement.domain.QImprovementCount.improvementCount;
+import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.dto.AdminDetail;
+import org.myteam.server.admin.dto.AdminSearch;
+import org.myteam.server.admin.utils.StaticDataType;
+import org.myteam.server.admin.utils.StaticUtil;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
@@ -28,12 +40,14 @@ import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.improvement.domain.ImprovementOrderType;
 import org.myteam.server.improvement.domain.ImprovementSearchType;
+import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementDto;
 import org.myteam.server.improvement.dto.response.ImprovementResponse.ImprovementRankingDto;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -130,6 +144,9 @@ public class ImprovementQueryRepository {
         };
     }
 
+
+
+
     private CommentSearchDto getSearchImprovementComment(Long improvementId, String search) {
         JPQLQuery<CommentSearchDto> query = queryFactory
                 .select(Projections.fields(CommentSearchDto.class,
@@ -217,4 +234,15 @@ public class ImprovementQueryRepository {
                 .limit(1)
                 .fetchOne();
     }
+
+
+
+
+
+
+
+
+
+
+
 }

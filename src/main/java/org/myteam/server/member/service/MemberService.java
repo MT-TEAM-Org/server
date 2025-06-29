@@ -2,6 +2,7 @@ package org.myteam.server.member.service;
 
 import static org.myteam.server.global.exception.ErrorCode.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.myteam.server.common.certification.mail.util.CertifyStorage;
@@ -12,6 +13,7 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.controller.response.MemberResponse;
+import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberRoleUpdateRequest;
@@ -20,8 +22,10 @@ import org.myteam.server.member.dto.MemberStatusUpdateRequest;
 import org.myteam.server.member.dto.PasswordChangeRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
+
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
+
 import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,6 +68,7 @@ public class MemberService {
 
 		// 패스워드인코딩 + 회원 가입
 		Member member = memberJpaRepository.save(new Member(memberSaveRequest, passwordEncoder));
+
 		member.updateStatus(MemberStatus.ACTIVE);
 
 		// MemberActivity 생성 및 연관 관계 설정
@@ -105,10 +110,13 @@ public class MemberService {
 				request.getEmail(),
 				request.getMemberType());
 
+
+
 		if (!existDataOP.isPresent()) {
 			log.warn("소셜로그인 유저 없음: {}", request.getEmail());
 			throw new PlayHiveException(USER_NOT_FOUND);
 		}
+
 
 		Member member = existDataOP.get();
 		if (member.getStatus() != MemberStatus.PENDING) {
@@ -131,6 +139,7 @@ public class MemberService {
 	 */
 	public void deleteMember() {
 		Member member = securityReadService.getMember();
+		LocalDateTime deletedTime=LocalDateTime.now();
 
 		/**
 		 * 이거를 없애는 게 조금 이상한데, 일단 주석으로 남겨만 둠.
@@ -145,6 +154,7 @@ public class MemberService {
 //		if (!isPWValid) throw new PlayHiveException(NO_PERMISSION);
 
 		member.updateStatus(MemberStatus.INACTIVE);
+
 		redisService.deleteRefreshToken(member.getPublicId());
 
 		log.info("회원 탈퇴 처리 완료: {}", member.getPublicId());
@@ -169,8 +179,14 @@ public class MemberService {
 
 	@Transactional
 	public void changePassword(String email, PasswordChangeRequest passwordChangeRequest) {
+
+
+
 		Member findMember = memberJpaRepository.findByEmail(email)
 				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+
+
+
 
 		boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
 		if (!isEqual)
@@ -196,6 +212,7 @@ public class MemberService {
 		Member targetMember = memberJpaRepository.findByEmail(memberStatusUpdateRequest.getEmail())
 				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
+
 		// 1. 요청자가 본인의 상태를 변경하려는 경우
 		if (requester.verifyOwnEmail(memberStatusUpdateRequest.getEmail())) {
 			log.info("사용자가 자신의 상태를 변경 중: {}", targetEmail);
@@ -205,7 +222,7 @@ public class MemberService {
 			return;
 		}
 
-		// 2. 관리자가 다른 사용자의 상태를 변경하려는 경우
+		// 2. 관리자가 다른 사용자의 상태를 변경하려는 경우-->이거 관리자 서비스로 따로분리하는게어떨까싶은대
 		if (requester.isAdmin()) {
 			log.info("관리자가 상태를 변경 중: {}, 대상자: {}", targetEmail, memberStatusUpdateRequest.getEmail());
 			targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
@@ -220,6 +237,7 @@ public class MemberService {
 	public void delete(String email) {
 		Member member = memberJpaRepository.findByEmail(email)
 			.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+
 
 		memberJpaRepository.delete(member);
 	}

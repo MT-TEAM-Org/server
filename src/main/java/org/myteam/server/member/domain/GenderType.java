@@ -11,6 +11,9 @@ public enum GenderType {
     M("MALE"), F("FEMALE");
     private String value;
 
+
+
+
     public static GenderType fromValue(String value) {
         for (GenderType gender : GenderType.values()) {
             if (gender.getValue().equalsIgnoreCase(value)) {

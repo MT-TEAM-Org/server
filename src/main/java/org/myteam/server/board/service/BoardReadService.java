@@ -70,6 +70,15 @@ public class BoardReadService {
         return BoardListResponse.createResponse(noticeList, PageCustomResponse.of(myBoardList));
     }
 
+    public void get_latest_board_list(){
+
+
+
+
+    }
+
+
+
     public int getMyBoardListCount(UUID memberPublicId) {
         return boardQueryRepository.getMyBoard(memberPublicId);
     }

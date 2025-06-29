@@ -3,6 +3,7 @@ package org.myteam.server.inquiry.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.member.entity.Member;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Inquiry {
+public class Inquiry extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,7 +54,7 @@ public class Inquiry {
         }
     }
 
-    public void updateAdminAnswered() {
-        this.isAdminAnswered = true;
+    public void updateAdminAnswered(boolean state) {
+        this.isAdminAnswered =state;
     }
 }

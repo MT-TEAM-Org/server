@@ -1,12 +1,29 @@
 package org.myteam.server.report.repository;
 
+import static org.myteam.server.admin.dto.AdminDetail.*;
+import static org.myteam.server.admin.dto.AdminStatic.*;
+import static org.myteam.server.board.domain.QBoard.*;
+import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.report.domain.QReport.report;
 import static org.myteam.server.member.entity.QMember.member;
 
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAUtil;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.asm.Advice;
+import org.myteam.server.admin.dto.AdminDetail;
+import org.myteam.server.admin.dto.AdminStatic;
+import org.myteam.server.admin.utils.StaticDataType;
+import org.myteam.server.admin.utils.StaticUtil;
+import org.myteam.server.board.domain.QBoard;
+import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.member.entity.QMember;
 import org.myteam.server.report.domain.ReportType;
 import org.myteam.server.report.dto.response.ReportResponse.*;
@@ -15,6 +32,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +42,7 @@ import java.util.UUID;
 public class ReportQueryRepository {
 
     private final JPAQueryFactory queryFactory;
+
 
     public Page<ReportSaveResponse> getAllReport(Pageable pageable) {
 
@@ -140,6 +159,18 @@ public class ReportQueryRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
     private long getTotalReportCount() {
         return queryFactory
                 .select(report.count())
@@ -170,4 +201,6 @@ public class ReportQueryRepository {
                 .where(report.reporter.publicId.eq(reporterPublicId))
                 .fetchOne();
     }
+
+
 }

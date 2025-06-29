@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.util.ClientUtils;
@@ -122,4 +123,5 @@ public record CommentResponse() {
                     .build();
         }
     }
+
 }

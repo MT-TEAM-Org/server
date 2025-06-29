@@ -3,6 +3,7 @@ package org.myteam.server.comment.domain;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.myteam.server.board.domain.Board;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.member.entity.Member;
 
@@ -20,6 +21,7 @@ public class InquiryComment extends Comment {
         super(member, mentionedMember, comment, imageUrl, createdIp, parent, CommentType.INQUIRY);
         this.inquiry = inquiry;
     }
+
 
     public static InquiryComment createComment(Inquiry inquiry, Member member, Member mentionedMember,
                                                String comment, String imageUrl, String createdIp, Comment parent) {

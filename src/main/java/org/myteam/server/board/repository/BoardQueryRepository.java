@@ -1,16 +1,24 @@
 package org.myteam.server.board.repository;
 
+import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
+import static org.myteam.server.admin.dto.AdminDetail.*;
+import static org.myteam.server.admin.dto.AdminSearch.*;
+import static org.myteam.server.admin.dto.AdminStatic.*;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.comment.domain.QBoardComment.boardComment;
+import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.member.entity.QMember.member;
+import static org.myteam.server.report.domain.QReport.report;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -25,6 +33,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.dto.AdminDetail;
+import org.myteam.server.admin.dto.AdminSearch;
+import org.myteam.server.admin.dto.AdminStatic;
+import org.myteam.server.admin.utils.StaticDataType;
+import org.myteam.server.admin.utils.StaticUtil;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
@@ -43,9 +56,11 @@ import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.report.domain.DomainType;
+import org.myteam.server.report.domain.ReportType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -507,4 +522,18 @@ public class BoardQueryRepository {
                 .limit(1)
                 .fetchOne();
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

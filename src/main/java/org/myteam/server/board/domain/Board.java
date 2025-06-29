@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.admin.utils.AdminControlType;
 import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.global.domain.Category;
@@ -54,6 +55,10 @@ public class Board extends BaseTime {
     @OneToOne(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private BoardCount boardCount;
 
+
+    @Enumerated(EnumType.STRING)
+    private AdminControlType adminControlType=AdminControlType.INIT;
+
     @Builder
     public Board(Member member, Category boardType, CategoryType categoryType, String title, String content,
                  String link, String createdIp, String thumbnail,
@@ -77,6 +82,12 @@ public class Board extends BaseTime {
         this.link = request.getLink();
         this.thumbnail = request.getThumbnail();
     }
+
+    public void updateBoardAdminControlType(AdminControlType adminControlType){
+        this.adminControlType=adminControlType;
+
+    }
+
 
     public boolean isAuthor(Member member) {
         return this.member.equals(member);

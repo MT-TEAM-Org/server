@@ -18,6 +18,7 @@ public enum MemberType {
 
     private final String value;
 
+
     // OAuth2ServiceProvider의 값과 일치하는 MemberType을 반환하는 메서드
     public static MemberType fromOAuth2Provider(String provider) {
         for (MemberType type : values()) {

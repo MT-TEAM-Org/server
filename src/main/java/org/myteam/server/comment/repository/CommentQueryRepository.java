@@ -1,6 +1,9 @@
 package org.myteam.server.comment.repository;
 
 import static java.util.Optional.ofNullable;
+import static org.myteam.server.admin.dto.AdminDetail.*;
+import static org.myteam.server.admin.dto.AdminSearch.*;
+import static org.myteam.server.admin.dto.AdminStatic.*;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.comment.domain.QBoardComment.boardComment;
@@ -9,18 +12,16 @@ import static org.myteam.server.comment.domain.QImprovementComment.improvementCo
 import static org.myteam.server.comment.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.comment.domain.QNewsComment.newsComment;
 import static org.myteam.server.comment.domain.QNoticeComment.noticeComment;
+import static org.myteam.server.comment.dto.response.CommentResponse.*;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.news.news.domain.QNews.news;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.newsCount;
 import static org.myteam.server.notice.domain.QNotice.notice;
+import static org.myteam.server.report.domain.QReport.report;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -33,6 +34,11 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.dto.AdminDetail;
+import org.myteam.server.admin.dto.AdminSearch;
+import org.myteam.server.admin.dto.AdminStatic;
+import org.myteam.server.admin.utils.StaticDataType;
+import org.myteam.server.admin.utils.StaticUtil;
 import org.myteam.server.board.domain.BoardOrderType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.board.domain.CategoryType;
@@ -51,12 +57,14 @@ import org.myteam.server.comment.service.CommentRecommendReadService;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.page.util.CustomPageImpl;
 import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.QMember;
 import org.myteam.server.mypage.dto.response.MyCommentDto;
 import org.myteam.server.mypage.dto.response.PostResponse;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -96,6 +104,10 @@ public class CommentQueryRepository {
         // 삭제 갯수 반환
         return (int) deletedCount + 1;
     }
+
+
+
+
 
     public List<Comment> getCommentList(CommentType type, Long contentId) {
         QMember mentionedMember = new QMember("mentionedMember");
@@ -1056,4 +1068,44 @@ public class CommentQueryRepository {
                 )
                 .otherwise(Expressions.nullExpression());
     }
+
+
+
+
+
+
+
+
+
+    public Predicate boardSearchTypeCond(BoardSearchType boardSearchType,String searchKeyWord){
+
+        if(boardSearchType==null ||searchKeyWord==null){
+            return null;
+        }
+
+        switch (boardSearchType){
+            case NICKNAME -> {return member.nickname.eq(searchKeyWord);}
+            case TITLE -> {return null;}
+            case COMMENT,TITLE_CONTENT ->{
+                return comment1.comment.contains(searchKeyWord);
+
+            }
+
+        }
+
+        return null;
+    }
+    public Predicate searchByTimeLine(LocalDateTime startTime,LocalDateTime endTime){
+        if(startTime==null || endTime==null){
+
+            return null;
+        }
+
+        return comment1.createDate.between(startTime,endTime);
+
+    }
+
+
+
+
 }

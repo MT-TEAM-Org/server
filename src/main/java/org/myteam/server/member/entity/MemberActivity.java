@@ -32,6 +32,7 @@ public class MemberActivity {
         this.inviteCount += 1;
     }
 
+
     public MemberActivity(Member member) {
         this.member = member;
         member.updateMemberActivity(this);

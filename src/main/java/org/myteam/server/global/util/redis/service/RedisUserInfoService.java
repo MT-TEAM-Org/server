@@ -16,7 +16,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RedisUserInfoService {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+
+    //test시 에러발생해서 obejct->string으로만 바꿧어요
+    private final RedisTemplate<String, String> redisTemplate;
     private static final String PREFIX = "token:";
     private static final int LIMIT_DAYS = 1;
 

@@ -35,6 +35,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final MemberJpaRepository memberJpaRepository;
 
+
+    /*
+    * 관리자 계정은 아예 멤버랑 분리된걸로 생각되는대 아닌가..?
+    * */
     private static final String[] excludePath = {
         "/api/token/regenerate", "/actuator/prometheus", "/health-check"
     };

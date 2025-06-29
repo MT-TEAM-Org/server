@@ -1,10 +1,7 @@
 package org.myteam.server.global.security.config;
-
+import org.myteam.server.admin.filter.AdminAuthFilter;
 import org.myteam.server.global.config.WebConfig;
-import org.myteam.server.global.security.filter.AuthenticationEntryPointHandler;
-import org.myteam.server.global.security.filter.CustomAccessDeniedHandler;
-import org.myteam.server.global.security.filter.JwtAuthenticationFilter;
-import org.myteam.server.global.security.filter.TokenAuthenticationFilter;
+import org.myteam.server.global.security.filter.*;
 import org.myteam.server.global.security.handler.CustomLogoutSuccessHandler;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.security.service.CustomUserDetailsService;
@@ -12,9 +9,11 @@ import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
 import org.myteam.server.oauth2.service.CustomOAuth2UserService;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +29,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.HstsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -203,6 +203,7 @@ public class SecurityConfig {
 			.frameOptions(FrameOptionsConfig::disable)        // FrameOptions 비활성화
 		);
 
+
 		// 기본 보안 설정 비활성화
 		http.logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
 			.csrf(AbstractHttpConfigurer::disable) // csrf disable
@@ -230,6 +231,7 @@ public class SecurityConfig {
 			.addFilterBefore(
 					new TokenAuthenticationFilter(jwtProvider, memberJpaRepository),
 					JwtAuthenticationFilter.class);
+
 
 		//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가
 

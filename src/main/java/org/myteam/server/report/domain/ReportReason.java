@@ -22,9 +22,15 @@ public class ReportReason {
     @Column(nullable = false, length = 50)
     private BanReason reason;
 
+
+    @Column(length=50)
+    private String reportedReason;
+
+
     @Builder
-    public ReportReason(Report report, BanReason reason) {
+    public ReportReason(Report report, BanReason reason,String reportedReason) {
         this.report = report;
         this.reason = reason;
+        this.reportedReason=reportedReason;
     }
 }

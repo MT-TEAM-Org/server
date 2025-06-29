@@ -106,7 +106,7 @@ public class CommentFactory {
             case INQUIRY:
                 Inquiry inquiry = inquiryReadService.findInquiryById(contentId);
                 if (member.isAdmin()) {
-                    inquiry.updateAdminAnswered();
+                    inquiry.updateAdminAnswered(false);
                     inquiryRepository.save(inquiry);
                 }
                 return InquiryComment.createComment(
