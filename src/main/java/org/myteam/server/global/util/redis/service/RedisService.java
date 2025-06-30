@@ -38,7 +38,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
 
-		if(category.equals("LOGIN_ADMIN") & requestCount>=ADMIN_LOGIN_MAX_REQUESTS){
+		if(category.equals("LOGIN_ADMIN") && requestCount>=ADMIN_LOGIN_MAX_REQUESTS){
 			log.warn("🚫 [RateLimit] 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
 			return false;
 		}
