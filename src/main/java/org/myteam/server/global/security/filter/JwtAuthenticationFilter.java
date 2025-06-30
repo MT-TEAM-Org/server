@@ -19,6 +19,8 @@ import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
+import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberStatus;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -81,7 +83,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			log.info("로그인 요청 - username: {}, password: {}", username, password);
 
-			UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(username, password);
+			UsernamePasswordAuthenticationToken authToken =
+					new UsernamePasswordAuthenticationToken(username, password);
 
 			return authenticationManager.authenticate(authToken);
 		} catch (IOException e) {
@@ -137,11 +140,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			log.debug("print role: {}", role);
 
 
-			if(request.getRequestURI().equals("/api/admin/login")){
-
-
+			if(status.equals(MemberRole.ADMIN.name())){
 				redisService.resetRequestCount("LOGIN_ADMIN",username);
-
 			}
 
 
@@ -163,32 +163,25 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException failed) throws IOException{
+
+
 		if(request.getRequestURI().equals("/api/admin/login")){
 			if(failed.getClass().isAssignableFrom(BadCredentialsException.class)){
-
 				String username=(String) request.getAttribute("username");
-
 				if(redisService.isAllowed("LOGIN_ADMIN",username)){
-					int count=redisService.getRequestCount("LOGIN_ADMIN",username);
-					sendErrorResponse(response,HttpStatus.UNAUTHORIZED,"%s".formatted(String.valueOf(10-count)));
-					return;
 
+					int count=redisService.getRequestCount("LOGIN_ADMIN",username);
+					sendErrorResponse(response,HttpStatus.UNAUTHORIZED,
+							"%s".formatted(String.valueOf(10-count)));
+					return;
 				}
 				int count=redisService.getRequestCount("LOGIN_ADMIN",username);
 				if(count>=10){
-
 					eventPublisher.publishEvent(new AdminBanEvent(username));
-
-
 				}
-
 				sendErrorResponse(response,HttpStatus.UNAUTHORIZED,"잠긴 계정입니다.");
 				return;
-
-
 			}
-
-
 		}
 
 

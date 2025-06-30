@@ -48,6 +48,11 @@ public class MemberReadService {
                 .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
     }
 
+    public Member findByEmailAndType(String email,MemberType type) {
+        return memberJpaRepository.findByEmailAndType(email,type)
+                .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+    }
+
     public ProfileResponse getProfile() {
         Member member = securityReadService.getMember();
 
