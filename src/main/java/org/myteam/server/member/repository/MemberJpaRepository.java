@@ -1,5 +1,6 @@
 package org.myteam.server.member.repository;
 
+import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

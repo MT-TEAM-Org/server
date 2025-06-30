@@ -28,6 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("일반 로그인 CustomUserDetailsService 실행됨");
         log.info("username : {}", username);
+
         Optional<Member> memberOP = userRepository.findByEmailAndType(username, LOCAL);
 
         if (memberOP.isPresent()) {
