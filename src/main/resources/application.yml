@@ -4,3 +4,8 @@ spring:
     include: auth, mail, swagger
   application:
     name: myteam-server
+
+async:
+  core-pool-size: 5
+  max-pool-size: 10
+  queue-capacity: 100
