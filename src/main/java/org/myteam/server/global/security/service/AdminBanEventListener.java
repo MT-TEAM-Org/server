@@ -41,7 +41,7 @@ public class AdminBanEventListener {
             log.info("관리자:{} 정지처리",member.getEmail());
 
            MemberStatusUpdateRequest memberStatusUpdateRequest=
-                   MemberStatusUpdateRequestBuilder(member.getEmail(),MemberStatus.INACTIVE);
+                   memberStatusUpdateRequestBuilder(member.getEmail(),MemberStatus.INACTIVE);
 
             memberService.updateStatus(adminBanEvent.getEmail(), memberStatusUpdateRequest);
 

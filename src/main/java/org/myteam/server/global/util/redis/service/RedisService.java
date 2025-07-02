@@ -38,11 +38,6 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
 
-		if(category.equals("LOGIN_ADMIN") && requestCount>=ADMIN_LOGIN_MAX_REQUESTS){
-			log.warn("🚫 [RateLimit] 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
-			return false;
-		}
-
 		// 요청 초과 여부 확인
 		if (requestCount >= MAX_REQUESTS) {
 			log.warn("🚫 [RateLimit] 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
@@ -54,13 +49,31 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 		// TTL(만료 시간)이 없으면 5분 설정
 		if (newCount == 1) {
-			if(!category.equals("LOGIN_ADMIN")){
-				redisTemplate.expire(redisKey, Duration.ofMinutes(EXPIRED_TIME));
-			}
+
+			redisTemplate.expire(redisKey, Duration.ofMinutes(EXPIRED_TIME));
+
 		}
 
 		log.info("✅ [RateLimit] 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
 		return true;
+	}
+
+
+	public boolean isAdminLoginAllowed(String category,String identifier){
+		String redisKey = getRateLimitKey(category, identifier);
+		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
+		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
+
+		if (requestCount >= ADMIN_LOGIN_MAX_REQUESTS) {
+			log.warn("🚫 [RateLimit] 관리자 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
+			return false;
+		}
+
+		long newCount = redisTemplate.opsForValue().increment(redisKey);
+
+		log.info("✅ [RateLimit] 관리자 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
+		return true;
+
 	}
 
 	/**

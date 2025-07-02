@@ -164,11 +164,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException failed) throws IOException{
 
-
 		if(request.getRequestURI().equals("/api/admin/login")){
-			if(failed.getClass().isAssignableFrom(BadCredentialsException.class)){
+			if(failed.getClass().getSimpleName().equals("BadCredentialsException")){
 				String username=(String) request.getAttribute("username");
-				if(redisService.isAllowed("LOGIN_ADMIN",username)){
+				if(redisService.isAdminLoginAllowed("LOGIN_ADMIN",username)){
 
 					int count=redisService.getRequestCount("LOGIN_ADMIN",username);
 					sendErrorResponse(response,HttpStatus.UNAUTHORIZED,
@@ -182,6 +181,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				sendErrorResponse(response,HttpStatus.UNAUTHORIZED,"잠긴 계정입니다.");
 				return;
 			}
+
 		}
 
 
@@ -191,7 +191,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		log.debug("message : {}", message);
 		System.out.println("fail authentication");
 	}
-
 	/**
 	 * 공통 에러 응답 처리 메서드
 	 *
