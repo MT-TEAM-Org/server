@@ -1,9 +1,6 @@
 package org.myteam.server.common.certification.mail.factory;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
-import org.myteam.server.common.certification.mail.strategy.SignUpStrategy;
-import org.myteam.server.common.certification.mail.strategy.TemporaryPasswordMailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.global.exception.ErrorCode;
@@ -24,13 +21,7 @@ public class MailStrategyFactory {
     @Autowired
     public void init(Map<String, MailStrategy> strategies) {
         strategies.forEach((key, strategy) -> {
-            if (strategy instanceof CertifyMailStrategy) {
-                mailStrategyMap.put(EmailType.CERTIFICATION, strategy);
-            } else if (strategy instanceof TemporaryPasswordMailStrategy) {
-                mailStrategyMap.put(EmailType.TEMPORARY_PASSWORD, strategy);
-            } else if (strategy instanceof SignUpStrategy) {
-                mailStrategyMap.put(EmailType.WELCOME, strategy);
-            }
+            mailStrategyMap.put(strategy.getType(), strategy);
         });
     }
 

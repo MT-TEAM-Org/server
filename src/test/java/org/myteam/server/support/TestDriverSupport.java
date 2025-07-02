@@ -2,7 +2,7 @@ package org.myteam.server.support;
 
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
-import org.myteam.server.aop.CommonCountAspect;
+import org.myteam.server.aop.count.CommonCountAspect;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
@@ -54,7 +54,6 @@ import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.repository.NoticeCountRepository;
 import org.myteam.server.notice.repository.NoticeRecommendRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
-import org.myteam.server.notice.service.NoticeRecommendReadService;
 import org.myteam.server.report.repository.ReportRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
@@ -168,6 +167,12 @@ public abstract class TestDriverSupport {
         boardRecommendRepository.deleteAllInBatch();
         boardCountRepository.deleteAllInBatch();
         boardRepository.deleteAllInBatch();
+        noticeRecommendRepository.deleteAllInBatch();
+        noticeCountRepository.deleteAllInBatch();
+        noticeRepository.deleteAllInBatch();
+        improvementRecommendRepository.deleteAllInBatch();
+        improvementCountRepository.deleteAllInBatch();
+        improvementRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
     }

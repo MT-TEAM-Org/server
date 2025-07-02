@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.CompletableFuture;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -179,7 +181,7 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
         String email = "test@test.com";
         when(certifyStorage.isCertified(email)).thenReturn(true);
         when(mailStrategyFactory.getStrategy(EmailType.TEMPORARY_PASSWORD))
-                .thenReturn((e) -> {}); // 메일 전략 그냥 무시
+                .thenReturn((MailStrategy) strategy -> CompletableFuture.completedFuture(null)); // 메일전략 그냥 무시
 
         // when & then
         assertThatCode(() -> memberService.generateTemporaryPassword(email))
