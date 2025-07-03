@@ -46,7 +46,7 @@ spring:
             client-name: google
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
+            redirect-uri: "https://api.playhive.co.kr/login/oauth2/code/google"
             scope: # 기본 값 openid,profile,email => profile, email 로 설정 변경
               - profile
               - email
