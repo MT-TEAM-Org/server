@@ -5,6 +5,9 @@ import static org.myteam.server.comment.domain.QNewsComment.*;
 import static org.myteam.server.news.news.domain.QNews.*;
 import static org.myteam.server.news.newsCount.domain.QNewsCount.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +19,7 @@ import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNewsComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
+import org.myteam.server.news.news.domain.NewsDocument;
 import org.myteam.server.news.news.dto.repository.NewsCommentSearchDto;
 import org.myteam.server.news.news.dto.repository.NewsDto;
 import org.myteam.server.news.news.dto.service.request.NewsServiceRequest;
@@ -32,14 +36,23 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Repository
 @RequiredArgsConstructor
 public class NewsQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
+	private final NewsSearchRepository newsSearchRepository;
 
 	public Page<NewsDto> getNewsList(NewsServiceRequest newsServiceRequest) {
+		if (useElasticsearch(newsServiceRequest)) {
+			return searchFromElastic(newsServiceRequest);
+		}
+		return searchFromQueryDSL(newsServiceRequest);
+	}
+
+	public Page<NewsDto> searchFromQueryDSL(NewsServiceRequest newsServiceRequest) {
 		Category category = newsServiceRequest.getCategory();
 		OrderType orderType = newsServiceRequest.getOrderType();
 		BoardSearchType searchType = newsServiceRequest.getSearchType();
@@ -49,27 +62,27 @@ public class NewsQueryRepository {
 		int startIndex = newsServiceRequest.getStartIndex();
 
 		List<NewsDto> contents = queryFactory
-			.select(Projections.constructor(NewsDto.class,
-				news.id,
-				news.category,
-				news.title,
-				news.thumbImg,
-				news.content,
-				newsCount.commentCount,
-				news.postDate,
-				news.id.in(getHotNewsIdList())
-			))
-			.from(news)
-			.join(newsCount).on(newsCount.news.id.eq(news.id))
-			.where(
-				isCategoryEqualTo(category),
-				isSearchTypeLikeTo(searchType, search),
-				isPostDateAfter(timePeriod)
-			)
-			.orderBy(isOrderByEqualToOrderCategory(orderType))
-			.offset(pageable.getOffset() + startIndex)
-			.limit(pageable.getPageSize())
-			.fetch();
+				.select(Projections.constructor(NewsDto.class,
+						news.id,
+						news.category,
+						news.title,
+						news.thumbImg,
+						news.content,
+						newsCount.commentCount,
+						news.postDate,
+						news.id.in(getHotNewsIdList())
+				))
+				.from(news)
+				.join(newsCount).on(newsCount.news.id.eq(news.id))
+				.where(
+						isCategoryEqualTo(category),
+						isSearchTypeLikeTo(searchType, search),
+						isPostDateAfter(timePeriod)
+				)
+				.orderBy(isOrderByEqualToOrderCategory(orderType))
+				.offset(pageable.getOffset() + startIndex)
+				.limit(pageable.getPageSize())
+				.fetch();
 
 		// searchType이 COMMENT일 경우, 댓글 데이터 추가
 		if (searchType == BoardSearchType.COMMENT) {
@@ -82,6 +95,25 @@ public class NewsQueryRepository {
 		long total = getTotalNewsCount(category, searchType, search, timePeriod, startIndex);
 
 		return new PageImpl<>(contents, pageable, total);
+	}
+
+	public Page<NewsDto> searchFromElastic(NewsServiceRequest request) {
+		Pageable pageable = request.toPageable();
+
+		Page<NewsDocument> result = newsSearchRepository
+				.findByTitleContainingOrContentContaining(
+						request.getSearch(), request.getSearch(), pageable);
+
+		return result.map(doc -> new NewsDto(
+				Long.parseLong(doc.getId()),
+				Category.valueOf(doc.getCategory()),
+				doc.getTitle(),
+				null, // 썸네일은 MySQL에만 있을 수 있으므로 제외
+				doc.getContent(),
+				0, // 댓글 수는 ES에 없으므로 제외
+				LocalDateTime.ofInstant(Instant.ofEpochMilli(doc.getPostDate()), ZoneId.systemDefault()),
+				false // isHot 여부도 ES에는 없을 수 있음
+		));
 	}
 
 	public Page<NewsDto> getTotalList(TimePeriod timePeriod, BoardOrderType orderType,
@@ -285,5 +317,10 @@ public class NewsQueryRepository {
 			newsComment.createDate.desc(),
 			newsComment.comment.asc()
 		).fetchFirst();
+	}
+
+	private boolean useElasticsearch(NewsServiceRequest request) {
+		return request.getSearchType() == BoardSearchType.TITLE_CONTENT
+				&& StringUtils.hasText(request.getSearch());
 	}
 }
