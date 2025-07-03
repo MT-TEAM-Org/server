@@ -110,6 +110,7 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
+      - network.host=0.0.0.0
     ports:
       - "9200:9200"
 
