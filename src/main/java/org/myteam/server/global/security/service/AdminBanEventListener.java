@@ -2,11 +2,6 @@ package org.myteam.server.global.security.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.common.certification.mail.core.MailStrategy;
-import org.myteam.server.common.certification.mail.domain.EmailType;
-import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
-import org.myteam.server.common.certification.mail.strategy.NotifySuspendStrategy;
-import org.myteam.server.common.certification.service.CertificationService;
 import org.myteam.server.global.security.dto.AdminBanEvent;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -15,7 +10,6 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.MemberService;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
