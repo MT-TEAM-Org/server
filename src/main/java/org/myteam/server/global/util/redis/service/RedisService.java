@@ -49,9 +49,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 		// TTL(만료 시간)이 없으면 5분 설정
 		if (newCount == 1) {
-
 			redisTemplate.expire(redisKey, Duration.ofMinutes(EXPIRED_TIME));
-
 		}
 
 		log.info("✅ [RateLimit] 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
