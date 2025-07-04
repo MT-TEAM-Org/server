@@ -6,6 +6,9 @@ import org.myteam.server.report.domain.DomainType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -15,10 +18,16 @@ public class ViewCountScheduler {
 
     @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 5 * 60 * 1000) // 실행 후 5분마다
     public void updateCounts() {
-        bulkUpdater.bulkUpdate(DomainType.BOARD);
-        bulkUpdater.bulkUpdate(DomainType.NEWS);
-        bulkUpdater.bulkUpdate(DomainType.NOTICE);
-        bulkUpdater.bulkUpdate(DomainType.IMPROVEMENT);
-        bulkUpdater.bulkUpdate(DomainType.INQUIRY);
+        try {
+            CompletableFuture<Void> board = bulkUpdater.bulkUpdateAsync(DomainType.BOARD);
+            CompletableFuture<Void> news = bulkUpdater.bulkUpdateAsync(DomainType.NEWS);
+            CompletableFuture<Void> notice = bulkUpdater.bulkUpdateAsync(DomainType.NOTICE);
+            CompletableFuture<Void> improvement = bulkUpdater.bulkUpdateAsync(DomainType.IMPROVEMENT);
+            CompletableFuture<Void> inquiry = bulkUpdater.bulkUpdateAsync(DomainType.INQUIRY);
+
+            CompletableFuture.allOf(board, news, notice, improvement, inquiry).get(1, TimeUnit.MINUTES); // 타임아웃 처리
+        } catch (Exception e) {
+            log.error("View count async update failed", e);
+        }
     }
 }

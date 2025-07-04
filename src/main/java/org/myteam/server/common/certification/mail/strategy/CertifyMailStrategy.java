@@ -2,14 +2,17 @@ package org.myteam.server.common.certification.mail.strategy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.domain.CertificationCode;
+import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.util.CertifyStorage;
 import org.myteam.server.common.certification.mail.core.AbstractMailSender;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 
 @Slf4j
@@ -62,5 +65,16 @@ public class CertifyMailStrategy extends AbstractMailSender {
         context.setVariable("email", email);
 
         return templateEngine.process("mail/certify-template", context);
+    }
+
+    @Override
+    public EmailType getType() {
+        return EmailType.CERTIFICATION;
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> send(String email) {
+        return super.send(email);
     }
 }

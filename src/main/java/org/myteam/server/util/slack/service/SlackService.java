@@ -5,6 +5,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +24,7 @@ public class SlackService {
 		this.webhookUrl = webhookUrl;
 	}
 
+	@Async
 	public void sendSlackNotification(String message) {
 		String payload = String.format("{\"text\":\"%s\"}", message);
 

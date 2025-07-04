@@ -2,7 +2,7 @@ package org.myteam.server.news.news.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.aop.CountView;
+import org.myteam.server.aop.count.CountView;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.page.response.PageCustomResponse;
