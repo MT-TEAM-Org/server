@@ -196,7 +196,16 @@ public class MemberService {
 		Member targetMember = memberJpaRepository.findByEmail(memberStatusUpdateRequest.getEmail())
 				.orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
-		// 1. 요청자가 본인의 상태를 변경하려는 경우
+
+		// 1. 관리자가 다른 사용자의 상태를 변경하려는 경우
+		if (requester.isAdmin()) {
+			log.info("관리자가 상태를 변경 중: {}, 대상자: {}", targetEmail, memberStatusUpdateRequest.getEmail());
+			targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
+			return;
+		}
+
+
+		// 2. 요청자가 본인의 상태를 변경하려는 경우
 		if (requester.verifyOwnEmail(memberStatusUpdateRequest.getEmail())) {
 			log.info("사용자가 자신의 상태를 변경 중: {}", targetEmail);
 			if (!requester.getStatus().equals(MemberStatus.PENDING))
@@ -205,12 +214,6 @@ public class MemberService {
 			return;
 		}
 
-		// 2. 관리자가 다른 사용자의 상태를 변경하려는 경우
-		if (requester.isAdmin()) {
-			log.info("관리자가 상태를 변경 중: {}, 대상자: {}", targetEmail, memberStatusUpdateRequest.getEmail());
-			targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
-			return;
-		}
 
 		// 3. 권한 없는 사용자가 다른 사용자의 상태를 변경하려고 시도한 경우
 		log.warn("권한 없는 요청: 요청자 {}, 대상자 {}", targetEmail, memberStatusUpdateRequest.getEmail());

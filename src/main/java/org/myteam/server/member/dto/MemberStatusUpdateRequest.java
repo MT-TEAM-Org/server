@@ -14,4 +14,13 @@ public class MemberStatusUpdateRequest {
 
     @NotNull
     private MemberStatus status;
+
+    public static MemberStatusUpdateRequest memberStatusUpdateRequestBuilder(String email
+            ,MemberStatus memberStatus){
+        return MemberStatusUpdateRequest
+                .builder()
+                .email(email)
+                .status(memberStatus)
+                .build();
+    }
 }
