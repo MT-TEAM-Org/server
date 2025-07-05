@@ -78,13 +78,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			String username = credentials.get("username");
 			String password = credentials.get("password");
+			String userNameForAuth;
 
-			request.setAttribute("username",username);
+			if(request.getRequestURI().equals("/api/admin/login")){
+				request.setAttribute("username",username);
+				userNameForAuth=username+">"+"ADMIN";
+			}
+			else{
+				request.setAttribute("username",username);
+				userNameForAuth=username+">"+"USER";
+			}
 
 			log.info("로그인 요청 - username: {}, password: {}", username, password);
 
 			UsernamePasswordAuthenticationToken authToken =
-					new UsernamePasswordAuthenticationToken(username, password);
+					new UsernamePasswordAuthenticationToken(userNameForAuth, password);
 
 			return authenticationManager.authenticate(authToken);
 		} catch (IOException e) {
@@ -162,23 +170,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-		AuthenticationException failed) throws IOException{
+											  AuthenticationException failed) throws IOException {
 
-		if(request.getRequestURI().equals("/api/admin/login")){
-			if(failed.getClass().getSimpleName().equals("BadCredentialsException")){
-				String username=(String) request.getAttribute("username");
-				if(redisService.isAdminLoginAllowed("LOGIN_ADMIN",username)){
-
-					int count=redisService.getRequestCount("LOGIN_ADMIN",username);
-					sendErrorResponse(response,HttpStatus.UNAUTHORIZED,
-							"%s".formatted(String.valueOf(10-count)));
+		if (request.getRequestURI().equals("/api/admin/login")) {
+			if (failed.getClass().getSimpleName().equals("BadCredentialsException")) {
+				String username = (String) request.getAttribute("username");
+				if (redisService.isAdminLoginAllowed("LOGIN_ADMIN", username)) {
+					int count = redisService.getRequestCount("LOGIN_ADMIN", username);
+					sendErrorResponse(response, HttpStatus.UNAUTHORIZED,
+							"%s".formatted(String.valueOf(10 - count)));
 					return;
 				}
-				int count=redisService.getRequestCount("LOGIN_ADMIN",username);
-				if(count>=10){
+				int count = redisService.getRequestCount("LOGIN_ADMIN", username);
+				if (count >= 10) {
 					eventPublisher.publishEvent(new AdminBanEvent(username));
 				}
-				sendErrorResponse(response,HttpStatus.UNAUTHORIZED,"잠긴 계정입니다.");
+				sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "잠긴 계정입니다.");
 				return;
 			}
 
@@ -191,6 +198,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		log.debug("message : {}", message);
 		System.out.println("fail authentication");
 	}
+
 	/**
 	 * 공통 에러 응답 처리 메서드
 	 *
@@ -200,7 +208,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	 * @throws IOException
 	 */
 	private void sendErrorResponse(HttpServletResponse response, HttpStatus httpStatus, String message) throws
-		IOException {
+			IOException {
 		response.setStatus(httpStatus.value());
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
