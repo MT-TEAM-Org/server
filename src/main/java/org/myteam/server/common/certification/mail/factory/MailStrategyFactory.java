@@ -1,6 +1,13 @@
 package org.myteam.server.common.certification.mail.factory;
 
 import lombok.RequiredArgsConstructor;
+<<<<<<< Updated upstream
+=======
+import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
+import org.myteam.server.common.certification.mail.strategy.NotifySuspendStrategy;
+import org.myteam.server.common.certification.mail.strategy.SignUpStrategy;
+import org.myteam.server.common.certification.mail.strategy.TemporaryPasswordMailStrategy;
+>>>>>>> Stashed changes
 import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.global.exception.ErrorCode;
