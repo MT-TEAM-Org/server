@@ -527,12 +527,12 @@ public class AdminDashBoardRepository {
                                             .then("답변완료")
                                             .otherwise("답변대기"),
                                     new CaseBuilder()
-                                            .when(member.email.isNotNull())
+                                            .when(member.nickname.isNull())
                                                 .then("비회원")
                                                 .otherwise("회원"),
                                     inquiry.id,
                                     new CaseBuilder()
-                                                .when(member.email.isNotNull())
+                                                .when(member.nickname.isNull())
                                                 .then(member.email)
                                                 .otherwise(member.nickname),
                                     inquiry.content.substring(0,20),
