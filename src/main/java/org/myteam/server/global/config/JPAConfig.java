@@ -1,5 +1,9 @@
 package org.myteam.server.global.config;
 
+import com.blazebit.persistence.Criteria;
+import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.querydsl.BlazeJPAQueryFactory;
+import com.blazebit.persistence.spi.CriteriaBuilderConfiguration;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,6 +17,21 @@ import org.springframework.context.annotation.Configuration;
 public class JPAConfig {
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Bean
+    public CriteriaBuilderFactory criteriaBuilderFactory() {
+        CriteriaBuilderConfiguration config = Criteria.getDefault();
+        // do some configuration
+        return config.createCriteriaBuilderFactory(entityManager.getEntityManagerFactory());
+    }
+
+
+    @Bean
+    public BlazeJPAQueryFactory blazeJPAQueryFactory(){
+
+        return new BlazeJPAQueryFactory(entityManager,criteriaBuilderFactory());
+    }
+
 
     @Bean
     public JPAQueryFactory queryFactory() {

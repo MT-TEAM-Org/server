@@ -15,12 +15,15 @@ public class MemberStatusUpdateRequest {
     @NotNull
     private MemberStatus status;
 
+    private String content;
+
     public static MemberStatusUpdateRequest memberStatusUpdateRequestBuilder(String email
-            ,MemberStatus memberStatus){
+            , MemberStatus memberStatus) {
         return MemberStatusUpdateRequest
                 .builder()
                 .email(email)
                 .status(memberStatus)
                 .build();
     }
+
 }

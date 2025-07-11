@@ -22,8 +22,6 @@ import java.util.UUID;
 
 import static org.myteam.server.member.domain.MemberRole.ADMIN;
 import static org.myteam.server.member.domain.MemberRole.USER;
-import static org.myteam.server.member.domain.MemberStatus.PENDING;
-import static org.myteam.server.member.domain.MemberType.GOOGLE;
 import static org.myteam.server.member.domain.MemberType.LOCAL;
 
 @Slf4j
@@ -59,7 +57,7 @@ public class Member extends Base {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MemberStatus status = PENDING;
+    private MemberStatus status = MemberStatus.ACTIVE;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private MemberActivity memberActivity;
@@ -154,7 +152,7 @@ public class Member extends Base {
     }
 
     public void confirmMemberEquals(Member member) {
-        if(!Objects.equals(this.publicId, member.getPublicId())) {
+        if (!Objects.equals(this.publicId, member.getPublicId())) {
             throw new PlayHiveException(ErrorCode.MEMBER_NOT_EQUALS);
         }
     }
@@ -172,4 +170,5 @@ public class Member extends Base {
         this.birthMonth = Integer.parseInt(birthDate.substring(2, 4));
         this.birthDay = Integer.parseInt(birthDate.substring(4));
     }
+
 }
