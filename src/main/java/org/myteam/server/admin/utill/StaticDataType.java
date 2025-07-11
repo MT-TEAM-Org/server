@@ -4,5 +4,5 @@ public enum StaticDataType {
     Report,ReportedChat,ReportedComment
     ,ReportedBoard,Board,Comment,BoardComment
     ,Improvement,Inquiry,ImprovementInquiry
-    ,UserAccess,UserSignIn,UserDeleted
+    ,UserAccess,UserSignIn,UserDeleted,User
 }

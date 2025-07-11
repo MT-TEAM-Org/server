@@ -27,10 +27,17 @@ public class MemberAccess {
 
     private LocalDateTime accessTime;
 
+    private String ip;
+
     @Builder
-    public MemberAccess(UUID publicId,LocalDateTime accessTime){
+    public MemberAccess(UUID publicId,LocalDateTime accessTime,String ip){
         this.accessTime=accessTime;
         this.publicId=publicId;
+        this.ip=ip;
+    }
+
+    public void updateMemberAccessIp(String ip){
+        this.ip=ip;
     }
 
 }

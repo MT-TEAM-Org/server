@@ -17,6 +17,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberAccess;
 import org.myteam.server.member.repository.MemberAccessRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -106,8 +107,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                             .builder()
                             .accessTime(now)
                             .publicId(member.getPublicId())
+                            .ip(ClientUtils.getRemoteIP(request))
                             .build();
                     memberAccessRepository.save(memberAccess1);
+                }
+                else{
+                    memberAccess.get().updateMemberAccessIp(ClientUtils.getRemoteIP(request));
+                    memberAccessRepository.save(memberAccess.get());
                 }
                 CustomUserDetails customUserDetails = new CustomUserDetails(member);
                 Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());

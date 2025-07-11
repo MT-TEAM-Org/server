@@ -51,8 +51,12 @@ public class VisitEventListener {
                     .builder()
                     .accessTime(now)
                     .publicId(publicId)
+                    .ip(event.getIp())
                     .build();
             memberAccessRepository.save(memberAccess1);
+        }
+        else {
+            memberAccess.get().updateMemberAccessIp(event.getIp());
         }
 
     }
