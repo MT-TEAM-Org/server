@@ -17,6 +17,7 @@ public class MemberStatusUpdateRequest {
 
     private String content;
 
+
     public static MemberStatusUpdateRequest memberStatusUpdateRequestBuilder(String email
             , MemberStatus memberStatus) {
         return MemberStatusUpdateRequest
