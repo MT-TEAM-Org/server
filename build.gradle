@@ -111,6 +111,9 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // ElasticSearch
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'jakarta.json:jakarta.json-api:2.1.1'
 }
 
 test {

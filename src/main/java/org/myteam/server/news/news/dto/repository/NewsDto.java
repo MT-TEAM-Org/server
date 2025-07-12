@@ -50,6 +50,18 @@ public class NewsDto {
         this.isHot = isHot;
     }
 
+    public NewsDto(Long id, String category, String title, String thumbImg, String content,
+                   int commentCount, LocalDateTime postDate) {
+        this.id = id;
+        this.category = Category.valueOf(category); // ✅ 직접 enum으로 변환
+        this.title = title;
+        this.thumbImg = extractCleanThumbImg(thumbImg, this.category);
+        this.content = content;
+        this.commentCount = commentCount;
+        this.postDate = postDate;
+        this.isHot = false; // or your logic
+    }
+
     public void updateNewsCommentSearchDto(NewsCommentSearchDto newsCommentSearchDto) {
         this.newsCommentSearchDto = newsCommentSearchDto;
     }
