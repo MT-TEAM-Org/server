@@ -21,4 +21,6 @@ public enum ReportType {
 
     NONE
 
+    ,CHAT
+
 }

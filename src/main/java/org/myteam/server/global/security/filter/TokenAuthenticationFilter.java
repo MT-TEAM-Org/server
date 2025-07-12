@@ -14,7 +14,10 @@ import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberAccess;
+import org.myteam.server.member.repository.MemberAccessRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,7 +25,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.myteam.server.global.exception.ErrorCode.*;
@@ -34,6 +40,7 @@ import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_A
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final MemberJpaRepository memberJpaRepository;
+    private final MemberAccessRepository memberAccessRepository;
 
     private static final String[] excludePath = {
         "/api/token/regenerate", "/actuator/prometheus", "/health-check"
@@ -92,7 +99,22 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     sendErrorResponse(response, HttpStatus.UNAUTHORIZED, INVALID_ACCESS_TOKEN.name());
                     return;
                 }
-
+                LocalDateTime now=LocalDateTime.now().with(LocalTime.MIDNIGHT);
+                Optional<MemberAccess> memberAccess=memberAccessRepository
+                        .findByPublicIdAndAccessTime(member.getPublicId(),now);
+                if(memberAccess.isEmpty()){
+                    MemberAccess memberAccess1=MemberAccess
+                            .builder()
+                            .accessTime(now)
+                            .publicId(member.getPublicId())
+                            .ip(ClientUtils.getRemoteIP(request))
+                            .build();
+                    memberAccessRepository.save(memberAccess1);
+                }
+                else{
+                    memberAccess.get().updateMemberAccessIp(ClientUtils.getRemoteIP(request));
+                    memberAccessRepository.save(memberAccess.get());
+                }
                 CustomUserDetails customUserDetails = new CustomUserDetails(member);
                 Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
