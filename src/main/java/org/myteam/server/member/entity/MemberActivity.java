@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "member_activity")
 @Getter
@@ -36,4 +38,5 @@ public class MemberActivity {
         this.member = member;
         member.updateMemberActivity(this);
     }
+
 }

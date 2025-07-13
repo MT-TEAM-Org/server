@@ -8,9 +8,11 @@ import java.util.UUID;
 @Getter
 public class UserLoginEvent extends ApplicationEvent {
     private final UUID publicId;
+    private String ip;
 
-    public UserLoginEvent(Object source, UUID publicId) {
+    public UserLoginEvent(Object source, UUID publicId,String ip) {
         super(source);
         this.publicId = publicId;
+        this.ip=ip;
     }
 }
