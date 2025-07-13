@@ -57,10 +57,10 @@ public class MemberService {
      */
     public MemberResponse create(MemberSaveRequest memberSaveRequest) throws PlayHiveException {
         // 동일한 유저 이름 존재 검사
-        Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(memberSaveRequest.getEmail(),
-                MemberType.LOCAL);
+        Optional<Member> memberOP = memberJpaRepository.findByEmailAndTypeAndStatus(memberSaveRequest.getEmail(),
+                MemberType.LOCAL, MemberStatus.ACTIVE);
 
-        if (memberOP.isPresent() && memberOP.get().getStatus() == MemberStatus.ACTIVE) {
+        if (memberOP.isPresent()) {
             // 아이디가 중복 되었다는 것
             throw new PlayHiveException(USER_ALREADY_EXISTS);
         }
