@@ -60,7 +60,7 @@ public class MemberService {
         Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(memberSaveRequest.getEmail(),
                 MemberType.LOCAL);
 
-        if (memberOP.isPresent()) {
+        if (memberOP.isPresent() && memberOP.get().getStatus() == MemberStatus.ACTIVE) {
             // 아이디가 중복 되었다는 것
             throw new PlayHiveException(USER_ALREADY_EXISTS);
         }

@@ -4,9 +4,9 @@ import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.mail.core.AbstractMailSender;
 import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -34,7 +34,9 @@ public class SignUpStrategy extends AbstractMailSender {
     }
 
     private String buildWelcomeContent(String email) {
-        String nickname = memberJpaRepository.findByEmail(email).get().getNickname();
+        String nickname = memberJpaRepository.findByEmail(email)
+                .map(Member::getNickname)
+                .orElse("익명의회원");
 
         Context context = new Context();
         context.setVariable("nickname", nickname);
@@ -47,7 +49,6 @@ public class SignUpStrategy extends AbstractMailSender {
         return EmailType.WELCOME;
     }
 
-    @Async
     @Override
     public CompletableFuture<Void> send(String email) {
         return super.send(email);
