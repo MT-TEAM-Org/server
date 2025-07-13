@@ -1,22 +1,26 @@
 package org.myteam.server.common.certification.mail.strategy;
 
+import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.mail.core.AbstractMailSender;
 import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.util.concurrent.CompletableFuture;
-
 @Slf4j
 @Component
 public class SignUpStrategy extends AbstractMailSender {
 
-    public SignUpStrategy(JavaMailSender javaMailSender, SpringTemplateEngine templateEngine) {
+    private final MemberJpaRepository memberJpaRepository;
+
+    public SignUpStrategy(JavaMailSender javaMailSender, SpringTemplateEngine templateEngine,
+                          MemberJpaRepository memberJpaRepository) {
         super(javaMailSender, templateEngine);
+        this.memberJpaRepository = memberJpaRepository;
     }
 
     @Override
@@ -30,8 +34,10 @@ public class SignUpStrategy extends AbstractMailSender {
     }
 
     private String buildWelcomeContent(String email) {
+        String nickname = memberJpaRepository.findByEmail(email).get().getNickname();
+
         Context context = new Context();
-        context.setVariable("email", email);
+        context.setVariable("nickname", nickname);
 
         return templateEngine.process("mail/signup-complete-template", context);
     }
