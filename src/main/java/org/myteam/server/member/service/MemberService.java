@@ -57,8 +57,8 @@ public class MemberService {
      */
     public MemberResponse create(MemberSaveRequest memberSaveRequest) throws PlayHiveException {
         // 동일한 유저 이름 존재 검사
-        Optional<Member> memberOP = memberJpaRepository.findByEmailAndTypeAndStatus(memberSaveRequest.getEmail(),
-                MemberType.LOCAL, MemberStatus.ACTIVE);
+        Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(memberSaveRequest.getEmail(),
+                MemberType.LOCAL);
 
         if (memberOP.isPresent()) {
             // 아이디가 중복 되었다는 것
@@ -104,9 +104,9 @@ public class MemberService {
      */
     public void addInfo(AddMemberInfoRequest request) {
         log.info("소셜로그인 추가정보: {}", request.getEmail());
-        Optional<Member> existDataOP = memberJpaRepository.findByEmailAndTypeAndStatus(
+        Optional<Member> existDataOP = memberJpaRepository.findByEmailAndType(
                 request.getEmail(),
-                request.getMemberType(), MemberStatus.ACTIVE);
+                request.getMemberType());
 
         if (!existDataOP.isPresent()) {
             log.warn("소셜로그인 유저 없음: {}", request.getEmail());
@@ -156,9 +156,7 @@ public class MemberService {
     @Transactional
     public MemberResponse updateRole(MemberRoleUpdateRequest request) {
         // 1. 동일한 유저 이름 존재 검사
-        Optional<Member> memberOP = memberJpaRepository.findByEmailAndTypeAndStatus(request.getEmail(),
-                request.getType(),
-                MemberStatus.ACTIVE);
+        Optional<Member> memberOP = memberJpaRepository.findByEmailAndType(request.getEmail(), request.getType());
 
         // 2. 아이디 미존재 체크
         if (memberOP.isEmpty()) {

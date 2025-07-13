@@ -1,10 +1,5 @@
 package org.myteam.server.member.service;
 
-import static org.myteam.server.global.exception.ErrorCode.NO_PERMISSION;
-import static org.myteam.server.global.exception.ErrorCode.RESOURCE_NOT_FOUND;
-import static org.myteam.server.global.exception.ErrorCode.USER_NOT_FOUND;
-import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_PREFIX;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -14,14 +9,19 @@ import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.member.controller.response.MemberResponse;
-import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.FindIdResponse;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.profile.dto.response.ProfileResponseDto.ProfileResponse;
+import org.myteam.server.util.AESCryptoUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.myteam.server.global.exception.ErrorCode.*;
+import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_PREFIX;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +48,8 @@ public class MemberReadService {
                 .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
     }
 
-    public Member findByEmailAndType(String email, MemberType type) {
-        return memberJpaRepository.findByEmailAndTypeAndStatus(email, type, MemberStatus.ACTIVE)
+    public Member findByEmailAndType(String email,MemberType type) {
+        return memberJpaRepository.findByEmailAndType(email,type)
                 .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
     }
 

@@ -1,19 +1,21 @@
 package org.myteam.server.global.security.service;
 
-import static org.myteam.server.member.domain.MemberType.LOCAL;
-
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+import static org.myteam.server.member.domain.MemberType.LOCAL;
 
 @Service
 @Slf4j
@@ -27,9 +29,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        String[] userData = username.split(">");
+        String [] userData=username.split(">");
 
-        if (userData[1].equals("ADMIN")) {
+        if(userData[1].equals("ADMIN")) {
             log.info("관리자 로그인 CustomUserDetailsService 실행됨");
             log.info("username : {}", userData[0]);
             Optional<Member> memberOP = userRepository
@@ -46,7 +48,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             }
             log.warn("사용자를 찾을수 없습니다.");
             throw new PlayHiveException(ErrorCode.USER_NOT_FOUND);
-        } else {
+        }
+        else {
             log.info("일반 로그인 CustomUserDetailsService 실행됨");
             log.info("username : {}", userData[0]);
 
