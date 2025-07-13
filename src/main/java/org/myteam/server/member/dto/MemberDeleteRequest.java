@@ -9,7 +9,7 @@ import lombok.Getter;
 @Builder
 public class MemberDeleteRequest {
     //    @NotBlank
-    @Pattern(regexp = "^[0-9a-zA-Z]+@[0-9a-zA-Z]+(\\.[a-zA-Z]{2,3}){1,2}$", message = "이메일 형식으로 작성해주세요")
+    @Pattern(regexp = "^[0-9a-zA-Z_]+@[0-9a-zA-Z]+(\\.[a-zA-Z]{2,3}){1,2}$", message = "이메일 형식으로 작성해주세요")
     private String email; // 계정
 
     @NotBlank
