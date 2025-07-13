@@ -3,10 +3,10 @@ package org.myteam.server.common.certification.mail.strategy;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.concurrent.CompletableFuture;
-
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.mail.core.AbstractMailSender;
 import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -62,7 +62,7 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
         String tempPassword = password.toString();
         log.info("랜덤 비밀번호 생성: {}", tempPassword);
 
-        memberRepository.findByEmailAndType(email, MemberType.LOCAL).ifPresent(member -> {
+        memberRepository.findByEmailAndTypeAndStatus(email, MemberType.LOCAL, MemberStatus.ACTIVE).ifPresent(member -> {
             String encodedPassword = passwordEncoder.encode(tempPassword);
             member.updatePassword(encodedPassword);
             memberRepository.save(member); // DB 저장
