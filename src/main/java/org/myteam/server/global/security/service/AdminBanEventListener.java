@@ -2,6 +2,8 @@ package org.myteam.server.global.security.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.common.certification.service.CertificationService;
+import org.myteam.server.common.certification.service.SuspendMailSendService;
 import org.myteam.server.global.security.dto.AdminBanEvent;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
@@ -22,7 +24,7 @@ public class AdminBanEventListener {
 
     private final MemberService memberService;
     private final MemberReadService memberReadService;
-
+    private final SuspendMailSendService suspendMailSendService;
 
     @EventListener
     @Transactional
@@ -38,6 +40,8 @@ public class AdminBanEventListener {
                    memberStatusUpdateRequestBuilder(member.getEmail(),MemberStatus.INACTIVE);
 
             memberService.updateStatus(adminBanEvent.getEmail(), memberStatusUpdateRequest);
+
+            suspendMailSendService.sendAdminSuspendMail(member.getEmail());
 
         }
     }

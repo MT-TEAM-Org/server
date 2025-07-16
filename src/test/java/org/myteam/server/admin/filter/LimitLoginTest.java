@@ -6,7 +6,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.myteam.server.chat.info.domain.UserInfo;
+import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
+import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
+import org.myteam.server.common.certification.mail.strategy.NotifyAdminSuspendGlobalStrategy;
+import org.myteam.server.common.certification.mail.strategy.NotifyAdminSuspendStrategy;
+import org.myteam.server.common.certification.service.SuspendMailSendService;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.domain.MemberRole;
@@ -62,6 +69,10 @@ public class LimitLoginTest extends IntegrationTestSupport {
     
     @Autowired
     JwtProvider jwtProvider;
+
+
+    @Autowired
+    SuspendMailSendService suspendMailSendService;
     
     @BeforeEach
     void setting(){
@@ -86,7 +97,7 @@ public class LimitLoginTest extends IntegrationTestSupport {
 
 
     @Test
-    @DisplayName("관리자 로그인 10회 실패시 계정이 잠기는지 테스트")
+    @DisplayName("관리자 로그인 10회 실패시 계정이 잠기는지 테스트 및 관리자 정지 메일 발송 확인")
     void testLimitLogin() throws Exception{
 
         given(redisService.isAdminLoginAllowed("LOGIN_ADMIN", "test1@test.com"))
@@ -124,7 +135,36 @@ public class LimitLoginTest extends IntegrationTestSupport {
                         .content(requestBody2))
                 .andDo(print())
                 .andExpect(status().isForbidden());
+
+
     }
+
+    @Test
+    @DisplayName("관리자 정지 메일 전송 테스트")
+    void testingSuspendMailSend(){
+
+        String email = "test1@example.com";
+
+
+
+        NotifyAdminSuspendGlobalStrategy mockGlobalStrategy = mock(NotifyAdminSuspendGlobalStrategy.class);
+        NotifyAdminSuspendStrategy mockSuspendStrategy = mock(NotifyAdminSuspendStrategy.class);
+
+
+        when(mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND_GLOBAL))
+                .thenReturn(mockGlobalStrategy);
+        when(mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND))
+                .thenReturn(mockSuspendStrategy);
+
+        suspendMailSendService.sendAdminSuspendMail(email);
+
+
+        verify(mockGlobalStrategy).send(email);
+        verify(mockSuspendStrategy).send(email);
+
+
+    }
+
     @Test
     @DisplayName("잘못된 계정 즉 없는 회원 이던가 혹은 회원 타입이 local인경우 실패 확인" +
             "혹은 로그인 경로와 알맞지않는 유저가 로그인 시도시 실패 확인")
