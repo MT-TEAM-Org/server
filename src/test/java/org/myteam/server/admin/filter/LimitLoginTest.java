@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import org.myteam.server.chat.info.domain.UserInfo;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
@@ -97,13 +98,23 @@ public class LimitLoginTest extends IntegrationTestSupport {
 
 
     @Test
-    @DisplayName("관리자 로그인 10회 실패시 계정이 잠기는지 테스트 및 관리자 정지 메일 발송 확인")
+    @DisplayName("관리자 로그인 10회 실패시 계정이 잠기는지 확인")
     void testLimitLogin() throws Exception{
+
+
 
         given(redisService.isAdminLoginAllowed("LOGIN_ADMIN", "test1@test.com"))
                 .willReturn(false);
         given(redisService.getRequestCount("LOGIN_ADMIN","test1@test.com"))
                 .willReturn(10);
+
+        NotifyAdminSuspendGlobalStrategy mockGlobalStrategy = mock(NotifyAdminSuspendGlobalStrategy.class);
+        NotifyAdminSuspendStrategy mockSuspendStrategy = mock(NotifyAdminSuspendStrategy.class);
+
+        when(mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND_GLOBAL))
+                .thenReturn(mockGlobalStrategy);
+        when(mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND))
+                .thenReturn(mockSuspendStrategy);
 
         String requestBody = """
             {
@@ -118,17 +129,18 @@ public class LimitLoginTest extends IntegrationTestSupport {
                 "password": "1234"
             }
         """;
-
         mockMvc.perform(post("/api/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
 
+        String email = "test1@test.com";
+        verify(mockGlobalStrategy).send(email);
+        verify(mockSuspendStrategy).send(email);
 
         Optional<Member> member=memberJpaRepository.findByEmail(admin.getEmail());
         assertThat(member.get().getStatus()).isEqualTo(MemberStatus.INACTIVE);
-
 
         mockMvc.perform(post("/api/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,31 +151,6 @@ public class LimitLoginTest extends IntegrationTestSupport {
 
     }
 
-    @Test
-    @DisplayName("관리자 정지 메일 전송 테스트")
-    void testingSuspendMailSend(){
-
-        String email = "test1@example.com";
-
-
-
-        NotifyAdminSuspendGlobalStrategy mockGlobalStrategy = mock(NotifyAdminSuspendGlobalStrategy.class);
-        NotifyAdminSuspendStrategy mockSuspendStrategy = mock(NotifyAdminSuspendStrategy.class);
-
-
-        when(mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND_GLOBAL))
-                .thenReturn(mockGlobalStrategy);
-        when(mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND))
-                .thenReturn(mockSuspendStrategy);
-
-        suspendMailSendService.sendAdminSuspendMail(email);
-
-
-        verify(mockGlobalStrategy).send(email);
-        verify(mockSuspendStrategy).send(email);
-
-
-    }
 
     @Test
     @DisplayName("잘못된 계정 즉 없는 회원 이던가 혹은 회원 타입이 local인경우 실패 확인" +
