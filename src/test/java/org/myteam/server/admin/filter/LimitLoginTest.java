@@ -101,8 +101,6 @@ public class LimitLoginTest extends IntegrationTestSupport {
     @DisplayName("관리자 로그인 10회 실패시 계정이 잠기는지 확인")
     void testLimitLogin() throws Exception{
 
-
-
         given(redisService.isAdminLoginAllowed("LOGIN_ADMIN", "test1@test.com"))
                 .willReturn(false);
         given(redisService.getRequestCount("LOGIN_ADMIN","test1@test.com"))
@@ -136,7 +134,7 @@ public class LimitLoginTest extends IntegrationTestSupport {
                 .andExpect(status().isUnauthorized());
 
         String email = "test1@test.com";
-        verify(mockGlobalStrategy).send(email);
+        verify(mockGlobalStrategy).send(email+">"+"127.0.0.1");
         verify(mockSuspendStrategy).send(email);
 
         Optional<Member> member=memberJpaRepository.findByEmail(admin.getEmail());

@@ -41,7 +41,7 @@ public class AdminBanEventListener {
 
             memberService.updateStatus(adminBanEvent.getEmail(), memberStatusUpdateRequest);
 
-            suspendMailSendService.sendAdminSuspendMail(member.getEmail());
+            suspendMailSendService.sendAdminSuspendMail(member.getEmail(),adminBanEvent.getIp());
 
         }
     }

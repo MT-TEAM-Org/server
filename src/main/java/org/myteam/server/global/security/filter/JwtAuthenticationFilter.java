@@ -21,6 +21,7 @@ import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -183,7 +184,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				}
 				int count = redisService.getRequestCount("LOGIN_ADMIN", username);
 				if (count >= 10) {
-					eventPublisher.publishEvent(new AdminBanEvent(username));
+					eventPublisher.publishEvent(new AdminBanEvent(username, ClientUtils.getRemoteIP(request)));
 				}
 				sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "잠긴 계정입니다.");
 				return;

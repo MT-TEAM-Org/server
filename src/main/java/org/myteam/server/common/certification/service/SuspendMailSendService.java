@@ -16,9 +16,9 @@ public class SuspendMailSendService {
 
     private final MailStrategyFactory mailStrategyFactory;
 
-    public void sendAdminSuspendMail(String email){
+    public void sendAdminSuspendMail(String email,String ip){
         MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND_GLOBAL);
-        strategy.send(email);
+        strategy.send(email+">"+ip);
 
         strategy=mailStrategyFactory.getStrategy(EmailType.NOTIFY_ADMIN_SUSPEND);
         strategy.send(email);
