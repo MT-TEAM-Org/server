@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.AfterEach;
+import org.myteam.server.admin.repository.AdminChangeLogRepo;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
@@ -92,8 +93,12 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     @Autowired
     protected MemberAccessRepository memberAccessRepository;
 
+    @Autowired
+    protected AdminChangeLogRepo adminChangeLogRepo;
+
     @AfterEach
     void tearDown() {
+        adminChangeLogRepo.deleteAllInBatch();;
         commentRecommendRepository.deleteAllInBatch();
         commentRepository.deleteAllInBatch();
         matchPredictionMemberRepository.deleteAllInBatch();

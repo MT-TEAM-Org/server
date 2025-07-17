@@ -8,17 +8,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.dto.AdminDashBorad.RequestStatic;
 import org.myteam.server.admin.service.AdminDashBoardService;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.global.web.response.ResponseStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static org.myteam.server.admin.dto.AdminDashBorad.*;
+import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestLatestData;
+import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestStatic;
+import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseLatestData;
+import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseStatic;
 
 @RestController
 @RequestMapping("/api/admin/data")
@@ -30,37 +36,34 @@ public class AdminDashBoardController {
 
     private final AdminDashBoardService adminDashBoardService;
 
-
     @Operation(summary = "통계 데이터 가져오기", description = "종류,기간별 통계 데이터를 가져옵니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공",useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "200", description = "조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/static")
     public ResponseEntity<ResponseDto<ResponseStatic>>
-    getStaticData(@RequestBody @Valid RequestStatic requestStatic){
-
+    getStaticData(@RequestBody @Valid RequestStatic requestStatic, BindingResult bindingResult) {
         return ResponseEntity.ok(
-                new ResponseDto<>(ResponseStatus.SUCCESS.name(),"조회 성공",
+                new ResponseDto<>(ResponseStatus.SUCCESS.name(), "조회 성공",
                         adminDashBoardService.getStaticData(requestStatic))
         );
     }
-
 
     @Operation(summary = "최신 데이터 가져오기", description = "종류별 최신 데이터를 가져옵니다. 대시보드 상에서" +
             "알림목록에서 쓰는 최신 데이터랑" +
             "통계 데이터 보여주는 화면에서 나오는 최신데이터 모두 같은 api를 쓰시면될거같습니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공",useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "200", description = "조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
 
     @PostMapping("/latest")
     public ResponseEntity<ResponseDto<List<ResponseLatestData>>>
-    getLatestData(@RequestBody @Valid RequestLatestData requestLatestData){
+    getLatestData(@RequestBody @Valid RequestLatestData requestLatestData, BindingResult bindingResult) {
 
         return ResponseEntity.ok(
-                new ResponseDto<>(ResponseStatus.SUCCESS.name(),"조회 성공",
+                new ResponseDto<>(ResponseStatus.SUCCESS.name(), "조회 성공",
                         adminDashBoardService.getLatestData(requestLatestData)));
 
     }

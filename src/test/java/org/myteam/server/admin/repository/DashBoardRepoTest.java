@@ -1,12 +1,15 @@
 package org.myteam.server.admin.repository;
 
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.myteam.server.admin.entity.AdminChangeLog;
 import org.myteam.server.admin.service.AdminDashBoardService;
+import org.myteam.server.admin.utill.AdminControlType;
 import org.myteam.server.admin.utill.DateType;
 import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.board.domain.Board;
@@ -17,6 +20,7 @@ import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.report.domain.Report;
@@ -28,23 +32,29 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.myteam.server.admin.dto.AdminDashBorad.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestLatestData;
+import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestStatic;
+import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseLatestData;
+import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseStatic;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_ACCESS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+;
 
 
 @SpringBootTest
@@ -53,19 +63,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DashBoardRepoTest extends IntegrationTestSupport {
 
 
+    private static DataSource testDataSource;
     @Autowired
     AdminDashBoardService adminDashBoardService;
-
     @Autowired
     JwtProvider jwtProvider;
-
+    @Autowired
+    AdminChangeLogRepo adminChangeLogRepo;
     @Autowired
     MockMvc mockMvc;
-
+    @Autowired
+    JPAQueryFactory queryFactory;
     Member admin;
     String accessToken;
 
-    private static DataSource testDataSource;
     @BeforeAll
     static void setupH2CustomFunctions(@Autowired DataSource dataSource) {
         testDataSource = dataSource; //
@@ -83,101 +94,159 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
     }
 
 
-
-
-
     @BeforeEach
     @DisplayName("뉴스는 필요없긴한대 그냥 각각 10개씩 생성")
-    void createDate(){
+    void createDate() {
 
-        admin=createAdmin(1);
+        admin = createAdmin(1);
 
-         accessToken= jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1),
-                 admin.getPublicId(),admin.getRole().name(),
+        accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1),
+                admin.getPublicId(), admin.getRole().name(),
                 admin.getStatus().name());
 
-        LocalDateTime now=LocalDateTime.now().with(LocalTime.MIDNIGHT);
-        List<LocalDateTime> dates=List.of(now.plusDays(1L),now,now.minusDays(1L));
+        LocalDateTime now = LocalDateTime.now().with(LocalTime.MIDNIGHT);
+        List<LocalDateTime> dates = List.of(now.plusDays(1L), now, now.minusDays(1L));
 
-        IntStream.range(0,10)
-                .forEach(x->{
-                    String val=String.valueOf(x);
-                    Member member=createMember(x);
-                    Board board=createBoard(member, Category.BASEBALL, CategoryType.FREE,val,val);
-                    Inquiry inquiry=createInquiry(member);
-                    Improvement improvement=createImprovement(member,false);
-                    News news=createNews(0,Category.BASEBALL,0);
-                    Comment comment=createNewsComment(news,member,val);
+        IntStream.range(0, 10)
+                .forEach(x -> {
+                    String val = String.valueOf(x);
+                    Member member = createMember(x);
+                    Board board = createBoard(member, Category.BASEBALL, CategoryType.FREE, val, val);
+                    Inquiry inquiry = createInquiry(member);
+                    Improvement improvement = createImprovement(member, false);
+                    News news = createNews(0, Category.BASEBALL, 0);
+                    Comment comment = createNewsComment(news, member, val);
 
                     Report report;
-                    if(x%2==0) {
-                        report=createReport(member, member, BanReason.ETC, ReportType.BOARD,board.getId());
+                    if (x % 2 == 0) {
+                        report = createReport(member, member, BanReason.ETC, ReportType.BOARD, board.getId());
                         member.updateDeleteAt(dates.get(0));
                         memberJpaRepository.save(member);
-                        createMemberAccess(member,dates.get(1));
-                    }
-                    else{
-                        report=createReport(member, member, BanReason.ETC, ReportType.COMMENT,comment.getId());
+                        createMemberAccess(member, dates.get(1));
+                        AdminChangeLog adminChangeLog = AdminChangeLog
+                                .builder()
+                                .admin(admin)
+                                .publicId(member.getPublicId())
+                                .memberStatus(MemberStatus.PENDING)
+                                .build();
+
+                        AdminChangeLog adminChangeLog2 = AdminChangeLog
+                                .builder()
+                                .admin(admin)
+                                .contentId(comment.getId())
+                                .staticDataType(StaticDataType.COMMENT)
+                                .adminControlType(AdminControlType.HIDDEN)
+                                .build();
+
+                        adminChangeLogRepo.save(adminChangeLog);
+                        adminChangeLogRepo.save(adminChangeLog2);
+                    } else {
+                        report = createReport(member, member, BanReason.ETC, ReportType.COMMENT, comment.getId());
                         member.updateDeleteAt(dates.get(2));
                         memberJpaRepository.save(member);
-                        createMemberAccess(member,dates.get(2));
+                        createMemberAccess(member, dates.get(2));
+                        AdminChangeLog adminChangeLog = AdminChangeLog
+                                .builder()
+                                .admin(admin)
+                                .publicId(member.getPublicId())
+                                .memberStatus(MemberStatus.INACTIVE)
+                                .build();
+
+                        AdminChangeLog adminChangeLog2 = AdminChangeLog
+                                .builder()
+                                .admin(admin)
+                                .contentId(board.getId())
+                                .staticDataType(StaticDataType.BOARD)
+                                .adminControlType(AdminControlType.HIDDEN)
+                                .build();
+
+                        adminChangeLogRepo.save(adminChangeLog);
+                        adminChangeLogRepo.save(adminChangeLog2);
                     }
 
                 });
 
     }
+
     @Test
     @DisplayName("1일을 기준으로 데이터를 잘가져오는지 체크")
-    void testGetDataByDay(){
-        LocalDateTime now=LocalDateTime.now();
+    void testGetDataByDay() {
+        LocalDateTime now = LocalDateTime.now();
 
-        RequestStatic requestStaticComment=RequestStatic
+        RequestStatic requestStaticComment = RequestStatic
                 .builder()
                 .staticDataType(StaticDataType.ReportedComment)
                 .dateType(DateType.Day)
                 .build();
-        RequestStatic requestStaticImprovement=RequestStatic
+        RequestStatic requestStaticImprovement = RequestStatic
                 .builder()
                 .staticDataType(StaticDataType.ImprovementInquiry)
                 .dateType(DateType.Day)
                 .build();
 
-        RequestStatic requestStaticBoard=RequestStatic
+        RequestStatic requestStaticBoard = RequestStatic
                 .builder()
                 .staticDataType(StaticDataType.ReportedBoard)
                 .dateType(DateType.Day)
                 .build();
-        RequestStatic requestStaticSignIn=RequestStatic
+        RequestStatic requestStaticSignIn = RequestStatic
                 .builder()
                 .staticDataType(StaticDataType.UserSignIn)
                 .dateType(DateType.Day)
                 .build();
-        RequestStatic requestStaticDelete=RequestStatic
+        RequestStatic requestStaticDelete = RequestStatic
                 .builder()
                 .staticDataType(StaticDataType.UserDeleted)
                 .dateType(DateType.Day)
                 .build();
-        RequestStatic requestStaticAccess=RequestStatic
+        RequestStatic requestStaticAccess = RequestStatic
                 .builder()
                 .staticDataType(StaticDataType.UserAccess)
                 .dateType(DateType.Day)
                 .build();
 
+        RequestStatic requestStaticWarned = RequestStatic
+                .builder()
+                .staticDataType(StaticDataType.UserWarned)
+                .dateType(DateType.Day)
+                .build();
 
-        ResponseStatic responseStaticBoard=adminDashBoardService.getStaticData(requestStaticBoard);
-        ResponseStatic responseStaticComment=adminDashBoardService.getStaticData(requestStaticComment);
-        ResponseStatic responseStaticDelete=adminDashBoardService.getStaticData(requestStaticDelete);
-        ResponseStatic responseStaticSignIn=adminDashBoardService.getStaticData(requestStaticSignIn);
+        RequestStatic requestStaticBanned = RequestStatic
+                .builder()
+                .staticDataType(StaticDataType.UserBanned)
+                .dateType(DateType.Day)
+                .build();
 
-        ResponseStatic responseStaticImprovement=adminDashBoardService.getStaticData(requestStaticImprovement);
-        ResponseStatic responseStaticUserAccess=adminDashBoardService.getStaticData(requestStaticAccess);
+        RequestStatic requestStaticHiddenComment = RequestStatic
+                .builder()
+                .staticDataType(StaticDataType.HideComment)
+                .dateType(DateType.Day)
+                .build();
+
+        RequestStatic requestStaticHiddenBoard = RequestStatic
+                .builder()
+                .staticDataType(StaticDataType.HideBoard)
+                .dateType(DateType.Day)
+                .build();
 
 
-       assertThat(responseStaticBoard.getCurrentStaticData().keySet().size()).isEqualTo(1);
-       assertThat(responseStaticBoard.getCurrentCount()).isEqualTo(5);
-       assertThat(responseStaticBoard.getPastCount()).isEqualTo(0);
-       assertThat(responseStaticBoard.getTotCount()).isEqualTo(5);
-       assertThat(responseStaticBoard.getPercent()).isEqualTo(100);
+        ResponseStatic responseStaticBoard = adminDashBoardService.getStaticData(requestStaticBoard);
+        ResponseStatic responseStaticComment = adminDashBoardService.getStaticData(requestStaticComment);
+        ResponseStatic responseStaticDelete = adminDashBoardService.getStaticData(requestStaticDelete);
+        ResponseStatic responseStaticSignIn = adminDashBoardService.getStaticData(requestStaticSignIn);
+        ResponseStatic responseStaticImprovement = adminDashBoardService.getStaticData(requestStaticImprovement);
+        ResponseStatic responseStaticUserAccess = adminDashBoardService.getStaticData(requestStaticAccess);
+        ResponseStatic responseStaticWarned = adminDashBoardService.getStaticData(requestStaticWarned);
+        ResponseStatic responseStaticBanned = adminDashBoardService.getStaticData(requestStaticBanned);
+        ResponseStatic responseStaticHiddenComment = adminDashBoardService.getStaticData(requestStaticHiddenComment);
+        ResponseStatic responseStaticHiddenBoard = adminDashBoardService.getStaticData(requestStaticHiddenBoard);
+
+
+        assertThat(responseStaticBoard.getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticBoard.getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticBoard.getPastCount()).isEqualTo(0);
+        assertThat(responseStaticBoard.getTotCount()).isEqualTo(5);
+        assertThat(responseStaticBoard.getPercent()).isEqualTo(100);
 
         assertThat(responseStaticComment.getCurrentStaticData().keySet().size()).isEqualTo(1);
         assertThat(responseStaticComment.getCurrentCount()).isEqualTo(5);
@@ -209,22 +278,34 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         assertThat(responseStaticUserAccess.getTotCount()).isEqualTo(10);
         assertThat(responseStaticUserAccess.getPercent()).isEqualTo(0);
 
+        assertThat(responseStaticWarned.getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticWarned.getPercent()).isEqualTo(100);
+        assertThat(responseStaticWarned.getPastCount()).isEqualTo(0);
 
+        assertThat(responseStaticBanned.getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticBanned.getPercent()).isEqualTo(100);
+        assertThat(responseStaticBanned.getPastCount()).isEqualTo(0);
 
-        Map<String,Long> hashmap=responseStaticImprovement.getCurrentStaticData();
+        assertThat(responseStaticHiddenBoard.getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticHiddenBoard.getPercent()).isEqualTo(100);
+        assertThat(responseStaticHiddenBoard.getPastCount()).isEqualTo(0);
+
+        assertThat(responseStaticHiddenComment.getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticHiddenComment.getPercent()).isEqualTo(100);
+        assertThat(responseStaticHiddenComment.getPastCount()).isEqualTo(0);
+
+        Map<String, Long> hashmap = responseStaticImprovement.getCurrentStaticData();
 
         hashmap.keySet().stream()
-                .forEach(x->{
-                    System.out.printf("키값:%s\n",x);
+                .forEach(x -> {
                     assertThat(hashmap.get(x)).isEqualTo(20);
                 });
 
 
-        Map<String,Long> hashmap2=responseStaticUserAccess.getCurrentStaticData();
+        Map<String, Long> hashmap2 = responseStaticUserAccess.getCurrentStaticData();
 
         hashmap2.keySet().stream()
-                .forEach(x->{
-                    System.out.printf("키값:%s\n",x);
+                .forEach(x -> {
                     assertThat(hashmap2.get(x)).isEqualTo(5);
                 });
 
@@ -232,29 +313,29 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
 
     @Test
     @DisplayName("최신 데이터 가져오기")
-    void testGetLatestDate(){
+    void testGetLatestDate() {
 
 
-        RequestLatestData requestLatestDataInquiry=RequestLatestData.
+        RequestLatestData requestLatestDataInquiry = RequestLatestData.
                 builder()
                 .staticDataType(StaticDataType.Inquiry)
                 .build();
 
-        RequestLatestData requestLatestDataImproveMent=RequestLatestData.
+        RequestLatestData requestLatestDataImproveMent = RequestLatestData.
                 builder()
                 .staticDataType(StaticDataType.Improvement)
                 .build();
 
 
-        RequestLatestData requestLatestDataReport=RequestLatestData.
+        RequestLatestData requestLatestDataReport = RequestLatestData.
                 builder()
                 .staticDataType(StaticDataType.Report)
                 .build();
 
 
-        List<ResponseLatestData> responseLatestDataInquiry=adminDashBoardService.getLatestData(requestLatestDataInquiry);
-        List<ResponseLatestData> responseLatestDataImprovement=adminDashBoardService.getLatestData(requestLatestDataImproveMent);
-        List<ResponseLatestData> responseLatestDataReport=adminDashBoardService.getLatestData(requestLatestDataReport);
+        List<ResponseLatestData> responseLatestDataInquiry = adminDashBoardService.getLatestData(requestLatestDataInquiry);
+        List<ResponseLatestData> responseLatestDataImprovement = adminDashBoardService.getLatestData(requestLatestDataImproveMent);
+        List<ResponseLatestData> responseLatestDataReport = adminDashBoardService.getLatestData(requestLatestDataReport);
 
         assertThat(responseLatestDataInquiry.size()).isEqualTo(10);
         assertThat(responseLatestDataImprovement.size()).isEqualTo(10);
@@ -262,48 +343,46 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
 
     }
 
-
     @Test
     @DisplayName("요구되는 변수가 빠졋을떄 및 범위 밖의 다른값을 입력시 일어나는 에러체크")
-    void testValueNullError() throws Exception{
+    void testValueNullError() throws Exception {
 
         String requestBodyWithAbsent = """
-            {
-                "dateType": "Day"
-            }
-        """;
+                    {
+                        "dateType": "Day"
+                    }
+                """;
 
         String requestBodyWithWrongValue = """
-            {
-            
-                "staticDataType":"Inqy"
-                "dateType": "Day"
-            }
-        """;
+                    {
+                    
+                        "staticDataType":"Inqy"
+                        "dateType": "Day"
+                    }
+                """;
 
         String requestBodyWithAbsent2 = """
-            {
-    
-            }
-        """;
+                    {
+                    
+                    }
+                """;
 
         String requestBodyWithWrongValue2 = """
-            {       
-                "staticDataType":"Inqy"
-            }
-        """;
-        String requestBodyWithWrongDate= """
-            {       
-                "staticDataType":"Inquiry"
-                "dateType":"zzzz"
-            }
-        """;
-
+                    {       
+                        "staticDataType":"Inqy"
+                    }
+                """;
+        String requestBodyWithWrongDate = """
+                    {       
+                        "staticDataType":"Inquiry"
+                        "dateType":"zzzz"
+                    }
+                """;
 
         mockMvc.perform(post("/api/admin/data/static")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBodyWithAbsent)
-                        .header("Authorization","Bearer "+accessToken))
+                        .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -311,7 +390,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         mockMvc.perform(post("/api/admin/data/static")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBodyWithWrongValue)
-                        .header("Authorization","Bearer "+accessToken))
+                        .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -319,7 +398,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         mockMvc.perform(post("/api/admin/data/latest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBodyWithWrongValue2)
-                        .header("Authorization","Bearer "+accessToken))
+                        .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -327,7 +406,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         mockMvc.perform(post("/api/admin/data/latest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBodyWithAbsent2)
-                        .header("Authorization","Bearer "+accessToken))
+                        .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -335,11 +414,9 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         mockMvc.perform(post("/api/admin/data/static")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBodyWithWrongDate)
-                        .header("Authorization","Bearer "+accessToken))
+                        .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
-
-
     }
 
 }
