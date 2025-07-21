@@ -20,7 +20,6 @@ public class AdminChangeLog extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Member admin;
     private UUID publicId;
