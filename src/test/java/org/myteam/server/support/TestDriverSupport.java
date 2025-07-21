@@ -1,7 +1,8 @@
 package org.myteam.server.support;
 
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
+import org.myteam.server.admin.repository.AdminChangeLogRepo;
+import org.myteam.server.admin.repository.AdminMemoRepository;
 import org.myteam.server.aop.CommonCountAspect;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
@@ -54,7 +55,6 @@ import org.myteam.server.notice.domain.NoticeCount;
 import org.myteam.server.notice.repository.NoticeCountRepository;
 import org.myteam.server.notice.repository.NoticeRecommendRepository;
 import org.myteam.server.notice.repository.NoticeRepository;
-import org.myteam.server.notice.service.NoticeRecommendReadService;
 import org.myteam.server.report.repository.ReportRepository;
 import org.myteam.server.upload.config.S3ConfigLocal;
 import org.myteam.server.upload.controller.S3Controller;
@@ -64,6 +64,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
+import java.time.LocalDateTime;
 
 @SpringBootTest
 public abstract class TestDriverSupport {
@@ -119,6 +121,11 @@ public abstract class TestDriverSupport {
     protected CommentRecommendRepository commentRecommendRepository;
     @Autowired
     protected ReportRepository reportRepository;
+    @Autowired
+    protected AdminMemoRepository adminMemoRepository;
+
+    @Autowired
+    protected AdminChangeLogRepo adminChangeLogRepo;
 
     /**
      * ================== Service ========================

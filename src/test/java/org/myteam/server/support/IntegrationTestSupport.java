@@ -1,10 +1,5 @@
 package org.myteam.server.support;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-
-import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
@@ -41,6 +36,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @ImportAutoConfiguration(exclude = {
@@ -108,6 +109,9 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         noticeRepository.deleteAllInBatch();
         reportRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
+        adminChangeLogRepo.deleteAllInBatch();
+        adminMemoRepository.deleteAllInBatch();
+        ;
         memberJpaRepository.deleteAllInBatch();
     }
 
