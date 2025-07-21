@@ -5,14 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.mail.core.AbstractMailSender;
 import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.member.service.MemberReadService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
 import java.util.concurrent.CompletableFuture;
 
 @Component
