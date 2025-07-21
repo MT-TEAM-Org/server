@@ -1,5 +1,11 @@
 package org.myteam.server.support;
 
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
@@ -119,7 +125,8 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected Member createMemberByService(int index) {
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         memberService.create(
                 MemberSaveRequest.builder()

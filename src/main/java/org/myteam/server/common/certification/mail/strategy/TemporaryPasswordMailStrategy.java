@@ -2,11 +2,15 @@ package org.myteam.server.common.certification.mail.strategy;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.concurrent.CompletableFuture;
+
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.common.certification.mail.core.AbstractMailSender;
+import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
@@ -75,5 +79,16 @@ public class TemporaryPasswordMailStrategy extends AbstractMailSender {
         context.setVariable("email", email);
 
         return templateEngine.process("mail/temporary-password-template", context);
+    }
+
+    @Override
+    public EmailType getType() {
+        return EmailType.TEMPORARY_PASSWORD;
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> send(String email) {
+        return super.send(email);
     }
 }

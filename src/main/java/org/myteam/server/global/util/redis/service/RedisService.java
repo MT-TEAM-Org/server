@@ -16,6 +16,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 	private final RedisTemplate<String, String> redisTemplate;
 
+	private static final int ADMIN_LOGIN_MAX_REQUESTS=10;
 	private static final int MAX_REQUESTS = 3; // 제한 횟수 (기본값: 5분 동안 3회)
 	private static final long EXPIRED_TIME = 5L; // 만료 시간 (5분)
 	private static final long YOUTUBE_EXPIRED_TIME = 3L * 60L * 60L * 1000L;
@@ -53,6 +54,24 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 		log.info("✅ [RateLimit] 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
 		return true;
+	}
+
+
+	public boolean isAdminLoginAllowed(String category,String identifier){
+		String redisKey = getRateLimitKey(category, identifier);
+		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
+		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
+
+		if (requestCount >= ADMIN_LOGIN_MAX_REQUESTS) {
+			log.warn("🚫 [RateLimit] 관리자 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
+			return false;
+		}
+
+		long newCount = redisTemplate.opsForValue().increment(redisKey);
+
+		log.info("✅ [RateLimit] 관리자 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
+		return true;
+
 	}
 
 	/**

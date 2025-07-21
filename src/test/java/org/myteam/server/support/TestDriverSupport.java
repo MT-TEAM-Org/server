@@ -1,9 +1,10 @@
 package org.myteam.server.support;
 
 import org.junit.jupiter.api.AfterEach;
+
 import org.myteam.server.admin.repository.AdminChangeLogRepo;
 import org.myteam.server.admin.repository.AdminMemoRepository;
-import org.myteam.server.aop.CommonCountAspect;
+import org.myteam.server.aop.count.CommonCountAspect;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.BoardRecommend;
@@ -175,6 +176,12 @@ public abstract class TestDriverSupport {
         boardRecommendRepository.deleteAllInBatch();
         boardCountRepository.deleteAllInBatch();
         boardRepository.deleteAllInBatch();
+        noticeRecommendRepository.deleteAllInBatch();
+        noticeCountRepository.deleteAllInBatch();
+        noticeRepository.deleteAllInBatch();
+        improvementRecommendRepository.deleteAllInBatch();
+        improvementCountRepository.deleteAllInBatch();
+        improvementRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
     }

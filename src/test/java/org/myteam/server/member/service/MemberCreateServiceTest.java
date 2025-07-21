@@ -3,6 +3,7 @@ package org.myteam.server.member.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.common.certification.mail.strategy.TemporaryPasswordMailStrategy;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
@@ -18,6 +19,8 @@ import org.myteam.server.oauth2.dto.AddMemberInfoRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -49,7 +52,8 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
         // when
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         MemberResponse response = memberService.create(saveRequest);
 
@@ -65,7 +69,8 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
         // given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         memberService.create(saveRequest);
 
@@ -81,7 +86,8 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
         // given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         Member member = createOAuthMember(1);
         AddMemberInfoRequest request = AddMemberInfoRequest.builder()
@@ -107,7 +113,8 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
         // given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         AddMemberInfoRequest request = AddMemberInfoRequest.builder()
                 .email("notExist@test.com")
@@ -128,7 +135,8 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
         // given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         Member member = createMember(1); // ACTIVE 상태로 생성됨
 
@@ -151,7 +159,8 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
         // given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         Member member = createOAuthMemberNonPending(1); // ACTIVE 상태로 생성됨
 
@@ -173,13 +182,14 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     void generateTemporaryPassword_success() {
         // given
         MailStrategy mockStrategy = mock(MailStrategy.class);
-        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        when(mailStrategyFactory.getStrategy(EmailType.TEMPORARY_PASSWORD)).thenReturn(mockStrategy);
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         String email = "test@test.com";
         when(certifyStorage.isCertified(email)).thenReturn(true);
         when(mailStrategyFactory.getStrategy(EmailType.TEMPORARY_PASSWORD))
-                .thenReturn((e) -> {}); // 메일 전략 그냥 무시
+                .thenReturn(mockStrategy); // 메일전략 그냥 무시
 
         // when & then
         assertThatCode(() -> memberService.generateTemporaryPassword(email))
@@ -191,8 +201,9 @@ class MemberCreateServiceTest extends IntegrationTestSupport {
     void generateTemporaryPassword_fail_notCertified() {
         // given
         MailStrategy mockStrategy = mock(MailStrategy.class);
-        when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        when(mailStrategyFactory.getStrategy(EmailType.TEMPORARY_PASSWORD)).thenReturn(mockStrategy);
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         String email = "test@test.com";
         when(certifyStorage.isCertified(email)).thenReturn(false);

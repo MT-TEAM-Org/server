@@ -8,6 +8,8 @@ import static org.mockito.Mockito.*;
 import static org.myteam.server.global.exception.ErrorCode.USER_ALREADY_EXISTS;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.support.IntegrationTestSupport;
@@ -35,7 +37,8 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
         // Given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
@@ -59,7 +62,8 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
         // Given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
@@ -83,7 +87,8 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
         // Given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
@@ -126,7 +131,8 @@ class MemberWriteServiceTest extends IntegrationTestSupport {
         // Given
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         MemberSaveRequest request = MemberSaveRequest.builder()
                 .email("test@example.com")
