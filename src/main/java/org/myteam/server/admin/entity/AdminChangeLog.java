@@ -17,6 +17,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class AdminChangeLog extends BaseTime {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,20 +1,10 @@
 package org.myteam.server.comment.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.myteam.server.admin.utill.AdminControlType;
+import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 
@@ -58,6 +48,8 @@ public abstract class Comment extends BaseTime {
     @Column(nullable = false)
     private CommentType commentType;
 
+    @Enumerated(EnumType.STRING)
+    private StaticDataType staticDataType=StaticDataType.COMMENT;
 
     @Enumerated(EnumType.STRING)
     private AdminControlType adminControlType=AdminControlType.SHOW;

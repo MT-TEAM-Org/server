@@ -1,6 +1,9 @@
 package org.myteam.server.support;
 
 import org.junit.jupiter.api.AfterEach;
+
+import org.myteam.server.admin.repository.AdminChangeLogRepo;
+import org.myteam.server.admin.repository.AdminMemoRepository;
 import org.myteam.server.aop.count.CommonCountAspect;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
@@ -119,6 +122,11 @@ public abstract class TestDriverSupport {
     protected CommentRecommendRepository commentRecommendRepository;
     @Autowired
     protected ReportRepository reportRepository;
+    @Autowired
+    protected AdminMemoRepository adminMemoRepository;
+
+    @Autowired
+    protected AdminChangeLogRepo adminChangeLogRepo;
 
     /**
      * ================== Service ========================
