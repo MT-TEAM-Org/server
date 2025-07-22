@@ -47,11 +47,17 @@ public record RequestContentDto() {
         }
 
         public LocalDateTime provideStartTime() {
+            if (this.startTime == null) {
+                return null;
+            }
             LocalDate localDate = LocalDate.parse(startTime, DateFormatUtil.formatByDot);
             return localDate.atStartOfDay();
         }
 
         public LocalDateTime provideEndTime() {
+            if (this.endTime == null) {
+                return null;
+            }
             LocalDate localDate = LocalDate.parse(endTime, DateFormatUtil.formatByDot);
             return localDate.atStartOfDay();
         }
