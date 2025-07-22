@@ -12,6 +12,7 @@ import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.entity.Member;
 
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,10 +47,10 @@ public class Board extends BaseTime {
     private BoardCount boardCount;
 
     @Enumerated(EnumType.STRING)
-    private StaticDataType staticDataType = StaticDataType.COMMENT;
+    private AdminControlType adminControlType = AdminControlType.SHOW;
 
     @Enumerated(EnumType.STRING)
-    private AdminControlType adminControlType = AdminControlType.SHOW;
+    private StaticDataType staticDataType = StaticDataType.BOARD;
 
     @Builder
     public Board(Member member, Category boardType, CategoryType categoryType, String title, String content,
