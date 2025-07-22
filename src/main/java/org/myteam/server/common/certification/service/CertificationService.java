@@ -7,6 +7,7 @@ import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.member.entity.Member;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -36,4 +37,5 @@ public class CertificationService {
 
         return true;
     }
+
 }
