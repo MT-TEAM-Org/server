@@ -2,24 +2,34 @@ package org.myteam.server.global.util.redis;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.CountStrategy;
 import org.myteam.server.util.CountStrategyFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class RedisCountBulkUpdater {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final CountStrategyFactory strategyFactory;
 
-    public RedisCountBulkUpdater(RedisTemplate<String, Object> redisTemplate,
-                                 CountStrategyFactory strategyFactory) {
-        this.redisTemplate = redisTemplate;
-        this.strategyFactory = strategyFactory;
+    @Async("taskExecutor")
+    public CompletableFuture<Void> bulkUpdateAsync(DomainType domainType) {
+        try {
+            bulkUpdate(domainType);
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            log.error("[{}] 도메인 처리 중 오류", domainType, e);
+            return CompletableFuture.failedFuture(e); // 실패 Future 반환
+        }
     }
 
     /**

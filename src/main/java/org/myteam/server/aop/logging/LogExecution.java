@@ -1,6 +1,4 @@
-package org.myteam.server.aop;
-
-import org.myteam.server.report.domain.DomainType;
+package org.myteam.server.aop.logging;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CountView {
-    DomainType domain(); // ex: DomainType.BOARD
-    String idParam(); // "boardId", "newsId"
+public @interface LogExecution {
+    String value() default "";
 }

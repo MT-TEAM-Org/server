@@ -2,12 +2,12 @@ package org.myteam.server.common.certification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.common.certification.mail.strategy.CertifyMailStrategy;
-import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
+import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.member.entity.Member;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -27,9 +27,15 @@ public class CertificationService {
 
         MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.CERTIFICATION);
 
-        if (strategy instanceof CertifyMailStrategy certifyMailStrategy) {
-            return certifyMailStrategy.verify(email, certificationCode);
+        log.info("MailStrategy 구현체 타입: {}", strategy.getClass().getName());
+
+        boolean isVerified = strategy.verify(email, certificationCode);
+
+        if (!isVerified) {
+            throw new PlayHiveException(ErrorCode.NOT_SUPPORT_TYPE);
         }
-        throw new PlayHiveException(ErrorCode.NOT_SUPPORT_TYPE);
+
+        return true;
     }
+
 }

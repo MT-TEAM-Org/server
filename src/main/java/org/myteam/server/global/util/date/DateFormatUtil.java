@@ -14,7 +14,6 @@ public class DateFormatUtil {
     public static LocalDate convertToLocalDateToDate(LocalDate localDate) {
         return Date.valueOf(localDate).toLocalDate();
     }
-
     public static LocalTime convertToLocalTimeToTime(LocalTime localDate) {
         return Time.valueOf(localDate).toLocalTime();
     }

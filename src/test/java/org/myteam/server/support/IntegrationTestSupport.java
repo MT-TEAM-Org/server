@@ -1,6 +1,14 @@
 package org.myteam.server.support;
 
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
+import org.myteam.server.admin.repository.AdminChangeLogRepo;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
@@ -20,7 +28,9 @@ import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberAccess;
 import org.myteam.server.member.entity.MemberActivity;
+import org.myteam.server.member.repository.MemberAccessRepository;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.service.MyPageReadService;
@@ -85,9 +95,15 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected CommentReadService commentReadService;
     @Autowired
     protected RecommendService recommendService;
+    @Autowired
+    protected MemberAccessRepository memberAccessRepository;
+
+    @Autowired
+    protected AdminChangeLogRepo adminChangeLogRepo;
 
     @AfterEach
     void tearDown() {
+        adminChangeLogRepo.deleteAllInBatch();;
         commentRecommendRepository.deleteAllInBatch();
         commentRepository.deleteAllInBatch();
         matchPredictionMemberRepository.deleteAllInBatch();
@@ -113,13 +129,15 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         adminMemoRepository.deleteAllInBatch();
         ;
         memberJpaRepository.deleteAllInBatch();
+        memberAccessRepository.deleteAllInBatch();
     }
 
     @Transactional
     protected Member createMemberByService(int index) {
         MailStrategy mockStrategy = mock(MailStrategy.class);
         when(mailStrategyFactory.getStrategy(EmailType.WELCOME)).thenReturn(mockStrategy);
-        doNothing().when(mockStrategy).send(anyString());
+        doReturn(CompletableFuture.completedFuture(null))
+                .when(mockStrategy).send(anyString());
 
         memberService.create(
                 MemberSaveRequest.builder()
@@ -157,6 +175,23 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
 
         return savedMember;
     }
+
+    @Transactional
+    protected Member createMemberWithOutSave(int index) {
+        Member member = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel("01012345678")
+                .nickname("test" + index)
+                .role(MemberRole.USER)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
+        memberJpaRepository.save(member);
+        return member;
+    }
+
 
     protected Member createOAuthMember(int index) {
         Member member = Member.builder()
@@ -276,5 +311,20 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
                         .reportedContentId(reportedContentId)
                         .build()
         );
+    }
+
+    protected MemberAccess createMemberAccess(Member member, LocalDateTime now){
+        System.out.println("createAccess");
+
+        MemberAccess memberAccess=MemberAccess
+                .builder()
+                .publicId(member.getPublicId())
+                .accessTime(now)
+                .build();
+        memberAccessRepository.save(memberAccess);
+
+        return memberAccess;
+
+
     }
 }

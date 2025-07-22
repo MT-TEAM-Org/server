@@ -13,14 +13,19 @@ import java.util.UUID;
 import org.myteam.server.chat.info.domain.UserInfo;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.security.dto.AdminBanEvent;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.security.dto.UserLoginEvent;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
+import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +39,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -48,7 +55,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 								   ApplicationEventPublisher eventPublisher,
 								   RedisService redisService,
 								   RedisUserInfoService redisUserInfoService) {
-		setFilterProcessesUrl("/login");
+
+		setRequiresAuthenticationRequestMatcher((
+				new OrRequestMatcher(
+						new AntPathRequestMatcher("/login"),
+						new AntPathRequestMatcher("/api/admin/login")
+				)
+		));
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
 		this.eventPublisher = eventPublisher;
@@ -66,11 +79,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			String username = credentials.get("username");
 			String password = credentials.get("password");
+			String userNameForAuth;
+
+			if(request.getRequestURI().equals("/api/admin/login")){
+				request.setAttribute("username",username);
+				userNameForAuth=username+">"+"ADMIN";
+			}
+			else{
+				request.setAttribute("username",username);
+				userNameForAuth=username+">"+"USER";
+			}
 
 			log.info("로그인 요청 - username: {}, password: {}", username, password);
 
 			UsernamePasswordAuthenticationToken authToken =
-				new UsernamePasswordAuthenticationToken(username, password);
+					new UsernamePasswordAuthenticationToken(userNameForAuth, password);
 
 			return authenticationManager.authenticate(authToken);
 		} catch (IOException e) {
@@ -125,6 +148,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			log.debug("print refreshToken: {}", refreshToken);
 			log.debug("print role: {}", role);
 
+
+			if(status.equals(MemberRole.ADMIN.name())){
+				redisService.resetRequestCount("LOGIN_ADMIN",username);
+			}
+
+
 			redisService.putRefreshToken(publicId, refreshToken);
 			redisUserInfoService.saveUserInfo(accessToken,
 					new UserInfo(publicId, customUserDetails.getNickname(), customUserDetails.getImg()));
@@ -132,7 +161,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
 			response.setStatus(HttpStatus.OK.value());
 
-			eventPublisher.publishEvent(new UserLoginEvent(this, publicId));
+			eventPublisher.publishEvent(new UserLoginEvent(this, publicId, ClientUtils.getRemoteIP(request)));
 
 			log.info("자체 서비스 로그인에 성공하였습니다.");
 		} catch (InternalAuthenticationServiceException e) {
@@ -142,7 +171,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-		AuthenticationException failed) {
+											  AuthenticationException failed) throws IOException {
+
+		if (request.getRequestURI().equals("/api/admin/login")) {
+			if (failed.getClass().getSimpleName().equals("BadCredentialsException")) {
+				String username = (String) request.getAttribute("username");
+				if (redisService.isAdminLoginAllowed("LOGIN_ADMIN", username)) {
+					int count = redisService.getRequestCount("LOGIN_ADMIN", username);
+					sendErrorResponse(response, HttpStatus.UNAUTHORIZED,
+							"%s".formatted(String.valueOf(10 - count)));
+					return;
+				}
+				int count = redisService.getRequestCount("LOGIN_ADMIN", username);
+				if (count >= 10) {
+					eventPublisher.publishEvent(new AdminBanEvent(username, ClientUtils.getRemoteIP(request)));
+				}
+				sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "잠긴 계정입니다.");
+				return;
+			}
+
+		}
+
+
 		String message = failed.getMessage();
 		//로그인 실패시 401 응답 코드 반환
 		response.setStatus(401);
@@ -159,7 +209,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	 * @throws IOException
 	 */
 	private void sendErrorResponse(HttpServletResponse response, HttpStatus httpStatus, String message) throws
-		IOException {
+			IOException {
 		response.setStatus(httpStatus.value());
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
