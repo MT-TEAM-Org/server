@@ -9,4 +9,5 @@ public enum StaticDataType {
 
     UserAccess, UserSignIn, UserDeleted, UserWarned, UserBanned,
 
+    HideComment, HideBoard
 }
