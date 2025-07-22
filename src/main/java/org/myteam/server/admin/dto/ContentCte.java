@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @CTE
 @Getter
 @Entity
-public class ContentCTE {
+public class ContentCte {
 
     @Id
     private Long contentId;

@@ -12,6 +12,7 @@ import org.myteam.server.global.util.date.DateFormatUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record RequestContentDto() {
     @Getter
@@ -87,6 +88,8 @@ public record RequestContentDto() {
         private AdminControlType adminControlType;
         @Schema(description = "내용이 없다면 null로 주세요")
         private String content;
+        @NotNull
+        private UUID publicId;
 
         @Builder
         public AdminMemoRequest(Long contentId, StaticDataType staticDataType,

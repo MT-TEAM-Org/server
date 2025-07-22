@@ -9,8 +9,8 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.dto.QContentCTE;
 import org.myteam.server.admin.dto.QContentCountCte;
+import org.myteam.server.admin.dto.QContentCte;
 import org.myteam.server.admin.dto.QMemberReportCte;
 import org.myteam.server.admin.entity.AdminChangeLog;
 import org.myteam.server.admin.entity.AdminMemo;
@@ -68,7 +68,7 @@ public class ContentSearchRepository {
                     .content(adminMemoRequest.getContent())
                     .contentId(adminMemoRequest.getContentId())
                     .staticDataType(adminMemoRequest.getStaticDataType())
-                    .memberId(admin.getPublicId())
+                    .writer(admin)
                     .build();
             adminMemoRepository.save(adminMemo1);
         }
@@ -92,7 +92,7 @@ public class ContentSearchRepository {
             Board board1 = queryFactory.select(board)
                     .from(board)
                     .where(board.id.eq(adminMemoRequest.getContentId()))
-                    .fetchFirst();
+                    .fetch().get(0);
             if (!board1.getAdminControlType().name().equals(adminMemoRequest.getAdminControlType().name())) {
                 AdminChangeLog adminChangeLog = AdminChangeLog
                         .builder()
@@ -285,7 +285,7 @@ public class ContentSearchRepository {
 
         Pageable pageable = PageRequest.of(adminContentResearch.getOffset(), 10);
         QMemberReportCte reportCte = new QMemberReportCte("reportCte");
-        QContentCTE cte = new QContentCTE("cte");
+        QContentCte cte = new QContentCte("cte");
 
 
         //group by문에는 seelct 혹은 bind시 통계데이터만 들어가야되고 상수값이 들ㅇ거ㅏ면안된다. expression.const같은거
