@@ -308,6 +308,7 @@ public abstract class TestDriverSupport {
         return board;
     }
 
+
     protected BoardRecommend createBoardRecommend(Board board, Member member) {
         BoardRecommend recommend = BoardRecommend.builder()
                 .board(board)
@@ -358,6 +359,7 @@ public abstract class TestDriverSupport {
         return inquiry;
     }
 
+
     protected Improvement createImprovement(Member member, boolean isImage) {
         Improvement improvement = Improvement.builder()
                 .member(member)
@@ -373,4 +375,5 @@ public abstract class TestDriverSupport {
 
         return improvement;
     }
+
 }

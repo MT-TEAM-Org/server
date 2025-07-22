@@ -19,7 +19,7 @@ import java.util.UUID;
 public class AdminChangeLog extends BaseTime {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Member admin;
@@ -37,7 +37,7 @@ public class AdminChangeLog extends BaseTime {
             , AdminControlType adminControlType, Member admin, UUID publicId, Long contentId) {
         this.memberStatus = memberStatus;
         this.staticDataType = staticDataType;
-        this.adminControlType = getAdminControlType();
+        this.adminControlType = adminControlType;
         this.admin = admin;
         this.publicId = publicId;
         this.contentId = contentId;

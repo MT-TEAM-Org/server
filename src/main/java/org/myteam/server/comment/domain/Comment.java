@@ -49,11 +49,10 @@ public abstract class Comment extends BaseTime {
     private CommentType commentType;
 
     @Enumerated(EnumType.STRING)
-    private AdminControlType adminControlType=AdminControlType.SHOW;
-
+    private StaticDataType staticDataType=StaticDataType.COMMENT;
 
     @Enumerated(EnumType.STRING)
-    private StaticDataType staticDataType=StaticDataType.COMMENT;
+    private AdminControlType adminControlType=AdminControlType.SHOW;
 
     public Comment(Member member, Member mentionedMember, String comment,
                    String imageUrl, String createdIp, Comment parent, CommentType type) {
@@ -96,6 +95,11 @@ public abstract class Comment extends BaseTime {
     // 최대 깊이 제한
     public boolean canAddReply() {
         return this.depth < MAX_DEPTH;
+    }
+
+
+    public void updateAdminControlType(AdminControlType adminControlType){
+        this.adminControlType=adminControlType;
     }
 }
 
