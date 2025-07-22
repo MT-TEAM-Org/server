@@ -147,7 +147,8 @@ public class ContentSearchRepository {
             responseReportLists.stream()
                     .forEach(x -> {
                         String dateTime = DateFormatUtil
-                                .formatByDotAndSlash.format(LocalDateTime.parse(x.getCreateDate()));
+                                .formatByDotAndSlash.format(LocalDateTime.parse(x.getCreateDate()
+                                        , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
                         x.updateCreateDate(dateTime);
                     });
 
@@ -188,8 +189,10 @@ public class ContentSearchRepository {
 
         responseReportLists.stream()
                 .forEach(x -> {
+
                     String dateTime = DateFormatUtil
-                            .formatByDotAndSlash.format(LocalDateTime.parse(x.getCreateDate()));
+                            .formatByDotAndSlash.format(LocalDateTime.parse(x.getCreateDate()
+                                    , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
                     x.updateCreateDate(dateTime);
                 });
         return new PageImpl<>(responseReportLists, pageable, totNum);
@@ -227,7 +230,7 @@ public class ContentSearchRepository {
                     .where(comment1.id.eq(requestDetail.getContentId()))
                     .fetch()
                     .get(0);
-            return editDataTime(StaticDataType.BOARD, responseDetail, requestDetail);
+            return editDataTime(StaticDataType.COMMENT, responseDetail, requestDetail);
         }
 
         ResponseDetail responseDetail = queryFactory.select(Projections.constructor(ResponseDetail.class,
@@ -385,13 +388,6 @@ public class ContentSearchRepository {
                         .eq(cte.staticDataType.stringValue()))
                 .where(totReportCond(adminContentResearch.getIsReported(), reportCte))
                 .fetchOne()).orElse(0L);
-
-        responseLatestDataList.stream()
-                .forEach(x -> {
-                    String date = DateFormatUtil.formatByDotAndSlash
-                            .format(LocalDateTime.parse(x.getCreateDate()));
-                    x.updateCreateDate(date);
-                });
 
         return new PageImpl<>(responseLatestDataList, pageable, totCount);
     }
@@ -689,7 +685,7 @@ public class ContentSearchRepository {
             IntStream.range(0, responseContents.size())
                     .forEach(i -> {
                         String dateTime = DateFormatUtil.formatByDot.format(LocalDateTime.parse(
-                                responseContents.get(i).getCreateDate()
+                                responseContents.get(i).getCreateDate(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER
                         ));
                         responseContents.get(i).updateCreateDate(dateTime);
                         if (countSearches.get(i) == 0) {
@@ -716,7 +712,7 @@ public class ContentSearchRepository {
             IntStream.range(0, responseContents.size())
                     .forEach(i -> {
                         String dateTime = DateFormatUtil.formatByDot.format(LocalDateTime.parse(
-                                responseContents.get(i).getCreateDate()
+                                responseContents.get(i).getCreateDate(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER
                         ));
                         responseContents.get(i).updateCreateDate(dateTime);
                         responseContents.get(i).updateCountReported(countSearches.get(i).getReportCount(), "신고");
@@ -728,8 +724,9 @@ public class ContentSearchRepository {
     private void updateDetailReportInfo(Boolean isReported, List<ResponseContentSearch> responseContents) {
         if (isReported == null || !isReported) {
             responseContents.stream().forEach(x -> {
+
                 String dateTime = DateFormatUtil.formatByDot.format(LocalDateTime.parse(
-                        x.getCreateDate()
+                        x.getCreateDate(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER
                 ));
                 x.updateCreateDate(dateTime);
             });
@@ -759,10 +756,13 @@ public class ContentSearchRepository {
 
             IntStream.range(0, responseContents.size())
                     .forEach(i -> {
-                        String dateTime = DateFormatUtil.formatByDot.format(LocalDateTime.parse(
-                                responseContents.get(i).getCreateDate()
-                        ));
+
+                        String dateTime = DateFormatUtil
+                                .formatByDotAndSlash.format(LocalDateTime.parse(responseContents.get(i)
+                                                .getCreateDate()
+                                        , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
                         responseContents.get(i).updateCreateDate(dateTime);
+
                         if (countSearches.get(i) == 0) {
                             responseContents.get(i).updateCountReported(0L, "미신고");
                         } else {
@@ -785,17 +785,22 @@ public class ContentSearchRepository {
                 ))
                 .from(adminMemo)
                 .where(adminMemo.staticDataType.eq(staticDataType)
-                        .and(adminMemo.contentId.eq(requestDetail.getContentId())))
+                        , adminMemo.contentId.eq(requestDetail.getContentId()))
                 .fetch();
 
         adminMemoResponses.stream().forEach(x -> {
-            String dateTime = DateFormatUtil.formatByDotAndSlash.format(LocalDateTime.parse(x.getCreateDate()));
+
+            String dateTime = DateFormatUtil
+                    .formatByDotAndSlash.format(LocalDateTime.parse(x.getCreateDate()
+                            , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
             x.updateCreateDate(dateTime);
         });
 
         responseDetail.updateAdminMemoResponses(adminMemoResponses);
+
         String dateTime = DateFormatUtil
-                .formatByDotAndSlash.format(LocalDateTime.parse(responseDetail.getCreateDate()));
+                .formatByDotAndSlash.format(LocalDateTime.parse(responseDetail.getCreateDate()
+                        , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
         responseDetail.updateCreateDate(dateTime);
 
         return responseDetail;

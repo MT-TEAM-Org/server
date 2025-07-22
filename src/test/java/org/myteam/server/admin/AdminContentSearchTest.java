@@ -61,7 +61,8 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
     Member m;
     Member admin;
     String accessToken;
-
+    Board b;
+    Comment c;
 
     @BeforeEach
     void settingBeforeTest() {
@@ -74,8 +75,8 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
 
         News news = createNews(0, Category.BASEBALL, 0);
 
-        Board b = createBoard(m, Category.ESPORTS, CategoryType.FREE, "z", "z");
-        Comment c = createNewsComment(news, m, "Z");
+        b = createBoard(m, Category.ESPORTS, CategoryType.FREE, "z", "z");
+        c = createNewsComment(news, m, "Z");
 
         createReport(m, m2, BanReason.POLITICAL_CONTENT, ReportType.COMMENT, c.getId());
         createReport(m, m2, BanReason.SEXUAL_CONTENT, ReportType.BOARD, b.getId());
@@ -102,7 +103,7 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
 
         RequestContentData requestContentDataNull = RequestContentData
                 .builder()
-                .offset(0)
+                .offset(1)
                 .build();
 
 
@@ -115,7 +116,7 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
         requestContentDataNull = RequestContentData
                 .builder()
                 .reported(true)
-                .offset(0)
+                .offset(1)
                 .build();
         responseContentPageNull = contentSearchRepository
                 .getWhenDataTypeIsNullWithUnion(requestContentDataNull).getContent();
@@ -126,7 +127,7 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
         requestContentDataNull = RequestContentData
                 .builder()
                 .reported(false)
-                .offset(0)
+                .offset(1)
                 .build();
 
         responseContentPageNull = contentSearchRepository
@@ -139,7 +140,7 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
                 .builder()
                 .staticDataType(StaticDataType.BOARD)
                 .reported(false)
-                .offset(0)
+                .offset(1)
                 .build();
 
         List<ResponseContentSearch> responseContentPage = contentSearchRepository
@@ -159,7 +160,7 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
                 .builder()
                 .staticDataType(StaticDataType.BOARD)
                 .reported(null)
-                .offset(0)
+                .offset(1)
                 .build();
 
         List<ResponseContentSearch> responseContentPage2 = contentSearchRepository.getDataList(requestContentData2).getContent();
@@ -170,7 +171,7 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
                 .builder()
                 .staticDataType(StaticDataType.COMMENT)
                 .reported(true)
-                .offset(0)
+                .offset(1)
                 .build();
 
         Page<ResponseContentSearch> responseContentPage3 = contentSearchRepository
@@ -190,8 +191,9 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
         RequestDetail requestDetail = RequestDetail
                 .builder()
                 .staticDataType(StaticDataType.BOARD)
-                .contentId(1L)
+                .contentId(b.getId())
                 .build();
+
 
         ResponseDetail responseDetail = contentSearchRepository.getDetail(requestDetail);
 
@@ -204,8 +206,9 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
         RequestDetail requestDetail2 = RequestDetail
                 .builder()
                 .staticDataType(StaticDataType.COMMENT)
-                .contentId(1L)
+                .contentId(c.getId())
                 .build();
+
 
         ResponseDetail responseDetail2 = contentSearchRepository.getDetail(requestDetail2);
 
@@ -254,8 +257,8 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
         RequestReportList requestReportList = RequestReportList
                 .builder()
                 .staticDataType(StaticDataType.COMMENT)
-                .contentId(1L)
-                .offset(0)
+                .contentId(c.getId())
+                .offset(1)
                 .build();
         List<ResponseReportList> responseReportLists = contentSearchRepository.getReportList(requestReportList).getContent();
 
@@ -265,8 +268,8 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
         RequestReportList requestReportList2 = RequestReportList
                 .builder()
                 .staticDataType(StaticDataType.BOARD)
-                .contentId(1L)
-                .offset(0)
+                .contentId(b.getId())
+                .offset(1)
                 .build();
         List<ResponseReportList> responseReportLists2 = contentSearchRepository.getReportList(requestReportList2).getContent();
 
