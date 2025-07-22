@@ -30,7 +30,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.myteam.server.admin.dto.MemberResearch.*;
+import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberDetail;
+import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberSearch;
+import static org.myteam.server.admin.dto.MemberSearchResponseDto.*;
 import static org.myteam.server.global.security.jwt.JwtProvider.HEADER_AUTHORIZATION;
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
@@ -107,7 +109,7 @@ public class AdminController {
     })
     @PostMapping("/list")
     public ResponseEntity<ResponseDto<Page<ResponseMemberSearch>>>
-    getMemberDataList(@RequestBody @Valid RequestMemberSearch requestMemberSearch) {
+    getMemberDataList(@RequestBody @Valid RequestMemberSearch requestMemberSearch, BindingResult bindingResult) {
 
         return ResponseEntity.ok(
                 new ResponseDto<>(org.myteam.server.global.web.response.ResponseStatus.SUCCESS.name(), "성공",
@@ -124,7 +126,7 @@ public class AdminController {
     })
     @PostMapping("/publicId")
     public ResponseEntity<ResponseDto<ResponseMemberDetail>>
-    getMemberDataList(@RequestBody @Valid RequestMemberDetail requestMemberDetail) {
+    getMemberDataList(@RequestBody @Valid RequestMemberDetail requestMemberDetail, BindingResult bindingResult) {
 
         return ResponseEntity.ok(
                 new ResponseDto<>(org.myteam.server.global.web.response.ResponseStatus.SUCCESS.name(), "성공",
@@ -142,13 +144,14 @@ public class AdminController {
     })
     @PostMapping("/reports")
     public ResponseEntity<ResponseDto<Page<ResponseReportList>>>
-    getMemberReportedList(@RequestBody @Valid RequestMemberDetail requestMemberDetail) {
+    getMemberReportedList(@RequestBody @Valid RequestMemberDetail requestMemberDetail, BindingResult bindingResult) {
 
         return ResponseEntity.ok(
                 new ResponseDto<>(ResponseStatus.SUCCESS.name(), "성공"
                         , adminMemberSearchService.getMemberReportedList(requestMemberDetail))
         );
     }
+
 
     @Operation(summary = "회원의 상태 업데이트 및 메모추가",
             description = "관리자가 특정 회원의 상태를 업데이트 및 메모를 추가합니다.")
@@ -173,11 +176,6 @@ public class AdminController {
         String targetEmail = response.getEmail(); // 변경을 시도하는 유저의 이메일 (본인 또는 관리자)
 
         memberService.updateStatus(targetEmail, memberStatusUpdateRequest);
-
-        if (memberStatusUpdateRequest.getContent() != null) {
-            adminMemberSearchService.saveAdminMemberMemo(memberStatusUpdateRequest.getEmail(),
-                    memberStatusUpdateRequest.getContent());
-        }
 
         return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "회원 상태가 성공적으로 변경되었습니다.", null));
     }

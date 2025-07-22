@@ -28,5 +28,14 @@ public record ReportRequest() {
 
         @NotNull(message = "신고 사유(BanReason)는 선택해야 합니다.")
         private BanReason reasons;
+
+        private String reportDescription;
+
+        public ReportSaveRequest(UUID reportedPublicId, ReportType reportType, Long reportedContentId, BanReason reasons) {
+            this.reportedPublicId = reportedPublicId;
+            this.reportType = reportType;
+            this.reportedContentId = reportedContentId;
+            this.reasons = reasons;
+        }
     }
 }

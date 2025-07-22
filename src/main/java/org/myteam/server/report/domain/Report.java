@@ -38,6 +38,8 @@ public class Report extends BaseTime {
 
     private String reportIp;
 
+    private String reportDescription;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private ReportType reportType; // 신고 유형 (게시글, 뉴스, 댓글 등)
@@ -46,13 +48,15 @@ public class Report extends BaseTime {
     private Long reportedContentId; // 신고된 대상 ID (게시글 ID, 댓글 ID 등)
 
     @Builder
-    public Report(Member reporter, Member reported, BanReason reason, String reportIp, ReportType reportType, Long reportedContentId) {
+    public Report(Member reporter, Member reported, BanReason reason, String reportIp,
+                  ReportType reportType, Long reportedContentId, String reportDescription) {
         this.reporter = reporter;
         this.reported = reported;
         this.reason = reason;
         this.reportIp = reportIp;
         this.reportType = reportType;
         this.reportedContentId = reportedContentId;
+        this.reportDescription = reportDescription;
     }
 
     public static Report createReport(Member reporter, Member reported, String reportIp,
@@ -63,6 +67,20 @@ public class Report extends BaseTime {
                 .reportIp(reportIp)
                 .reportType(reportType)
                 .reportedContentId(reportedContentId)
+                .reason(reasons)
+                .build();
+    }
+
+    public static Report createReport(Member reporter, Member reported, String reportIp,
+                                      ReportType reportType, Long reportedContentId, BanReason reasons
+            , String reportDescription) {
+        return Report.builder()
+                .reporter(reporter)
+                .reported(reported)
+                .reportIp(reportIp)
+                .reportType(reportType)
+                .reportedContentId(reportedContentId)
+                .reportDescription(reportDescription)
                 .reason(reasons)
                 .build();
     }
