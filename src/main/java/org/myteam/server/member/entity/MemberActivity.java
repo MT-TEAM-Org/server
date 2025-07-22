@@ -50,4 +50,5 @@ public class MemberActivity {
     public void updateLatestAccessTime(LocalDateTime now) {
         this.latestAccessTime = now;
     }
+
 }

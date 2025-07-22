@@ -11,6 +11,7 @@ import org.myteam.server.global.security.service.CustomUserDetailsService;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.repository.MemberAccessRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.handler.CustomOauth2SuccessHandler;
 import org.myteam.server.oauth2.handler.OAuth2LoginFailureHandler;
@@ -187,6 +188,7 @@ public class SecurityConfig {
 	private final RedisService redisService;
 	private final RedisUserInfoService redisUserInfoService;
 	private final MemberJpaRepository memberJpaRepository;
+	private final MemberAccessRepository memberAccessRepository;
 	private final WebConfig webConfig;
 
 	@Bean
@@ -228,7 +230,7 @@ public class SecurityConfig {
 					UsernamePasswordAuthenticationFilter.class
 			)
 			.addFilterBefore(
-					new TokenAuthenticationFilter(jwtProvider, memberJpaRepository),
+					new TokenAuthenticationFilter(jwtProvider, memberJpaRepository,memberAccessRepository),
 					JwtAuthenticationFilter.class);
 
 		//                .addFilter(webConfig.corsFilter()); // CORS 필터 추가

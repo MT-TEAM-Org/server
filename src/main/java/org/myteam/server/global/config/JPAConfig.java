@@ -10,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
 /**
  * querydsl 사용 환경을 위해 추가
  */
@@ -17,6 +18,20 @@ import org.springframework.context.annotation.Configuration;
 public class JPAConfig {
     @PersistenceContext
     private EntityManager entityManager;
+
+
+    @Bean
+    public CriteriaBuilderFactory criteriaBuilderFactory() {
+        CriteriaBuilderConfiguration config = Criteria.getDefault();
+
+        return config.createCriteriaBuilderFactory(entityManager.getEntityManagerFactory());
+    }
+
+    @Bean
+    public BlazeJPAQueryFactory blazeJPAQueryFactory() {
+
+        return new BlazeJPAQueryFactory(entityManager, criteriaBuilderFactory());
+    }
 
     @Bean
     public CriteriaBuilderFactory criteriaBuilderFactory() {

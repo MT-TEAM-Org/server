@@ -18,6 +18,7 @@ import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.oauth2.dto.CustomOAuth2User;
+import org.myteam.server.util.ClientUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
@@ -91,7 +92,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
 			response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
 
-			eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
+			eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId(), ClientUtils.getRemoteIP(request)));
 
 			String redirectUrl = frontUrl + frontSignUpPath + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
 			log.info("redirectUrl: {}", redirectUrl);
@@ -127,7 +128,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 		log.info("member: {} caching user info", member.getPublicId());
 		response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
 
-		eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId()));
+		eventPublisher.publishEvent(new UserLoginEvent(this, member.getPublicId(),ClientUtils.getRemoteIP(request)));
 
 		String redirectUrl = frontUrl + frontLoginPath + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
 		response.sendRedirect(redirectUrl);
