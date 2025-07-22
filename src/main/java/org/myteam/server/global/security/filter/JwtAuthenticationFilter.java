@@ -161,7 +161,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			response.addHeader(HEADER_AUTHORIZATION, TOKEN_PREFIX + accessToken);
 			response.setStatus(HttpStatus.OK.value());
 
-			eventPublisher.publishEvent(new UserLoginEvent(this, publicId));
+			eventPublisher.publishEvent(new UserLoginEvent(this, publicId, ClientUtils.getRemoteIP(request)));
 
 			log.info("자체 서비스 로그인에 성공하였습니다.");
 		} catch (InternalAuthenticationServiceException e) {
