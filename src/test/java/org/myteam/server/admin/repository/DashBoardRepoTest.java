@@ -126,7 +126,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                         AdminChangeLog adminChangeLog = AdminChangeLog
                                 .builder()
                                 .admin(admin)
-                                .publicId(member.getPublicId())
+                                .memberId(member.getPublicId())
                                 .memberStatus(MemberStatus.PENDING)
                                 .build();
 
@@ -148,7 +148,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                         AdminChangeLog adminChangeLog = AdminChangeLog
                                 .builder()
                                 .admin(admin)
-                                .publicId(member.getPublicId())
+                                .memberId(member.getPublicId())
                                 .memberStatus(MemberStatus.INACTIVE)
                                 .build();
 
