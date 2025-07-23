@@ -408,7 +408,7 @@ public class AdminDashBoardRepository {
                                             .then(member.email)
                                             .otherwise(member.nickname),
                                     inquiry.content.substring(0, 20),
-                                    inquiry.createdAt
+                                    inquiry.createdAt.stringValue()
                             ))
                     .from(inquiry)
                     .join(member)
