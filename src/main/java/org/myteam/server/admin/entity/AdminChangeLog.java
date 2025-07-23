@@ -13,13 +13,14 @@ import org.myteam.server.member.entity.Member;
 
 import java.util.UUID;
 
+
 @Entity
 @Getter
 @NoArgsConstructor
 public class AdminChangeLog extends BaseTime {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Member admin;
@@ -32,13 +33,12 @@ public class AdminChangeLog extends BaseTime {
     @Enumerated(EnumType.STRING)
     private AdminControlType adminControlType;
 
-
     @Builder
     public AdminChangeLog(MemberStatus memberStatus, StaticDataType staticDataType
             , AdminControlType adminControlType, Member admin, UUID publicId, Long contentId) {
         this.memberStatus = memberStatus;
         this.staticDataType = staticDataType;
-        this.adminControlType = getAdminControlType();
+        this.adminControlType = adminControlType;
         this.admin = admin;
         this.publicId = publicId;
         this.contentId = contentId;

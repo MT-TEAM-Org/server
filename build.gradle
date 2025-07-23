@@ -112,11 +112,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 
-    //blaze persistence
+
+    //query dsl에서는 union연산같은걸 지원하지않아서 넣었습니다.
     implementation("com.blazebit:blaze-persistence-integration-querydsl-expressions-jakarta:1.6.15")
     implementation("com.blazebit:blaze-persistence-integration-hibernate-6.2:1.6.15")
     implementation("com.blazebit:blaze-persistence-core-impl-jakarta:1.6.15")
-
 
 }
 

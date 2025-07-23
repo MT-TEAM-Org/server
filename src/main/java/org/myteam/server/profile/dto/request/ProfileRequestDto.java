@@ -4,7 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public class ProfileRequestDto {
 
@@ -13,7 +16,7 @@ public class ProfileRequestDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MemberUpdateRequest {
-        @Pattern(regexp = "^[0-9a-zA-Z]+@[0-9a-zA-Z]+(\\.[a-zA-Z]{2,3}){1,2}$", message = "이메일 형식으로 작성해주세요")
+        @Pattern(regexp = "^[0-9a-zA-Z_]+@[0-9a-zA-Z]+(\\.[a-zA-Z]{2,3}){1,2}$", message = "이메일 형식으로 작성해주세요")
         private String email; // 계정
 
         @NotNull(message = "영문 + 숫자 조합 4 ~ 10자 이내로 작성해주세요")

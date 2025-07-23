@@ -9,10 +9,12 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import org.myteam.server.report.domain.ReportType;
 
-@CTE
-@Getter
+
 @Entity
+@Getter
+@CTE
 public class MemberReportCte {
+
     @Id
     private Long reportedId;
     @Enumerated(EnumType.STRING)

@@ -49,14 +49,15 @@ public class Report extends BaseTime {
 
     @Builder
     public Report(Member reporter, Member reported, BanReason reason, String reportIp,
-                  ReportType reportType, Long reportedContentId, String reportDescription) {
+                  ReportType reportType, Long reportedContentId,String reportDescription) {
         this.reporter = reporter;
         this.reported = reported;
         this.reason = reason;
         this.reportIp = reportIp;
         this.reportType = reportType;
         this.reportedContentId = reportedContentId;
-        this.reportDescription = reportDescription;
+        this.reportDescription=reportDescription;
+
     }
 
     public static Report createReport(Member reporter, Member reported, String reportIp,

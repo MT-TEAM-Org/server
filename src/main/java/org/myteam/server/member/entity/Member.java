@@ -17,6 +17,7 @@ import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -65,6 +66,8 @@ public class Member extends Base {
     @Enumerated(EnumType.STRING)
     private GenderType genderType;
 
+    private LocalDateTime deleteAt;
+
     private int birthYear;
     private int birthMonth;
     private int birthDay;
@@ -95,10 +98,12 @@ public class Member extends Base {
     // 전체 업데이트 메서드
     public void update(MemberUpdateRequest memberUpdateRequest, PasswordEncoder passwordEncoder) {
         // this.email = memberUpdateRequest.getEmail();
-        this.password = passwordEncoder.encode(memberUpdateRequest.getPassword()); // 비밀번호 변경 시 암호화 필요
+
+        this.password = passwordEncoder.encode(memberUpdateRequest.getPassword());// 비밀번호 변경 시 암호화 필요
         this.tel = memberUpdateRequest.getTel();
         this.nickname = memberUpdateRequest.getNickname();
     }
+
 
     // 전체 업데이트 메서드
     public void update(String password, String tel, String nickname, String imageUrl) {
@@ -171,4 +176,8 @@ public class Member extends Base {
         this.birthDay = Integer.parseInt(birthDate.substring(4));
     }
 
+
+    public void updateDeleteAt(LocalDateTime now){
+        this.deleteAt=now;
+    }
 }

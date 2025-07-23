@@ -38,8 +38,8 @@ import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.CommonCountDto;
-import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
+import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.report.domain.DomainType;
@@ -334,10 +334,15 @@ public class BoardQueryRepository {
      * 실시간 최신 게시글 ID 목록 조회
      */
     private List<Long> getNewBoardIdList() {
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneDayAgo = now.minusHours(24);
+
         // 전체 게시글 기준 생성일 내림차순으로 최신 10개 가져오기
         List<Long> boards = queryFactory
                 .select(board.id)
                 .from(board)
+                .where(board.createDate.goe(oneDayAgo)) // 24시간 이내 조건 추가
                 .orderBy(board.createDate.desc(), board.id.desc())
                 .limit(10)
                 .fetch();
