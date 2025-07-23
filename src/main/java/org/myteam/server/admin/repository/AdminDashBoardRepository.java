@@ -12,6 +12,7 @@ import org.myteam.server.admin.utill.*;
 import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.member.domain.MemberStatus;
@@ -352,7 +353,7 @@ public class AdminDashBoardRepository {
                                             .otherwise(JPAExpressions.select(board.title)
                                                     .from(board)
                                                     .where(board.id.eq(report.reportedContentId))),
-                                    report.createDate
+                                    report.createDate.stringValue()
                             ))
                     .from(report)
                     .join(member)
@@ -367,6 +368,9 @@ public class AdminDashBoardRepository {
                         boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
+                        x.updateCreateAt(
+                                DateFormatUtil.formatByDot.format(
+                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
 
                         if (x.getMainStatus().equals("SHOW")) {
                             x.updateMainStatus("노출");
@@ -404,7 +408,7 @@ public class AdminDashBoardRepository {
                                             .then(member.email)
                                             .otherwise(member.nickname),
                                     inquiry.content.substring(0, 20),
-                                    inquiry.createdAt
+                                    inquiry.createdAt.stringValue()
                             ))
                     .from(inquiry)
                     .join(member)
@@ -415,6 +419,11 @@ public class AdminDashBoardRepository {
                     .fetch();
             responseLatestDataList.stream()
                     .forEach(x -> {
+
+                        x.updateCreateAt(
+                                DateFormatUtil.formatByDot.format(
+                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
+
                         boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
@@ -440,7 +449,7 @@ public class AdminDashBoardRepository {
                                     improvement.id,
                                     member.nickname,
                                     improvement.content,
-                                    improvement.createDate
+                                    improvement.createDate.stringValue()
 
                             ))
                     .from(improvement)
@@ -454,6 +463,9 @@ public class AdminDashBoardRepository {
 
             responseLatestDataList.stream()
                     .forEach(x -> {
+                        x.updateCreateAt(
+                                DateFormatUtil.formatByDot.format(
+                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
                         boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);

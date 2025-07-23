@@ -1,5 +1,6 @@
 package org.myteam.server.admin.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
@@ -12,10 +13,12 @@ public record ResponseContentDto() {
         private String nickName;
         private String staticDataType;
         private String content;
+        @Schema(example = "2025.06.06")
         private String createDate;
         private String memberStatus;
         private String adminControlType;
         private Long reportCount;
+        @Schema(description = "신고 됐다면 신고 신고가 없다면 미신고로 표시")
         private String reported;
 
         public void updateCountReported(Long count, String reported) {
@@ -43,6 +46,7 @@ public record ResponseContentDto() {
         private String reported;
         private Long reportCount;
         private Integer recommendCount;
+        @Schema(example = "2025.06.06/16:30")
         private String createDate;
         private String memberStatus;
         private String nickname;
@@ -87,6 +91,7 @@ public record ResponseContentDto() {
         private String nickName;
         private String reportType;
         private String content;
+        @Schema(example = "2025.06.06")
         private String createDate;
 
         @Builder
@@ -107,6 +112,7 @@ public record ResponseContentDto() {
     @Getter
     public static class AdminMemoResponse {
         private String writerName;
+        @Schema(example = "2025.06.06")
         private String createDate;
         private String content;
 
