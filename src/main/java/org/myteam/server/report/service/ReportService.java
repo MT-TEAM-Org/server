@@ -82,11 +82,9 @@ public class ReportService {
         Report report;
         // 신고 생성
         if (request.getReportDescription() != null) {
-            report = Report.createReport(reporter, reported, reportIp, request.getReportType(),
-                    request.getReportedContentId(), request.getReasons(), request.getReportDescription());
+            report = Report.createReport(reporter, reported, reportIp, request.getReportType(), request.getReportedContentId(), request.getReasons(), request.getReportDescription());
         } else {
-            report = Report.createReport(reporter, reported, reportIp, request.getReportType(),
-                    request.getReportedContentId(), request.getReasons());
+            report = Report.createReport(reporter, reported, reportIp, request.getReportType(), request.getReportedContentId(), request.getReasons());
         }
         log.info("✅ [신고 생성] 신고자: {}, 대상: {}, 타입: {}, content: {}, 사유: {}",
                 reporter.getPublicId(), reported.getPublicId(), request.getReportType(), request.getReportedContentId(), request.getReasons());
