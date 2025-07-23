@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import org.myteam.server.admin.utill.StaticDataType;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 public record AdminDashBoardResponseDto() {
@@ -14,11 +13,13 @@ public record AdminDashBoardResponseDto() {
     @Builder
     public static class ResponseStatic {
 
-        @Schema(description = "기간에 따른 데이터의 양을 보여줍니다. 2025.02.06 : 1 이런꼴입니다.")
+        @Schema(description = "기간에 따른 데이터의 양을 보여줍니다.",
+                example = "{2025.02.06 : 1}")
         private Map<String, Long> currentStaticData;
         private Long currentCount;
         private Long pastCount;
         private Long totCount;
+        @Schema(examples = "-100,100")
         private int percent;
 
     }
@@ -36,11 +37,14 @@ public record AdminDashBoardResponseDto() {
         private Long contentId;
         private String name;
         private String content;
-        private LocalDateTime createAt;
+        @Schema(example = "2025.06.06")
+        private String createAt;
         @Schema(description = "이값이 true이면 이미 읽은것,아니면은 읽지않은것입니다.")
         private boolean checkRead;
 
-        public ResponseLatestData(String reportType, StaticDataType staticDataType, String mainStatus, String subStatus, Long contentId, String name, String content, LocalDateTime createAt) {
+        public ResponseLatestData(String reportType, StaticDataType staticDataType,
+                                  String mainStatus, String subStatus, Long contentId,
+                                  String name, String content, String createAt) {
             this.reportType = reportType;
             this.staticDataType = staticDataType;
             this.mainStatus = mainStatus;
@@ -48,6 +52,10 @@ public record AdminDashBoardResponseDto() {
             this.contentId = contentId;
             this.name = name;
             this.content = content;
+            this.createAt = createAt;
+        }
+
+        public void updateCreateAt(String createAt) {
             this.createAt = createAt;
         }
 

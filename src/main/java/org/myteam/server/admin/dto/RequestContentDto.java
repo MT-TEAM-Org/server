@@ -23,7 +23,9 @@ public record RequestContentDto() {
         private StaticDataType staticDataType;
         private Boolean isReported;
         private AdminControlType adminControlType;
+        @Schema(example = "2025.06.06")
         private String startTime;
+        @Schema(example = "2025.06.06")
         private String endTime;
         @NotNull
         private int offset;

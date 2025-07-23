@@ -12,6 +12,7 @@ import org.myteam.server.admin.utill.*;
 import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.member.domain.MemberStatus;
@@ -367,6 +368,9 @@ public class AdminDashBoardRepository {
                         boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
+                        x.updateCreateAt(
+                                DateFormatUtil.formatByDot.format(
+                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
 
                         if (x.getMainStatus().equals("SHOW")) {
                             x.updateMainStatus("노출");
@@ -415,6 +419,11 @@ public class AdminDashBoardRepository {
                     .fetch();
             responseLatestDataList.stream()
                     .forEach(x -> {
+
+                        x.updateCreateAt(
+                                DateFormatUtil.formatByDot.format(
+                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
+
                         boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
@@ -454,6 +463,9 @@ public class AdminDashBoardRepository {
 
             responseLatestDataList.stream()
                     .forEach(x -> {
+                        x.updateCreateAt(
+                                DateFormatUtil.formatByDot.format(
+                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
                         boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
