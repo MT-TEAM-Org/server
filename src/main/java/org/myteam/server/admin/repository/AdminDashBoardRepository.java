@@ -353,7 +353,7 @@ public class AdminDashBoardRepository {
                                             .otherwise(JPAExpressions.select(board.title)
                                                     .from(board)
                                                     .where(board.id.eq(report.reportedContentId))),
-                                    report.createDate
+                                    report.createDate.stringValue()
                             ))
                     .from(report)
                     .join(member)
