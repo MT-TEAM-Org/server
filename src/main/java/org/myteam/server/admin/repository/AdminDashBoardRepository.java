@@ -449,7 +449,7 @@ public class AdminDashBoardRepository {
                                     improvement.id,
                                     member.nickname,
                                     improvement.content,
-                                    improvement.createDate
+                                    improvement.createDate.stringValue()
 
                             ))
                     .from(improvement)
