@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -41,6 +42,9 @@ public class Improvement extends BaseTime {
     @OneToOne(mappedBy = "improvement", cascade = CascadeType.ALL, orphanRemoval = true)
     private ImprovementCount improvementCount;
 
+    @Enumerated(EnumType.STRING)
+    private ImportantStatus importantStatus=ImportantStatus.NORMAL;
+
     private String link;
 
     @Builder
@@ -68,5 +72,9 @@ public class Improvement extends BaseTime {
         } else {
             this.improvementStatus = status;
         }
+    }
+
+    public void updateImportantStatus(ImportantStatus importantStatus){
+        this.importantStatus=importantStatus;
     }
 }
