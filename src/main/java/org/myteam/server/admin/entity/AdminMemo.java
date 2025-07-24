@@ -10,11 +10,13 @@ import org.myteam.server.member.entity.Member;
 
 import java.util.UUID;
 
-
 @Entity
 @Getter
 @NoArgsConstructor
 public class AdminMemo extends BaseTime {
+
+
+
     @Id
     @GeneratedValue
     private Long id;
@@ -25,6 +27,8 @@ public class AdminMemo extends BaseTime {
     @Enumerated(EnumType.STRING)
     private StaticDataType staticDataType;
     private Long contentId;
+
+
 
     @Builder
     public AdminMemo(String content, Member writer, UUID memberId, StaticDataType staticDataType, Long contentId) {

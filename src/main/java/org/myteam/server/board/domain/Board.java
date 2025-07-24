@@ -1,25 +1,17 @@
 package org.myteam.server.board.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.admin.utill.AdminControlType;
+import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.board.dto.request.BoardRequest;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.member.entity.Member;
+
 
 @Getter
 @Entity
@@ -54,6 +46,12 @@ public class Board extends BaseTime {
     @OneToOne(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private BoardCount boardCount;
 
+    @Enumerated(EnumType.STRING)
+    private AdminControlType adminControlType = AdminControlType.SHOW;
+
+    @Enumerated(EnumType.STRING)
+    private StaticDataType staticDataType = StaticDataType.BOARD;
+
     @Builder
     public Board(Member member, Category boardType, CategoryType categoryType, String title, String content,
                  String link, String createdIp, String thumbnail,
@@ -81,4 +79,9 @@ public class Board extends BaseTime {
     public boolean isAuthor(Member member) {
         return this.member.equals(member);
     }
+
+    public void updateAdminControlType(AdminControlType adminControlType) {
+        this.adminControlType = adminControlType;
+    }
+
 }
