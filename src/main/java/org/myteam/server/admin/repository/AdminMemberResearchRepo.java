@@ -10,20 +10,14 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.dto.QBoardCountCte;
-import org.myteam.server.admin.dto.QCommentCountCte;
-import org.myteam.server.admin.dto.QMemberReportCte;
-import org.myteam.server.admin.dto.QReportCountCte;
 import org.myteam.server.admin.entity.AdminChangeLog;
 import org.myteam.server.admin.entity.AdminMemo;
-import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.member.domain.GenderType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.entity.QMember;
 import org.myteam.server.report.domain.ReportType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,14 +35,6 @@ import java.util.stream.IntStream;
 import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberDetail;
 import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberSearch;
 import static org.myteam.server.admin.dto.MemberSearchResponseDto.*;
-import static org.myteam.server.admin.entity.QAdminMemo.adminMemo;
-import static org.myteam.server.board.domain.QBoard.board;
-import static org.myteam.server.board.domain.QBoardCount.boardCount;
-import static org.myteam.server.comment.domain.QComment.comment1;
-import static org.myteam.server.improvement.domain.QImprovement.improvement;
-import static org.myteam.server.member.entity.QMember.member;
-import static org.myteam.server.member.entity.QMemberActivity.memberActivity;
-import static org.myteam.server.report.domain.QReport.report;
 
 @Repository
 @RequiredArgsConstructor
@@ -314,7 +300,7 @@ public class AdminMemberResearchRepo {
                                    MemberStatus memberStatus) {
 
         AdminMemo adminMemo1 = new AdminMemo(content,
-                writer, publicId, StaticDataType.User, null);
+                writer, publicId, null, null);
         adminMemoRepository.save(adminMemo1);
         if (memberStatus != targetStatus) {
             AdminChangeLog adminChangeLog = AdminChangeLog
