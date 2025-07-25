@@ -103,6 +103,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 Optional<MemberAccess> memberAccess=memberAccessRepository
                         .findByPublicIdAndAccessTime(member.getPublicId(),now);
                 if(memberAccess.isEmpty()){
+                    log.info("오늘 접속 기록이 없는 사용자입니다");
                     MemberAccess memberAccess1=MemberAccess
                             .builder()
                             .accessTime(now)
@@ -112,6 +113,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                     memberAccessRepository.save(memberAccess1);
                 }
                 else{
+                    log.info("오늘 접속 기록이 있는 사용자입니다 ip만 업데이트 합니다.");
                     memberAccess.get().updateMemberAccessIp(ClientUtils.getRemoteIP(request));
                     memberAccessRepository.save(memberAccess.get());
                 }
