@@ -6,17 +6,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.service.AdminMemberSearchService;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
+import org.myteam.server.global.web.response.ResponseStatus;
+import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.dto.MemberDeleteRequest;
 import org.myteam.server.member.dto.MemberGetRequest;
-import org.myteam.server.member.controller.response.MemberResponse;
+import org.myteam.server.member.dto.MemberStatusUpdateRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.MemberService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +30,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberDetail;
+import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberSearch;
+import static org.myteam.server.admin.dto.MemberSearchResponseDto.*;
+import static org.myteam.server.global.security.jwt.JwtProvider.HEADER_AUTHORIZATION;
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
 @Slf4j
@@ -37,6 +46,7 @@ public class AdminController {
 
     private final MemberReadService memberReadService;
     private final MemberService memberService;
+    private final AdminMemberSearchService adminMemberSearchService;
 
     @Operation(summary = "이메일로 회원 조회", description = "관리자가 특정 이메일을 가진 회원을 조회합니다.")
     @ApiResponses(value = {
@@ -89,4 +99,86 @@ public class AdminController {
                 null
         ));
     }
+
+
+    @Operation(summary = "회원 정보들을 조회", description = "각종 조건을 바탕으로 회원 정보들을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원 정보를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/list")
+    public ResponseEntity<ResponseDto<Page<ResponseMemberSearch>>>
+    getMemberDataList(@RequestBody @Valid RequestMemberSearch requestMemberSearch, BindingResult bindingResult) {
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(org.myteam.server.global.web.response.ResponseStatus.SUCCESS.name(), "성공",
+                        adminMemberSearchService.getMemberDataList(requestMemberSearch)));
+
+    }
+
+
+    @Operation(summary = "한 회원의 정보 조회", description = "관리자가 publicId로 특정 회원의 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원 정보를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/publicId")
+    public ResponseEntity<ResponseDto<ResponseMemberDetail>>
+    getMemberDataList(@RequestBody @Valid RequestMemberDetail requestMemberDetail, BindingResult bindingResult) {
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(org.myteam.server.global.web.response.ResponseStatus.SUCCESS.name(), "성공",
+                        adminMemberSearchService.getMemberDetailData(requestMemberDetail))
+        );
+
+    }
+
+
+    @Operation(summary = "회원의 신고 사항 불러오기", description = "관리자가 특정 회원에 대해서 접수된 신고들을 불러옵니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원 정보를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/reports")
+    public ResponseEntity<ResponseDto<Page<ResponseReportList>>>
+    getMemberReportedList(@RequestBody @Valid RequestMemberDetail requestMemberDetail, BindingResult bindingResult) {
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(ResponseStatus.SUCCESS.name(), "성공"
+                        , adminMemberSearchService.getMemberReportedList(requestMemberDetail))
+        );
+    }
+
+
+    @Operation(summary = "회원의 상태 업데이트 및 메모추가",
+            description = "관리자가 특정 회원의 상태를 업데이트 및 메모를 추가합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "회원 정보를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PutMapping("/status")
+    public ResponseEntity<?> updateStatus(@RequestBody @Valid MemberStatusUpdateRequest memberStatusUpdateRequest,
+                                          BindingResult bindingResult,
+                                          HttpServletRequest httpServletRequest) {
+        log.info("MyInfoController updateStatus 메서드 실행");
+        String authorizationHeader = httpServletRequest.getHeader(HEADER_AUTHORIZATION);
+
+        // accessToken 으로 부터 유저 정보 반환
+        MemberResponse response = memberReadService.getAuthenticatedMember(authorizationHeader);
+
+        log.info("email : {}", response.getEmail());
+
+        // 서비스 호출
+        String targetEmail = response.getEmail(); // 변경을 시도하는 유저의 이메일 (본인 또는 관리자)
+
+        memberService.updateStatus(targetEmail, memberStatusUpdateRequest);
+
+        return ResponseEntity.ok(new ResponseDto<>(SUCCESS.name(), "회원 상태가 성공적으로 변경되었습니다.", null));
+    }
+
+
 }
