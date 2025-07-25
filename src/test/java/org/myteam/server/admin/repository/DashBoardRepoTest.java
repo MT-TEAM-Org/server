@@ -129,7 +129,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                                 .builder()
                                 .admin(admin)
                                 .memberId(member.getPublicId())
-                                .memberStatus(MemberStatus.PENDING)
+                                .memberStatus(MemberStatus.WARNED)
                                 .build();
 
                         AdminChangeLog adminChangeLog2 = AdminChangeLog

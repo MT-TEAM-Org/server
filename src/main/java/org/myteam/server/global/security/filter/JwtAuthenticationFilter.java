@@ -129,7 +129,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				log.warn("INACTIVE 상태인 경우 로그인이 불가능합니다");
 				sendErrorResponse(response, HttpStatus.FORBIDDEN, "INACTIVE 상태인 경우 로그인이 불가능합니다");
 				return;
-			} else if (!status.equals(ACTIVE.name())||!status.equals(WARNED.name())) {
+			} else if (!status.equals(ACTIVE.name())&&!status.equals(WARNED.name())) {
 				log.warn("알 수 없는 유저 상태 코드 : " + status);
 				sendErrorResponse(response, HttpStatus.FORBIDDEN, "알 수 없는 유저 상태 코드 : " + status);
 				return;
