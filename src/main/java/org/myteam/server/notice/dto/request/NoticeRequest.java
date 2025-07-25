@@ -1,16 +1,30 @@
 package org.myteam.server.notice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.myteam.server.global.page.request.PageInfoRequest;
 import org.myteam.server.global.page.request.PageInfoServiceRequest;
 import org.myteam.server.notice.domain.NoticeSearchType;
 
 public record NoticeRequest() {
+
+
+    @Getter
+    @NoArgsConstructor
+    public static class AdminRequestNotice{
+        @NotNull
+        private int offset;
+        public int getOffset(){
+            return this.offset-1;
+        }
+
+        @Builder
+        public AdminRequestNotice(int offset){
+            this.offset=offset;
+        }
+    }
 
     @Data
     @Builder

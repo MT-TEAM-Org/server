@@ -1,6 +1,8 @@
 package org.myteam.server.notice.controller;
 
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
+import static org.myteam.server.notice.dto.request.NoticeRequest.*;
+import static org.myteam.server.notice.dto.response.NoticeResponse.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,13 +17,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
+import org.myteam.server.notice.dto.request.NoticeRequest;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeSaveRequest;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeSearchRequest;
+import org.myteam.server.notice.dto.response.NoticeResponse;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeListResponse;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
 import org.myteam.server.notice.service.NoticeReadService;
 import org.myteam.server.notice.service.NoticeService;
 import org.myteam.server.util.ClientUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -143,6 +148,21 @@ public class NoticeController {
                 SUCCESS.name(),
                 "공지사항 목록 조회",
                 noticeReadService.getNoticeList(request.toServiceRequest())
+        ));
+    }
+
+    @Operation(summary = "관리자 공지사항 목록 조회", description = "등록된 공지사항 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "공지사항 목록 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/admin/list")
+    public ResponseEntity<ResponseDto<Page<AdminNoticeResponse>>> getNoticeList(
+            @Valid @ModelAttribute AdminRequestNotice adminRequestNotice) {
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "공지사항 목록 조회",
+                noticeReadService.adminGetNoticeList(adminRequestNotice)
         ));
     }
 }

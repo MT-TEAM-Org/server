@@ -21,14 +21,12 @@ import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.report.domain.ReportType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestLatestData;
 import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestStatic;
 import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseLatestData;
@@ -173,27 +171,24 @@ public class AdminDashBoardRepository {
 
         if (staticDataType.name().equals(StaticDataType.UserWarned.name())) {
             Long current_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.memberId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
-                            (adminChangeLog.memberStatus.eq(MemberStatus.PENDING)))
+                            (adminChangeLog.memberStatus.eq(MemberStatus.WARNED)))
                     .fetch().get(0);
 
             Long past_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.memberId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
-                            (adminChangeLog.memberStatus.eq(MemberStatus.PENDING)))
+                            (adminChangeLog.memberStatus.eq(MemberStatus.WARNED)))
                     .fetch().get(0);
 
-            Long tot_count = queryFactory.select(adminChangeLog.count())
+            Long tot_count = queryFactory.select(adminChangeLog.memberId.countDistinct())
                     .from(adminChangeLog)
-                    .where(adminChangeLog.memberStatus.eq(MemberStatus.PENDING))
+                    .where(adminChangeLog.memberStatus.eq(MemberStatus.WARNED))
                     .fetch().get(0);
-
-
             int percent = StaticUtil.makeStaticPercent(current_count, past_count);
-
             return ResponseStatic
                     .builder()
                     .currentCount(current_count)
@@ -204,20 +199,20 @@ public class AdminDashBoardRepository {
         }
         if (staticDataType.name().equals(StaticDataType.UserBanned.name())) {
             Long current_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.memberId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
                             (adminChangeLog.memberStatus.eq(MemberStatus.INACTIVE)))
                     .fetch().get(0);
 
             Long past_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.memberId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
                             (adminChangeLog.memberStatus.eq(MemberStatus.INACTIVE)))
                     .fetch().get(0);
 
-            Long tot_count = queryFactory.select(adminChangeLog.count())
+            Long tot_count = queryFactory.select(adminChangeLog.memberId.countDistinct())
                     .from(adminChangeLog)
                     .where(adminChangeLog.memberStatus.eq(MemberStatus.INACTIVE))
                     .fetch().get(0);
@@ -235,7 +230,7 @@ public class AdminDashBoardRepository {
 
         if (staticDataType.name().equals(StaticDataType.HideComment.name())) {
             Long current_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.contentId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
                             (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN)),
@@ -243,14 +238,15 @@ public class AdminDashBoardRepository {
                     .fetch().get(0);
 
             Long past_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.contentId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
                             (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
                             , (adminChangeLog.staticDataType.eq(StaticDataType.COMMENT)))
                     .fetch().get(0);
 
-            Long tot_count = queryFactory.select(adminChangeLog.count())
+            Long tot_count = queryFactory.select(adminChangeLog
+                            .contentId.countDistinct())
                     .from(adminChangeLog)
                     .where((adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
                             .and(adminChangeLog.staticDataType.eq(StaticDataType.COMMENT)))
@@ -269,7 +265,7 @@ public class AdminDashBoardRepository {
 
         if (staticDataType.name().equals(StaticDataType.HideBoard.name())) {
             Long current_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.contentId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
                             (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
@@ -277,14 +273,14 @@ public class AdminDashBoardRepository {
                     .fetch().get(0);
 
             Long past_count = queryFactory
-                    .select(adminChangeLog.count())
+                    .select(adminChangeLog.contentId.countDistinct())
                     .from(adminChangeLog)
                     .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
                             (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
                             , (adminChangeLog.staticDataType.eq(StaticDataType.BOARD)))
                     .fetch().get(0);
 
-            Long tot_count = queryFactory.select(adminChangeLog.count())
+            Long tot_count = queryFactory.select(adminChangeLog.contentId.countDistinct())
                     .from(adminChangeLog)
                     .where((adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
                             , (adminChangeLog.staticDataType.eq(StaticDataType.BOARD)))
@@ -300,6 +296,32 @@ public class AdminDashBoardRepository {
                     .percent(percent)
                     .build();
         }
+        if(staticDataType.equals(StaticDataType.InquiryComplete)||staticDataType
+                .equals(StaticDataType.InquiryPending)){
+            if(staticDataType.equals(StaticDataType.InquiryComplete)){
+            return CreateStaticQueryFactory
+                    .createInquiryStaticQuery(dateList,true,queryFactory);}
+
+            return CreateStaticQueryFactory
+                    .createInquiryStaticQuery(dateList,false,queryFactory);
+        }
+        if(staticDataType.equals(StaticDataType.InquiryMember)||staticDataType
+                .equals(StaticDataType.InquiryNoMember)){
+            if(staticDataType.equals(StaticDataType.InquiryMember)){
+                return CreateStaticQueryFactory
+                        .createMemberInquiryStaticQuery(dateList,true,queryFactory);}
+
+            return CreateStaticQueryFactory
+                    .createMemberInquiryStaticQuery(dateList,false,queryFactory);
+        }
+
+        if(staticDataType.equals(StaticDataType.ImprovementComplete)||staticDataType
+                .equals(StaticDataType.ImprovementPending)||staticDataType
+                .equals(StaticDataType.ImprovementReceived)){
+            return CreateStaticQueryFactory
+                    .createImprovementStaticQuery(dateList,staticDataType,queryFactory);
+        }
+
 
 
         throw new PlayHiveException(ErrorCode.INVALID_PARAMETER, "없는 형식의 파라미터 입니다");
@@ -388,7 +410,6 @@ public class AdminDashBoardRepository {
         }
 
         if (requestLatestData.getStaticDataType().name().equals(StaticDataType.Inquiry.name())) {
-
 
             List<ResponseLatestData> responseLatestDataList = queryFactory.select(
                             Projections.constructor(ResponseLatestData.class,

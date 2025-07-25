@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.global.util.redis.CommonCountDto;
@@ -15,6 +13,20 @@ import org.myteam.server.notice.domain.Notice;
 import org.myteam.server.util.ClientUtils;
 
 public record NoticeResponse() {
+
+    @AllArgsConstructor
+    @Getter
+    public static class AdminNoticeResponse{
+        private Long noticeId;
+        private String nickName;
+        private String createDate;
+        private String title;
+        private String content;
+
+        public void updateCreateDate(String createDate){
+            this.createDate=createDate;
+        }
+    }
 
     @Data
     @Builder
