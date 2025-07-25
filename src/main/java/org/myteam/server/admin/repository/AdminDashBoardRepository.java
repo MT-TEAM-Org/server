@@ -32,7 +32,14 @@ import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestLatest
 import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestStatic;
 import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseLatestData;
 import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseStatic;
-
+import static org.myteam.server.admin.entity.QAdminChangeLog.adminChangeLog;
+import static org.myteam.server.board.domain.QBoard.board;
+import static org.myteam.server.comment.domain.QComment.comment1;
+import static org.myteam.server.improvement.domain.QImprovement.improvement;
+import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
+import static org.myteam.server.member.entity.QMember.member;
+import static org.myteam.server.member.entity.QMemberAccess.memberAccess;
+import static org.myteam.server.report.domain.QReport.report;
 
 @Repository
 @RequiredArgsConstructor
