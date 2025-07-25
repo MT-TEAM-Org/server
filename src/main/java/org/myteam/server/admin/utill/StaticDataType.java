@@ -7,6 +7,10 @@ public enum StaticDataType {
 
     Improvement, Inquiry, ImprovementInquiry,
 
+    ImprovementPending,ImprovementComplete,ImprovementReceived,
+
+    InquiryPending,InquiryComplete,InquiryMember,InquiryNoMember,
+
     UserAccess, UserSignIn, UserDeleted, UserWarned, UserBanned,
 
     HideComment, HideBoard

@@ -12,7 +12,9 @@ import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.notice.domain.Notice;
+import org.myteam.server.notice.dto.request.NoticeRequest;
 import org.myteam.server.notice.dto.request.NoticeRequest.NoticeServiceRequest;
+import org.myteam.server.notice.dto.response.NoticeResponse;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeListResponse;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeSaveResponse;
@@ -81,6 +83,10 @@ public class NoticeReadService {
         log.info("공지사항 목록 조회 성공");
 
         return NoticeListResponse.createResponse(PageCustomResponse.of(noticePagingList));
+    }
+
+    public Page<NoticeResponse.AdminNoticeResponse> adminGetNoticeList(NoticeRequest.AdminRequestNotice adminRequestNotice){
+        return noticeQueryRepository.adminGetNoticeList(adminRequestNotice);
     }
 
     public boolean existsById(Long commentId) {
