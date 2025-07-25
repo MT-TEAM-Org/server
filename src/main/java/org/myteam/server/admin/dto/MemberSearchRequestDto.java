@@ -13,8 +13,6 @@ import org.myteam.server.member.domain.MemberType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -32,12 +30,9 @@ public record MemberSearchRequestDto() {
         @Schema(description = "회원의 가입경로 구글,디스코드 등등을 말합니다.")
         private MemberType memberType;
         private MemberStatus status;
-        @Schema(description = "회원의 생년월일 중 년에 해당됩니다.")
-        private int birthYear;
-        @Schema(description = "회원의 생년월일 중 월에 해당됩니다.")
-        private int birthMonth;
-        @Schema(description = "회원의 생년월일 중 일에 해당됩니다.")
-        private int birthDay;
+        @Schema(description = "회원의 생년월일에 해당됩니다.")
+        @Size(max = 6, min = 6)
+        private String birthDate;
         private String signInStart;
         private String signInEnd;
         @NotNull
@@ -45,29 +40,19 @@ public record MemberSearchRequestDto() {
 
         @Builder
         public RequestMemberSearch(String nickName, String email, String tel
-                , GenderType genderType, MemberType memberType, int birthYear,
-                                   int birthMonth, int birthDay, String signInStart, String signInEnd, int offset) {
+                , GenderType genderType, MemberType memberType, String birthDate,
+                                   String signInStart, String signInEnd, int offset) {
             this.nickName = nickName;
             this.email = email;
             this.tel = tel;
             this.genderType = genderType;
             this.memberType = memberType;
-            this.birthYear = birthYear;
-            this.birthMonth = birthMonth;
-            this.birthDay = birthDay;
+            this.birthDate = birthDate;
             this.signInStart = signInStart;
             this.signInEnd = signInEnd;
             this.offset = offset;
         }
 
-        public List<Integer> provideBirthDate() {
-            List<Integer> birthDate = new ArrayList<>();
-            birthDate.add(birthYear);    // 이건 null 허용
-            birthDate.add(birthMonth);
-            birthDate.add(birthDay);
-
-            return birthDate;
-        }
 
         public int getOffset() {
             return this.offset - 1;

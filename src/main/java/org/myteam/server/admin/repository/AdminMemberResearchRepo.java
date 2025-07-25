@@ -35,7 +35,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberDetail;
 import static org.myteam.server.admin.dto.MemberSearchRequestDto.RequestMemberSearch;
@@ -433,24 +432,14 @@ public class AdminMemberResearchRepo {
             booleanBuilder.and(member.status.eq(requestMemberSearch.getStatus()));
         }
 
-
-        List<Integer> brithInfo = requestMemberSearch.provideBirthDate();
-        IntStream.range(0, 3)
-                .forEach(x -> {
-                    if (x == 0) {
-                        if (brithInfo.get(0) != null) {
-                            booleanBuilder.and(member.birthYear.eq(brithInfo.get(x)));
-                        }
-                        if (brithInfo.get(1) != null) {
-                            booleanBuilder.and(member.birthMonth.eq(brithInfo.get(x)));
-                        }
-                        if (brithInfo.get(2) != null) {
-                            booleanBuilder.and(member.birthDay.eq(brithInfo.get(x)));
-                        }
-
-                    }
-
-                });
+        if (requestMemberSearch.getBirthDate() != null) {
+            int birthYear = Integer.parseInt(requestMemberSearch.getBirthDate().substring(0, 2));
+            int birthMonth = Integer.parseInt(requestMemberSearch.getBirthDate().substring(2, 4));
+            int birthDay = Integer.parseInt(requestMemberSearch.getBirthDate().substring(4));
+            booleanBuilder.and(member.birthYear.eq(birthYear));
+            booleanBuilder.and(member.birthMonth.eq(birthMonth));
+            booleanBuilder.and(member.birthDay.eq(birthDay));
+        }
 
 
         return booleanBuilder;
