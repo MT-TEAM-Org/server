@@ -16,6 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class AdminMemo extends BaseTime {
 
+
+
     @Id
     @GeneratedValue
     private Long id;
@@ -26,6 +28,7 @@ public class AdminMemo extends BaseTime {
     @Enumerated(EnumType.STRING)
     private StaticDataType staticDataType;
     private Long contentId;
+
 
 
     @Builder

@@ -24,7 +24,7 @@ public class AdminChangeLog extends BaseTime {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Member admin;
-    private UUID publicId;
+    private UUID memberId;
     private Long contentId;
     @Enumerated(EnumType.STRING)
     private MemberStatus memberStatus;
@@ -35,12 +35,12 @@ public class AdminChangeLog extends BaseTime {
 
     @Builder
     public AdminChangeLog(MemberStatus memberStatus, StaticDataType staticDataType
-            , AdminControlType adminControlType, Member admin, UUID publicId, Long contentId) {
+            , AdminControlType adminControlType, Member admin, UUID memberId, Long contentId) {
         this.memberStatus = memberStatus;
         this.staticDataType = staticDataType;
         this.adminControlType = adminControlType;
         this.admin = admin;
-        this.publicId = publicId;
+        this.memberId = memberId;
         this.contentId = contentId;
     }
 }

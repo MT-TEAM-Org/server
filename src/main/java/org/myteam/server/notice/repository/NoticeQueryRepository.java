@@ -5,6 +5,8 @@ import static org.myteam.server.comment.domain.QNoticeComment.noticeComment;
 import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.notice.domain.QNotice.notice;
 import static org.myteam.server.notice.domain.QNoticeCount.noticeCount;
+import static org.myteam.server.notice.dto.request.NoticeRequest.*;
+import static org.myteam.server.notice.dto.response.NoticeResponse.*;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -12,8 +14,11 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,16 +26,20 @@ import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.domain.QComment;
 import org.myteam.server.comment.domain.QNoticeComment;
+import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.service.RedisCountService;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.notice.domain.NoticeSearchType;
+import org.myteam.server.notice.dto.request.NoticeRequest;
+import org.myteam.server.notice.dto.response.NoticeResponse;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeDto;
 import org.myteam.server.notice.dto.response.NoticeResponse.NoticeRankingDto;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.util.ClientUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -41,6 +50,41 @@ public class NoticeQueryRepository {
 
     private final JPAQueryFactory queryFactory;
     private final RedisCountService redisCountService;
+
+    public Page<AdminNoticeResponse> adminGetNoticeList(AdminRequestNotice adminRequestNotice){
+
+        Pageable pageable= PageRequest.of(adminRequestNotice.getOffset(),10);
+
+        List<AdminNoticeResponse> noticeResponses = queryFactory
+                .select(Projections.constructor(AdminNoticeResponse.class,
+                        notice.id,
+                        member.nickname,
+                        notice.createDate.stringValue(),
+                        notice.title,
+                        notice.content.substring(0,20)))
+                .from(notice)
+                .join(member)
+                .on(member.eq(notice.member))
+                .orderBy(notice.createDate.desc())
+                .offset(pageable.getOffset())
+                .limit(10)
+                .fetch();
+
+        noticeResponses.stream().forEach(x->{
+           x.updateCreateDate(DateFormatUtil.formatByDot
+                   .format(LocalDateTime.parse
+                           (x.getCreateDate(),DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
+        });
+
+        Long noticeCount= Optional.ofNullable(queryFactory
+                .select(notice.count())
+                .from(notice)
+                .fetchOne())
+                .orElse(0L);
+
+        return new PageImpl<>(noticeResponses,pageable,noticeCount);
+    }
+
 
     /**
      * 공지사항 목록 조회
