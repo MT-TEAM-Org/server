@@ -9,10 +9,10 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.report.domain.DomainType;
-import org.myteam.server.report.domain.Report;
 import org.myteam.server.report.domain.ReportType;
-import org.myteam.server.report.dto.request.ReportRequest.ReportSaveRequest;
-import org.myteam.server.report.dto.response.ReportResponse.ReportSaveResponse;
+import org.myteam.server.report.dto.request.ReportRequest.*;
+import org.myteam.server.report.domain.Report;
+import org.myteam.server.report.dto.response.ReportResponse.*;
 import org.myteam.server.report.repository.ReportRepository;
 import org.myteam.server.report.util.ReportedContentValidator;
 import org.myteam.server.report.util.ReportedContentValidatorFactory;
@@ -28,13 +28,14 @@ import java.util.UUID;
 @Transactional
 public class ReportService {
 
-    private static final String REPORT_LIMIT_CATEGORY = "IP";
     private final ReportRepository reportRepository;
     private final MemberReadService memberReadService;
     private final SecurityReadService securityReadService;
     private final RedisService redisService;
     private final SlackService slackService;
     private final ReportedContentValidatorFactory reportedContentValidatorFactory;
+
+    private static final String REPORT_LIMIT_CATEGORY = "IP";
 
     /**
      * 신고 생성 (중복 신고 방지)\
@@ -79,13 +80,10 @@ public class ReportService {
         if (request.getReportType() != ReportType.NEWS && reporter.getPublicId().equals(contentOwnerPublicId)) {
             throw new PlayHiveException(ErrorCode.INVALID_REPORT_CONTENT_OWNER);
         }
-        Report report;
+
         // 신고 생성
-        if (request.getReportDescription() != null) {
-            report = Report.createReport(reporter, reported, reportIp, request.getReportType(), request.getReportedContentId(), request.getReasons(), request.getReportDescription());
-        } else {
-            report = Report.createReport(reporter, reported, reportIp, request.getReportType(), request.getReportedContentId(), request.getReasons());
-        }
+        Report report = Report.createReport(reporter, reported, reportIp, request.getReportType(), request.getReportedContentId(), request.getReasons());
+
         log.info("✅ [신고 생성] 신고자: {}, 대상: {}, 타입: {}, content: {}, 사유: {}",
                 reporter.getPublicId(), reported.getPublicId(), request.getReportType(), request.getReportedContentId(), request.getReasons());
 

@@ -1,6 +1,5 @@
 package org.myteam.server.member.service;
 
-
 import static org.myteam.server.global.exception.ErrorCode.INVALID_PARAMETER;
 import static org.myteam.server.global.exception.ErrorCode.NO_PERMISSION;
 import static org.myteam.server.global.exception.ErrorCode.UNAUTHORIZED;
@@ -10,8 +9,6 @@ import static org.myteam.server.global.exception.ErrorCode.USER_NOT_FOUND;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.admin.repository.AdminMemberResearchRepo;
-
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
@@ -35,7 +32,6 @@ import org.myteam.server.profile.dto.request.ProfileRequestDto.MemberUpdateReque
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static org.myteam.server.global.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -52,8 +48,6 @@ public class MemberService {
     private final CertifyStorage certifyStorage;
     private final RedisService redisService;
 
-
-    private final AdminMemberResearchRepo adminMemberResearchRepo;
     /**
      * 회원 가입
      *
@@ -63,7 +57,6 @@ public class MemberService {
      */
     public MemberResponse create(MemberSaveRequest memberSaveRequest) throws PlayHiveException {
         // 동일한 유저 이름 존재 검사
-
         Optional<Member> memberOP = memberJpaRepository.findByEmailAndTypeAndStatus(memberSaveRequest.getEmail(),
                 MemberType.LOCAL, MemberStatus.ACTIVE);
 
@@ -82,7 +75,6 @@ public class MemberService {
 
         // 메일 전송
         MailStrategy strategy = mailStrategyFactory.getStrategy(EmailType.WELCOME);
-
         strategy.send(member.getEmail());
 
         // dto 응답
@@ -184,7 +176,6 @@ public class MemberService {
                 .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
 
         boolean isEqual = passwordChangeRequest.checkPasswordAndConfirmPassword();
-
         if (!isEqual) {
             throw new PlayHiveException(INVALID_PARAMETER, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
         }
@@ -193,7 +184,6 @@ public class MemberService {
         if (!isValid) {
             throw new PlayHiveException(UNAUTHORIZED, "현재 비밀번호가 일치하지 않습니다.");
         }
-
 
         String password = passwordEncoder.encode(passwordChangeRequest.getNewPassword());
 
@@ -214,26 +204,16 @@ public class MemberService {
         // 1. 관리자가 다른 사용자의 상태를 변경하려는 경우
         if (requester.isAdmin()) {
             log.info("관리자가 상태를 변경 중: {}, 대상자: {}", targetEmail, memberStatusUpdateRequest.getEmail());
-
-            if (targetMember.getStatus() != memberStatusUpdateRequest.getStatus()) {
-                targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
-            }
-            if (memberStatusUpdateRequest.getContent() != null) {
-                adminMemberResearchRepo.updateMemberStatus(requester, targetMember.getPublicId()
-                        , memberStatusUpdateRequest.getContent(),
-                        targetMember.getStatus(), memberStatusUpdateRequest.getStatus());
-            }
+            targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
             return;
         }
 
         // 2. 요청자가 본인의 상태를 변경하려는 경우
         if (requester.verifyOwnEmail(memberStatusUpdateRequest.getEmail())) {
             log.info("사용자가 자신의 상태를 변경 중: {}", targetEmail);
-
             if (!requester.getStatus().equals(MemberStatus.PENDING)) {
                 throw new PlayHiveException(NO_PERMISSION); // PENDING 인 경우에만 본인의 상태 변경 가능하도록 처리
             }
-
             requester.updateStatus(memberStatusUpdateRequest.getStatus());
             return;
         }

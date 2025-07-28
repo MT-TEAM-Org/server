@@ -34,21 +34,6 @@ public class JPAConfig {
     }
 
     @Bean
-    public CriteriaBuilderFactory criteriaBuilderFactory() {
-        CriteriaBuilderConfiguration config = Criteria.getDefault();
-        // do some configuration
-        return config.createCriteriaBuilderFactory(entityManager.getEntityManagerFactory());
-    }
-
-
-    @Bean
-    public BlazeJPAQueryFactory blazeJPAQueryFactory(){
-
-        return new BlazeJPAQueryFactory(entityManager,criteriaBuilderFactory());
-    }
-
-
-    @Bean
     public JPAQueryFactory queryFactory() {
         return new JPAQueryFactory(entityManager);
     }

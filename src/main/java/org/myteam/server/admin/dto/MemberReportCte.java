@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import org.myteam.server.report.domain.ReportType;
 
-
 @Entity
 @Getter
 @CTE
@@ -19,5 +18,5 @@ public class MemberReportCte {
     private Long reportedId;
     @Enumerated(EnumType.STRING)
     private ReportType reportType;
-    private Long reportCount;
+
 }

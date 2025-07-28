@@ -57,7 +57,6 @@ public class Report extends BaseTime {
         this.reportType = reportType;
         this.reportedContentId = reportedContentId;
         this.reportDescription=reportDescription;
-
     }
 
     public static Report createReport(Member reporter, Member reported, String reportIp,
@@ -68,20 +67,6 @@ public class Report extends BaseTime {
                 .reportIp(reportIp)
                 .reportType(reportType)
                 .reportedContentId(reportedContentId)
-                .reason(reasons)
-                .build();
-    }
-
-    public static Report createReport(Member reporter, Member reported, String reportIp,
-                                      ReportType reportType, Long reportedContentId, BanReason reasons
-            , String reportDescription) {
-        return Report.builder()
-                .reporter(reporter)
-                .reported(reported)
-                .reportIp(reportIp)
-                .reportType(reportType)
-                .reportedContentId(reportedContentId)
-                .reportDescription(reportDescription)
                 .reason(reasons)
                 .build();
     }
