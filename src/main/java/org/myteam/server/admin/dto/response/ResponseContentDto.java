@@ -1,9 +1,11 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
+
+import static org.myteam.server.admin.dto.response.CommonResponseDto.*;
 
 public record ResponseContentDto() {
     @Getter
@@ -11,11 +13,14 @@ public record ResponseContentDto() {
     public static class ResponseContentSearch {
         private Long contentId;
         private String nickName;
+        @Schema(example = "게시판,댓글,채팅")
         private String staticDataType;
         private String content;
         @Schema(example = "2025.06.06")
         private String createDate;
+        @Schema(example = "정지,정상,경고")
         private String memberStatus;
+        @Schema(example = "노출,보류,숨김")
         private String adminControlType;
         private Long reportCount;
         @Schema(description = "신고 됐다면 신고 신고가 없다면 미신고로 표시")
@@ -42,12 +47,15 @@ public record ResponseContentDto() {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class ResponseDetail {
+        @Schema(example = "노출,보류,숨김")
         private String adminControlType;
+        @Schema(example = "신고,미신고")
         private String reported;
         private Long reportCount;
         private Integer recommendCount;
         @Schema(example = "2025.06.06/16:30")
         private String createDate;
+        @Schema(example = "정지,정상,경고")
         private String memberStatus;
         private String nickname;
         private String link;
@@ -89,6 +97,7 @@ public record ResponseContentDto() {
     @NoArgsConstructor
     public static class ResponseReportList {
         private String nickName;
+        @Schema(example = "욕설,풍기위반,정치,경고,광고,기타")
         private String reportType;
         private String content;
         @Schema(example = "2025.06.06")
@@ -108,16 +117,4 @@ public record ResponseContentDto() {
 
     }
 
-    @AllArgsConstructor
-    @Getter
-    public static class AdminMemoResponse {
-        private String writerName;
-        @Schema(example = "2025.06.06")
-        private String createDate;
-        private String content;
-
-        public void updateCreateDate(String date) {
-            this.createDate = date;
-        }
-    }
 }

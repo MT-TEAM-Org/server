@@ -1,5 +1,6 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,17 +12,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static org.myteam.server.admin.dto.CommonResponseDto.AdminMemoResponse;
+import static org.myteam.server.admin.dto.response.CommonResponseDto.AdminMemoResponse;
 
-public record RequestInquiryDto() {
+public record InquiryRequestDto() {
 
 
     @NoArgsConstructor
     @Getter
     public final static class RequestInquiryList {
-        @NotNull
+        @NotNull(message = "public id는 필수입니다.")
+        @Schema(description = "회원 식별 아이디값,필수입니다.")
         private UUID publicId;
-        @NotNull
+        @NotNull(message = "offset은 필수입니다.")
+        @Schema(description = "필수입니다.")
         private int offset;
 
         @Builder
@@ -40,13 +43,16 @@ public record RequestInquiryDto() {
     @NoArgsConstructor
     public final static class RequestInquiryListCond {
         private Boolean isMember;
+        @Schema(example = "2025.06.06")
         private String startTime;
+        @Schema(example = "2025.06.06")
         private String endTime;
         private Boolean isAnswered;
         private String nickName;
         private String email;
         private String content;
-        @NotNull
+        @NotNull(message = "offset은 필수입니다.")
+        @Schema(description = "필수입니다.")
         private int offset;
 
 
@@ -89,61 +95,16 @@ public record RequestInquiryDto() {
     @Getter
     @NoArgsConstructor
     public final static class RequestInquiryDetail {
-        @NotNull
-        private Long id;
+        @NotNull(message = "contentid 는 비면안됩니다.")
+        @Schema(description = "inquiry id값입니다. 필수입니다.")
+        private Long contentId;
 
         @Builder
         public RequestInquiryDetail(Long id) {
-            this.id = id;
-        }
-    }
-
-    @Getter
-    public final static class ResponseInquiryDetail {
-        private Long inquiryId;
-        private String isAnswered;
-        private String createDate;
-        private String ip;
-        private String isMember;
-        private String nickName;
-        private String email;
-        private String content;
-        private List<AdminMemoResponse> adminMemoResponseList;
-
-        public ResponseInquiryDetail(Long inquiryId, String isAnswered, String createDate,
-                                     String ip, String isMember, String nickName, String email,
-                                     String content) {
-            this.inquiryId = inquiryId;
-            this.isAnswered = isAnswered;
-            this.createDate = createDate;
-            this.ip = ip;
-            this.isMember = isMember;
-            this.nickName = nickName;
-            this.email = email;
-            this.content = content;
-        }
-
-        public void updateAdminMemoList(List<AdminMemoResponse> adminMemoResponseList) {
-            this.adminMemoResponseList = adminMemoResponseList;
-        }
-
-        public void updateCreateDate(String date) {
-            this.createDate = date;
+            this.contentId = id;
         }
     }
 
 
-    @Getter
-    @NoArgsConstructor
-    public final static class RequestInquiryAnswer {
-        private Long inquiryId;
-        private String email;
-        private String content;
-        private String createDate;
-
-        public void updateCreateDate(String date) {
-            this.createDate = date;
-        }
-    }
 
 }

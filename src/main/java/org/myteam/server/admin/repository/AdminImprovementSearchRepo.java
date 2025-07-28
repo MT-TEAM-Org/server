@@ -22,9 +22,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoImprovementRequest;
-import static org.myteam.server.admin.dto.ImprovementResponseDto.*;
-import static org.myteam.server.admin.dto.RequestImprovementDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoImprovementRequest;
+import static org.myteam.server.admin.dto.response.ImprovementResponseDto.*;
+import static org.myteam.server.admin.dto.request.ImproveRequestDto.*;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.improvement.domain.QImprovementCount.improvementCount;
 import static org.myteam.server.member.entity.QMember.member;

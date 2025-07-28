@@ -7,11 +7,11 @@ import org.myteam.server.common.certification.service.InquiryAnsSendService;
 import org.myteam.server.member.service.MemberReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoInquiryRequest;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryList;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryListCond;
-import static org.myteam.server.admin.dto.RequestInquiryDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.*;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryList;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryListCond;
+import static org.myteam.server.admin.dto.request.InquiryRequestDto.*;
 
 
 @Service

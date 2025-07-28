@@ -1,4 +1,4 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -12,7 +12,6 @@ public record AdminDashBoardResponseDto() {
     @Getter
     @Builder
     public static class ResponseStatic {
-
         @Schema(description = "기간에 따른 데이터의 양을 보여줍니다.",
                 example = "{2025.02.06 : 1}")
         private Map<String, Long> currentStaticData;
@@ -21,7 +20,6 @@ public record AdminDashBoardResponseDto() {
         private Long totCount;
         @Schema(examples = "-100,100")
         private int percent;
-
     }
 
     @Getter

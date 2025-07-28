@@ -1,5 +1,6 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,7 +14,9 @@ public record ImprovementResponseDto() {
     public final static class ResponseImprovement {
         private Long improvementId;
         private UUID publicId;
+        @Schema(example = "높음 중간 낮음")
         private String importantStatus;
+        @Schema(example = "접수 대기 완료")
         private String processStatus;
         private Integer recommendCount;
         private String nickName;
@@ -33,7 +36,9 @@ public record ImprovementResponseDto() {
         private String ip;
         private String title;
         private String content;
+        @Schema(example = "접수 대기 완료")
         private String improvementStatus;
+        @Schema(example = "높음 중간 낮음")
         private String importantStatus;
         private List<CommonResponseDto.AdminMemoResponse> adminMemoResponseList;
 
@@ -62,8 +67,10 @@ public record ImprovementResponseDto() {
     @AllArgsConstructor
     public final static class ResponseMemberImproveList {
         private Long id;
+        @Schema(example = "접수 대기 완료")
         private String improvementStatus;
-        private String importantDegree;
+        @Schema(example = "높음 중간 낮음")
+        private String importantStatus;
         private Integer recommendCount;
         private String nickName;
         private String title;

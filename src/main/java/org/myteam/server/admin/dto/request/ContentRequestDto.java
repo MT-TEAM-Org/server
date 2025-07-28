@@ -1,4 +1,4 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -12,22 +12,26 @@ import org.myteam.server.global.util.date.DateFormatUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-public record RequestContentDto() {
+public record ContentRequestDto() {
     @Getter
     @NoArgsConstructor
     public static class RequestContentData {
+        @Schema(description = "탐색시에 댓글 게시글 등 어떤값으로 탐색할지를 의미합니다.",
+        examples= "TITLE,CONTENT,TITLE_CONTENT,NICKNAME, COMMENT")
         private BoardSearchType boardSearchType;
         private String searchKeyWord;
+        @Schema(description = "비어있다면 복합값을 돌려주고 특정 타입선택시 해당 되는것만 보여줍니다.")
         private StaticDataType staticDataType;
         private Boolean isReported;
+        @Schema(description = "관리자 컨트롤 타입입니다.-> 보여줄지 말지 여부라고 생각하면됩니다.", example = "SHOW,PENDING,HIDDEN")
         private AdminControlType adminControlType;
         @Schema(example = "2025.06.06")
         private String startTime;
         @Schema(example = "2025.06.06")
         private String endTime;
-        @NotNull
+        @NotNull(message = "offset은 있어야합니다.")
+        @Schema(description = "필수값 입니다.")
         private int offset;
 
         @Builder
@@ -69,11 +73,11 @@ public record RequestContentDto() {
     @NoArgsConstructor
     public static class RequestDetail {
         @NotNull
-        @Schema(description = "게시물이면 BOARD 댓글이면 COMMENT 입니다")
+        @Schema(description = "게시물이면 BOARD 댓글이면 COMMENT 입니다 필수값입니다.")
         private StaticDataType staticDataType;
-        @NotNull
+        @NotNull(message ="contentid는 비면안됩니다.")
+        @Schema(description = "필수값입니다.")
         private Long contentId;
-
         @Builder
         public RequestDetail(StaticDataType staticDataType, Long contentId) {
             this.staticDataType = staticDataType;
@@ -81,42 +85,17 @@ public record RequestContentDto() {
         }
     }
 
-
-    @Getter
-    @NoArgsConstructor
-    @Schema(description = "관리자 메모 작성 요청시 쓰이는 값입니다.")
-    public static class AdminMemoRequest {
-        @NotNull
-        private Long contentId;
-        @Schema(description = "게시물이면 BOARD 댓글이면 COMMENT 입니다.")
-        @NotNull
-        private StaticDataType staticDataType;
-        @Schema(description = "숨김은 HIDDEN,보류는 PENDING 노출은 SHOW입니다.")
-        @NotNull
-        private AdminControlType adminControlType;
-        @Schema(description = "내용이 없다면 null로 주세요")
-        private String content;
-        @NotNull
-        private UUID publicId;
-
-        @Builder
-        public AdminMemoRequest(Long contentId, StaticDataType staticDataType,
-                                AdminControlType adminControlType, String content) {
-            this.contentId = contentId;
-            this.staticDataType = staticDataType;
-            this.adminControlType = adminControlType;
-            this.content = content;
-        }
-    }
-
     @Getter
     @NoArgsConstructor
     public static class RequestReportList {
-        @NotNull
+        @NotNull(message ="데이터 타입은 비면 안됩니다.")
+        @Schema(description = "필수값입니다.")
         private StaticDataType staticDataType;
-        @NotNull
+        @NotNull(message = "contentid는 비면안됩니다.")
+        @Schema(description = "필수값입니다.")
         private Long contentId;
-        @NotNull
+        @NotNull(message = "offset은 비면안됩니다.")
+        @Schema(description = "필수값입니다.")
         private int offset;
 
         @Builder

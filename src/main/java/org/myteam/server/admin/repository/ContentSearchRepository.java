@@ -9,21 +9,17 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.dto.QContentCountCte;
-import org.myteam.server.admin.dto.QContentCte;
-import org.myteam.server.admin.dto.QMemberReportCte;
-import org.myteam.server.admin.entity.AdminChangeLog;
-import org.myteam.server.admin.entity.AdminMemo;
+import org.myteam.server.admin.dto.ctes.QContentCountCte;
+import org.myteam.server.admin.dto.ctes.QContentCte;
+import org.myteam.server.admin.dto.ctes.QMemberReportCte;
+import org.myteam.server.admin.dto.response.CommonResponseDto;
 import org.myteam.server.admin.utill.AdminControlType;
+import org.myteam.server.admin.utill.CreateAdminMemo;
 import org.myteam.server.admin.utill.StaticDataType;
-import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.chat.block.domain.BanReason;
-import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.member.domain.MemberStatus;
-import org.myteam.server.member.entity.Member;
-import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.report.domain.ReportType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -38,9 +34,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.myteam.server.admin.dto.RequestContentDto.*;
-import static org.myteam.server.admin.dto.ResponseContentDto.*;
-import static org.myteam.server.admin.entity.QAdminMemo.adminMemo;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
+import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
+import static org.myteam.server.admin.dto.response.ResponseContentDto.*;
 import static org.myteam.server.admin.utill.AdminControlType.*;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
@@ -55,55 +51,11 @@ public class ContentSearchRepository {
 
     private final JPAQueryFactory queryFactory;
     private final BlazeJPAQueryFactory blazeJPAQueryFactory;
-    private final SecurityReadService securityReadService;
-    private final AdminMemoRepository adminMemoRepository;
-    private final AdminChangeLogRepo adminChangeLogRepo;
+    private final CreateAdminMemo createAdminMemo;
 
 
-    public void addAdminMemo(AdminMemoRequest adminMemoRequest) {
-        Member admin = securityReadService.getMember();
-        if (adminMemoRequest.getContent() != null) {
-            AdminMemo adminMemo1 = AdminMemo
-                    .builder()
-                    .content(adminMemoRequest.getContent())
-                    .contentId(adminMemoRequest.getContentId())
-                    .staticDataType(adminMemoRequest.getStaticDataType())
-                    .writer(admin)
-                    .build();
-            adminMemoRepository.save(adminMemo1);
-        }
-        if (adminMemoRequest.getStaticDataType().name().equals(StaticDataType.COMMENT.name())) {
-            Comment comment = queryFactory.select(comment1)
-                    .from(comment1)
-                    .where(comment1.id.eq(adminMemoRequest.getContentId()))
-                    .fetchOne();
-            if (!comment.getAdminControlType().name().equals(adminMemoRequest.getAdminControlType().name())) {
-                AdminChangeLog adminChangeLog = AdminChangeLog
-                        .builder()
-                        .admin(admin)
-                        .contentId(adminMemoRequest.getContentId())
-                        .adminControlType(adminMemoRequest.getAdminControlType())
-                        .staticDataType(StaticDataType.COMMENT)
-                        .build();
-                adminChangeLogRepo.save(adminChangeLog);
-            }
-        }
-        if (adminMemoRequest.getStaticDataType().name().equals(StaticDataType.BOARD.name())) {
-            Board board1 = queryFactory.select(board)
-                    .from(board)
-                    .where(board.id.eq(adminMemoRequest.getContentId()))
-                    .fetch().get(0);
-            if (!board1.getAdminControlType().name().equals(adminMemoRequest.getAdminControlType().name())) {
-                AdminChangeLog adminChangeLog = AdminChangeLog
-                        .builder()
-                        .admin(admin)
-                        .contentId(adminMemoRequest.getContentId())
-                        .adminControlType(adminMemoRequest.getAdminControlType())
-                        .staticDataType(StaticDataType.BOARD)
-                        .build();
-                adminChangeLogRepo.save(adminChangeLog);
-            }
-        }
+    public void addAdminMemo(AdminMemoContentRequest adminMemoContentRequest) {
+        createAdminMemo.createContentAdminMemo(adminMemoContentRequest,queryFactory);
     }
 
     public Page<ResponseReportList> getReportList(RequestReportList requestReportList) {
@@ -777,24 +729,9 @@ public class ContentSearchRepository {
         if (responseDetail.getReportCount() > 0) {
             responseDetail.updateReported("신고");
         }
-        List<AdminMemoResponse> adminMemoResponses = queryFactory
-                .select(Projections.constructor(AdminMemoResponse.class,
-                        adminMemo.writer.nickname,
-                        adminMemo.createDate.stringValue(),
-                        adminMemo.content
-                ))
-                .from(adminMemo)
-                .where(adminMemo.staticDataType.eq(staticDataType)
-                        , adminMemo.contentId.eq(requestDetail.getContentId()))
-                .fetch();
-
-        adminMemoResponses.stream().forEach(x -> {
-
-            String dateTime = DateFormatUtil
-                    .formatByDotAndSlash.format(LocalDateTime.parse(x.getCreateDate()
-                            , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
-            x.updateCreateDate(dateTime);
-        });
+        List<CommonResponseDto.AdminMemoResponse> adminMemoResponses =
+                createAdminMemo.getAdminMemo(staticDataType,
+                        requestDetail.getContentId(),queryFactory);
 
         responseDetail.updateAdminMemoResponses(adminMemoResponses);
 

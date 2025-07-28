@@ -4,8 +4,10 @@ package org.myteam.server.admin.utill;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.admin.entity.AdminChangeLog;
 import org.myteam.server.admin.entity.AdminMemo;
-import org.myteam.server.admin.repository.AdminMemoRepository;
+import org.myteam.server.admin.repository.simpleRepo.AdminChangeLogRepo;
+import org.myteam.server.admin.repository.simpleRepo.AdminMemoRepository;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.util.date.DateFormatUtil;
@@ -17,8 +19,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.*;
-import static org.myteam.server.admin.dto.CommonResponseDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
+import static org.myteam.server.admin.dto.response.CommonResponseDto.*;
 import static org.myteam.server.admin.entity.QAdminMemo.*;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.comment.domain.QComment.comment1;
@@ -32,6 +34,7 @@ public class CreateAdminMemo {
 
     private final SecurityReadService securityReadService;
     private final AdminMemoRepository adminMemoRepository;
+    private final AdminChangeLogRepo adminChangeLogRepo;
     public void createContentAdminMemo(AdminMemoContentRequest adminMemoRequest, JPAQueryFactory queryFactory) {
         Member admin = securityReadService.getMember();
         AdminMemo adminMemo1=null;
@@ -61,6 +64,14 @@ public class CreateAdminMemo {
                     .fetchOne();
             if(!comment.getAdminControlType().equals(adminMemoRequest.getAdminControlType())){
                 comment.updateAdminControlType(adminMemoRequest.getAdminControlType());
+                AdminChangeLog adminChangeLog = AdminChangeLog
+                        .builder()
+                        .admin(admin)
+                        .contentId(adminMemoRequest.getContentId())
+                        .adminControlType(adminMemoRequest.getAdminControlType())
+                        .staticDataType(StaticDataType.COMMENT)
+                        .build();
+                adminChangeLogRepo.save(adminChangeLog);
             }
             return ;
         }
@@ -71,6 +82,14 @@ public class CreateAdminMemo {
                     .fetchFirst();
             if(!board1.getAdminControlType().equals(adminMemoRequest.getAdminControlType())){
                 board1.updateAdminControlType(adminMemoRequest.getAdminControlType());
+                AdminChangeLog adminChangeLog = AdminChangeLog
+                        .builder()
+                        .admin(admin)
+                        .contentId(adminMemoRequest.getContentId())
+                        .adminControlType(adminMemoRequest.getAdminControlType())
+                        .staticDataType(StaticDataType.COMMENT)
+                        .build();
+                adminChangeLogRepo.save(adminChangeLog);
             }
         }
     }
@@ -148,7 +167,6 @@ public class CreateAdminMemo {
     }
 
     public List<AdminMemoResponse> getAdminMemo(StaticDataType staticDataType,Long contentId,JPAQueryFactory queryFactory){
-        System.out.println("-------------------------");
         List<AdminMemoResponse> adminMemoList=queryFactory.select(
                         Projections.constructor(AdminMemoResponse.class,
                                 member.nickname,

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.myteam.server.board.dto.reponse.CommentSearchDto;
 import org.myteam.server.global.page.response.PageCustomResponse;
@@ -19,6 +20,7 @@ public record NoticeResponse() {
     public static class AdminNoticeResponse{
         private Long noticeId;
         private String nickName;
+        @Schema(example = "2025.06.06")
         private String createDate;
         private String title;
         private String content;

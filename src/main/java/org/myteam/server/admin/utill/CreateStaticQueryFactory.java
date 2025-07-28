@@ -8,14 +8,13 @@ import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.improvement.domain.QImprovement;
-import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.report.domain.ReportType;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseStatic;
+import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
 import static org.myteam.server.improvement.domain.QImprovement.*;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;

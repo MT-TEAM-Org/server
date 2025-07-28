@@ -16,15 +16,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoInquiryRequest;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryList;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryListCond;
-import static org.myteam.server.admin.dto.RequestInquiryDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.*;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryList;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryListCond;
+import static org.myteam.server.admin.dto.request.InquiryRequestDto.*;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;
 
@@ -66,7 +65,7 @@ public class InquirySearchRepo {
                 .from(inquiry)
                 .join(member)
                 .on(member.eq(inquiry.member))
-                .where(inquiry.id.eq(requestInquiryDetail.getId()))
+                .where(inquiry.id.eq(requestInquiryDetail.getContentId()))
                 .fetchOne();
 
         responseInquiryDetail.updateCreateDate(DateFormatUtil.formatByDot
@@ -74,7 +73,7 @@ public class InquirySearchRepo {
                         , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
         responseInquiryDetail.updateAdminMemoList(
                 createAdminMemo.getAdminMemo(StaticDataType.Improvement,
-                        requestInquiryDetail.getId(), queryFactory));
+                        requestInquiryDetail.getContentId(), queryFactory));
 
         return responseInquiryDetail;
     }
