@@ -1,4 +1,4 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.request;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record RequestImprovementDto() {
+public record ImproveRequestDto() {
 
 
     @Getter
@@ -27,9 +27,11 @@ public record RequestImprovementDto() {
         private String content;
         private String nickName;
         private String email;
+        @Schema(example = "2025.06.06")
         private String startTime;
+        @Schema(example = "2025.06.06")
         private String endTime;
-        @NotNull
+        @NotNull(message = "offset은 비면 안됩니다.")
         private int offset;
         @Schema(example = "LOW NORMAL HIGH")
         private ImportantStatus importantStatus;
@@ -75,8 +77,9 @@ public record RequestImprovementDto() {
     @Getter
     @NoArgsConstructor
     public final static class RequestImprovementDetail {
-        @NotNull
-        Long contentId;
+        @NotNull(message = "contentid는 비면안됩니다.")
+        @Schema(description = "필수값 입니다.")
+        private Long contentId;
 
         @Builder
         public RequestImprovementDetail(Long contentId) {
@@ -88,9 +91,11 @@ public record RequestImprovementDto() {
     @Getter
     @NoArgsConstructor
     public final static class RequestMemberImproveList {
-        @NotNull
+        @NotNull(message = "publicid는 필수입니다.")
+        @Schema(description = "회원식별 아이디값.필수값 입니다.")
         private UUID publicId;
-        @NotNull
+        @NotNull(message = "offset은 필수입니다.")
+        @Schema(description = "필수값 입니다.")
         private int offset;
 
         @Builder

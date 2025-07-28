@@ -1,4 +1,4 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.ctes;
 
 
 import com.blazebit.persistence.CTE;

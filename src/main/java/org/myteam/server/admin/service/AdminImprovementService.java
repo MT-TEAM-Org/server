@@ -6,9 +6,9 @@ import org.myteam.server.admin.repository.AdminImprovementSearchRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoImprovementRequest;
-import static org.myteam.server.admin.dto.ImprovementResponseDto.*;
-import static org.myteam.server.admin.dto.RequestImprovementDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoImprovementRequest;
+import static org.myteam.server.admin.dto.response.ImprovementResponseDto.*;
+import static org.myteam.server.admin.dto.request.ImproveRequestDto.*;
 
 @Service
 @RequiredArgsConstructor

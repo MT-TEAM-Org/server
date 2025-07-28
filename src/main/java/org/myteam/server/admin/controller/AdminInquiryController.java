@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoInquiryRequest;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryList;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryListCond;
-import static org.myteam.server.admin.dto.RequestInquiryDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.*;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryList;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryListCond;
+import static org.myteam.server.admin.dto.request.InquiryRequestDto.*;
 
 @RestController
 @RequiredArgsConstructor

@@ -4,8 +4,9 @@ package org.myteam.server.admin;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.admin.dto.response.InquiryResponseDto;
 import org.myteam.server.admin.repository.AdminImprovementSearchRepo;
-import org.myteam.server.admin.repository.AdminMemoRepository;
+import org.myteam.server.admin.repository.simpleRepo.AdminMemoRepository;
 import org.myteam.server.admin.repository.InquirySearchRepo;
 import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.Improvement;
@@ -19,13 +20,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoImprovementRequest;
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoInquiryRequest;
-import static org.myteam.server.admin.dto.ImprovementResponseDto.*;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryList;
-import static org.myteam.server.admin.dto.InquiryResponseDto.ResponseInquiryListCond;
-import static org.myteam.server.admin.dto.RequestImprovementDto.*;
-import static org.myteam.server.admin.dto.RequestInquiryDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoImprovementRequest;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
+import static org.myteam.server.admin.dto.response.ImprovementResponseDto.*;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.*;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryList;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryListCond;
+import static org.myteam.server.admin.dto.request.ImproveRequestDto.*;
+import static org.myteam.server.admin.dto.request.InquiryRequestDto.*;
 
 @AutoConfigureMockMvc
 public class inquriyimprovementtest extends IntegrationTestSupport {

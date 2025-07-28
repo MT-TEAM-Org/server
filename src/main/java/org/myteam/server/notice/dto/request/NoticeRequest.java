@@ -1,5 +1,7 @@
 package org.myteam.server.notice.dto.request;
 
+import com.fasterxml.jackson.databind.DatabindException;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,12 +16,12 @@ public record NoticeRequest() {
     @Getter
     @NoArgsConstructor
     public static class AdminRequestNotice{
-        @NotNull
+        @NotNull(message = "offset은 비어있으면 안됩니다.")
+        @Schema(description = "비어있으면 안됩니다.")
         private int offset;
         public int getOffset(){
             return this.offset-1;
         }
-
         @Builder
         public AdminRequestNotice(int offset){
             this.offset=offset;

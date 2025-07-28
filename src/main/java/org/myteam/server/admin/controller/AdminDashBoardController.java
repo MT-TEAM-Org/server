@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestLatestData;
-import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestStatic;
-import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseLatestData;
-import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseStatic;
+import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestLatestData;
+import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestStatic;
+import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseLatestData;
+import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
 
 @RestController
 @RequestMapping("/api/admin/data")

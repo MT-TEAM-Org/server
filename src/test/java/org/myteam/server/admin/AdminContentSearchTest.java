@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.admin.entity.AdminChangeLog;
 import org.myteam.server.admin.entity.AdminMemo;
-import org.myteam.server.admin.repository.AdminMemoRepository;
+import org.myteam.server.admin.repository.simpleRepo.AdminMemoRepository;
 import org.myteam.server.admin.repository.ContentSearchRepository;
 import org.myteam.server.admin.utill.AdminControlType;
 import org.myteam.server.admin.utill.StaticDataType;
@@ -31,8 +31,9 @@ import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.myteam.server.admin.dto.RequestContentDto.*;
-import static org.myteam.server.admin.dto.ResponseContentDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
+import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
+import static org.myteam.server.admin.dto.response.ResponseContentDto.*;
 import static org.myteam.server.admin.entity.QAdminChangeLog.adminChangeLog;
 import static org.myteam.server.admin.entity.QAdminMemo.adminMemo;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_ACCESS;
@@ -224,14 +225,14 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
     @Test
     @Transactional
     void createAdminChangeLogAndAdminMemoTest() {
-        AdminMemoRequest adminMemoRequest = AdminMemoRequest
+        AdminMemoContentRequest adminMemoContentRequest= AdminMemoContentRequest
                 .builder()
                 .contentId(1L)
                 .staticDataType(StaticDataType.COMMENT)
                 .adminControlType(AdminControlType.SHOW)
                 .content("테스트용")
                 .build();
-        contentSearchRepository.addAdminMemo(adminMemoRequest);
+        contentSearchRepository.addAdminMemo(adminMemoContentRequest);
 
         List<AdminMemo> adminMemos = queryFactory.select(adminMemo)
                 .from(adminMemo)

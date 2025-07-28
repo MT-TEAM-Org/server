@@ -1,14 +1,16 @@
-package org.myteam.server.admin.dto;
+package org.myteam.server.admin.dto.ctes;
 
 
 import com.blazebit.persistence.CTE;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.Getter;
 
-@Entity
 @CTE
-public class ContentCountCte {
+@Getter
+@Entity
+public class MemberContentCountCte {
     @Id
     private Long contentId;
-
+    private Long count;
 }

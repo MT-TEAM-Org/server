@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.myteam.server.admin.dto.AdminMemoRequestDto.AdminMemoImprovementRequest;
-import static org.myteam.server.admin.dto.ImprovementResponseDto.*;
-import static org.myteam.server.admin.dto.RequestImprovementDto.*;
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoImprovementRequest;
+import static org.myteam.server.admin.dto.response.ImprovementResponseDto.*;
+import static org.myteam.server.admin.dto.request.ImproveRequestDto.*;
 
 @RestController
 @RequestMapping("/api/admin/improve")

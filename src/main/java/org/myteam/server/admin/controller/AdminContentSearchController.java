@@ -15,12 +15,15 @@ import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.global.web.response.ResponseStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import static org.myteam.server.admin.dto.RequestContentDto.*;
-import static org.myteam.server.admin.dto.ResponseContentDto.*;
+
+import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
+import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
+import static org.myteam.server.admin.dto.response.ResponseContentDto.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,9 +75,10 @@ public class AdminContentSearchController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/addAdminMemo")
-    public ResponseEntity<ResponseDto<String>> addAdminMemo(@RequestBody @Valid AdminMemoRequest adminMemoRequest){
+    public ResponseEntity<ResponseDto<String>> addAdminMemo(@RequestBody @Valid AdminMemoContentRequest adminMemoContentRequest
+    , BindingResult bindingResult){
 
-        contentSearchService.addAdminMemo(adminMemoRequest);
+        contentSearchService.addAdminMemo(adminMemoContentRequest);
 
         return ResponseEntity.ok(new ResponseDto<>(ResponseStatus.SUCCESS.name(),"ok",
                 "ok"));
