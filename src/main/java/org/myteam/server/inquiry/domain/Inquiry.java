@@ -32,7 +32,7 @@ public class Inquiry {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    private boolean isAdminAnswered; // 관리자가 답변했는지
+    private boolean isAdminAnswered=false; // 관리자가 답변했는지
 
     @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     private InquiryCount inquiryCount;
