@@ -1,5 +1,6 @@
 package org.myteam.server.notice.service;
 
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ class NoticeReadServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private NoticeReadService noticeReadService;
+
+    @Autowired
+    NoticeService noticeService;
 
     private List<Notice> noticeList = new ArrayList<>();
     private Member admin;
@@ -173,5 +177,21 @@ class NoticeReadServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(exists).isFalse();
+    }
+
+    @Test
+    @DisplayName("관리자 공지사항 목록 조회")
+    void adminNoticeListCheck() {
+        // given && when
+        AdminRequestNotice adminRequestNotice=AdminRequestNotice
+                .builder()
+                .offset(1)
+                .build();
+
+       List<AdminNoticeResponse> adminNoticeResponses=
+               noticeReadService.adminGetNoticeList(adminRequestNotice).getContent();
+
+        // then
+        assertThat(adminNoticeResponses.size()).isEqualTo(5);
     }
 }

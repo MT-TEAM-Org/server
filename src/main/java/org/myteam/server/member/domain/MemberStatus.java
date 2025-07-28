@@ -6,5 +6,5 @@ package org.myteam.server.member.domain;
  * PENDING: 처리 대기중
  */
 public enum MemberStatus {
-    INACTIVE, ACTIVE, PENDING
+    INACTIVE, ACTIVE, PENDING,WARNED
 }

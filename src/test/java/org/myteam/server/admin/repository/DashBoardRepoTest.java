@@ -19,6 +19,7 @@ import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.improvement.domain.Improvement;
+import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
@@ -45,6 +46,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestLatestData;
 import static org.myteam.server.admin.dto.AdminBashBoardRequestDto.RequestStatic;
 import static org.myteam.server.admin.dto.AdminDashBoardResponseDto.ResponseLatestData;
@@ -127,7 +129,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                                 .builder()
                                 .admin(admin)
                                 .memberId(member.getPublicId())
-                                .memberStatus(MemberStatus.PENDING)
+                                .memberStatus(MemberStatus.WARNED)
                                 .build();
 
                         AdminChangeLog adminChangeLog2 = AdminChangeLog
@@ -137,15 +139,26 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                                 .staticDataType(StaticDataType.COMMENT)
                                 .adminControlType(AdminControlType.HIDDEN)
                                 .build();
-
+                        inquiry.updateAdminAnswered();
+                        improvement.updateState(ImprovementStatus.COMPLETED);
+                        inquiryRepository.save(inquiry);
+                        improvementRepository.save(improvement);
                         adminChangeLogRepo.save(adminChangeLog);
                         adminChangeLogRepo.save(adminChangeLog2);
-                    } else {
+                    }
+                    else {
                         report = createReport(member, member, BanReason.ETC, ReportType.COMMENT, comment.getId());
                         member.updateDeleteAt(dates.get(2));
                         memberJpaRepository.save(member);
                         createMemberAccess(member, dates.get(2));
                         AdminChangeLog adminChangeLog = AdminChangeLog
+                                .builder()
+                                .admin(admin)
+                                .memberId(member.getPublicId())
+                                .memberStatus(MemberStatus.INACTIVE)
+                                .build();
+
+                        AdminChangeLog adminChangeLogA = AdminChangeLog
                                 .builder()
                                 .admin(admin)
                                 .memberId(member.getPublicId())
@@ -159,14 +172,65 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                                 .staticDataType(StaticDataType.BOARD)
                                 .adminControlType(AdminControlType.HIDDEN)
                                 .build();
-
                         adminChangeLogRepo.save(adminChangeLog);
+                        adminChangeLogRepo.save(adminChangeLogA);
                         adminChangeLogRepo.save(adminChangeLog2);
                     }
-
                 });
-
     }
+
+        @Test
+        @DisplayName("문의 개선 건의사항 세부 통계테스트")
+        void testGetInquiryImprovementTest(){
+            RequestStatic InquiryFin= RequestStatic
+                    .builder()
+                    .staticDataType(StaticDataType.InquiryComplete)
+                    .dateType(DateType.Day)
+                    .build();
+
+            RequestStatic InquiryNotFin = RequestStatic
+                    .builder()
+                    .staticDataType(StaticDataType.InquiryPending)
+                    .dateType(DateType.Day)
+                    .build();
+
+            ResponseStatic responseStatic=adminDashBoardService.getStaticData(InquiryFin);
+            ResponseStatic responseStatic1=adminDashBoardService.getStaticData(InquiryNotFin);
+
+            assertThat(responseStatic.getCurrentCount()).isEqualTo(5);
+            assertThat(responseStatic.getPastCount()).isEqualTo(0);
+            assertThat(responseStatic.getPercent()).isEqualTo(100);
+
+            assertThat(responseStatic1.getCurrentCount()).isEqualTo(5);
+            assertThat(responseStatic1.getPastCount()).isEqualTo(0);
+            assertThat(responseStatic1.getPercent()).isEqualTo(100);
+
+
+            RequestStatic ImprovementFin= RequestStatic
+                    .builder()
+                    .staticDataType(StaticDataType.ImprovementComplete)
+                    .dateType(DateType.Day)
+                    .build();
+
+            RequestStatic ImprovementPending = RequestStatic
+                    .builder()
+                    .staticDataType(StaticDataType.ImprovementPending)
+                    .dateType(DateType.Day)
+                    .build();
+            ResponseStatic responseStaticComplete=adminDashBoardService.getStaticData(ImprovementFin);
+            ResponseStatic responseStaticPending=adminDashBoardService.getStaticData(ImprovementPending);
+
+            assertThat(responseStaticComplete.getCurrentCount()).isEqualTo(5);
+            assertThat(responseStaticComplete.getPastCount()).isEqualTo(0);
+            assertThat(responseStaticComplete.getPercent()).isEqualTo(100);
+
+            assertThat(responseStaticPending.getCurrentCount()).isEqualTo(5);
+            assertThat(responseStaticPending.getPastCount()).isEqualTo(0);
+            assertThat(responseStaticPending.getPercent()).isEqualTo(100);
+
+        }
+
+
 
     @Test
     @DisplayName("1일을 기준으로 데이터를 잘가져오는지 체크")
