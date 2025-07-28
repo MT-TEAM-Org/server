@@ -1,16 +1,14 @@
 package org.myteam.server.member.controller.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.myteam.server.member.domain.GenderType;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -33,11 +31,6 @@ public class MemberResponse {
     private UUID publicId;
     private String imgUrl;
 
-    private GenderType genderType;
-    private LocalDateTime createDate;
-    private LocalDate brithDate;
-
-
     public MemberResponse() {
     }
 
@@ -50,11 +43,7 @@ public class MemberResponse {
         this.status = member.getStatus();
         this.publicId = member.getPublicId();
         this.imgUrl = member.getImgUrl();
-        this.genderType = member.getGenderType();
-        this.createDate = member.getCreateDate();
-        this.brithDate = LocalDate.of(member.getBirthYear(), member.getBirthMonth(), member.getBirthDay());
     }
-
 
     public static MemberResponse createMemberResponse(Member member) {
         return MemberResponse.builder()

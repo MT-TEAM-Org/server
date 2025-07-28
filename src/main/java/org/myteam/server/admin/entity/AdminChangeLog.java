@@ -1,6 +1,5 @@
 package org.myteam.server.admin.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
