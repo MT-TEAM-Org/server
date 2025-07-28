@@ -26,6 +26,15 @@ public class MemberActivity {
     @Column(nullable = false)
     private int inviteCount = 0;
 
+    private String latestIp;
+
+    private LocalDateTime latestAccessTime;
+
+    public MemberActivity(Member member) {
+        this.member = member;
+        member.updateMemberActivity(this);
+    }
+
     public void increaseVisitCount() {
         this.visitCount += 1;
     }
@@ -34,9 +43,12 @@ public class MemberActivity {
         this.inviteCount += 1;
     }
 
-    public MemberActivity(Member member) {
-        this.member = member;
-        member.updateMemberActivity(this);
+    public void updateLatestIp(String ip) {
+        this.latestIp = ip;
+    }
+
+    public void updateLatestAccessTime(LocalDateTime now) {
+        this.latestAccessTime = now;
     }
 
 }
