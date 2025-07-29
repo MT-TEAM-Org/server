@@ -9,6 +9,7 @@ import static org.myteam.server.global.exception.ErrorCode.USER_NOT_FOUND;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.repository.AdminMemberRepository;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
 import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
@@ -42,7 +43,7 @@ public class MemberService {
     private final MemberJpaRepository memberJpaRepository;
     private final SecurityReadService securityReadService;
     private final MemberActivityRepository memberActivityRepository;
-
+    private final AdminMemberRepository adminMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailStrategyFactory mailStrategyFactory;
     private final CertifyStorage certifyStorage;
@@ -204,7 +205,14 @@ public class MemberService {
         // 1. 관리자가 다른 사용자의 상태를 변경하려는 경우
         if (requester.isAdmin()) {
             log.info("관리자가 상태를 변경 중: {}, 대상자: {}", targetEmail, memberStatusUpdateRequest.getEmail());
-            targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
+            if (targetMember.getStatus() != memberStatusUpdateRequest.getStatus()) {
+                targetMember.updateStatus(memberStatusUpdateRequest.getStatus());
+            }
+            if (memberStatusUpdateRequest.getContent() != null) {
+                adminMemberRepository.updateMemberStatus(requester, targetMember.getPublicId()
+                        , memberStatusUpdateRequest.getContent(),
+                        targetMember.getStatus(), memberStatusUpdateRequest.getStatus());
+            }
             return;
         }
 

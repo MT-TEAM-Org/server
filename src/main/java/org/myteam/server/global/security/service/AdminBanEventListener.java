@@ -37,12 +37,15 @@ public class AdminBanEventListener {
             log.info("관리자:{} 정지처리",member.getEmail());
 
            MemberStatusUpdateRequest memberStatusUpdateRequest=
-                   memberStatusUpdateRequestBuilder(member.getEmail(),MemberStatus.INACTIVE);
-
+                   MemberStatusUpdateRequest
+                           .builder()
+                           .email(member.getEmail())
+                           .status(MemberStatus.INACTIVE)
+                           .content("관리자 로그인 초과 시도로인한 자동 잠금처리")
+                           .build();
             memberService.updateStatus(adminBanEvent.getEmail(), memberStatusUpdateRequest);
 
             suspendMailSendService.sendAdminSuspendMail(member.getEmail(),adminBanEvent.getIp());
-
         }
     }
 

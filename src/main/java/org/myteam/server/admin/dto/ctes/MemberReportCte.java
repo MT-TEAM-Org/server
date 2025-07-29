@@ -18,5 +18,6 @@ public class MemberReportCte {
     private Long reportedId;
     @Enumerated(EnumType.STRING)
     private ReportType reportType;
+    private Long reportCount;
 
 }
