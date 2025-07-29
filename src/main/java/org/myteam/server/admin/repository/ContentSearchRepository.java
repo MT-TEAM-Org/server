@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.dto.ctes.QContentCountCte;
 import org.myteam.server.admin.dto.ctes.QContentCte;
 import org.myteam.server.admin.dto.ctes.QMemberReportCte;
+import org.myteam.server.admin.dto.ctes.QSimpleReportCte;
 import org.myteam.server.admin.dto.response.CommonResponseDto;
 import org.myteam.server.admin.utill.AdminControlType;
 import org.myteam.server.admin.utill.CreateAdminMemo;
@@ -239,7 +240,7 @@ public class ContentSearchRepository {
         LocalDateTime endTime = adminContentResearch.provideEndTime();
 
         Pageable pageable = PageRequest.of(adminContentResearch.getOffset(), 10);
-        QMemberReportCte reportCte = new QMemberReportCte("reportCte");
+        QSimpleReportCte reportCte = new QSimpleReportCte("reportCte");
         QContentCte cte = new QContentCte("cte");
 
 
@@ -600,7 +601,7 @@ public class ContentSearchRepository {
 
     }
 
-    private Predicate totReportCond(Boolean reported, QMemberReportCte cte) {
+    private Predicate totReportCond(Boolean reported, QSimpleReportCte cte) {
         if (reported == null) {
             return null;
         }
