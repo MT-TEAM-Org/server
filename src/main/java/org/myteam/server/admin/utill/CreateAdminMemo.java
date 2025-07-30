@@ -13,11 +13,13 @@ import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
 import static org.myteam.server.admin.dto.response.CommonResponseDto.*;
@@ -166,6 +168,23 @@ public class CreateAdminMemo {
         return adminMemo1;
     }
 
+    public void createMemberMemo(Member writer, UUID publicId, String content, MemberStatus targetStatus,
+                                 MemberStatus memberStatus) {
+        AdminMemo adminMemo1 = new AdminMemo(content,
+                writer, publicId, null, null);
+        adminMemoRepository.save(adminMemo1);
+        if (memberStatus != targetStatus) {
+            AdminChangeLog adminChangeLog = AdminChangeLog
+                    .builder()
+                    .admin(writer)
+                    .memberId(publicId)
+                    .memberStatus(memberStatus)
+                    .build();
+            adminChangeLogRepo.save(adminChangeLog);
+
+        }
+    }
+
     public List<AdminMemoResponse> getAdminMemo(StaticDataType staticDataType,Long contentId,JPAQueryFactory queryFactory){
         List<AdminMemoResponse> adminMemoList=queryFactory.select(
                         Projections.constructor(AdminMemoResponse.class,
@@ -179,6 +198,29 @@ public class CreateAdminMemo {
                 .on(member.eq(adminMemo.writer))
                 .where(adminMemo.staticDataType.eq(staticDataType)
                         .and(adminMemo.contentId.eq(contentId)))
+                .orderBy(adminMemo.createDate.desc())
+                .fetch();
+        adminMemoList.stream().forEach(x->{
+            x.updateCreateDate(DateFormatUtil.formatByDot
+                    .format(LocalDateTime.parse(x.getCreateDate(),
+                            DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
+        });
+        return adminMemoList;
+    }
+
+    public List<AdminMemoResponse> getMemberAdminMemo(UUID publicId, JPAQueryFactory queryFactory){
+        List<AdminMemoResponse> adminMemoList=queryFactory.select(
+                        Projections.constructor(AdminMemoResponse.class,
+                                member.nickname,
+                                adminMemo.createDate.stringValue(),
+                                adminMemo.content
+                        )
+                )
+                .from(adminMemo)
+                .join(member)
+                .on(member.eq(adminMemo.writer))
+                .where(adminMemo.staticDataType.isNull(),adminMemo.contentId.isNull()
+                ,adminMemo.memberId.eq(publicId))
                 .orderBy(adminMemo.createDate.desc())
                 .fetch();
         adminMemoList.stream().forEach(x->{

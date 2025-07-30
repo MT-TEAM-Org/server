@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.myteam.server.admin.entity.AdminMemo;
 import org.myteam.server.chat.info.domain.UserInfo;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
@@ -37,6 +38,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,7 +60,6 @@ public class LimitLoginTest extends IntegrationTestSupport {
     Member normalMember;
     @Autowired
     MockMvc mockMvc;
-
     @Autowired
     MemberJpaRepository memberJpaRepository;
 
@@ -139,6 +140,10 @@ public class LimitLoginTest extends IntegrationTestSupport {
 
         Optional<Member> member=memberJpaRepository.findByEmail(admin.getEmail());
         assertThat(member.get().getStatus()).isEqualTo(MemberStatus.INACTIVE);
+
+        List<AdminMemo> adminMemo=adminMemoRepository.findAll();
+        assertThat(adminMemo.size()).isEqualTo(1);
+        assertThat(adminMemo.get(0).getMemberId()).isEqualTo(admin.getPublicId());
 
         mockMvc.perform(post("/api/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
