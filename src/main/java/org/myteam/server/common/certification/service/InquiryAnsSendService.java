@@ -4,7 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.myteam.server.admin.entity.AdminMemo;
+import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.date.DateFormatUtil;
@@ -43,7 +43,7 @@ public class InquiryAnsSendService {
         return templateEngine.process("mail/signup-complete-template", context);
     }
     @Async
-    public CompletableFuture<Void> send(AdminMemo adminMemo,MemberResponse memberResponse) {
+    public CompletableFuture<Void> send(AdminContentMemo adminMemo, MemberResponse memberResponse) {
 
         log.info("📨 Sending email to {}",memberResponse.getEmail());
 

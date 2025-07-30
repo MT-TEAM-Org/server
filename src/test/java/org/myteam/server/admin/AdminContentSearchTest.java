@@ -4,9 +4,8 @@ package org.myteam.server.admin;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.admin.entity.AdminChangeLog;
-import org.myteam.server.admin.entity.AdminMemo;
-import org.myteam.server.admin.repository.simpleRepo.AdminMemoRepository;
+import org.myteam.server.admin.entity.AdminContentChangeLog;
+import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.repository.ContentSearchRepository;
 import org.myteam.server.admin.utill.AdminControlType;
 import org.myteam.server.admin.utill.StaticDataType;
@@ -26,16 +25,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Duration;
 import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
 import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
 import static org.myteam.server.admin.dto.response.ResponseContentDto.*;
-import static org.myteam.server.admin.entity.QAdminChangeLog.adminChangeLog;
-import static org.myteam.server.admin.entity.QAdminMemo.adminMemo;
+import static org.myteam.server.admin.entity.QAdminContentChangeLog.adminContentChangeLog;
+import static org.myteam.server.admin.entity.QAdminContentMemo.adminContentMemo;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_ACCESS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -53,8 +50,6 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
     @Autowired
     JwtProvider jwtProvider;
 
-    @Autowired
-    AdminMemoRepository adminMemoRepository;
 
     @Autowired
     MockMvc mockMvc;
@@ -81,8 +76,14 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
 
         createReport(m, m2, BanReason.POLITICAL_CONTENT, ReportType.COMMENT, c.getId());
         createReport(m, m2, BanReason.SEXUAL_CONTENT, ReportType.BOARD, b.getId());
-        AdminMemo adminMemo = new AdminMemo("zzzz", admin, null, StaticDataType.COMMENT, c.getId());
-        adminMemoRepository.save(adminMemo);
+        AdminContentMemo adminMemo = AdminContentMemo
+                        .builder()
+                        .writer(admin)
+                        .content("zzzz")
+                        .staticDataType(StaticDataType.COMMENT)
+                        .contentId(c.getId())
+                        .build();
+        adminContentMemoRepo.save(adminMemo);
 
         Board b2 = createBoard(m2, Category.ESPORTS, CategoryType.FREE, "z", "z");
         Comment c2 = createNewsComment(news, m2, "Z");
@@ -234,21 +235,45 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
                 .build();
         contentSearchRepository.addAdminMemo(adminMemoContentRequest);
 
-        List<AdminMemo> adminMemos = queryFactory.select(adminMemo)
-                .from(adminMemo)
-                .where(adminMemo.contentId.eq(1L), adminMemo.staticDataType.eq(StaticDataType.COMMENT))
+        List<AdminContentMemo> adminMemos = queryFactory.select(adminContentMemo)
+                .from(adminContentMemo)
+                .where(adminContentMemo.contentId.eq(1L),adminContentMemo
+                        .staticDataType.eq(StaticDataType.COMMENT))
                 .fetch();
-        List<AdminChangeLog> adminChangeLogs = queryFactory
+        List<AdminContentChangeLog> adminChangeLogs = queryFactory
                 .select(
-                        adminChangeLog
+                      adminContentChangeLog
                 )
-                .from(adminChangeLog)
-                .where(adminChangeLog.contentId.eq(1L)
-                        , adminChangeLog.staticDataType.eq(StaticDataType.COMMENT))
+                .from(adminContentChangeLog)
+                .where(adminContentChangeLog.contentId.eq(1L)
+                        , adminContentChangeLog.staticDataType.eq(StaticDataType.COMMENT))
                 .fetch();
-
         assertThat(adminMemos.size()).isEqualTo(2);
         assertThat(adminChangeLogs.size()).isEqualTo(0);
+
+        adminMemoContentRequest= AdminMemoContentRequest
+                .builder()
+                .contentId(1L)
+                .staticDataType(StaticDataType.COMMENT)
+                .adminControlType(AdminControlType.HIDDEN)
+                .build();
+
+        contentSearchRepository.addAdminMemo(adminMemoContentRequest);
+        adminMemos = queryFactory.select(adminContentMemo)
+                .from(adminContentMemo)
+                .where(adminContentMemo.contentId.eq(1L),adminContentMemo
+                        .staticDataType.eq(StaticDataType.COMMENT))
+                .fetch();
+         adminChangeLogs = queryFactory
+                .select(
+                        adminContentChangeLog
+                )
+                .from(adminContentChangeLog)
+                .where(adminContentChangeLog.contentId.eq(1L)
+                        , adminContentChangeLog.staticDataType.eq(StaticDataType.COMMENT))
+                .fetch();
+        assertThat(adminMemos.size()).isEqualTo(2);
+        assertThat(adminChangeLogs.size()).isEqualTo(1);
 
     }
 

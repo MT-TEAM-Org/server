@@ -1,6 +1,7 @@
 package org.myteam.server.admin.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,8 +10,31 @@ import org.myteam.server.admin.utill.AdminControlType;
 import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.ImprovementStatus;
+import org.myteam.server.member.domain.MemberStatus;
+
+import java.util.UUID;
 
 public record AdminMemoRequestDto() {
+
+    @Getter
+    @NoArgsConstructor
+    @Schema(description = "회원에 대한 메모 작성을 요청시에 쓰이는 값입니다")
+    public static class AdminMemoMemberRequest{
+        @NotNull(message = "memberId는 비어있으면 안됩니다")
+        private UUID memberId;
+        @NotNull(message = "회원 상태값이 비어있습니다.")
+        @Schema(description = "수정이 없다면 기존값을 수정했다면 수정값을 주세요", example = "INACTIVE, ACTIVE, PENDING,WARNED")
+        private MemberStatus memberStatus;
+        @Schema(description = "내용이 없다면 null로 주세요")
+        private String content;
+        @Builder
+        public AdminMemoMemberRequest(UUID memberId,MemberStatus memberStatus, String content){
+            this.memberId=memberId;
+            this.memberStatus=memberStatus;
+            this.content = content;
+        }
+
+    }
 
     @Getter
     @NoArgsConstructor
@@ -26,14 +50,16 @@ public record AdminMemoRequestDto() {
         private ImportantStatus importantStatus;
         @Schema(description = "내용이 없다면 null로 주세요")
         private String content;
-
+        @Schema(description ="생성시 로그 남기기 여부를 결정하는 값입니다. 무시하셔도됩니다." )
+        private String auto;
         @Builder
         public AdminMemoImprovementRequest(Long contentId, String content
-                , ImprovementStatus improvementStatus, ImportantStatus importantStatus) {
+                , ImprovementStatus improvementStatus, ImportantStatus importantStatus,String auto) {
             this.contentId = contentId;
             this.importantStatus = importantStatus;
             this.improvementStatus = improvementStatus;
             this.content = content;
+            this.auto=auto;
         }
     }
 
@@ -44,18 +70,23 @@ public record AdminMemoRequestDto() {
         @NotNull(message = "contentid는 비어있으면 안됩니다.")
         @Schema(description = "필수값 입니다.")
         private Long contentId;
-        @Schema(description = "내용이 없다면 null로 주세요")
+        @Schema(description = "필수값. 공백이면안됨.")
+        @NotBlank(message = "문의는 빈값이 즉 공백이아닙니다.")
+        @NotNull(message = "문의메모는 답변이 존재해야만합니다.")
         private String content;
         @NotNull(message ="이메일은 비어있으면 안됩니다.")
         @Schema(description = "문의 작성자의 이메일 입니다.")
         private String email;
+        @Schema(description = "문의 생성시 로그 남기기용입니다 무시해주세요.")
+        private Boolean isMember;
 
         @Builder
         public AdminMemoInquiryRequest(Long contentId
-                , String content, String email) {
+                , String content, String email,String auto,Boolean isMember) {
             this.contentId = contentId;
             this.content = content;
             this.email = email;
+            this.isMember=isMember;
         }
     }
 
@@ -74,14 +105,17 @@ public record AdminMemoRequestDto() {
         private AdminControlType adminControlType;
         @Schema(description = "내용이 없다면 null로 주세요")
         private String content;
+        @Schema(description ="자동 숨김 처리 여부를 결정하는 값입니다. 무시하셔도됩니다." )
+        private String auto;
 
         @Builder
         public AdminMemoContentRequest(Long contentId, StaticDataType staticDataType, String content
-                , AdminControlType adminControlType) {
+                , AdminControlType adminControlType,String auto) {
             this.contentId = contentId;
             this.staticDataType = staticDataType;
             this.adminControlType = adminControlType;
             this.content = content;
+            this.auto=auto;
         }
     }
 }

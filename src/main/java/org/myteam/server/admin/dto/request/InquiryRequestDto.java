@@ -20,16 +20,16 @@ public record InquiryRequestDto() {
     @NoArgsConstructor
     @Getter
     public final static class RequestInquiryList {
-        @NotNull(message = "public id는 필수입니다.")
+        @NotNull(message = "email은 필수입니다.")
         @Schema(description = "회원 식별 아이디값,필수입니다.")
-        private UUID publicId;
+        private String email;
         @NotNull(message = "offset은 필수입니다.")
         @Schema(description = "필수입니다.")
         private int offset;
 
         @Builder
-        public RequestInquiryList(UUID publicId, int offset) {
-            this.publicId = publicId;
+        public RequestInquiryList(String email, int offset) {
+            this.email = email;
             this.offset = offset;
         }
 

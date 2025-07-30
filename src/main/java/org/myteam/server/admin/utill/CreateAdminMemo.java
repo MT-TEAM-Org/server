@@ -4,10 +4,8 @@ package org.myteam.server.admin.utill;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.entity.AdminChangeLog;
-import org.myteam.server.admin.entity.AdminMemo;
-import org.myteam.server.admin.repository.simpleRepo.AdminChangeLogRepo;
-import org.myteam.server.admin.repository.simpleRepo.AdminMemoRepository;
+import org.myteam.server.admin.entity.*;
+import org.myteam.server.admin.repository.simpleRepo.*;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.util.date.DateFormatUtil;
@@ -15,6 +13,7 @@ import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
@@ -23,7 +22,8 @@ import java.util.UUID;
 
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
 import static org.myteam.server.admin.dto.response.CommonResponseDto.*;
-import static org.myteam.server.admin.entity.QAdminMemo.*;
+import static org.myteam.server.admin.entity.QAdminContentMemo.adminContentMemo;
+import static org.myteam.server.admin.entity.QAdminMemberMemo.adminMemberMemo;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
@@ -35,29 +35,28 @@ import static org.myteam.server.member.entity.QMember.member;
 public class CreateAdminMemo {
 
     private final SecurityReadService securityReadService;
-    private final AdminMemoRepository adminMemoRepository;
-    private final AdminChangeLogRepo adminChangeLogRepo;
+    private final MemberReadService memberReadService;
+    private final AdminContentMemoRepo adminContentMemoRepo;
+    private final AdminContentChangeLogRepo adminContentChangeLogRepo;
+    private final AdminImproveChangeLogRepo adminImproveChangeLogRepo;
+    private final AdminInquiryChangeLogRepo adminInquiryChangeLogRepo;
+    private final AdminMemberMemoRepo adminMemberMemoRepo;
+    private final AdminMemberChangeLogRepo adminMemberChangeLogRepo;
     public void createContentAdminMemo(AdminMemoContentRequest adminMemoRequest, JPAQueryFactory queryFactory) {
-        Member admin = securityReadService.getMember();
-        AdminMemo adminMemo1=null;
-        if(adminMemoRequest.getContent()==null){
-            adminMemo1 = AdminMemo
-                    .builder()
-                    .contentId(adminMemoRequest.getContentId())
-                    .staticDataType(adminMemoRequest.getStaticDataType())
-                    .writer(admin)
-                    .build();
-            adminMemo1=adminMemoRepository.save(adminMemo1);
-        }
+        //이거 뒤에줄을 playhive계정으로 만들어논 관리자를 넣어주도록하자.
+        Member admin=adminMemoRequest.getAuto()==null ? securityReadService.getMember()
+                :memberReadService.getAdminBot();
+
+        AdminContentMemo adminMemo1;
         if (adminMemoRequest.getContent() != null) {
-            adminMemo1 = AdminMemo
+            adminMemo1 = AdminContentMemo
                     .builder()
                     .content(adminMemoRequest.getContent())
                     .contentId(adminMemoRequest.getContentId())
                     .staticDataType(adminMemoRequest.getStaticDataType())
                     .writer(admin)
                     .build();
-            adminMemo1=adminMemoRepository.save(adminMemo1);
+            adminMemo1=adminContentMemoRepo.save(adminMemo1);
         }
         if (adminMemoRequest.getStaticDataType().name().equals(StaticDataType.COMMENT.name())) {
             Comment comment = queryFactory.select(comment1)
@@ -66,14 +65,14 @@ public class CreateAdminMemo {
                     .fetchOne();
             if(!comment.getAdminControlType().equals(adminMemoRequest.getAdminControlType())){
                 comment.updateAdminControlType(adminMemoRequest.getAdminControlType());
-                AdminChangeLog adminChangeLog = AdminChangeLog
+                AdminContentChangeLog adminChangeLog = AdminContentChangeLog
                         .builder()
                         .admin(admin)
                         .contentId(adminMemoRequest.getContentId())
                         .adminControlType(adminMemoRequest.getAdminControlType())
                         .staticDataType(StaticDataType.COMMENT)
                         .build();
-                adminChangeLogRepo.save(adminChangeLog);
+                adminContentChangeLogRepo.save(adminChangeLog);
             }
             return ;
         }
@@ -84,40 +83,43 @@ public class CreateAdminMemo {
                     .fetchFirst();
             if(!board1.getAdminControlType().equals(adminMemoRequest.getAdminControlType())){
                 board1.updateAdminControlType(adminMemoRequest.getAdminControlType());
-                AdminChangeLog adminChangeLog = AdminChangeLog
+                AdminContentChangeLog adminChangeLog = AdminContentChangeLog
                         .builder()
                         .admin(admin)
                         .contentId(adminMemoRequest.getContentId())
                         .adminControlType(adminMemoRequest.getAdminControlType())
-                        .staticDataType(StaticDataType.COMMENT)
+                        .staticDataType(StaticDataType.BOARD)
                         .build();
-                adminChangeLogRepo.save(adminChangeLog);
+                adminContentChangeLogRepo.save(adminChangeLog);
             }
         }
     }
 
     public void createImprovementMemo(AdminMemoImprovementRequest adminMemoRequest
             ,JPAQueryFactory queryFactory) {
-        Member  admin = securityReadService.getMember();
-        AdminMemo adminMemo1=null;
-        if(adminMemoRequest.getContent()==null){
-            adminMemo1 = AdminMemo
-                    .builder()
-                    .contentId(adminMemoRequest.getContentId())
-                    .staticDataType(StaticDataType.Improvement)
-                    .writer(admin)
-                    .build();
-           adminMemoRepository.save(adminMemo1);
-        }
+        Member admin=adminMemoRequest.getAuto()==null ? securityReadService.getMember()
+                :memberReadService.getAdminBot();
+        AdminContentMemo adminMemo1=null;
         if (adminMemoRequest.getContent() != null) {
-            adminMemo1= AdminMemo
+            adminMemo1= AdminContentMemo
                     .builder()
                     .content(adminMemoRequest.getContent())
                     .contentId(adminMemoRequest.getContentId())
                     .staticDataType(StaticDataType.Improvement)
                     .writer(admin)
                     .build();
-           adminMemoRepository.save(adminMemo1);
+           adminContentMemoRepo.save(adminMemo1);
+        }
+        if(adminMemoRequest.getAuto()!=null){
+            AdminImproveChangeLog adminChangeLog = AdminImproveChangeLog
+                    .builder()
+                    .admin(admin)
+                    .contentId(adminMemoRequest.getContentId())
+                    .improvementStatus(adminMemoRequest.getImprovementStatus())
+                    .importantStatus(adminMemoRequest.getImportantStatus())
+                    .build();
+            adminImproveChangeLogRepo.save(adminChangeLog);
+            return;
         }
         Improvement improvement1 = queryFactory.select(improvement)
                     .from(improvement)
@@ -127,78 +129,96 @@ public class CreateAdminMemo {
                     .equals(adminMemoRequest.getImprovementStatus().name())
                     ||!improvement1.getImportantStatus().name()
                     .equals(adminMemoRequest.getImportantStatus().name())) {
-                improvement1.updateImportantStatus(adminMemoRequest.getImportantStatus());
-                improvement1.updateState(adminMemoRequest.getImprovementStatus());
+            AdminImproveChangeLog adminChangeLog = AdminImproveChangeLog
+                    .builder()
+                    .admin(admin)
+                    .contentId(adminMemoRequest.getContentId())
+                    .improvementStatus(adminMemoRequest.getImprovementStatus())
+                    .importantStatus(adminMemoRequest.getImportantStatus())
+                    .build();
+            adminImproveChangeLogRepo.save(adminChangeLog);
+            improvement1.updateImportantStatus(adminMemoRequest.getImportantStatus());
+            improvement1.updateState(adminMemoRequest.getImprovementStatus());
         }
 
     }
 
-    public AdminMemo createInquiryAdminMemo(AdminMemoInquiryRequest adminMemoRequest,JPAQueryFactory queryFactory) {
-        Member  admin = securityReadService.getMember();
-        AdminMemo adminMemo1=null;
-        if(adminMemoRequest.getContent()==null){
-            adminMemo1 = AdminMemo
-                    .builder()
-                    .contentId(adminMemoRequest.getContentId())
-                    .staticDataType(StaticDataType.Inquiry)
-                    .writer(admin)
-                    .build();
-            adminMemo1=adminMemoRepository.save(adminMemo1);
-        }
-        if (adminMemoRequest.getContent() != null) {
-            adminMemo1= AdminMemo
+    public AdminContentMemo createInquiryAdminMemo(AdminMemoInquiryRequest adminMemoRequest,JPAQueryFactory queryFactory) {
+        Member admin=securityReadService.getMember();
+        Inquiry inquiry1=queryFactory
+                .select(inquiry)
+                .from(inquiry)
+                .where(inquiry.id.eq(adminMemoRequest.getContentId()))
+                .fetchOne();
+        AdminContentMemo adminMemo1=AdminContentMemo
                     .builder()
                     .content(adminMemoRequest.getContent())
                     .contentId(adminMemoRequest.getContentId())
                     .staticDataType(StaticDataType.Inquiry)
                     .writer(admin)
                     .build();
-            adminMemo1=adminMemoRepository.save(adminMemo1);
-        }
-
-        Inquiry inquiry1=queryFactory
-                    .select(inquiry)
-                    .from(inquiry)
-                    .where(inquiry.id.eq(adminMemoRequest.getContentId()))
-                    .fetchOne();
+        adminMemo1=adminContentMemoRepo.save(adminMemo1);
         if(!inquiry1.isAdminAnswered()){
                 inquiry1.updateAdminAnswered();
+                AdminInquiryChangeLog adminInquiryChangeLog=AdminInquiryChangeLog
+                                .builder()
+                                .isMember(inquiry1.getMember()!=null)
+                                .isAnswered(true)
+                                .contentId(adminMemoRequest.getContentId())
+                                .admin(admin)
+                                .build();
+            adminInquiryChangeLogRepo.save(adminInquiryChangeLog);
         }
-
         return adminMemo1;
     }
 
-    public void createMemberMemo(Member writer, UUID publicId, String content, MemberStatus targetStatus,
-                                 MemberStatus memberStatus) {
-        AdminMemo adminMemo1 = new AdminMemo(content,
-                writer, publicId, null, null);
-        adminMemoRepository.save(adminMemo1);
-        if (memberStatus != targetStatus) {
-            AdminChangeLog adminChangeLog = AdminChangeLog
-                    .builder()
-                    .admin(writer)
-                    .memberId(publicId)
-                    .memberStatus(memberStatus)
-                    .build();
-            adminChangeLogRepo.save(adminChangeLog);
-
-        }
+    public void adminBotCreateInquiryLog(AdminMemoInquiryRequest adminMemoRequest){
+        Member admin=memberReadService.getAdminBot();
+        AdminInquiryChangeLog adminInquiryChangeLog=AdminInquiryChangeLog
+                .builder()
+                .isMember(adminMemoRequest.getIsMember())
+                .isAnswered(false)
+                .contentId(adminMemoRequest.getContentId())
+                .admin(admin)
+                .build();
+        adminInquiryChangeLogRepo.save(adminInquiryChangeLog);
     }
 
-    public List<AdminMemoResponse> getAdminMemo(StaticDataType staticDataType,Long contentId,JPAQueryFactory queryFactory){
+    public void createMemberMemo(Member writer, UUID publicId, String content,
+                                 MemberStatus targetStatus,MemberStatus memberStatus){
+        AdminMemberMemo adminMemberMemo1=AdminMemberMemo
+                .builder()
+                .memberId(publicId)
+                .content(content)
+                .writer(writer)
+                .build();
+        adminMemberMemoRepo.save(adminMemberMemo1);
+        if(!targetStatus.equals(memberStatus)){
+            AdminMemberChangeLog adminMemberChangeLog1= AdminMemberChangeLog
+                            .builder()
+                            .memberId(publicId)
+                            .admin(writer)
+                            .memberStatus(memberStatus)
+                            .build();
+            adminMemberChangeLogRepo.save(adminMemberChangeLog1);
+        }
+
+    }
+
+    public List<AdminMemoResponse> getAdminContentMemo(StaticDataType staticDataType,Long contentId,JPAQueryFactory queryFactory){
         List<AdminMemoResponse> adminMemoList=queryFactory.select(
                         Projections.constructor(AdminMemoResponse.class,
                                 member.nickname,
-                                adminMemo.createDate.stringValue(),
-                                adminMemo.content
+                                adminContentMemo.createDate.stringValue(),
+                                adminContentMemo.content
                                 )
                 )
-                .from(adminMemo)
+                .from(adminContentMemo)
                 .join(member)
-                .on(member.eq(adminMemo.writer))
-                .where(adminMemo.staticDataType.eq(staticDataType)
-                        .and(adminMemo.contentId.eq(contentId)))
-                .orderBy(adminMemo.createDate.desc())
+                .on(member.eq(adminContentMemo.writer))
+                .where(adminContentMemo.staticDataType.eq(staticDataType)
+                        .and(adminContentMemo.contentId.eq(contentId)))
+                .orderBy(adminContentMemo.createDate.desc())
                 .fetch();
         adminMemoList.stream().forEach(x->{
             x.updateCreateDate(DateFormatUtil.formatByDot
@@ -208,20 +228,19 @@ public class CreateAdminMemo {
         return adminMemoList;
     }
 
-    public List<AdminMemoResponse> getMemberAdminMemo(UUID publicId, JPAQueryFactory queryFactory){
+    public List<AdminMemoResponse> getAdminMemberMemo(UUID memberId, JPAQueryFactory queryFactory){
         List<AdminMemoResponse> adminMemoList=queryFactory.select(
                         Projections.constructor(AdminMemoResponse.class,
                                 member.nickname,
-                                adminMemo.createDate.stringValue(),
-                                adminMemo.content
+                                adminMemberMemo.createDate.stringValue(),
+                                adminMemberMemo.content
                         )
                 )
-                .from(adminMemo)
+                .from(adminMemberMemo)
                 .join(member)
-                .on(member.eq(adminMemo.writer))
-                .where(adminMemo.staticDataType.isNull(),adminMemo.contentId.isNull()
-                ,adminMemo.memberId.eq(publicId))
-                .orderBy(adminMemo.createDate.desc())
+                .on(adminMemberMemo.writer.eq(member))
+                .where(adminMemberMemo.memberId.eq(memberId))
+                .orderBy(adminMemberMemo.createDate.desc())
                 .fetch();
         adminMemoList.stream().forEach(x->{
             x.updateCreateDate(DateFormatUtil.formatByDot

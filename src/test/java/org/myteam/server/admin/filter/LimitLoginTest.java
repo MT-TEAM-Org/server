@@ -2,17 +2,12 @@ package org.myteam.server.admin.filter;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.myteam.server.admin.entity.AdminMemo;
+import org.myteam.server.admin.entity.AdminMemberMemo;
 import org.myteam.server.chat.info.domain.UserInfo;
-import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
-import org.myteam.server.common.certification.mail.factory.MailStrategyFactory;
 import org.myteam.server.common.certification.mail.strategy.NotifyAdminSuspendGlobalStrategy;
 import org.myteam.server.common.certification.mail.strategy.NotifyAdminSuspendStrategy;
 import org.myteam.server.common.certification.service.SuspendMailSendService;
@@ -20,28 +15,19 @@ import org.myteam.server.global.security.jwt.JwtProvider;
 import org.myteam.server.global.util.redis.service.RedisUserInfoService;
 import org.myteam.server.member.domain.MemberRole;
 import org.myteam.server.member.domain.MemberStatus;
-import org.myteam.server.member.domain.MemberType;
-import org.myteam.server.member.dto.MemberSaveRequest;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
-import org.myteam.server.member.service.MemberReadService;
-import org.myteam.server.member.service.MemberService;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-
 import static org.mockito.BDDMockito.*;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_ACCESS;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_REFRESH;
@@ -141,7 +127,7 @@ public class LimitLoginTest extends IntegrationTestSupport {
         Optional<Member> member=memberJpaRepository.findByEmail(admin.getEmail());
         assertThat(member.get().getStatus()).isEqualTo(MemberStatus.INACTIVE);
 
-        List<AdminMemo> adminMemo=adminMemoRepository.findAll();
+        List<AdminMemberMemo> adminMemo=adminMemberMemoRepo.findAll();
         assertThat(adminMemo.size()).isEqualTo(1);
         assertThat(adminMemo.get(0).getMemberId()).isEqualTo(admin.getPublicId());
 

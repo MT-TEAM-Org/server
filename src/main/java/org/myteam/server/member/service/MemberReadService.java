@@ -31,7 +31,8 @@ public class MemberReadService {
     private final MemberJpaRepository memberJpaRepository;
     private final SecurityReadService securityReadService;
     private final JwtProvider jwtProvider;
-
+    @Value("${SENDER_EMAIL}")
+    protected String senderEmail;
     public Member findById(UUID publicId) {
         Member member = memberJpaRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.USER_NOT_FOUND));
@@ -42,7 +43,10 @@ public class MemberReadService {
 
         return member;
     }
-
+    public Member getAdminBot(){
+        return memberJpaRepository.findByEmail(senderEmail)
+                .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));
+    }
     public Member findByEmail(String email) {
         return memberJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new PlayHiveException(USER_NOT_FOUND));

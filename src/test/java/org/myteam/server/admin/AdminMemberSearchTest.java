@@ -2,6 +2,7 @@ package org.myteam.server.admin;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.admin.entity.AdminMemberMemo;
 import org.myteam.server.admin.repository.AdminMemberRepository;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
@@ -23,6 +24,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.Duration;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.myteam.server.admin.dto.request.MemberSearchRequestDto.*;
 import static org.myteam.server.admin.dto.response.MemberSearchResponseDto.*;
@@ -41,9 +45,6 @@ public class AdminMemberSearchTest extends IntegrationTestSupport {
 
     @Autowired
     CommentRepository commentRepository;
-
-    @Autowired
-    BoardRepository boardRepository;
 
     @Autowired
     MockMvc mockMvc;
@@ -162,6 +163,8 @@ public class AdminMemberSearchTest extends IntegrationTestSupport {
         ,m.getStatus(),MemberStatus.INACTIVE);
         ResponseMemberDetail responseMemberDetail = adminMemberRepository.getMemberDetail(m.getPublicId());
         assertThat(responseMemberDetail.getAdminMemoResponses().size()).isEqualTo(1);
+        List<AdminMemberMemo> adminMemberMemo=adminMemberMemoRepo.findAll();
+        assertThat(adminMemberMemo.size()).isEqualTo(1);
     }
 
     @Test

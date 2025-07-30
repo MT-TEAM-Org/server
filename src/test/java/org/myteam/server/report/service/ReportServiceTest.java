@@ -86,7 +86,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT,null
         );
 
         // when
@@ -103,7 +103,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.NEWS, news.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.NEWS, news.getId(), BanReason.HARASSMENT,null
         );
 
         // when
@@ -121,7 +121,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.INQUIRY, inquiry.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.INQUIRY, inquiry.getId(), BanReason.HARASSMENT,null
         );
 
         // when
@@ -139,7 +139,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.IMPROVEMENT, improvement.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.IMPROVEMENT, improvement.getId(), BanReason.HARASSMENT,null
         );
 
         // when
@@ -157,7 +157,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.NOTICE, notice.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.NOTICE, notice.getId(), BanReason.HARASSMENT,null
         );
 
         // when
@@ -175,7 +175,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.COMMENT, comment.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.COMMENT, comment.getId(), BanReason.HARASSMENT,null
         );
 
         // when
@@ -193,7 +193,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(redisService.getTimeToLive(anyString(), anyString())).thenReturn(100L);
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT,null
         );
 
         // when & then
@@ -208,7 +208,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         // given
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reporter.getPublicId(), ReportType.BOARD, board.getId(), BanReason.PROMOTIONAL_OR_ILLEGAL_ADS
+                reporter.getPublicId(), ReportType.BOARD, board.getId(), BanReason.PROMOTIONAL_OR_ILLEGAL_ADS,null
         );
 
         // when & then
@@ -224,7 +224,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidatorFactory.getValidator(any())).thenReturn(null);
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC,null
         );
 
         // when & then
@@ -240,7 +240,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         when(reportedContentValidator.isValid(any())).thenReturn(false);
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT,null
         );
 
         // when & then

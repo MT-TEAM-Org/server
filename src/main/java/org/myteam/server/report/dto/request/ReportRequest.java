@@ -1,5 +1,6 @@
 package org.myteam.server.report.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +29,9 @@ public record ReportRequest() {
 
         @NotNull(message = "신고 사유(BanReason)는 선택해야 합니다.")
         private BanReason reasons;
+
+        @Schema(description ="신고 사유가 기타일 경우 들어가는 값입니다. 만일 입력된 값이 없거나" +
+                "없을 경우에는 null을 주세요")
+        private String reportDescription;
     }
 }

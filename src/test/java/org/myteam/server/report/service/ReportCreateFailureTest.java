@@ -56,7 +56,7 @@ class ReportCreateFailureTest extends IntegrationTestSupport {
         when(redisService.getTimeToLive(any(), any())).thenReturn(100L);
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC,null
         );
 
         assertThrows(PlayHiveException.class, () ->
@@ -69,7 +69,7 @@ class ReportCreateFailureTest extends IntegrationTestSupport {
     void reportContent_selfReport() {
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reporter.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC
+                reporter.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC,null
         );
 
         assertThrows(PlayHiveException.class, () ->
@@ -83,7 +83,7 @@ class ReportCreateFailureTest extends IntegrationTestSupport {
         when(reportedContentValidatorFactory.getValidator(any())).thenReturn(null);
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC,null
         );
 
         assertThrows(PlayHiveException.class, () ->
@@ -96,7 +96,7 @@ class ReportCreateFailureTest extends IntegrationTestSupport {
     void reportContent_success() {
         // given
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.NONE, 100L, BanReason.HARASSMENT
+                reported.getPublicId(), ReportType.NONE, 100L, BanReason.HARASSMENT,null
         );
 
         // when && then
@@ -112,7 +112,7 @@ class ReportCreateFailureTest extends IntegrationTestSupport {
         when(validator.isValid(any())).thenReturn(false);
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC,null
         );
 
         assertThrows(PlayHiveException.class, () ->
@@ -128,7 +128,7 @@ class ReportCreateFailureTest extends IntegrationTestSupport {
         when(validator.getOwnerPublicId(any())).thenReturn(UUID.randomUUID());
 
         ReportSaveRequest request = new ReportSaveRequest(
-                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC
+                reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.ETC,null
         );
 
         assertThrows(PlayHiveException.class, () ->

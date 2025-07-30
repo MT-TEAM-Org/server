@@ -10,6 +10,7 @@ import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.report.domain.ReportType;
+import org.myteam.server.admin.utill.AdminBotAutoHideEvent;
 import org.myteam.server.report.dto.request.ReportRequest.*;
 import org.myteam.server.report.domain.Report;
 import org.myteam.server.report.dto.response.ReportResponse.*;
@@ -17,6 +18,7 @@ import org.myteam.server.report.repository.ReportRepository;
 import org.myteam.server.report.util.ReportedContentValidator;
 import org.myteam.server.report.util.ReportedContentValidatorFactory;
 import org.myteam.server.util.slack.service.SlackService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class ReportService {
     private final RedisService redisService;
     private final SlackService slackService;
     private final ReportedContentValidatorFactory reportedContentValidatorFactory;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final String REPORT_LIMIT_CATEGORY = "IP";
 
@@ -83,15 +86,18 @@ public class ReportService {
 
         // 신고 생성
         Report report = Report.createReport(reporter, reported, reportIp, request.getReportType(), request.getReportedContentId(), request.getReasons());
-
         log.info("✅ [신고 생성] 신고자: {}, 대상: {}, 타입: {}, content: {}, 사유: {}",
                 reporter.getPublicId(), reported.getPublicId(), request.getReportType(), request.getReportedContentId(), request.getReasons());
 
         // 🚀 Slack 알림 전송
         sendSlackNotification(report, reportIp);
-
         reportRepository.save(report);
-
+        AdminBotAutoHideEvent autoHideEvent= AdminBotAutoHideEvent
+                .builder()
+                .contentId(request.getReportedContentId())
+                .reportType(request.getReportType())
+                .build();
+        eventPublisher.publishEvent(autoHideEvent);
         return ReportSaveResponse.createResponse(report);
     }
 
