@@ -159,6 +159,29 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
 
         return memberJpaRepository.findByEmail("test" + index + "@test.com").get();
     }
+    @Transactional
+    protected  Member createAdminBot(){
+        Member member = Member.builder()
+                .email("test@test.com")
+                .password("1234")
+                .tel("01012345678")
+                .nickname("test")
+                .role(MemberRole.ADMIN)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
+        MemberActivity memberActivity = new MemberActivity(member);
+        Member savedMember = memberJpaRepository.save(member);
+
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
+
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
+
+        return savedMember;
+    }
 
     @Transactional
     protected Member createMember(int index) {
@@ -184,23 +207,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
 
         return savedMember;
     }
-
-    @Transactional
-    protected Member createMemberWithOutSave(int index) {
-        Member member = Member.builder()
-                .email("test" + index + "@test.com")
-                .password("1234")
-                .tel("01012345678")
-                .nickname("test" + index)
-                .role(MemberRole.USER)
-                .type(MemberType.LOCAL)
-                .publicId(UUID.randomUUID())
-                .status(MemberStatus.ACTIVE)
-                .build();
-        memberJpaRepository.save(member);
-        return member;
-    }
-
 
     protected Member createOAuthMember(int index) {
         Member member = Member.builder()

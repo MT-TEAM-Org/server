@@ -32,13 +32,12 @@ class ImprovementSaveServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private ImprovementService improvementService;
-    @MockBean
-    MemberReadService mockMemberReadService;
     private Member member;
     private UUID publicId;
 
     @BeforeEach
     void setUp() {
+        createAdminBot();
         member = createMember(1);
         publicId = member.getPublicId();
     }
@@ -60,7 +59,6 @@ class ImprovementSaveServiceTest extends IntegrationTestSupport {
                 anyLong(),
                 isNull()
         )).thenReturn(new CommonCountDto(0, 0, 0));
-        when(mockMemberReadService.getAdminBot()).thenReturn(member);
         ImprovementSaveRequest request = new ImprovementSaveRequest(
                 "제목",
                 "내용",

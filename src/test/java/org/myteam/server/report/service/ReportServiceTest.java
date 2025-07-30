@@ -42,8 +42,6 @@ class ReportServiceTest extends IntegrationTestSupport {
     private ReportService reportService;
     @MockBean
     private ReportedContentValidatorFactory reportedContentValidatorFactory;
-    @MockBean
-    MemberReadService mockMemberReadService;
     private Member reporter;
     private Member reported;
     private Member admin;
@@ -64,7 +62,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         admin = createAdmin(3);
         reporterPublicId = reporter.getPublicId();
         reportedPublicId = reported.getPublicId();
-
+        createAdminBot();
         board = createBoard(reported, Category.BASEBALL, CategoryType.FREE, "title", "content");
         news = createNews(0, Category.BASEBALL, 0);
         improvement = createImprovement(reported, false);
@@ -86,7 +84,6 @@ class ReportServiceTest extends IntegrationTestSupport {
         // given
         when(reportedContentValidator.isValid(any())).thenReturn(true);
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
-        when(mockMemberReadService.getAdminBot()).thenReturn(reporter);
         ReportSaveRequest request = new ReportSaveRequest(
                 reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT,null
         );
@@ -175,7 +172,6 @@ class ReportServiceTest extends IntegrationTestSupport {
         // given
         when(reportedContentValidator.isValid(any())).thenReturn(true);
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
-        when(mockMemberReadService.getAdminBot()).thenReturn(reporter);
         ReportSaveRequest request = new ReportSaveRequest(
                 reported.getPublicId(), ReportType.COMMENT, comment.getId(), BanReason.HARASSMENT,null
         );

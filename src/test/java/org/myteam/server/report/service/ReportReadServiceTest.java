@@ -30,7 +30,6 @@ class ReportReadServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private ReportReadService reportReadService;
-
     private Member reporter;
     private Member reported;
     private UUID reporterPublicId;

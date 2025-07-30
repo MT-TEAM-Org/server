@@ -29,15 +29,13 @@ class InquiryServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private InquiryService inquiryService;
-
-    @MockBean
-    MemberReadService mockMemberReadService;
     private Member member;
     private Inquiry inquiry;
 
     @Transactional
     @BeforeEach
     void setUp() {
+        createAdminBot();
         member = createMember(1);
         inquiry = createInquiry(member);
     }
@@ -47,7 +45,6 @@ class InquiryServiceTest extends IntegrationTestSupport {
     void createInquiry_withLoginUser_success() {
         // given
         when(securityReadService.getAuthenticatedPublicId()).thenReturn(member.getPublicId());
-        when(mockMemberReadService.getAdminBot()).thenReturn(member);
         // when
         String content = inquiryService.createInquiry("문의 내용입니다.", null, "127.0.0.1");
         List<AdminInquiryChangeLog> adminImproveChangeLogList=adminInquiryChangeLogRepo.findAll();
@@ -65,7 +62,6 @@ class InquiryServiceTest extends IntegrationTestSupport {
     void createInquiry_withoutLoginUser_withEmail_success() {
         // given
         when(securityReadService.getAuthenticatedPublicId()).thenReturn(null);
-        when(mockMemberReadService.getAdminBot()).thenReturn(member);
 
         // when
         String content = inquiryService.createInquiry("비회원 문의입니다.", "nonmember@example.com", "127.0.0.1");
