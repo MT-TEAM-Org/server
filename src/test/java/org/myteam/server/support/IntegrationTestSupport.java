@@ -72,9 +72,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     @MockBean
     protected RedisService redisService;
 
-    @MockBean
-    protected MemberReadService mockMemberReadService;
-
     /**
      * =================== Service ===================
      */

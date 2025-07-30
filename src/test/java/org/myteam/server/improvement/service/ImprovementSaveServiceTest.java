@@ -16,6 +16,7 @@ import org.myteam.server.improvement.dto.response.ImprovementResponse.*;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,8 @@ class ImprovementSaveServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private ImprovementService improvementService;
+    @MockBean
+    MemberReadService mockMemberReadService;
     private Member member;
     private UUID publicId;
 

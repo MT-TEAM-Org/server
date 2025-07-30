@@ -14,6 +14,7 @@ import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.member.entity.Member;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,6 +29,9 @@ class InquiryServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private InquiryService inquiryService;
+
+    @MockBean
+    MemberReadService mockMemberReadService;
     private Member member;
     private Inquiry inquiry;
 
