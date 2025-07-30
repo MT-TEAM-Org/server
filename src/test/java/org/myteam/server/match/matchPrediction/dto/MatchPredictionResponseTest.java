@@ -28,9 +28,9 @@ public class MatchPredictionResponseTest extends TestContainerSupport {
                 .build();
 
         assertAll(
-                () -> assertThat(matchPredictionResponse1).extracting("matchId", "id", "home", "away")
+                () -> assertThat(matchPredictionResponse1).extracting("matchId", "id", "homePercent", "awayPercent")
                         .contains(1L, 1L, 100, 0),
-                () -> assertThat(matchPredictionResponse2).extracting("matchId", "id", "home", "away")
+                () -> assertThat(matchPredictionResponse2).extracting("matchId", "id", "homePercent", "awayPercent")
                         .contains(1L, 1L, 50, 50)
         );
     }

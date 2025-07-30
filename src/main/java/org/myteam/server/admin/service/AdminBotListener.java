@@ -41,7 +41,7 @@ public class AdminBotListener {
                     .on(boardCount.board.eq(board))
                     .where(board.id.eq(autoHideEvent.getContentId()))
                     .fetchOne();
-            if(reportCount>=viewCount*0.8){
+            if(reportCount>=viewCount*0.8&&viewCount>=10){
                 AdminMemoContentRequest adminMemoContentRequest=
                         AdminMemoContentRequest
                                 .builder()
@@ -60,7 +60,7 @@ public class AdminBotListener {
                     .where(comment1.id.eq(autoHideEvent.getContentId()))
                     .fetchOne();
             int recommendCount=comment.getRecommendCount();
-            if(reportCount>=recommendCount*0.8){
+            if(reportCount>=recommendCount*0.8&&recommendCount>=3){
                 AdminMemoContentRequest adminMemoContentRequest=
                         AdminMemoContentRequest
                                 .builder()

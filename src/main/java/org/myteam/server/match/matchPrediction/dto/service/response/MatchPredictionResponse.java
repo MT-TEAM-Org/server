@@ -2,6 +2,7 @@ package org.myteam.server.match.matchPrediction.dto.service.response;
 
 import java.time.LocalDateTime;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.myteam.server.match.match.dto.service.response.TeamResponse;
 import org.myteam.server.match.matchPrediction.domain.MatchPrediction;
 import org.myteam.server.match.matchPrediction.dto.service.request.Side;
@@ -20,8 +21,14 @@ public class MatchPredictionResponse {
 	private TeamResponse homeTeam;
 	private TeamResponse awayTeam;
 	private LocalDateTime startTime;
+	@Schema(description = "home의 절대값")
 	private int home;
+	@Schema(description = "away의 절대값")
 	private int away;
+	@Schema(description = "home의 퍼센트")
+	private int homePercent;
+	@Schema(description = "away의 퍼센트")
+	private int awayPercent;
 	private boolean isVote;
 	private Side side;
 
@@ -56,7 +63,7 @@ public class MatchPredictionResponse {
 
 	private void updateAsPercentage() {
 		int[] percentage = PercentageUtil.getCalculatedPercentages(this.home, this.away);
-		this.home = percentage[0];
-		this.away = percentage[1];
+		this.homePercent = percentage[0];
+		this.awayPercent = percentage[1];
 	}
 }
