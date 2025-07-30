@@ -137,8 +137,8 @@ public class InquirySearchRepo {
                                 inquiry.id
                                 , new CaseBuilder()
                                         .when(inquiry.isAdminAnswered.isTrue())
-                                        .then("답변대기")
-                                        .otherwise("답변완료"),
+                                        .then("답변완료")
+                                        .otherwise("답변대기"),
                                 new CaseBuilder()
                                         .when(member.isNull())
                                         .then("비회원")
