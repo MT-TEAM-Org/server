@@ -3,6 +3,7 @@ package org.myteam.server.report.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;

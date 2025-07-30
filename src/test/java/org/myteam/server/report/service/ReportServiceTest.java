@@ -3,6 +3,7 @@ package org.myteam.server.report.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
@@ -41,7 +42,8 @@ class ReportServiceTest extends IntegrationTestSupport {
     private ReportService reportService;
     @MockBean
     private ReportedContentValidatorFactory reportedContentValidatorFactory;
-
+    @MockBean
+    MemberReadService mockMemberReadService;
     private Member reporter;
     private Member reported;
     private Member admin;
@@ -84,7 +86,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         // given
         when(reportedContentValidator.isValid(any())).thenReturn(true);
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
-
+        when(mockMemberReadService.getAdminBot()).thenReturn(reporter);
         ReportSaveRequest request = new ReportSaveRequest(
                 reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT,null
         );
@@ -173,7 +175,7 @@ class ReportServiceTest extends IntegrationTestSupport {
         // given
         when(reportedContentValidator.isValid(any())).thenReturn(true);
         when(reportedContentValidator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
-
+        when(mockMemberReadService.getAdminBot()).thenReturn(reporter);
         ReportSaveRequest request = new ReportSaveRequest(
                 reported.getPublicId(), ReportType.COMMENT, comment.getId(), BanReason.HARASSMENT,null
         );

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.myteam.server.admin.entity.AdminContentChangeLog;
 import org.myteam.server.admin.utill.AdminControlType;
 import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
@@ -37,6 +38,8 @@ class ReportCreateSuccessTest extends IntegrationTestSupport {
     @Autowired
     private ReportService reportService;
     @MockBean
+    MemberReadService mockMemberReadService;
+    @MockBean
     private ReportedContentValidatorFactory reportedContentValidatorFactory;
     private Member reporter;
     private Member reported;
@@ -64,7 +67,7 @@ class ReportCreateSuccessTest extends IntegrationTestSupport {
         // given
         when(validator.isValid(any())).thenReturn(true);
         when(validator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
-
+        when(mockMemberReadService.getAdminBot()).thenReturn(reporter);
         ReportSaveRequest request = new ReportSaveRequest(
                 reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT,null
         );
@@ -81,7 +84,7 @@ class ReportCreateSuccessTest extends IntegrationTestSupport {
         ReportSaveRequest request = new ReportSaveRequest(
                 reported.getPublicId(), ReportType.BOARD, board.getId(), BanReason.HARASSMENT,null
         );
-
+        when(mockMemberReadService.getAdminBot()).thenReturn(reporter);
         when(validator.isValid(any())).thenReturn(true);
         when(validator.getOwnerPublicId(any())).thenReturn(reported.getPublicId());
         ReportSaveResponse response = reportService.reportContent(request, "127.0.0.1");

@@ -340,6 +340,7 @@ public abstract class TestDriverSupport {
                 .member(member)
                 .clientIp("0.0.0.1")
                 .createdAt(LocalDateTime.now())
+                .email(member.getEmail())
                 .isAdminAnswered(false)
                 .build();
 
