@@ -53,7 +53,7 @@ class MatchPredictionReadServiceTest extends IntegrationTestSupport {
         createMatchPrediction(match, 1, 2);
 
         assertThat(matchPredictionReadService.findOne(match.getId()))
-                .extracting("home", "away")
+                .extracting("homePercent", "awayPercent")
                 .contains(33, 67);
     }
 
@@ -69,7 +69,7 @@ class MatchPredictionReadServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(response)
-                .extracting("home", "away", "isVote", "side")
+                .extracting("homePercent", "awayPercent", "isVote", "side")
                 .contains(33, 67, true, Side.HOME);
     }
 
@@ -84,7 +84,7 @@ class MatchPredictionReadServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(response)
-                .extracting("home", "away", "isVote", "side")
+                .extracting("homePercent", "awayPercent", "isVote", "side")
                 .contains(33, 67, false, null);
     }
 
@@ -99,7 +99,7 @@ class MatchPredictionReadServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(response)
-                .extracting("home", "away", "isVote", "side")
+                .extracting("homePercent", "awayPercent", "isVote", "side")
                 .contains(33, 67, false, null);
     }
 
