@@ -152,8 +152,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			if(status.equals(MemberRole.ADMIN.name())){
 				redisService.resetRequestCount("LOGIN_ADMIN",username);
 			}
-
-
 			redisService.putRefreshToken(publicId, refreshToken);
 			redisUserInfoService.saveUserInfo(accessToken,
 					new UserInfo(publicId, customUserDetails.getNickname(), customUserDetails.getImg()));
@@ -178,6 +176,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				String username = (String) request.getAttribute("username");
 				if (redisService.isAdminLoginAllowed("LOGIN_ADMIN", username)) {
 					int count = redisService.getRequestCount("LOGIN_ADMIN", username);
+					if(0>=(10-count)){
+						sendErrorResponse(response, HttpStatus.UNAUTHORIZED,
+								"block");
+						return;
+					}
 					sendErrorResponse(response, HttpStatus.UNAUTHORIZED,
 							"%s".formatted(String.valueOf(10 - count)));
 					return;
