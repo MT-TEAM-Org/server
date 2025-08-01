@@ -15,7 +15,7 @@ import java.util.UUID;
 public class AdminMemberMemo extends BaseTime {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)

@@ -13,7 +13,7 @@ import org.myteam.server.member.entity.Member;
 @NoArgsConstructor
 public class AdminContentMemo extends BaseTime {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
