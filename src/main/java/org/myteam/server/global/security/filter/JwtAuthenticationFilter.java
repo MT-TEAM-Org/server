@@ -177,11 +177,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				String username = (String) request.getAttribute("username");
 				if (redisService.isAdminLoginAllowed("LOGIN_ADMIN", username)) {
 					int count = redisService.getRequestCount("LOGIN_ADMIN", username);
-					if(0>=(10-count)){
-						sendErrorResponse(response, HttpStatus.UNAUTHORIZED,
-								"block");
-						return;
-					}
 					sendErrorResponse(response, HttpStatus.UNAUTHORIZED,
 							"%s".formatted(String.valueOf(10 - count)));
 					return;
