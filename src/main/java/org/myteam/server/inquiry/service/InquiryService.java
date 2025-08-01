@@ -3,6 +3,10 @@ package org.myteam.server.inquiry.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.entity.AdminInquiryChangeLog;
+import org.myteam.server.admin.repository.simpleRepo.AdminInquiryChangeLogRepo;
+import org.myteam.server.admin.utill.AdminBotCreateLogEvent;
+import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
@@ -13,8 +17,10 @@ import org.myteam.server.inquiry.repository.InquiryCountRepository;
 import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.util.slack.service.SlackService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +41,7 @@ public class InquiryService {
     private final InquiryReadService inquiryReadService;
     private final MemberJpaRepository memberJpaRepository;
     private final CommentService commentService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * 문의 내역 생성
@@ -58,8 +65,15 @@ public class InquiryService {
 
         String slackMessage = getSlackMessage(content, clientIP, member, email);
 
-        inquiryRepository.save(inquiry);
+        inquiry=inquiryRepository.save(inquiry);
         inquiryCountRepository.save(inquiryCount);
+        AdminBotCreateLogEvent adminBotCreateLogEvent=AdminBotCreateLogEvent
+                .builder()
+                .contentId(inquiry.getId())
+                .staticDataType(StaticDataType.Inquiry)
+                .isMember(member.isPresent())
+                .build();
+        applicationEventPublisher.publishEvent(adminBotCreateLogEvent);
         slackService.sendSlackNotification(slackMessage);
 
         log.info("문의 내용이 접수되었습니다.");

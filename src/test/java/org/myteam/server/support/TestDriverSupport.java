@@ -1,8 +1,6 @@
 package org.myteam.server.support;
 
 import org.junit.jupiter.api.AfterEach;
-import org.myteam.server.admin.repository.simpleRepo.AdminChangeLogRepo;
-import org.myteam.server.admin.repository.simpleRepo.AdminMemoRepository;
 import org.myteam.server.aop.count.CommonCountAspect;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.BoardCount;
@@ -121,11 +119,6 @@ public abstract class TestDriverSupport {
     protected CommentRecommendRepository commentRecommendRepository;
     @Autowired
     protected ReportRepository reportRepository;
-    @Autowired
-    protected AdminMemoRepository adminMemoRepository;
-
-    @Autowired
-    protected AdminChangeLogRepo adminChangeLogRepo;
 
     /**
      * ================== Service ========================
@@ -347,6 +340,7 @@ public abstract class TestDriverSupport {
                 .member(member)
                 .clientIp("0.0.0.1")
                 .createdAt(LocalDateTime.now())
+                .email(member.getEmail())
                 .isAdminAnswered(false)
                 .build();
 

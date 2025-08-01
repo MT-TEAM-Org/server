@@ -6,16 +6,19 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.myteam.server.admin.entity.AdminInquiryChangeLog;
 import org.myteam.server.improvement.domain.ImprovementStatus;
-import org.myteam.server.improvement.domain.QImprovement;
+import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.report.domain.ReportType;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
-import static org.myteam.server.improvement.domain.QImprovement.*;
+import static org.myteam.server.admin.entity.QAdminContentChangeLog.adminContentChangeLog;
+import static org.myteam.server.admin.entity.QAdminImproveChangeLog.adminImproveChangeLog;
+import static org.myteam.server.admin.entity.QAdminInquiryChangeLog.adminInquiryChangeLog;
+import static org.myteam.server.admin.entity.QAdminMemberChangeLog.*;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.report.domain.QReport.report;
@@ -79,21 +82,21 @@ public class CreateStaticQueryFactory {
         LocalDateTime staticStartTimePast = dateList.get(2);
         LocalDateTime staticEndTimePast = dateList.get(3);
 
-        Long currentCount = queryFactory.select(improvement.count())
-                .from(improvement)
-                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime, improvement),
+        Long currentCount = queryFactory.select(adminImproveChangeLog.id.countDistinct())
+                .from(adminImproveChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime,adminImproveChangeLog),
                         improvementProcessCond(staticDataType))
                 .fetch()
                 .get(0);
-        Long pastCount = queryFactory.select(improvement.count())
-                .from(improvement)
-                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast, improvement),
+        Long pastCount = queryFactory.select(adminImproveChangeLog.id.countDistinct())
+                .from(adminImproveChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast,adminImproveChangeLog),
                         improvementProcessCond(staticDataType))
                 .fetch()
                 .get(0);
 
-        Long totCount = queryFactory.select(improvement.count())
-                .from(improvement)
+        Long totCount = queryFactory.select(adminImproveChangeLog.id.countDistinct())
+                .from(adminImproveChangeLog)
                 .where(improvementProcessCond(staticDataType))
                 .fetch()
                 .get(0);
@@ -114,22 +117,22 @@ public class CreateStaticQueryFactory {
         LocalDateTime staticStartTimePast = dateList.get(2);
         LocalDateTime staticEndTimePast = dateList.get(3);
 
-        Long currentCount = queryFactory.select(inquiry.count())
-                .from(inquiry)
-                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime,inquiry),
-                        inquiry.isAdminAnswered.eq(isAnswered))
+        Long currentCount = queryFactory.select(adminInquiryChangeLog.id.countDistinct())
+                .from(adminInquiryChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime,adminInquiryChangeLog),
+                        adminInquiryChangeLog.isAnswered.eq(isAnswered))
                 .fetch()
                 .get(0);
-        Long pastCount = queryFactory.select(inquiry.count())
-                .from(inquiry)
-                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast,inquiry),
-                        inquiry.isAdminAnswered.eq(isAnswered))
+        Long pastCount = queryFactory.select(adminInquiryChangeLog.id.countDistinct())
+                .from(adminInquiryChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast,adminInquiryChangeLog),
+                    adminInquiryChangeLog.isAnswered.eq(isAnswered))
                 .fetch()
                 .get(0);
 
-        Long totCount = queryFactory.select(inquiry.count())
-                .from(inquiry)
-                .where(inquiry.isAdminAnswered.eq(isAnswered))
+        Long totCount = queryFactory.select(adminInquiryChangeLog.id.countDistinct())
+                .from(adminInquiryChangeLog)
+                .where(adminInquiryChangeLog.isAnswered.eq(isAnswered))
                 .fetch()
                 .get(0);
         int percent = StaticUtil.makeStaticPercent(currentCount, pastCount);
@@ -149,26 +152,26 @@ public class CreateStaticQueryFactory {
         LocalDateTime staticStartTimePast = dateList.get(2);
         LocalDateTime staticEndTimePast = dateList.get(3);
 
-        Long currentCount = queryFactory.select(inquiry.count())
-                .from(inquiry)
+        Long currentCount = queryFactory.select(adminInquiryChangeLog.id.countDistinct())
+                .from(adminInquiryChangeLog)
                 .join(member)
-                .on(member.eq(inquiry.member))
-                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime,inquiry),
+                .on(member.eq(adminInquiryChangeLog.admin))
+                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime,adminInquiryChangeLog),
                         inquiryIsMember(isMember))
                 .fetch()
                 .get(0);
-        Long pastCount =queryFactory.select(inquiry.count())
-                .from(inquiry)
+        Long pastCount =queryFactory.select(adminInquiryChangeLog.id.countDistinct())
+                .from(adminInquiryChangeLog)
                 .join(member)
-                .on(member.eq(inquiry.member))
-                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast,inquiry),
+                .on(member.eq(adminInquiryChangeLog.admin))
+                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast,adminInquiryChangeLog),
                         inquiryIsMember(isMember))
                 .fetch()
                 .get(0);
-        Long totCount = queryFactory.select(inquiry.count())
-                .from(inquiry)
+        Long totCount = queryFactory.select(adminInquiryChangeLog.id.countDistinct())
+                .from(adminInquiryChangeLog)
                 .join(member)
-                .on(member.eq(inquiry.member))
+                .on(member.eq(adminInquiryChangeLog.admin))
                 .where(inquiryIsMember(isMember))
                 .fetch()
                 .get(0);
@@ -177,6 +180,85 @@ public class CreateStaticQueryFactory {
                 .currentCount(currentCount)
                 .pastCount(pastCount)
                 .totCount(totCount)
+                .percent(percent)
+                .build();
+    }
+
+    public static ResponseStatic createStaticContentQuery(StaticDataType staticDataType,
+                                                          AdminControlType adminControlType,List<LocalDateTime> dateList,JPAQueryFactory queryFactory)
+    {
+        LocalDateTime staticStartTime = dateList.get(0);
+        LocalDateTime staticEndTime = dateList.get(1);
+        LocalDateTime staticStartTimePast = dateList.get(2);
+        LocalDateTime staticEndTimePast = dateList.get(3);
+
+        Long current_count = queryFactory
+                .select(adminContentChangeLog.contentId.countDistinct())
+                .from(adminContentChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTime,staticStartTime,adminContentChangeLog),
+                        (adminContentChangeLog.adminControlType.eq(adminControlType)),
+                        (adminContentChangeLog.staticDataType.eq(staticDataType)))
+                .fetch().get(0);
+
+        Long past_count = queryFactory
+                .select(adminContentChangeLog.contentId.countDistinct())
+                .from(adminContentChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTimePast,staticStartTimePast,adminContentChangeLog),
+                        (adminContentChangeLog.adminControlType.eq(adminControlType))
+                        , (adminContentChangeLog.staticDataType.eq(staticDataType)))
+                .fetch().get(0);
+
+        Long tot_count = queryFactory.select(adminContentChangeLog
+                        .contentId.countDistinct())
+                .from(adminContentChangeLog)
+                .where((adminContentChangeLog.adminControlType.eq(adminControlType))
+                        .and(adminContentChangeLog.staticDataType.eq(staticDataType)))
+                .fetch().get(0);
+
+        int percent = StaticUtil.makeStaticPercent(current_count, past_count);
+
+        return ResponseStatic
+                .builder()
+                .currentCount(current_count)
+                .pastCount(past_count)
+                .totCount(tot_count)
+                .percent(percent)
+                .build();
+    }
+
+    public static ResponseStatic createStaticMemberStatusQuery(MemberStatus memberStatus,List<LocalDateTime> dateList,JPAQueryFactory queryFactory)
+    {
+        LocalDateTime staticStartTime = dateList.get(0);
+        LocalDateTime staticEndTime = dateList.get(1);
+        LocalDateTime staticStartTimePast = dateList.get(2);
+        LocalDateTime staticEndTimePast = dateList.get(3);
+
+        Long current_count = queryFactory
+                .select(adminMemberChangeLog.memberId.countDistinct())
+                .from(adminMemberChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTime,staticStartTime,
+                                adminMemberChangeLog),
+                        (adminMemberChangeLog.memberStatus.eq(memberStatus)))
+                .fetch().get(0);
+
+        Long past_count = queryFactory
+                .select(adminMemberChangeLog.memberId.countDistinct())
+                .from(adminMemberChangeLog)
+                .where(StaticUtil.betweenStaticTime(staticEndTimePast,staticStartTimePast,
+                               adminMemberChangeLog),
+                        (adminMemberChangeLog.memberStatus.eq(memberStatus)))
+                .fetch().get(0);
+
+        Long tot_count = queryFactory.select(adminMemberChangeLog.memberId.countDistinct())
+                .from(adminMemberChangeLog)
+                .where(adminMemberChangeLog.memberStatus.eq(memberStatus))
+                .fetch().get(0);
+        int percent = StaticUtil.makeStaticPercent(current_count, past_count);
+        return ResponseStatic
+                .builder()
+                .currentCount(current_count)
+                .pastCount(past_count)
+                .totCount(tot_count)
                 .percent(percent)
                 .build();
     }
@@ -231,20 +313,20 @@ public class CreateStaticQueryFactory {
     }
 
     private static Predicate inquiryIsMember(boolean isMember){
-        if(isMember){
-            return member.nickname.isNotNull();
+       if(isMember){
+            return adminInquiryChangeLog.isMember.isTrue();
         }
-        return member.nickname.isNull();
+        return adminInquiryChangeLog.isMember.isFalse();
     }
 
     private static Predicate improvementProcessCond(StaticDataType staticDataType){
         if(staticDataType.equals(StaticDataType.ImprovementPending)){
-            return improvement.improvementStatus.eq(ImprovementStatus.PENDING);
+            return adminImproveChangeLog.improvementStatus.eq(ImprovementStatus.PENDING);
         }
         if(staticDataType.equals(StaticDataType.ImprovementReceived)){
-            return improvement.improvementStatus.eq(ImprovementStatus.RECEIVED);
+            return adminImproveChangeLog.improvementStatus.eq(ImprovementStatus.RECEIVED);
         }
-        return improvement.improvementStatus.eq(ImprovementStatus.COMPLETED);
+        return adminImproveChangeLog.improvementStatus.eq(ImprovementStatus.COMPLETED);
     }
 
 

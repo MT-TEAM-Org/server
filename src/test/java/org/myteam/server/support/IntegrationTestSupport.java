@@ -8,7 +8,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
-import org.myteam.server.admin.repository.simpleRepo.AdminChangeLogRepo;
+import org.myteam.server.admin.entity.AdminContentChangeLog;
+import org.myteam.server.admin.entity.AdminImproveChangeLog;
+import org.myteam.server.admin.entity.AdminMemberMemo;
+import org.myteam.server.admin.repository.simpleRepo.*;
 import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
@@ -31,6 +34,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberAccess;
 import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberAccessRepository;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.MemberService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.mypage.service.MyPageReadService;
@@ -93,11 +97,25 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected MemberAccessRepository memberAccessRepository;
 
     @Autowired
-    protected AdminChangeLogRepo adminChangeLogRepo;
-
+    protected AdminContentMemoRepo adminContentMemoRepo;
+    @Autowired
+    protected AdminContentChangeLogRepo adminContentChangeLogRepo;
+    @Autowired
+    protected AdminMemberChangeLogRepo adminMemberChangeLogRepo;
+    @Autowired
+    protected AdminImproveChangeLogRepo adminImproveChangeLogRepo;
+    @Autowired
+    protected AdminInquiryChangeLogRepo adminInquiryChangeLogRepo;
+    @Autowired
+    protected AdminMemberMemoRepo adminMemberMemoRepo;
     @AfterEach
     void tearDown() {
-        adminChangeLogRepo.deleteAllInBatch();;
+        adminMemberMemoRepo.deleteAllInBatch();;
+        adminInquiryChangeLogRepo.deleteAllInBatch();
+        adminImproveChangeLogRepo.deleteAllInBatch();
+        adminMemberChangeLogRepo.deleteAllInBatch();;
+        adminContentChangeLogRepo.deleteAllInBatch();
+        adminContentMemoRepo.deleteAllInBatch();
         commentRecommendRepository.deleteAllInBatch();
         commentRepository.deleteAllInBatch();
         matchPredictionMemberRepository.deleteAllInBatch();
@@ -119,11 +137,8 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         noticeRepository.deleteAllInBatch();
         reportRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
-        adminChangeLogRepo.deleteAllInBatch();
-        adminMemoRepository.deleteAllInBatch();
-        ;
-        memberJpaRepository.deleteAllInBatch();
         memberAccessRepository.deleteAllInBatch();
+        memberJpaRepository.deleteAllInBatch();
     }
 
     @Transactional
@@ -143,6 +158,29 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         );
 
         return memberJpaRepository.findByEmail("test" + index + "@test.com").get();
+    }
+    @Transactional
+    protected  Member createAdminBot(){
+        Member member = Member.builder()
+                .email("test@test.com")
+                .password("1234")
+                .tel("01012345678")
+                .nickname("test")
+                .role(MemberRole.ADMIN)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
+        MemberActivity memberActivity = new MemberActivity(member);
+        Member savedMember = memberJpaRepository.save(member);
+
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
+
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
+
+        return savedMember;
     }
 
     @Transactional
@@ -169,23 +207,6 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
 
         return savedMember;
     }
-
-    @Transactional
-    protected Member createMemberWithOutSave(int index) {
-        Member member = Member.builder()
-                .email("test" + index + "@test.com")
-                .password("1234")
-                .tel("01012345678")
-                .nickname("test" + index)
-                .role(MemberRole.USER)
-                .type(MemberType.LOCAL)
-                .publicId(UUID.randomUUID())
-                .status(MemberStatus.ACTIVE)
-                .build();
-        memberJpaRepository.save(member);
-        return member;
-    }
-
 
     protected Member createOAuthMember(int index) {
         Member member = Member.builder()

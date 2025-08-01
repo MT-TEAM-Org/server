@@ -6,7 +6,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.entity.AdminMemo;
+import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.utill.CreateAdminMemo;
 import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.global.util.date.DateFormatUtil;
@@ -35,7 +35,7 @@ public class InquirySearchRepo {
     private final JPAQueryFactory queryFactory;
     private final CreateAdminMemo createAdminMemo;
 
-    public AdminMemo createAdminMemo(AdminMemoInquiryRequest adminMemoRequest) {
+    public AdminContentMemo createAdminMemo(AdminMemoInquiryRequest adminMemoRequest) {
 
         return createAdminMemo.createInquiryAdminMemo(adminMemoRequest, queryFactory);
     }
@@ -52,18 +52,18 @@ public class InquirySearchRepo {
                                 inquiry.createdAt.stringValue(),
                                 inquiry.clientIp,
                                 new CaseBuilder()
-                                        .when(member.nickname.isNull())
+                                        .when(member.isNull())
                                         .then("비회원")
                                         .otherwise("회원"),
                                 new CaseBuilder()
-                                        .when(member.nickname.isNull())
+                                        .when(member.isNull())
                                         .then("-")
                                         .otherwise(member.nickname),
-                                member.email,
+                                inquiry.email,
                                 inquiry.content
                         ))
                 .from(inquiry)
-                .join(member)
+                .leftJoin(member)
                 .on(member.eq(inquiry.member))
                 .where(inquiry.id.eq(requestInquiryDetail.getContentId()))
                 .fetchOne();
@@ -72,7 +72,7 @@ public class InquirySearchRepo {
                 .format(LocalDateTime.parse(responseInquiryDetail.getCreateDate()
                         , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
         responseInquiryDetail.updateAdminMemoList(
-                createAdminMemo.getAdminMemo(StaticDataType.Improvement,
+                createAdminMemo.getAdminContentMemo(StaticDataType.Inquiry,
                         requestInquiryDetail.getContentId(), queryFactory));
 
         return responseInquiryDetail;
@@ -90,24 +90,21 @@ public class InquirySearchRepo {
                                         .then("답변대기")
                                         .otherwise("답변완료"),
                                 new CaseBuilder()
-                                        .when(member.nickname.isNull())
+                                        .when(member.isNull())
                                         .then("비회원")
                                         .otherwise("회원"),
                                 new CaseBuilder()
-                                        .when(member.nickname.isNull())
+                                        .when(member.isNull())
                                         .then("-")
                                         .otherwise(member.nickname),
-                                new CaseBuilder()
-                                        .when(member.email.isNotNull())
-                                        .then(member.email)
-                                        .otherwise("-"),
+                                inquiry.email,
                                 inquiry.content,
                                 inquiry.createdAt.stringValue()
                         ))
                 .from(inquiry)
-                .join(member)
+                .leftJoin(member)
                 .on(member.eq(inquiry.member))
-                .where(member.publicId.eq(requestInquiryList.getPublicId()))
+                .where(inquiry.email.eq(requestInquiryList.getEmail()))
                 .orderBy(inquiry.createdAt.desc())
                 .limit(10)
                 .offset(pageable.getOffset())
@@ -123,9 +120,9 @@ public class InquirySearchRepo {
         Long totCount = Optional.ofNullable(queryFactory
                 .select(inquiry.count())
                 .from(inquiry)
-                .join(member)
+                .leftJoin(member)
                 .on(member.eq(inquiry.member))
-                .where(member.publicId.eq(requestInquiryList.getPublicId()))
+                .where(inquiry.email.eq(requestInquiryList.getEmail()))
                 .fetchOne()).orElse(0L);
 
         return new PageImpl<>(inquiryList, pageable, totCount);
@@ -140,26 +137,26 @@ public class InquirySearchRepo {
                                 inquiry.id
                                 , new CaseBuilder()
                                         .when(inquiry.isAdminAnswered.isTrue())
-                                        .then("답변대기")
-                                        .otherwise("답변완료"),
+                                        .then("답변완료")
+                                        .otherwise("답변대기"),
                                 new CaseBuilder()
-                                        .when(member.nickname.isNull())
+                                        .when(member.isNull())
                                         .then("비회원")
                                         .otherwise("회원"),
                                 new CaseBuilder()
-                                        .when(member.nickname.isNull())
-                                        .then(member.email)
+                                        .when(member.isNull())
+                                        .then(inquiry.email)
                                         .otherwise(member.nickname),
                                 inquiry.content,
                                 new CaseBuilder()
-                                        .when(member.publicId.isNotNull())
+                                        .when(member.isNotNull())
                                         .then(member.publicId.toString())
                                         .otherwise(""),
                                 inquiry.createdAt.stringValue()
                         )
                 )
                 .from(inquiry)
-                .join(member)
+                .leftJoin(member)
                 .on(inquiry.member.eq(member))
                 .where(contentSearchCond(requestInquiryListCond.getContent()),
                         searchByWriter(requestInquiryListCond.getNickName()),
@@ -182,7 +179,7 @@ public class InquirySearchRepo {
 
         Long count = Optional.ofNullable(queryFactory.select(inquiry.count())
                 .from(inquiry)
-                .join(member)
+                .leftJoin(member)
                 .on(inquiry.member.eq(member))
                 .where(contentSearchCond(requestInquiryListCond.getContent()),
                         searchByWriter(requestInquiryListCond.getNickName()),
@@ -201,9 +198,9 @@ public class InquirySearchRepo {
             return null;
         }
         if (isMember) {
-            return member.nickname.isNotNull();
+            return inquiry.member.isNotNull();
         }
-        return member.nickname.isNull();
+        return inquiry.member.isNull();
     }
 
     private Predicate contentSearchCond(String searchKeyWord) {

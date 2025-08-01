@@ -140,7 +140,7 @@ public class AdminImprovementSearchRepo {
                         , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
 
         responseImprovementDetail.updateAdminMemoList(
-                createAdminMemo.getAdminMemo(StaticDataType.Improvement,
+                createAdminMemo.getAdminContentMemo(StaticDataType.Improvement,
                         requestImprovementDetail.getContentId(), queryFactory));
 
         return responseImprovementDetail;

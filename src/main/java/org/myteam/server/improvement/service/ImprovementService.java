@@ -2,6 +2,10 @@ package org.myteam.server.improvement.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.myteam.server.admin.entity.AdminImproveChangeLog;
+import org.myteam.server.admin.repository.simpleRepo.AdminImproveChangeLogRepo;
+import org.myteam.server.admin.utill.AdminBotCreateLogEvent;
+import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.service.CommentService;
 import org.myteam.server.global.exception.ErrorCode;
@@ -19,9 +23,12 @@ import org.myteam.server.improvement.repository.ImprovementCountRepository;
 import org.myteam.server.improvement.repository.ImprovementQueryRepository;
 import org.myteam.server.improvement.repository.ImprovementRepository;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.report.domain.DomainType;
 import org.myteam.server.upload.service.StorageService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +46,7 @@ public class ImprovementService {
     private final CommentService commentService;
     private final StorageService s3Service;
     private final RedisCountService redisCountService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * 개선요청 작성
@@ -56,6 +64,14 @@ public class ImprovementService {
                 improvement.getId(), null);
 
         log.info("개선요청 생성: {}", improvement.getId());
+
+
+        AdminBotCreateLogEvent adminBotCreateLogEvent=AdminBotCreateLogEvent
+                .builder()
+                .contentId(improvement.getId())
+                .staticDataType(StaticDataType.Improvement)
+                .build();
+        applicationEventPublisher.publishEvent(adminBotCreateLogEvent);
 
         Long previousId = improvementQueryRepository.findPreviousImprovementId(improvement.getId());
         Long nextId = improvementQueryRepository.findNextImprovementId(improvement.getId());

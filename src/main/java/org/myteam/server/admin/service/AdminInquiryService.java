@@ -1,7 +1,7 @@
 package org.myteam.server.admin.service;
 
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.entity.AdminMemo;
+import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.repository.InquirySearchRepo;
 import org.myteam.server.common.certification.service.InquiryAnsSendService;
 import org.myteam.server.member.service.MemberReadService;
@@ -38,9 +38,10 @@ public class AdminInquiryService {
     }
 
     public void sendInquiryAnswer(AdminMemoInquiryRequest adminMemoRequest) {
-        AdminMemo adminMemo = inquirySearchRepo.createAdminMemo(adminMemoRequest);
+        AdminContentMemo adminMemo = inquirySearchRepo.createAdminMemo(adminMemoRequest);
         if (adminMemo != null) {
-            inquiryAnsSendStrategy.send(adminMemo, memberReadService.getByEmail(adminMemoRequest.getEmail()));
+            inquiryAnsSendStrategy.send(adminMemo,
+                    memberReadService.getByEmail(adminMemoRequest.getEmail()));
         }
     }
 }

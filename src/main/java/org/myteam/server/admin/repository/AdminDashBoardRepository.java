@@ -31,7 +31,6 @@ import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.Reque
 import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestStatic;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseLatestData;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
-import static org.myteam.server.admin.entity.QAdminChangeLog.adminChangeLog;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
@@ -169,132 +168,22 @@ public class AdminDashBoardRepository {
                     .build();
         }
 
-        if (staticDataType.name().equals(StaticDataType.UserWarned.name())) {
-            Long current_count = queryFactory
-                    .select(adminChangeLog.memberId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
-                            (adminChangeLog.memberStatus.eq(MemberStatus.WARNED)))
-                    .fetch().get(0);
-
-            Long past_count = queryFactory
-                    .select(adminChangeLog.memberId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
-                            (adminChangeLog.memberStatus.eq(MemberStatus.WARNED)))
-                    .fetch().get(0);
-
-            Long tot_count = queryFactory.select(adminChangeLog.memberId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(adminChangeLog.memberStatus.eq(MemberStatus.WARNED))
-                    .fetch().get(0);
-            int percent = StaticUtil.makeStaticPercent(current_count, past_count);
-            return ResponseStatic
-                    .builder()
-                    .currentCount(current_count)
-                    .pastCount(past_count)
-                    .totCount(tot_count)
-                    .percent(percent)
-                    .build();
+        if (staticDataType.name().equals(StaticDataType.UserWarned.name())){
+           return CreateStaticQueryFactory.createStaticMemberStatusQuery(
+                   MemberStatus.WARNED,dateList,queryFactory);
         }
         if (staticDataType.name().equals(StaticDataType.UserBanned.name())) {
-            Long current_count = queryFactory
-                    .select(adminChangeLog.memberId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
-                            (adminChangeLog.memberStatus.eq(MemberStatus.INACTIVE)))
-                    .fetch().get(0);
-
-            Long past_count = queryFactory
-                    .select(adminChangeLog.memberId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
-                            (adminChangeLog.memberStatus.eq(MemberStatus.INACTIVE)))
-                    .fetch().get(0);
-
-            Long tot_count = queryFactory.select(adminChangeLog.memberId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(adminChangeLog.memberStatus.eq(MemberStatus.INACTIVE))
-                    .fetch().get(0);
-
-            int percent = StaticUtil.makeStaticPercent(current_count, past_count);
-
-            return ResponseStatic
-                    .builder()
-                    .currentCount(current_count)
-                    .pastCount(past_count)
-                    .totCount(tot_count)
-                    .percent(percent)
-                    .build();
+            return CreateStaticQueryFactory.createStaticMemberStatusQuery(
+                    MemberStatus.INACTIVE,dateList,queryFactory);
         }
+        if (staticDataType.name().equals(StaticDataType.HideComment.name())
+        ||staticDataType.name().equals(StaticDataType.HideBoard.name())) {
 
-        if (staticDataType.name().equals(StaticDataType.HideComment.name())) {
-            Long current_count = queryFactory
-                    .select(adminChangeLog.contentId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
-                            (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN)),
-                            (adminChangeLog.staticDataType.eq(StaticDataType.COMMENT)))
-                    .fetch().get(0);
+            StaticDataType staticDataType1=StaticDataType.HideComment.equals(StaticDataType.HideComment)
+                    ? StaticDataType.COMMENT:StaticDataType.BOARD;
 
-            Long past_count = queryFactory
-                    .select(adminChangeLog.contentId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
-                            (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
-                            , (adminChangeLog.staticDataType.eq(StaticDataType.COMMENT)))
-                    .fetch().get(0);
-
-            Long tot_count = queryFactory.select(adminChangeLog
-                            .contentId.countDistinct())
-                    .from(adminChangeLog)
-                    .where((adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
-                            .and(adminChangeLog.staticDataType.eq(StaticDataType.COMMENT)))
-                    .fetch().get(0);
-
-            int percent = StaticUtil.makeStaticPercent(current_count, past_count);
-
-            return ResponseStatic
-                    .builder()
-                    .currentCount(current_count)
-                    .pastCount(past_count)
-                    .totCount(tot_count)
-                    .percent(percent)
-                    .build();
-        }
-
-        if (staticDataType.name().equals(StaticDataType.HideBoard.name())) {
-            Long current_count = queryFactory
-                    .select(adminChangeLog.contentId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time, static_start_time, adminChangeLog),
-                            (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
-                            , (adminChangeLog.staticDataType.eq(StaticDataType.BOARD)))
-                    .fetch().get(0);
-
-            Long past_count = queryFactory
-                    .select(adminChangeLog.contentId.countDistinct())
-                    .from(adminChangeLog)
-                    .where(StaticUtil.betweenStaticTime(static_end_time2, static_start_time2, adminChangeLog),
-                            (adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
-                            , (adminChangeLog.staticDataType.eq(StaticDataType.BOARD)))
-                    .fetch().get(0);
-
-            Long tot_count = queryFactory.select(adminChangeLog.contentId.countDistinct())
-                    .from(adminChangeLog)
-                    .where((adminChangeLog.adminControlType.eq(AdminControlType.HIDDEN))
-                            , (adminChangeLog.staticDataType.eq(StaticDataType.BOARD)))
-                    .fetch().get(0);
-
-            int percent = StaticUtil.makeStaticPercent(current_count, past_count);
-
-            return ResponseStatic
-                    .builder()
-                    .currentCount(current_count)
-                    .pastCount(past_count)
-                    .totCount(tot_count)
-                    .percent(percent)
-                    .build();
+            return CreateStaticQueryFactory.createStaticContentQuery(staticDataType1,AdminControlType.HIDDEN
+                    ,dateList,queryFactory);
         }
         if(staticDataType.equals(StaticDataType.InquiryComplete)||staticDataType
                 .equals(StaticDataType.InquiryPending)){

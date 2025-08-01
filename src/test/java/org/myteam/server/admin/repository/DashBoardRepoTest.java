@@ -1,14 +1,15 @@
 package org.myteam.server.admin.repository;
 
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.myteam.server.admin.entity.AdminChangeLog;
-import org.myteam.server.admin.repository.simpleRepo.AdminChangeLogRepo;
+import org.myteam.server.admin.entity.AdminContentChangeLog;
+import org.myteam.server.admin.entity.AdminImproveChangeLog;
+import org.myteam.server.admin.entity.AdminInquiryChangeLog;
+import org.myteam.server.admin.entity.AdminMemberChangeLog;
 import org.myteam.server.admin.service.AdminDashBoardService;
 import org.myteam.server.admin.utill.AdminControlType;
 import org.myteam.server.admin.utill.DateType;
@@ -19,6 +20,7 @@ import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.jwt.JwtProvider;
+import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.inquiry.domain.Inquiry;
@@ -34,7 +36,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -45,7 +46,6 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestLatestData;
 import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestStatic;
@@ -70,8 +70,6 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
     AdminDashBoardService adminDashBoardService;
     @Autowired
     JwtProvider jwtProvider;
-    @Autowired
-    AdminChangeLogRepo adminChangeLogRepo;
     @Autowired
     MockMvc mockMvc;
     @Autowired
@@ -125,56 +123,91 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                         member.updateDeleteAt(dates.get(0));
                         memberJpaRepository.save(member);
                         createMemberAccess(member, dates.get(1));
-                        AdminChangeLog adminChangeLog = AdminChangeLog
+                        AdminMemberChangeLog adminChangeLog = AdminMemberChangeLog
                                 .builder()
                                 .admin(admin)
                                 .memberId(member.getPublicId())
                                 .memberStatus(MemberStatus.WARNED)
                                 .build();
 
-                        AdminChangeLog adminChangeLog2 = AdminChangeLog
+                        AdminContentChangeLog adminChangeLog2 =AdminContentChangeLog
                                 .builder()
                                 .admin(admin)
                                 .contentId(comment.getId())
                                 .staticDataType(StaticDataType.COMMENT)
                                 .adminControlType(AdminControlType.HIDDEN)
                                 .build();
+
+                        AdminImproveChangeLog adminImproveChangeLog=AdminImproveChangeLog
+                                .builder()
+                                .improvementStatus(ImprovementStatus.COMPLETED)
+                                .admin(admin)
+                                .contentId(improvement.getId())
+                                .importantStatus(ImportantStatus.NORMAL)
+                                .build();
+
+
+                        AdminInquiryChangeLog adminInquiryChangeLog=
+                                AdminInquiryChangeLog
+                                        .builder()
+                                        .isMember(true)
+                                        .isAnswered(true)
+                                        .contentId(inquiry.getId())
+                                        .admin(admin)
+                                        .build();
+
+                        adminInquiryChangeLogRepo.save(adminInquiryChangeLog);
                         inquiry.updateAdminAnswered();
                         improvement.updateState(ImprovementStatus.COMPLETED);
                         inquiryRepository.save(inquiry);
                         improvementRepository.save(improvement);
-                        adminChangeLogRepo.save(adminChangeLog);
-                        adminChangeLogRepo.save(adminChangeLog2);
+                        adminMemberChangeLogRepo.save(adminChangeLog);
+                        adminContentChangeLogRepo.save(adminChangeLog2);
+                        adminImproveChangeLogRepo.save(adminImproveChangeLog);
                     }
                     else {
                         report = createReport(member, member, BanReason.ETC, ReportType.COMMENT, comment.getId());
                         member.updateDeleteAt(dates.get(2));
                         memberJpaRepository.save(member);
                         createMemberAccess(member, dates.get(2));
-                        AdminChangeLog adminChangeLog = AdminChangeLog
+                        AdminMemberChangeLog adminChangeLog = AdminMemberChangeLog
                                 .builder()
                                 .admin(admin)
                                 .memberId(member.getPublicId())
                                 .memberStatus(MemberStatus.INACTIVE)
                                 .build();
 
-                        AdminChangeLog adminChangeLogA = AdminChangeLog
-                                .builder()
-                                .admin(admin)
-                                .memberId(member.getPublicId())
-                                .memberStatus(MemberStatus.INACTIVE)
-                                .build();
-
-                        AdminChangeLog adminChangeLog2 = AdminChangeLog
+                        AdminContentChangeLog adminChangeLog2 = AdminContentChangeLog
                                 .builder()
                                 .admin(admin)
                                 .contentId(board.getId())
                                 .staticDataType(StaticDataType.BOARD)
                                 .adminControlType(AdminControlType.HIDDEN)
                                 .build();
-                        adminChangeLogRepo.save(adminChangeLog);
-                        adminChangeLogRepo.save(adminChangeLogA);
-                        adminChangeLogRepo.save(adminChangeLog2);
+
+
+                        AdminImproveChangeLog adminImproveChangeLog=AdminImproveChangeLog
+                                .builder()
+                                .improvementStatus(ImprovementStatus.PENDING)
+                                .admin(admin)
+                                .contentId(improvement.getId())
+                                .importantStatus(ImportantStatus.NORMAL)
+                                .build();
+
+
+                        AdminInquiryChangeLog adminInquiryChangeLog=
+                                AdminInquiryChangeLog
+                                        .builder()
+                                        .isMember(false)
+                                        .isAnswered(false)
+                                        .contentId(inquiry.getId())
+                                        .admin(admin)
+                                        .build();
+
+                        adminInquiryChangeLogRepo.save(adminInquiryChangeLog);
+                        adminImproveChangeLogRepo.save(adminImproveChangeLog);
+                        adminMemberChangeLogRepo.save(adminChangeLog);
+                        adminContentChangeLogRepo.save(adminChangeLog2);
                     }
                 });
     }
@@ -204,6 +237,31 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
             assertThat(responseStatic1.getCurrentCount()).isEqualTo(5);
             assertThat(responseStatic1.getPastCount()).isEqualTo(0);
             assertThat(responseStatic1.getPercent()).isEqualTo(100);
+
+            RequestStatic InquiryIsMember= RequestStatic
+                    .builder()
+                    .staticDataType(StaticDataType.InquiryMember)
+                    .dateType(DateType.Day)
+                    .build();
+
+            RequestStatic InquiryNotMember = RequestStatic
+                    .builder()
+                    .staticDataType(StaticDataType.InquiryNoMember)
+                    .dateType(DateType.Day)
+                    .build();
+
+            ResponseStatic responseStaticIsMember=adminDashBoardService.getStaticData(InquiryIsMember);
+            ResponseStatic responseStaticNotMember=adminDashBoardService.getStaticData(InquiryNotMember);
+
+            assertThat(responseStaticIsMember.getCurrentCount()).isEqualTo(5);
+            assertThat(responseStaticIsMember.getPastCount()).isEqualTo(0);
+            assertThat(responseStaticIsMember.getPercent()).isEqualTo(100);
+
+            assertThat(responseStaticNotMember.getCurrentCount()).isEqualTo(5);
+            assertThat(responseStaticNotMember.getPastCount()).isEqualTo(0);
+            assertThat(responseStaticNotMember.getPercent()).isEqualTo(100);
+
+
 
 
             RequestStatic ImprovementFin= RequestStatic

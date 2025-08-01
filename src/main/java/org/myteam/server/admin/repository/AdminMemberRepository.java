@@ -13,10 +13,6 @@ import org.myteam.server.admin.dto.ctes.QBoardCountCte;
 import org.myteam.server.admin.dto.ctes.QCommentCountCte;
 import org.myteam.server.admin.dto.ctes.QMemberReportCte;
 import org.myteam.server.admin.dto.ctes.QReportCountCte;
-import org.myteam.server.admin.entity.AdminChangeLog;
-import org.myteam.server.admin.entity.AdminMemo;
-import org.myteam.server.admin.repository.simpleRepo.AdminChangeLogRepo;
-import org.myteam.server.admin.repository.simpleRepo.AdminMemoRepository;
 import org.myteam.server.admin.utill.CreateAdminMemo;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.member.domain.GenderType;
@@ -53,7 +49,6 @@ import static org.myteam.server.report.domain.QReport.report;
 @RequiredArgsConstructor
 @Transactional
 public class AdminMemberRepository {
-    private final AdminChangeLogRepo adminChangeLogRepo;
     private final JPAQueryFactory queryFactory;
     private final BlazeJPAQueryFactory blazeJPAQueryFactory;
     private final CreateAdminMemo createAdminMemo;
@@ -435,7 +430,7 @@ public class AdminMemberRepository {
     private void editTime(UUID publicId
             , ResponseMemberDetail responseMemberDetail) {
         List<AdminMemoResponse> adminMemoResponses=
-                createAdminMemo.getMemberAdminMemo(publicId,queryFactory);
+                createAdminMemo.getAdminMemberMemo(publicId,queryFactory);
         responseMemberDetail.updateAdminMemoResponse(adminMemoResponses);
     }
 }

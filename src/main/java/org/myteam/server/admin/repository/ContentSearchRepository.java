@@ -731,7 +731,7 @@ public class ContentSearchRepository {
             responseDetail.updateReported("신고");
         }
         List<CommonResponseDto.AdminMemoResponse> adminMemoResponses =
-                createAdminMemo.getAdminMemo(staticDataType,
+                createAdminMemo.getAdminContentMemo(staticDataType,
                         requestDetail.getContentId(),queryFactory);
 
         responseDetail.updateAdminMemoResponses(adminMemoResponses);

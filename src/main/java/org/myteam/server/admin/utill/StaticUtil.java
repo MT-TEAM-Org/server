@@ -3,13 +3,14 @@ package org.myteam.server.admin.utill;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.StringTemplate;
-
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
-
 import static com.querydsl.core.types.dsl.Expressions.stringTemplate;
-import static org.myteam.server.admin.entity.QAdminChangeLog.adminChangeLog;
+import static org.myteam.server.admin.entity.QAdminContentChangeLog.adminContentChangeLog;
+import static org.myteam.server.admin.entity.QAdminImproveChangeLog.adminImproveChangeLog;
+import static org.myteam.server.admin.entity.QAdminInquiryChangeLog.*;
+import static org.myteam.server.admin.entity.QAdminMemberChangeLog.adminMemberChangeLog;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.comment.domain.QComment.comment1;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
@@ -45,8 +46,17 @@ public class StaticUtil {
             case "MemberAccess" -> {
                 return memberAccess.accessTime.goe(static_end_time).and(memberAccess.accessTime.lt(static_start_time));
             }
-            case "AdminChangeLog" -> {
-                return adminChangeLog.createDate.goe(static_end_time).and(adminChangeLog.createDate.lt(static_start_time));
+            case "AdminMemberChangeLog" -> {
+                return adminMemberChangeLog.createDate.goe(static_end_time).and(adminMemberChangeLog.createDate.lt(static_start_time));
+            }
+            case "AdminContentChangeLog" -> {
+                return adminContentChangeLog.createDate.goe(static_end_time).and( adminContentChangeLog.createDate.lt(static_start_time));
+            }
+            case "AdminImproveChangeLog" -> {
+                return adminImproveChangeLog.createDate.goe(static_end_time).and(adminImproveChangeLog.createDate.lt(static_start_time));
+            }
+            case "AdminInquiryChangeLog" -> {
+                return adminInquiryChangeLog.createDate.goe(static_end_time).and(adminInquiryChangeLog.createDate.lt(static_start_time));
             }
             default -> {
                 return null;

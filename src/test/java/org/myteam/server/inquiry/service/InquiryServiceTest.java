@@ -3,13 +3,21 @@ package org.myteam.server.inquiry.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.myteam.server.admin.entity.AdminContentMemo;
+import org.myteam.server.admin.entity.AdminImproveChangeLog;
+import org.myteam.server.admin.entity.AdminInquiryChangeLog;
+import org.myteam.server.admin.repository.simpleRepo.AdminImproveChangeLogRepo;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.inquiry.domain.Inquiry;
 import org.myteam.server.member.entity.Member;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -21,13 +29,13 @@ class InquiryServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private InquiryService inquiryService;
-
     private Member member;
     private Inquiry inquiry;
 
     @Transactional
     @BeforeEach
     void setUp() {
+        createAdminBot();
         member = createMember(1);
         inquiry = createInquiry(member);
     }
@@ -37,12 +45,15 @@ class InquiryServiceTest extends IntegrationTestSupport {
     void createInquiry_withLoginUser_success() {
         // given
         when(securityReadService.getAuthenticatedPublicId()).thenReturn(member.getPublicId());
-
         // when
         String content = inquiryService.createInquiry("문의 내용입니다.", null, "127.0.0.1");
-
+        List<AdminInquiryChangeLog> adminImproveChangeLogList=adminInquiryChangeLogRepo.findAll();
+        List<AdminContentMemo> adminContentMemos=adminContentMemoRepo.findAll();
         // then
         assertThat(content).isEqualTo("문의 내용입니다.");
+        assertThat(adminImproveChangeLogList.size()).isEqualTo(1);
+        assertThat(adminContentMemos.size()).isEqualTo(0);
+        assertThat(adminImproveChangeLogList.get(0).isMember()).isTrue();
         verify(slackService, times(1)).sendSlackNotification(anyString());
     }
 
@@ -54,9 +65,13 @@ class InquiryServiceTest extends IntegrationTestSupport {
 
         // when
         String content = inquiryService.createInquiry("비회원 문의입니다.", "nonmember@example.com", "127.0.0.1");
-
+        List<AdminInquiryChangeLog> adminImproveChangeLogList=adminInquiryChangeLogRepo.findAll();
+        List<AdminContentMemo> adminContentMemos=adminContentMemoRepo.findAll();
         // then
         assertThat(content).isEqualTo("비회원 문의입니다.");
+        assertThat(adminImproveChangeLogList.size()).isEqualTo(1);
+        assertThat(adminContentMemos.size()).isEqualTo(0);
+        assertThat(adminImproveChangeLogList.get(0).isMember()).isFalse();
         verify(slackService, times(1)).sendSlackNotification(anyString());
     }
 
