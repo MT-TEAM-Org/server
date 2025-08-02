@@ -183,8 +183,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				if (count >= 10) {
 					eventPublisher.publishEvent(new AdminBanEvent(username, ClientUtils.getRemoteIP(request)));
 				}
-				sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "해당 아이디 로그인 시도가 10번 불일치하여\n" +
-						"계정이 잠금되었습니다.");
+				sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "해당 아이디 로그인 시도가 10번 불일치하여 계정이 잠금되었습니다.");
 				return;
 			}
 
