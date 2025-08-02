@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 
 
-@Tag(name = "인증 API", description = "회원가입 및 로그인 관련 API")
+@Tag(name = "관리자 인증 api", description = "관리자 로그인 관련 api")
 public class AdminLoginController {
     @Operation(summary = "관리자 로그인", description = "관리자가 로그인을 하여 토큰을 받습니다." +
-            "계정은 username으로 비밀번호는 password를 프로퍼티로 보내주시면됩니다.")
+            "계정은 username으로 비밀번호는 password를 프로퍼티로 보내주시면됩니다. 사실상 기존의 일반 회원 로그인과" +
+            "같되 경로만 다르다고 보시면됩니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
