@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisService { // TODO: RedisReportService 로 변경.
 
 	private final RedisTemplate<String, String> redisTemplate;
-
+	private static final String ADMIN_ALARM_KEY="ADMIN_ALARM";
 	private static final int ADMIN_LOGIN_MAX_REQUESTS=10;
 	private static final int MAX_REQUESTS = 3; // 제한 횟수 (기본값: 5분 동안 3회)
 	private static final long EXPIRED_TIME = 5L; // 만료 시간 (5분)
@@ -63,8 +63,8 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		String redisKey = getRateLimitKey(category, identifier);
 		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
-
-		if (requestCount >= ADMIN_LOGIN_MAX_REQUESTS) {
+		requestCount+=1;
+		if (0>=(ADMIN_LOGIN_MAX_REQUESTS-requestCount)) {
 			log.warn("🚫 [RateLimit] 관리자 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
 			return false;
 		}
@@ -75,7 +75,6 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		return true;
 
 	}
-
 	public boolean AdminReadCheck(String category, String adminIdentifier, StaticDataType staticDataType, Long contentId){
 
 		String redisKey=getRateLimitKey(category,adminIdentifier+staticDataType.name()+String.valueOf(contentId));
@@ -96,8 +95,24 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 			redisTemplate.expire(redisKey, Duration.ofMinutes(ADMIN_ALARM_READ_EXPIRE_TIME));
 		}
 	}
-
-
+	/*public boolean AdminReadCheck(String adminIdentifier, StaticDataType staticDataType, Long contentId){
+		String redisKey=ADMIN_ALARM_KEY+adminIdentifier+staticDataType.name()+String.valueOf(contentId);
+		String requestCountStr=redisTemplate.opsForValue().get(redisKey);
+		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
+		if(requestCount==0){
+			return false;
+		}
+		return true;
+	}
+	public void adminReadCheckUpdate(String adminIdentifier, StaticDataType staticDataType, Long contentId){
+		String redisKey=ADMIN_ALARM_KEY+adminIdentifier+staticDataType.name()+String.valueOf(contentId);
+		String requestCountStr=redisTemplate.opsForValue().get(redisKey);
+		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
+		if(requestCount==0) {
+			redisTemplate.opsForValue().increment(redisKey);
+			redisTemplate.expire(redisKey, Duration.ofDays(30L));
+		}
+	}*/
 	/**
 	 * 요청 제한을 적용할 Redis Key 생성
 	 *
