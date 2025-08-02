@@ -75,8 +75,27 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		return true;
 
 	}
+	public boolean AdminReadCheck(String category, String adminIdentifier, StaticDataType staticDataType, Long contentId){
 
-	public boolean AdminReadCheck(String adminIdentifier, StaticDataType staticDataType, Long contentId){
+		String redisKey=getRateLimitKey(category,adminIdentifier+staticDataType.name()+String.valueOf(contentId));
+		String requestCountStr=redisTemplate.opsForValue().get(redisKey);
+		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
+		if(requestCount==0){
+			return false;
+		}
+		return true;
+	}
+
+	public void adminReadCheckUpdate(String category, String adminIdentifier, StaticDataType staticDataType, Long contentId){
+		String redisKey=getRateLimitKey(category,adminIdentifier+staticDataType.name()+String.valueOf(contentId));
+		String requestCountStr=redisTemplate.opsForValue().get(redisKey);
+		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
+		if(requestCount==0) {
+			redisTemplate.opsForValue().increment(redisKey);
+			redisTemplate.expire(redisKey, Duration.ofMinutes(ADMIN_ALARM_READ_EXPIRE_TIME));
+		}
+	}
+	/*public boolean AdminReadCheck(String adminIdentifier, StaticDataType staticDataType, Long contentId){
 		String redisKey=ADMIN_ALARM_KEY+adminIdentifier+staticDataType.name()+String.valueOf(contentId);
 		String requestCountStr=redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
@@ -93,7 +112,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 			redisTemplate.opsForValue().increment(redisKey);
 			redisTemplate.expire(redisKey, Duration.ofDays(30L));
 		}
-	}
+	}*/
 	/**
 	 * 요청 제한을 적용할 Redis Key 생성
 	 *
