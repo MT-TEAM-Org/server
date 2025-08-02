@@ -63,14 +63,12 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		String redisKey = getRateLimitKey(category, identifier);
 		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
+		long newCount = redisTemplate.opsForValue().increment(redisKey);
 		requestCount+=1;
 		if (0>=(ADMIN_LOGIN_MAX_REQUESTS-requestCount)) {
 			log.warn("🚫 [RateLimit] 관리자 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
 			return false;
 		}
-
-		long newCount = redisTemplate.opsForValue().increment(redisKey);
-
 		log.info("✅ [RateLimit] 관리자 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
 		return true;
 
