@@ -147,10 +147,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			log.debug("print accessToken: {}", accessToken);
 			log.debug("print refreshToken: {}", refreshToken);
 			log.debug("print role: {}", role);
-			log.info("print role: {}", role);
 
-
-			if(status.equals(MemberRole.ADMIN.name())){
+			if(role.equals(MemberRole.ADMIN.name())){
 				redisService.resetRequestCount("LOGIN_ADMIN",username);
 			}
 			redisService.putRefreshToken(publicId, refreshToken);
