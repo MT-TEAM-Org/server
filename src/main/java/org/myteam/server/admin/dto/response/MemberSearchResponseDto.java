@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.myteam.server.admin.dto.response.CommonResponseDto.*;
 
@@ -25,6 +26,8 @@ public record MemberSearchResponseDto() {
         private String email;
         private String tel;
         private String createDate;
+        @Schema(description = "회원 식별값입니다. 상세검색시에 이용해주세요")
+        private UUID memberId;
 
         public void updateCreateDate(String date) {
             this.createDate = date;
