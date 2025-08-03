@@ -8,9 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestLatestData;
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestStatic;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseLatestData;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
 
