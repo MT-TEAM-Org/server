@@ -148,10 +148,7 @@ public class InquirySearchRepo {
                                         .then(inquiry.email)
                                         .otherwise(member.nickname),
                                 inquiry.content,
-                                new CaseBuilder()
-                                        .when(member.isNotNull())
-                                        .then(member.publicId.toString())
-                                        .otherwise(""),
+                                inquiry.email,
                                 inquiry.createdAt.stringValue()
                         )
                 )
