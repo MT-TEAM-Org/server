@@ -3,21 +3,35 @@ package org.myteam.server.admin;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.entity.AdminImproveChangeLog;
 import org.myteam.server.admin.entity.AdminInquiryChangeLog;
+import org.myteam.server.admin.entity.AdminMemberMemo;
 import org.myteam.server.admin.repository.AdminImprovementSearchRepo;
 import org.myteam.server.admin.repository.InquirySearchRepo;
+import org.myteam.server.admin.service.AdminInquiryService;
+import org.myteam.server.common.certification.service.InquiryAnsSendService;
 import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.member.controller.response.MemberResponse;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
+
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoImprovementRequest;
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
 import static org.myteam.server.admin.dto.response.ImprovementResponseDto.*;
@@ -37,11 +51,20 @@ public class inquriyimprovementtest extends IntegrationTestSupport {
     AdminImprovementSearchRepo adminImprovementSearchRepo;
     @Autowired
     InquirySearchRepo inquirySearchRepo;
+    @MockBean
+    InquiryAnsSendService inquiryAnsSendService;
+
+
+    @MockBean
+    MemberReadService memberReadService;
 
     Member admin;
 
     Improvement improvement1;
     Inquiry inquiry1;
+
+    @Autowired
+    AdminInquiryService adminInquiryService;
 
     @Autowired
     JPAQueryFactory queryFactory;
@@ -156,6 +179,23 @@ public class inquriyimprovementtest extends IntegrationTestSupport {
                         .fetch();
 
         assertThat(adminInquiryChangeLogs.size()).isEqualTo(1);
+    }
+    @Test
+    @DisplayName("문의 메일 전송 호출 테스트")
+    void inquriyMailSendVerify(){
+        AdminMemoInquiryRequest adminMemoInquiryRequest=AdminMemoInquiryRequest
+                .builder()
+                .contentId(inquiry1.getId())
+                .content("Zcxzcxzcxzc")
+                .email("wsdas")
+                .build();
+
+        when(memberReadService.getByEmail(any(String.class)))
+                .thenReturn(MemberResponse.createMemberResponse(admin));
+
+        adminInquiryService.sendInquiryAnswer(adminMemoInquiryRequest);
+
+        verify(inquiryAnsSendService).send(any(AdminContentMemo.class), any(MemberResponse.class));
     }
 
     @Test

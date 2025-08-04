@@ -264,7 +264,8 @@ public class AdminDashBoardRepository {
                                             .otherwise(JPAExpressions.select(board.title)
                                                     .from(board)
                                                     .where(board.id.eq(report.reportedContentId))),
-                                    report.createDate.stringValue()
+                                    report.createDate.stringValue(),
+                                    report.id
                             ))
                     .from(report)
                     .join(member)
@@ -276,7 +277,7 @@ public class AdminDashBoardRepository {
 
             responseLatestDataList.stream()
                     .forEach(x -> {
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
+                        boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
                         x.updateCreateAt(
@@ -334,7 +335,7 @@ public class AdminDashBoardRepository {
                                 DateFormatUtil.formatByDot.format(
                                         LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
 
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
+                        boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
                     });
@@ -376,7 +377,7 @@ public class AdminDashBoardRepository {
                         x.updateCreateAt(
                                 DateFormatUtil.formatByDot.format(
                                         LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
+                        boolean readCheck = redisService.AdminReadCheck( admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
                     });

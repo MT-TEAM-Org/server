@@ -8,6 +8,8 @@ import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
 import org.myteam.server.global.util.date.DateFormatUtil;
+import org.myteam.server.inquiry.domain.Inquiry;
+import org.myteam.server.inquiry.repository.InquiryRepository;
 import org.myteam.server.member.controller.response.MemberResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -28,19 +30,23 @@ public class InquiryAnsSendService {
 
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
+    private final InquiryRepository inquiryRepository;
     @Value("${SENDER_EMAIL}")
     private String senderEmail;
 
     private String getSubject() {
         return "문의 답변 메일입니다.";
     }
-    private String getBody(String content,String email) {
-        LocalDateTime now=LocalDateTime.now();
+    private String getBody(AdminContentMemo adminContentMemo,MemberResponse memberResponse) {
+        Long inquiryId=adminContentMemo.getContentId();
+        Inquiry inquiry=inquiryRepository.findById(inquiryId).get();
         Context context = new Context();
-        context.setVariable("email",email);
-        context.setVariable("content",content);
-        context.setVariable("setTime", DateFormatUtil.formatByDot.format(now));
-        return templateEngine.process("mail/signup-complete-template", context);
+        context.setVariable("content",inquiry.getContent());
+        context.setVariable("answer",adminContentMemo.getContent());
+        context.setVariable("inquiryMeta.meta.ip",inquiry.getClientIp());
+        context.setVariable(" inquiryMeta.meta.created_at",
+                DateFormatUtil.formatByDot.format(inquiry.getCreatedAt()));
+        return templateEngine.process("mail/admin-to-user-reply", context);
     }
     @Async
     public CompletableFuture<Void> send(AdminContentMemo adminMemo, MemberResponse memberResponse) {
@@ -49,7 +55,7 @@ public class InquiryAnsSendService {
 
         try {
             String subject = getSubject();
-            String body = getBody(adminMemo.getContent(),memberResponse.getEmail());
+            String body = getBody(adminMemo,memberResponse);
             MimeMessage message = createMail(memberResponse.getEmail(), subject, body);
 
             javaMailSender.send(message);
