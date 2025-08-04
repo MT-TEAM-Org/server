@@ -166,6 +166,7 @@ public class AdminDashBoardRepository {
                                                     .from(board)
                                                     .where(board.id.eq(report.reportedContentId))),
                                     report.createDate.stringValue(),
+                                    report.id,
                                     Expressions.constant(StaticDataType.Report)
                             ))
                     .from(report)
@@ -177,8 +178,8 @@ public class AdminDashBoardRepository {
                     .fetch();
             reportLatest.stream()
                     .forEach(x -> {
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
-                                , StaticDataType.Report, x.getContentId());
+                        boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
+                                ,StaticDataType.Report, x.getContentId());
                         x.mappingCheckRead(readCheck);
                         x.updateCreateAt(
                                 DateFormatUtil.formatByDot.format(
@@ -213,6 +214,7 @@ public class AdminDashBoardRepository {
                                             .otherwise(member.nickname),
                                     inquiry.content.substring(0, 20),
                                     inquiry.createdAt.stringValue(),
+                                    Expressions.constant(0L),
                                     Expressions.constant(StaticDataType.Inquiry)
                             ))
                     .from(inquiry)
@@ -229,8 +231,8 @@ public class AdminDashBoardRepository {
                                 DateFormatUtil.formatByDot.format(
                                         LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
 
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
-                                , StaticDataType.Inquiry, x.getContentId());
+                        boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
+                                , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
                     });
         List<ResponseLatestData> improveLatest=queryFactory.select(
@@ -248,6 +250,7 @@ public class AdminDashBoardRepository {
                                     member.nickname,
                                     improvement.content,
                                     improvement.createDate.stringValue(),
+                                    Expressions.constant(0L),
                                     Expressions.constant(StaticDataType.Improvement)
 
                             ))
@@ -263,7 +266,7 @@ public class AdminDashBoardRepository {
                     x.updateCreateAt(
                             DateFormatUtil.formatByDot.format(
                                     LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-                    boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
+                    boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                             , StaticDataType.Improvement, x.getContentId());
                     x.mappingCheckRead(readCheck);
                 });
@@ -314,7 +317,4 @@ public class AdminDashBoardRepository {
                 .staticDataName("InquiryImprovement")
                 .build();
     }
-
-
-
 }
