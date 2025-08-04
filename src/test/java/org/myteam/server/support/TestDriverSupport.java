@@ -38,9 +38,14 @@ import org.myteam.server.match.matchPredictionMember.repository.MatchPredictionM
 import org.myteam.server.match.team.domain.Team;
 import org.myteam.server.match.team.domain.TeamCategory;
 import org.myteam.server.match.team.repository.TeamRepository;
+import org.myteam.server.member.domain.MemberRole;
+import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.entity.MemberActivity;
 import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
+import org.myteam.server.member.service.SecurityReadService;
 import org.myteam.server.news.news.domain.News;
 import org.myteam.server.news.news.repository.NewsRepository;
 import org.myteam.server.news.newsCount.domain.NewsCount;
@@ -61,9 +66,13 @@ import org.myteam.server.util.slack.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 public abstract class TestDriverSupport {
@@ -152,6 +161,9 @@ public abstract class TestDriverSupport {
     @Autowired
     protected CommonCountAspect commonCountAspect;
 
+    @MockBean
+    SecurityReadService securityReadService;
+
     @AfterEach
     void tearDown() {
         commentRecommendRepository.deleteAllInBatch();
@@ -177,6 +189,33 @@ public abstract class TestDriverSupport {
         memberActivityRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
     }
+
+
+    @Transactional
+    protected Member createMember(int index) {
+        Member member = Member.builder()
+                .email("test" + index + "@test.com")
+                .password("1234")
+                .tel("01012345678")
+                .nickname("test" + index)
+                .role(MemberRole.USER)
+                .type(MemberType.LOCAL)
+                .publicId(UUID.randomUUID())
+                .status(MemberStatus.ACTIVE)
+                .build();
+
+        MemberActivity memberActivity = new MemberActivity(member);
+        Member savedMember = memberJpaRepository.save(member);
+
+        given(securityReadService.getMember())
+                .willReturn(savedMember);
+
+        given(securityReadService.getAuthenticatedPublicId())
+                .willReturn(member.getPublicId());
+
+        return savedMember;
+    }
+
 
     protected News createNews(int index, Category category, int count) {
         News savedNews = newsRepository.save(News.builder()

@@ -3,6 +3,8 @@ package org.myteam.server.comment.dto.response;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.myteam.server.comment.domain.Comment;
+import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.global.page.response.PageCustomResponse;
 import org.myteam.server.util.ClientUtils;
 
@@ -121,5 +124,13 @@ public record CommentResponse() {
                     .content(content)
                     .build();
         }
+    }
+
+    @AllArgsConstructor
+    public static class LatestCommentListResponse{
+        private Long commentId;
+        @Schema(description = "최신댓글이 어떤 게시글에 대한 댓글인지를 보여줍니다.")
+        private CommentType commentType;
+        private String content;
     }
 }

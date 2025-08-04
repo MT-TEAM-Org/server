@@ -1,10 +1,18 @@
 package org.myteam.server.global.util.redis.service;
 
+import java.sql.Date;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.myteam.server.admin.utill.StaticDataType;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisService { // TODO: RedisReportService 로 변경.
 
 	private final RedisTemplate<String, String> redisTemplate;
-
+	private static final String BOARD_RANK_KEY=":BoardRank";
 	private static final int ADMIN_LOGIN_MAX_REQUESTS=10;
 	private static final int MAX_REQUESTS = 3; // 제한 횟수 (기본값: 5분 동안 3회)
 	private static final long EXPIRED_TIME = 5L; // 만료 시간 (5분)
@@ -96,7 +104,30 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 			redisTemplate.expire(redisKey, Duration.ofMinutes(ADMIN_ALARM_READ_EXPIRE_TIME));
 		}
 	}
-
+	public void boardRecommendRankPerDay(Long contentId,Long delta){
+		LocalDateTime now = LocalDateTime.now().with(LocalTime.MIDNIGHT);
+		String key = now.toLocalDate().toString() +BOARD_RANK_KEY;
+		LocalDateTime nextMidnight = now.plusDays(1).with(LocalTime.MIDNIGHT);
+		redisTemplate.opsForZSet().incrementScore(key,contentId.toString(),delta);
+		redisTemplate.expireAt(key,Date.valueOf(nextMidnight.toLocalDate()));
+	}
+	public List<Long> getBoardRecommendRankPerDay(){
+		LocalDateTime now=LocalDateTime.now().with(LocalTime.MIDNIGHT);
+		String key=now+BOARD_RANK_KEY;
+		List<Long> ids=redisTemplate.opsForZSet().reverseRange(key,0,9)
+				.stream()
+				.filter(x->{
+					if(Long.parseLong(x)>0){
+						return true;
+					}
+					return false;
+				})
+				.map(x->{
+					return Long.parseLong(x);
+				})
+				.collect(Collectors.toList());
+		return ids;
+	}
 
 	/**
 	 * 요청 제한을 적용할 Redis Key 생성

@@ -1,5 +1,6 @@
 package org.myteam.server.comment.controller;
 
+import static org.myteam.server.comment.dto.response.CommentResponse.*;
 import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentDeleteRequest;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentSaveRequest;
+import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentSaveListResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
@@ -32,6 +34,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -167,6 +171,21 @@ public class CommentController {
                 SUCCESS.name(),
                 "베스트 댓글 목록 조회 성공",
                 bestComments
+        ));
+    }
+    @Operation(summary = "최신 댓글 조회", description = "최신 댓글들을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "최신 댓글 목록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "게시글이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/latest")
+    public ResponseEntity<ResponseDto<List<LatestCommentListResponse>>> getLatestComments() {
+        List<LatestCommentListResponse>
+                latestCommentListResponse=commentReadService.getLatestComments();
+        return ResponseEntity.ok(new ResponseDto<>(
+                SUCCESS.name(),
+                "베스트 댓글 목록 조회 성공",
+                latestCommentListResponse
         ));
     }
 }

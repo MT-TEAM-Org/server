@@ -1,11 +1,13 @@
 package org.myteam.server.comment.service;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.comment.domain.CommentType;
 import org.myteam.server.comment.dto.request.CommentRequest.CommentListRequest;
+import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentSaveListResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveListResponse;
@@ -25,6 +27,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.myteam.server.comment.dto.response.CommentResponse.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,9 @@ public class CommentReadService {
     private final SecurityReadService securityReadService;
     private final CommentRecommendReadService commentRecommendReadService;
 
+    public List<LatestCommentListResponse> getLatestComments(){
+        return commentQueryRepository.getNewestComment();
+    }
     public Comment findById(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.COMMENT_NOT_FOUND));
