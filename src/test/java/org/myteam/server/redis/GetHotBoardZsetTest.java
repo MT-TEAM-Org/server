@@ -53,27 +53,14 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
     @Autowired
     RedisCountService redisCountService;
 
-    private List<Member> memberList;
+    private List<Member> members;
     private List<Board> boardList;
 
 
     @BeforeEach
     void setting(){
-        for(int i=0;10>i;i++){
-            Board board=createBoard(memberList.get(i), Category.BASEBALL, CategoryType.FREE,"제목",
-                    "내용");
-            boardList.add(board);
-        }
-    }
-    @Test
-    @DisplayName("여러 사용자가 순위를 매기고 정합성이 잘지켜지는지 그리고 순위가 양수인 데이터만 잘가져오는지.")
-    void recommendZsetTest() throws ExecutionException, InterruptedException {
-        int threadCount = 10;
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
-        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
 
-        List<Member> members = new ArrayList<>();
-        for (int i = 0; i < threadCount; i++) {
+        for (int i = 0; i < 10; i++) {
             Member newMember = Member.builder()
                     .email("user" + i + "@test.com")
                     .password("1234")
@@ -87,7 +74,21 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
             memberJpaRepository.save(newMember);
             memberActivityRepository.save(new MemberActivity(newMember));
             members.add(newMember);
+
         }
+        for(int i=0;10>i;i++){
+            Board board=createBoard(members.get(i), Category.BASEBALL, CategoryType.FREE,"제목",
+                    "내용");
+            boardList.add(board);
+        }
+    }
+    @Test
+    @DisplayName("여러 사용자가 순위를 매기고 정합성이 잘지켜지는지 그리고 순위가 양수인 데이터만 잘가져오는지.")
+    void recommendZsetTest() throws ExecutionException, InterruptedException {
+        int threadCount = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
 
         for (Member m: members) {
             executorService.execute(() -> {
