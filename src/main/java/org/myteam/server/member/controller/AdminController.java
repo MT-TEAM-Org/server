@@ -49,7 +49,7 @@ public class AdminController {
     private final MemberService memberService;
     private final AdminMemberSearchService adminMemberSearchService;
 
-    @Operation(summary = "이메일로 회원 조회", description = "관리자가 특정 이메일을 가진 회원을 조회합니다.")
+    /*@Operation(summary = "이메일로 회원 조회", description = "관리자가 특정 이메일을 가진 회원을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원 정보 조회 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -99,7 +99,7 @@ public class AdminController {
                 "회원 삭제 성공",
                 null
         ));
-    }
+    }*/
 
     @Operation(summary = "회원 정보들을 조회", description = "각종 조건을 바탕으로 회원 정보들을 조회합니다.")
     @ApiResponses(value = {

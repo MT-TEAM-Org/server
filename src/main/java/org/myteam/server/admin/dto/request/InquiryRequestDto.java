@@ -98,10 +98,14 @@ public record InquiryRequestDto() {
         @NotNull(message = "contentid 는 비면안됩니다.")
         @Schema(description = "inquiry id값입니다. 필수입니다.")
         private Long contentId;
+        @Schema(description = "관리자단 대시보드의 최신데이터 알림에서 넘어올경우에만 넘겨주시면됩니다." +
+                "그외엔 null로 주시면됩니다.")
+        private String alarmCheck;
 
         @Builder
-        public RequestInquiryDetail(Long id) {
+        public RequestInquiryDetail(Long id,String alarmCheck) {
             this.contentId = id;
+            this.alarmCheck=alarmCheck;
         }
     }
 

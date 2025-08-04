@@ -17,6 +17,7 @@ public class AdminMemberChangeLog extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "public_id")
     private Member admin;
     private UUID memberId;
     @Enumerated(EnumType.STRING)

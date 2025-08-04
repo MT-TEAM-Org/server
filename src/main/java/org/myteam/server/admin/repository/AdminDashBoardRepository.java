@@ -22,13 +22,9 @@ import org.myteam.server.report.domain.ReportType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestLatestData;
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestStatic;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseLatestData;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
 import static org.myteam.server.board.domain.QBoard.board;
@@ -49,181 +45,87 @@ public class AdminDashBoardRepository {
     private final SecurityReadService securityReadService;
 
 
-    public ResponseStatic getStaticData(RequestStatic requestStatic) {
-
-        DateType dateType = requestStatic.getDateType();
-        StaticDataType staticDataType = requestStatic.getStaticDataType();
+    public List<ResponseStatic> getStaticData(StaticDataType staticDataType, DateType dateType) {
 
         return getStaticDataByRequest(dateType, staticDataType);
     }
 
-    private ResponseStatic getStaticDataByRequest(DateType dateType, StaticDataType staticDataType) {
+    private List<ResponseStatic> getStaticDataByRequest(DateType dateType, StaticDataType staticDataType) {
         LocalDateTime now = LocalDateTime.now();
 
         List<LocalDateTime> dateList = DateTypeFactory.SupplyDateTime(dateType, now);
 
-        LocalDateTime static_start_time = dateList.get(0);
-        LocalDateTime static_end_time = dateList.get(1);
-        LocalDateTime static_start_time2 = dateList.get(2);
-        LocalDateTime static_end_time2 = dateList.get(3);
-
-        if (staticDataType.name().equals(StaticDataType.BOARD.name())) {
-            return CreateStaticQueryFactory.createStaticQuery(board, dateType, dateList, queryFactory);
+        if(staticDataType.name().equals(StaticDataType.DashBoard.name())){
+            List<ResponseStatic> responseStatics=new ArrayList<>();
+            responseStatics.add(CreateStaticQueryFactory.createStaticQuery(board, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createStaticQuery(comment1, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createReportStaticQuery(dateType, dateList, queryFactory,ReportType.BOARD));
+            responseStatics.add(CreateStaticQueryFactory.createReportStaticQuery(dateType, dateList, queryFactory, ReportType.COMMENT));
+            responseStatics.add(makeInquiryImprovementStatic(dateType,dateList));
+            responseStatics.add(CreateStaticQueryFactory.createStaticQuery(memberAccess, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createUserDelStatic(dateType,dateList,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createStaticQuery(member, dateType, dateList, queryFactory));
+            return responseStatics;
         }
-        if (staticDataType.name().equals(StaticDataType.COMMENT.name())) {
-            return CreateStaticQueryFactory.createStaticQuery(comment1, dateType, dateList, queryFactory);
+        if(staticDataType.name().equals(StaticDataType.MemberBoard.name())){
+            List<ResponseStatic> responseStatics=new ArrayList<>();
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(member, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(memberAccess, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleUserDelStatic(dateType,dateList,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createStaticMemberStatusQuery(
+                    MemberStatus.WARNED,dateList,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createStaticMemberStatusQuery(
+                    MemberStatus.INACTIVE,dateList,queryFactory));
+            return responseStatics;
         }
-        if (staticDataType.name().equals(StaticDataType.UserSignIn.name())) {
-            return CreateStaticQueryFactory.createStaticQuery(member, dateType, dateList, queryFactory);
+        if(staticDataType.name().equals(StaticDataType.ContentBoard.name())){
+            List<ResponseStatic> responseStatics=new ArrayList<>();
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(board, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(comment1, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleReportStaticQuery(dateType, dateList, queryFactory,ReportType.BOARD));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleReportStaticQuery(dateType, dateList, queryFactory, ReportType.COMMENT));
+            responseStatics.add(CreateStaticQueryFactory.createStaticContentQuery(StaticDataType.BOARD,AdminControlType.HIDDEN
+                    ,dateList,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createStaticContentQuery(StaticDataType.COMMENT,AdminControlType.HIDDEN
+                    ,dateList,queryFactory));
+            return responseStatics;
         }
-        if (staticDataType.name().equals(StaticDataType.UserAccess.name())) {
-            return CreateStaticQueryFactory.createStaticQuery(memberAccess, dateType, dateList, queryFactory);
+        if(staticDataType.name().equals(StaticDataType.Inquiry.name())){
+            List<ResponseStatic> responseStatics=new ArrayList<>();
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(
+                    inquiry, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory
+                    .createInquiryStaticQuery(dateList,false,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory
+                    .createInquiryStaticQuery(dateList,true,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory
+                    .createMemberInquiryStaticQuery(dateList,true,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory
+                .createMemberInquiryStaticQuery(dateList,false,queryFactory));
+            return responseStatics;
         }
-        if (staticDataType.name().equals(StaticDataType.ImprovementInquiry.name())) {
-
-            ResponseStatic improvementResponse = CreateStaticQueryFactory.createStaticQuery(
-                    improvement, dateType, dateList, queryFactory);
-            ResponseStatic inquiryResponse = CreateStaticQueryFactory.createStaticQuery(
-                    inquiry, dateType, dateList, queryFactory);
-
-            Map<String, Long> improvementMap = improvementResponse.getCurrentStaticData();
-            Map<String, Long> inquiryMap = improvementResponse.getCurrentStaticData();
-
-            Map<String, Long> finalMap = Stream.concat(inquiryMap.entrySet().stream(),
-                            improvementMap.entrySet().stream())
-                    .collect(Collectors.toMap(
-                            entry -> entry.getKey(),
-                            entry -> entry.getValue(),
-                            (oldValue, newValue) -> oldValue + newValue
-                    ));
-            Long currentCount = improvementResponse.getCurrentCount() + inquiryResponse.getCurrentCount();
-            Long pastCount = improvementResponse.getPastCount() + inquiryResponse.getPastCount();
-            Long totCount = improvementResponse.getTotCount() + inquiryResponse.getTotCount();
-            int totPercent = StaticUtil.makeStaticPercent(currentCount, pastCount);
-
-            return ResponseStatic
-                    .builder()
-                    .currentStaticData(finalMap)
-                    .percent(totPercent)
-                    .totCount(totCount)
-                    .currentCount(currentCount)
-                    .pastCount(pastCount)
-                    .build();
+        if(staticDataType.name().equals(StaticDataType.Improvement.name())){
+            List<ResponseStatic> responseStatics=new ArrayList<>();
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(
+                    improvement, dateType, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory
+                    .createImprovementStaticQuery(dateList,StaticDataType.ImprovementPending,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory
+                    .createImprovementStaticQuery(dateList,StaticDataType.ImprovementReceived,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory
+                    .createImprovementStaticQuery(dateList,StaticDataType.ImprovementComplete,queryFactory));
+            return responseStatics;
 
         }
-        if (staticDataType.name().equals(StaticDataType.ReportedBoard.name())
-                || staticDataType.name().equals(StaticDataType.ReportedComment.name())) {
-
-            ReportType reportType = ReportType.BOARD;
-            if (staticDataType.name().equals(StaticDataType.ReportedComment.name())) {
-                reportType = ReportType.COMMENT;
-            }
-            return CreateStaticQueryFactory.createStaticQuery(dateType, dateList, queryFactory, reportType);
-        }
-
-        if (staticDataType.name().equals(StaticDataType.UserDeleted.name())) {
-
-            StringTemplate groupByDate = StaticUtil.delTemplate(dateType);
-
-            List<Tuple> current_count = queryFactory.select(groupByDate, member.count()).
-                    from(member)
-                    .where(StaticUtil.betweenStaticTimeDel(static_end_time, static_start_time))
-                    .groupBy(groupByDate)
-                    .orderBy(groupByDate.desc())
-                    .fetch();
-            Long past_count = queryFactory.select(member.count()).
-                    from(member)
-                    .where(StaticUtil.betweenStaticTimeDel(static_end_time2, static_start_time2))
-                    .fetch().get(0);
-
-            Long tot_count = queryFactory.select(member.count())
-                    .from(member)
-                    .where(member.deleteAt.isNotNull())
-                    .fetch().get(0);
-
-
-            Map<String, Long> currentStataicData = new HashMap<>();
-
-            current_count.stream()
-                    .forEach(x -> {
-                        currentStataicData.put(x.get(0, String.class), x.get(1, Long.class));
-                    });
-
-            Long sums = current_count
-                    .stream()
-                    .mapToLong(x -> {
-                        return x.get(1, Long.class);
-                    })
-                    .sum();
-
-            int percent = StaticUtil.makeStaticPercent(sums, past_count);
-
-            return ResponseStatic
-                    .builder()
-                    .currentStaticData(currentStataicData)
-                    .currentCount(sums)
-                    .pastCount(past_count)
-                    .totCount(tot_count)
-                    .percent(percent)
-                    .build();
-        }
-
-        if (staticDataType.name().equals(StaticDataType.UserWarned.name())){
-           return CreateStaticQueryFactory.createStaticMemberStatusQuery(
-                   MemberStatus.WARNED,dateList,queryFactory);
-        }
-        if (staticDataType.name().equals(StaticDataType.UserBanned.name())) {
-            return CreateStaticQueryFactory.createStaticMemberStatusQuery(
-                    MemberStatus.INACTIVE,dateList,queryFactory);
-        }
-        if (staticDataType.name().equals(StaticDataType.HideComment.name())
-        ||staticDataType.name().equals(StaticDataType.HideBoard.name())) {
-
-            StaticDataType staticDataType1=StaticDataType.HideComment.equals(StaticDataType.HideComment)
-                    ? StaticDataType.COMMENT:StaticDataType.BOARD;
-
-            return CreateStaticQueryFactory.createStaticContentQuery(staticDataType1,AdminControlType.HIDDEN
-                    ,dateList,queryFactory);
-        }
-        if(staticDataType.equals(StaticDataType.InquiryComplete)||staticDataType
-                .equals(StaticDataType.InquiryPending)){
-            if(staticDataType.equals(StaticDataType.InquiryComplete)){
-            return CreateStaticQueryFactory
-                    .createInquiryStaticQuery(dateList,true,queryFactory);}
-
-            return CreateStaticQueryFactory
-                    .createInquiryStaticQuery(dateList,false,queryFactory);
-        }
-        if(staticDataType.equals(StaticDataType.InquiryMember)||staticDataType
-                .equals(StaticDataType.InquiryNoMember)){
-            if(staticDataType.equals(StaticDataType.InquiryMember)){
-                return CreateStaticQueryFactory
-                        .createMemberInquiryStaticQuery(dateList,true,queryFactory);}
-
-            return CreateStaticQueryFactory
-                    .createMemberInquiryStaticQuery(dateList,false,queryFactory);
-        }
-
-        if(staticDataType.equals(StaticDataType.ImprovementComplete)||staticDataType
-                .equals(StaticDataType.ImprovementPending)||staticDataType
-                .equals(StaticDataType.ImprovementReceived)){
-            return CreateStaticQueryFactory
-                    .createImprovementStaticQuery(dateList,staticDataType,queryFactory);
-        }
-
-
-
         throw new PlayHiveException(ErrorCode.INVALID_PARAMETER, "없는 형식의 파라미터 입니다");
     }
 
 
-    public List<ResponseLatestData> getLatestData(RequestLatestData requestLatestData) {
 
+    public Map<String,List<ResponseLatestData>> getLatestData() {
         Member admin = securityReadService.getMember();
-
-        if (requestLatestData.getStaticDataType().name().equals(StaticDataType.Report.name())) {
-
-            List<ResponseLatestData> responseLatestDataList = queryFactory.select(
+        Map<String,List<ResponseLatestData>> latestDataResult=new HashMap<>();
+        List<ResponseLatestData> reportLatest=queryFactory.select(
                             Projections.constructor(ResponseLatestData.class,
                                     new CaseBuilder()
                                             .when(report.reportType.eq(ReportType.COMMENT))
@@ -235,7 +137,6 @@ public class AdminDashBoardRepository {
                                             .when(report.reportType.eq(ReportType.CHAT))
                                             .then("채팅")
                                             .otherwise("기타"),
-                                    Expressions.constant(StaticDataType.Report),
                                     new CaseBuilder()
                                             .when(report.reportType.eq(ReportType.COMMENT))
                                             .then(JPAExpressions.select(comment1.adminControlType.stringValue())
@@ -264,7 +165,9 @@ public class AdminDashBoardRepository {
                                             .otherwise(JPAExpressions.select(board.title)
                                                     .from(board)
                                                     .where(board.id.eq(report.reportedContentId))),
-                                    report.createDate.stringValue()
+                                    report.createDate.stringValue(),
+                                    report.id,
+                                    Expressions.constant(StaticDataType.Report)
                             ))
                     .from(report)
                     .join(member)
@@ -273,11 +176,10 @@ public class AdminDashBoardRepository {
                     .limit(10)
                     .offset(0)
                     .fetch();
-
-            responseLatestDataList.stream()
+            reportLatest.stream()
                     .forEach(x -> {
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
-                                , x.getStaticDataType(), x.getContentId());
+                        boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
+                                ,StaticDataType.Report, x.getContentId());
                         x.mappingCheckRead(readCheck);
                         x.updateCreateAt(
                                 DateFormatUtil.formatByDot.format(
@@ -294,16 +196,9 @@ public class AdminDashBoardRepository {
                         }
 
                     });
-
-            return responseLatestDataList;
-        }
-
-        if (requestLatestData.getStaticDataType().name().equals(StaticDataType.Inquiry.name())) {
-
-            List<ResponseLatestData> responseLatestDataList = queryFactory.select(
+         List<ResponseLatestData> inquiryLatest=queryFactory.select(
                             Projections.constructor(ResponseLatestData.class,
                                     Expressions.constant(""),
-                                    Expressions.constant(StaticDataType.Inquiry),
                                     new CaseBuilder()
                                             .when(inquiry.isAdminAnswered.isTrue())
                                             .then("답변완료")
@@ -314,40 +209,35 @@ public class AdminDashBoardRepository {
                                             .otherwise("회원"),
                                     inquiry.id,
                                     new CaseBuilder()
-                                            .when(member.nickname.isNull())
-                                            .then(member.email)
+                                            .when(member.isNull())
+                                            .then(inquiry.email)
                                             .otherwise(member.nickname),
                                     inquiry.content.substring(0, 20),
-                                    inquiry.createdAt.stringValue()
+                                    inquiry.createdAt.stringValue(),
+                                    Expressions.constant(0L),
+                                    Expressions.constant(StaticDataType.Inquiry)
                             ))
                     .from(inquiry)
-                    .join(member)
+                    .leftJoin(member)
                     .on(member.eq(inquiry.member))
                     .orderBy(inquiry.createdAt.desc())
                     .limit(10)
                     .offset(0)
                     .fetch();
-            responseLatestDataList.stream()
+            inquiryLatest.stream()
                     .forEach(x -> {
 
                         x.updateCreateAt(
                                 DateFormatUtil.formatByDot.format(
                                         LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
 
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
+                        boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
                     });
-
-            return responseLatestDataList;
-        }
-        if (requestLatestData.getStaticDataType().name().equals(StaticDataType.Improvement.name())) {
-
-
-            List<ResponseLatestData> responseLatestDataList = queryFactory.select(
+        List<ResponseLatestData> improveLatest=queryFactory.select(
                             Projections.constructor(ResponseLatestData.class,
                                     Expressions.constant(""),
-                                    Expressions.constant(StaticDataType.Improvement),
                                     new CaseBuilder()
                                             .when(improvement.improvementStatus.eq(ImprovementStatus.COMPLETED))
                                             .then("완료")
@@ -359,7 +249,9 @@ public class AdminDashBoardRepository {
                                     improvement.id,
                                     member.nickname,
                                     improvement.content,
-                                    improvement.createDate.stringValue()
+                                    improvement.createDate.stringValue(),
+                                    Expressions.constant(0L),
+                                    Expressions.constant(StaticDataType.Improvement)
 
                             ))
                     .from(improvement)
@@ -369,22 +261,60 @@ public class AdminDashBoardRepository {
                     .limit(10)
                     .offset(0)
                     .fetch();
-
-
-            responseLatestDataList.stream()
-                    .forEach(x -> {
-                        x.updateCreateAt(
-                                DateFormatUtil.formatByDot.format(
-                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-                        boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
-                                , x.getStaticDataType(), x.getContentId());
-                        x.mappingCheckRead(readCheck);
-                    });
-
-            return responseLatestDataList;
-        }
-
-        throw new PlayHiveException(ErrorCode.INVALID_PARAMETER, "없는 형식의 파라미터 입니다");
+        improveLatest.stream()
+                .forEach(x -> {
+                    x.updateCreateAt(
+                            DateFormatUtil.formatByDot.format(
+                                    LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
+                    boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
+                            , StaticDataType.Improvement, x.getContentId());
+                    x.mappingCheckRead(readCheck);
+                });
+        latestDataResult.put(StaticDataType.Report.name(),reportLatest);
+        latestDataResult.put(StaticDataType.Inquiry.name(),inquiryLatest);
+        latestDataResult.put(StaticDataType.Improvement.name(),improveLatest);
+        return latestDataResult;
     }
 
+    private ResponseStatic makeInquiryImprovementStatic(DateType dateType,List<LocalDateTime> dateList){
+        ResponseStatic improvementResponse = CreateStaticQueryFactory.createStaticQuery(
+                improvement, dateType, dateList, queryFactory);
+        ResponseStatic inquiryResponse = CreateStaticQueryFactory.createStaticQuery(
+                inquiry, dateType, dateList, queryFactory);
+
+        Map<String, Long> improvementMap = improvementResponse.getCurrentStaticData();
+        Map<String, Long> inquiryMap = improvementResponse.getCurrentStaticData();
+        Map<String, Long> finalMap = Stream.concat(inquiryMap.entrySet().stream(),
+                        improvementMap.entrySet().stream())
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey(),
+                        entry -> entry.getValue(),
+                        (oldValue, newValue) -> oldValue + newValue
+                ));
+        Map<String, Long> improvementPastMap = improvementResponse.getCurrentStaticData();
+        Map<String, Long> inquiryPastMap = improvementResponse.getCurrentStaticData();
+        Map<String, Long> finalPastMap = Stream.concat(inquiryPastMap.entrySet().stream(),
+                        improvementPastMap.entrySet().stream())
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey(),
+                        entry -> entry.getValue(),
+                        (oldValue, newValue) -> oldValue + newValue
+                ));
+
+        Long currentCount = improvementResponse.getCurrentCount() + inquiryResponse.getCurrentCount();
+        Long pastCount = improvementResponse.getPastCount() + inquiryResponse.getPastCount();
+        Long totCount = improvementResponse.getTotCount() + inquiryResponse.getTotCount();
+        int totPercent = StaticUtil.makeStaticPercent(currentCount, pastCount);
+
+        return ResponseStatic
+                .builder()
+                .currentStaticData(finalMap)
+                .pastStaticData(finalPastMap)
+                .percent(totPercent)
+                .totCount(totCount)
+                .currentCount(currentCount)
+                .pastCount(pastCount)
+                .staticDataName("InquiryImprovement")
+                .build();
+    }
 }
