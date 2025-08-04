@@ -162,7 +162,7 @@ public abstract class TestDriverSupport {
     protected CommonCountAspect commonCountAspect;
 
     @MockBean
-    SecurityReadService securityReadService;
+    protected  SecurityReadService securityReadService;
 
     @AfterEach
     void tearDown() {
@@ -188,32 +188,6 @@ public abstract class TestDriverSupport {
         improvementRepository.deleteAllInBatch();
         memberActivityRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
-    }
-
-
-    @Transactional
-    protected Member createMember(int index) {
-        Member member = Member.builder()
-                .email("test" + index + "@test.com")
-                .password("1234")
-                .tel("01012345678")
-                .nickname("test" + index)
-                .role(MemberRole.USER)
-                .type(MemberType.LOCAL)
-                .publicId(UUID.randomUUID())
-                .status(MemberStatus.ACTIVE)
-                .build();
-
-        MemberActivity memberActivity = new MemberActivity(member);
-        Member savedMember = memberJpaRepository.save(member);
-
-        given(securityReadService.getMember())
-                .willReturn(savedMember);
-
-        given(securityReadService.getAuthenticatedPublicId())
-                .willReturn(member.getPublicId());
-
-        return savedMember;
     }
 
 

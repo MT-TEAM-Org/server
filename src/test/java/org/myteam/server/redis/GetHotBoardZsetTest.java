@@ -40,6 +40,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -58,11 +59,6 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
 
     @BeforeEach
     void setting(){
-        for(int i=0;10>i;i++){
-            Member m=createMember(i);
-            memberList.add(m);
-
-        }
         for(int i=0;10>i;i++){
             Board board=createBoard(memberList.get(i), Category.BASEBALL, CategoryType.FREE,"제목",
                     "내용");
