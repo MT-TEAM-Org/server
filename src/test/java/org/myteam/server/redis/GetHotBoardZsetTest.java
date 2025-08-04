@@ -79,7 +79,7 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
         for(int i=0;10>i;i++){
             Board board=createBoard(members.get(i), Category.BASEBALL, CategoryType.FREE,"제목",
                     "내용");
-            boardList.add(board);
+            System.out.printf("boardid:%d",board.getId());
         }
     }
     @Test
@@ -101,7 +101,7 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
                 SecurityContextHolder.setContext(context);
                 try {
                     boardList.stream().forEach(x->{
-                        System.out.printf("boardid:%d",x.getId());
+
                         if(x.getId()%2==0) {
 
                             redisCountService.getCommonCount(ServiceType.RECOMMEND,

@@ -111,16 +111,16 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 	public List<Long> getBoardRecommendRankPerDay(){
 		LocalDateTime now=LocalDateTime.now().with(LocalTime.MIDNIGHT);
 		String key=now+BOARD_RANK_KEY;
-		List<Long> ids=redisTemplate.opsForZSet().reverseRange(key,0,9)
+		List<Long> ids=redisTemplate.opsForZSet().reverseRangeWithScores(key,0,9)
 				.stream()
 				.filter(x->{
-					if(Long.parseLong(x)>0){
+					if(x.getScore()>0){
 						return true;
 					}
 					return false;
 				})
 				.map(x->{
-					return Long.parseLong(x);
+					return Long.parseLong(x.getValue());
 				})
 				.collect(Collectors.toList());
 		return ids;
