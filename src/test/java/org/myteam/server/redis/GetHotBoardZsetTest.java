@@ -101,7 +101,9 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
                 SecurityContextHolder.setContext(context);
                 try {
                     boardList.stream().forEach(x->{
+                        System.out.printf("boardid:%d",x.getId());
                         if(x.getId()%2==0) {
+
                             redisCountService.getCommonCount(ServiceType.RECOMMEND,
                                     DomainType.BOARD, x.getId(), null);
                         }
