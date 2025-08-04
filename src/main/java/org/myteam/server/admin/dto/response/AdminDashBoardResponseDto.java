@@ -59,7 +59,7 @@ public record AdminDashBoardResponseDto() {
             this.content = content;
             this.createAt = createAt;
             this.reportId=reportId;
-            this.staticDataType=staticDataType
+            this.staticDataType=staticDataType;
         }
 
         public void updateCreateAt(String createAt) {
