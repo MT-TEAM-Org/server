@@ -49,8 +49,8 @@ public record AdminDashBoardResponseDto() {
 
         public ResponseLatestData(String reportType,
                                   String mainStatus, String subStatus, Long contentId,
-                                  String name, String content, String createAt,Long reportId,
-        StaticDataType staticDateType) {
+                                  String name, String content, String createAt,Long reportId
+        ,StaticDataType staticDataType) {
             this.reportType = reportType;
             this.mainStatus = mainStatus;
             this.subStatus = subStatus;
@@ -59,7 +59,7 @@ public record AdminDashBoardResponseDto() {
             this.content = content;
             this.createAt = createAt;
             this.reportId=reportId;
-            this.staticDataType=staticDateType;
+            this.staticDataType=staticDataType;
         }
 
         public void updateCreateAt(String createAt) {
