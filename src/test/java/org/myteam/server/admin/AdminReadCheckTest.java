@@ -1,6 +1,5 @@
 package org.myteam.server.admin;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.chat.block.domain.BanReason;
-import org.myteam.server.common.certification.service.InquiryAnsSendService;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.improvement.domain.Improvement;
 import org.myteam.server.inquiry.domain.Inquiry;
@@ -22,12 +20,11 @@ import org.myteam.server.report.domain.Report;
 import org.myteam.server.report.domain.ReportType;
 import org.myteam.server.support.IntegrationTestSupport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
 import java.util.List;
+import java.util.Map;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.*;
 import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
 import static org.myteam.server.admin.dto.request.InquiryRequestDto.*;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.*;
@@ -72,24 +69,19 @@ public class AdminReadCheckTest extends IntegrationTestSupport {
         when(redisService.AdminReadCheck(admin.getPublicId().toString()
                 , StaticDataType.Improvement,improvement.getId()))
                 .thenReturn(false);
-        RequestLatestData requestLatestData=RequestLatestData
-                .builder()
-                .staticDataType(StaticDataType.Inquiry)
-                .build();
-        RequestLatestData requestLatestData2=RequestLatestData
-                .builder()
-                .staticDataType(StaticDataType.Improvement)
-                .build();
-        List<ResponseLatestData> responseLatestData=adminDashBoardRepository.getLatestData(requestLatestData);
-        List<ResponseLatestData> responseLatestData2=adminDashBoardRepository.getLatestData(requestLatestData2);
-        responseLatestData.stream()
-                .forEach(x->{
-                    Assertions.assertThat(x.getCheckRead()).isFalse();
-                });
-        responseLatestData2.stream()
-                .forEach(x->{
-                    Assertions.assertThat(x.getCheckRead()).isFalse();
-                });
+        Map<String,List<ResponseLatestData>> responseLatestData=adminDashBoardRepository.getLatestData();
+        responseLatestData.keySet().stream().forEach(
+                x->{
+                    List<ResponseLatestData> responseLatestDataList=
+                            responseLatestData.get((String) x);
+
+                    responseLatestDataList.stream()
+                            .forEach(y->{
+                                assertThat(y.getCheckRead()).isFalse();
+                            });
+                }
+        );
+
     }
     @DisplayName("읽음으로 정상 처리되는지")
     void testRead(){
@@ -99,24 +91,19 @@ public class AdminReadCheckTest extends IntegrationTestSupport {
         when(redisService.AdminReadCheck(admin.getPublicId().toString()
                 , StaticDataType.Improvement,improvement.getId()))
                 .thenReturn(true);
-        RequestLatestData requestLatestData=RequestLatestData
-                .builder()
-                .staticDataType(StaticDataType.Inquiry)
-                .build();
-        RequestLatestData requestLatestData2=RequestLatestData
-                .builder()
-                .staticDataType(StaticDataType.Improvement)
-                .build();
-        List<ResponseLatestData> responseLatestData=adminDashBoardRepository.getLatestData(requestLatestData);
-        List<ResponseLatestData> responseLatestData2=adminDashBoardRepository.getLatestData(requestLatestData2);
-        responseLatestData.stream()
-                .forEach(x->{
-                    Assertions.assertThat(x.getCheckRead()).isTrue();
-                });
-        responseLatestData2.stream()
-                .forEach(x->{
-                    Assertions.assertThat(x.getCheckRead()).isTrue();
-                });
+        Map<String,List<ResponseLatestData>> responseLatestData=adminDashBoardRepository.getLatestData();
+        responseLatestData.keySet().stream().forEach(
+                x->{
+                    List<ResponseLatestData> responseLatestDataList=
+                            responseLatestData.get((String) x);
+
+                    responseLatestDataList.stream()
+                            .forEach(y->{
+                                assertThat(y.getCheckRead()).isFalse();
+                            });
+                }
+        );
+
     }
 
     @DisplayName("content detail 서비스로 접근시 호출이잘되는가")

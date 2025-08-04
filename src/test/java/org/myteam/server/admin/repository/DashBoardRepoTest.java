@@ -46,13 +46,11 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestLatestData;
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestStatic;
+import static org.assertj.core.api.Assertions.*;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseLatestData;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_ACCESS;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -147,7 +145,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
                                 .build();
 
 
-                        AdminInquiryChangeLog adminInquiryChangeLog=
+                       AdminInquiryChangeLog adminInquiryChangeLog=
                                 AdminInquiryChangeLog
                                         .builder()
                                         .isMember(true)
@@ -215,77 +213,61 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         @Test
         @DisplayName("문의 개선 건의사항 세부 통계테스트")
         void testGetInquiryImprovementTest(){
-            RequestStatic InquiryFin= RequestStatic
-                    .builder()
-                    .staticDataType(StaticDataType.InquiryComplete)
-                    .dateType(DateType.Day)
-                    .build();
 
-            RequestStatic InquiryNotFin = RequestStatic
-                    .builder()
-                    .staticDataType(StaticDataType.InquiryPending)
-                    .dateType(DateType.Day)
-                    .build();
-
-            ResponseStatic responseStatic=adminDashBoardService.getStaticData(InquiryFin);
-            ResponseStatic responseStatic1=adminDashBoardService.getStaticData(InquiryNotFin);
-
-            assertThat(responseStatic.getCurrentCount()).isEqualTo(5);
-            assertThat(responseStatic.getPastCount()).isEqualTo(0);
-            assertThat(responseStatic.getPercent()).isEqualTo(100);
-
-            assertThat(responseStatic1.getCurrentCount()).isEqualTo(5);
-            assertThat(responseStatic1.getPastCount()).isEqualTo(0);
-            assertThat(responseStatic1.getPercent()).isEqualTo(100);
-
-            RequestStatic InquiryIsMember= RequestStatic
-                    .builder()
-                    .staticDataType(StaticDataType.InquiryMember)
-                    .dateType(DateType.Day)
-                    .build();
-
-            RequestStatic InquiryNotMember = RequestStatic
-                    .builder()
-                    .staticDataType(StaticDataType.InquiryNoMember)
-                    .dateType(DateType.Day)
-                    .build();
-
-            ResponseStatic responseStaticIsMember=adminDashBoardService.getStaticData(InquiryIsMember);
-            ResponseStatic responseStaticNotMember=adminDashBoardService.getStaticData(InquiryNotMember);
-
-            assertThat(responseStaticIsMember.getCurrentCount()).isEqualTo(5);
-            assertThat(responseStaticIsMember.getPastCount()).isEqualTo(0);
-            assertThat(responseStaticIsMember.getPercent()).isEqualTo(100);
-
-            assertThat(responseStaticNotMember.getCurrentCount()).isEqualTo(5);
-            assertThat(responseStaticNotMember.getPastCount()).isEqualTo(0);
-            assertThat(responseStaticNotMember.getPercent()).isEqualTo(100);
+            List<ResponseStatic> responseStatics=adminDashBoardService.getStaticData(StaticDataType.Inquiry,DateType.Day);
 
 
+            assertThat(responseStatics.size()).isEqualTo(5);
+
+            assertThat(responseStatics.get(0).getStaticDataName()).isEqualTo("Inquiry");
+            assertThat(responseStatics.get(0).getCurrentCount()).isEqualTo(10);
+            assertThat(responseStatics.get(0).getPastCount()).isEqualTo(0);
+            assertThat(responseStatics.get(0).getPercent()).isEqualTo(100);
+
+            assertThat(responseStatics.get(1).getStaticDataName()).isEqualTo("InquiryPending");
+            assertThat(responseStatics.get(1).getCurrentCount()).isEqualTo(5);
+            assertThat(responseStatics.get(1).getPastCount()).isEqualTo(0);
+            assertThat(responseStatics.get(1).getPercent()).isEqualTo(100);
+
+            assertThat(responseStatics.get(2).getStaticDataName()).isEqualTo("InquiryComplete");
+            assertThat(responseStatics.get(2).getCurrentCount()).isEqualTo(5);
+            assertThat(responseStatics.get(2).getPastCount()).isEqualTo(0);
+            assertThat(responseStatics.get(2).getPercent()).isEqualTo(100);
+
+            assertThat(responseStatics.get(3).getStaticDataName()).isEqualTo("InquiryMember");
+            assertThat(responseStatics.get(3).getCurrentCount()).isEqualTo(5);
+            assertThat(responseStatics.get(3).getPastCount()).isEqualTo(0);
+            assertThat(responseStatics.get(3).getPercent()).isEqualTo(100);
+
+            assertThat(responseStatics.get(4).getStaticDataName()).isEqualTo("InquiryNoMember");
+            assertThat(responseStatics.get(4).getCurrentCount()).isEqualTo(5);
+            assertThat(responseStatics.get(4).getPastCount()).isEqualTo(0);
+            assertThat(responseStatics.get(4).getPercent()).isEqualTo(100);
 
 
-            RequestStatic ImprovementFin= RequestStatic
-                    .builder()
-                    .staticDataType(StaticDataType.ImprovementComplete)
-                    .dateType(DateType.Day)
-                    .build();
+            List<ResponseStatic> responseImproves=adminDashBoardService.getStaticData(StaticDataType.Improvement,DateType.Day);
 
-            RequestStatic ImprovementPending = RequestStatic
-                    .builder()
-                    .staticDataType(StaticDataType.ImprovementPending)
-                    .dateType(DateType.Day)
-                    .build();
-            ResponseStatic responseStaticComplete=adminDashBoardService.getStaticData(ImprovementFin);
-            ResponseStatic responseStaticPending=adminDashBoardService.getStaticData(ImprovementPending);
+            assertThat(responseImproves.size()).isEqualTo(4);
 
-            assertThat(responseStaticComplete.getCurrentCount()).isEqualTo(5);
-            assertThat(responseStaticComplete.getPastCount()).isEqualTo(0);
-            assertThat(responseStaticComplete.getPercent()).isEqualTo(100);
+            assertThat(responseImproves.get(0).getStaticDataName()).isEqualTo("Improvement");
+            assertThat(responseImproves.get(0).getCurrentCount()).isEqualTo(10);
+            assertThat(responseImproves.get(0).getPastCount()).isEqualTo(0);
+            assertThat(responseImproves.get(0).getPercent()).isEqualTo(100);
 
-            assertThat(responseStaticPending.getCurrentCount()).isEqualTo(5);
-            assertThat(responseStaticPending.getPastCount()).isEqualTo(0);
-            assertThat(responseStaticPending.getPercent()).isEqualTo(100);
+            assertThat(responseImproves.get(1).getStaticDataName()).isEqualTo("ImprovementPending");
+            assertThat(responseImproves.get(1).getCurrentCount()).isEqualTo(5);
+            assertThat(responseImproves.get(1).getPastCount()).isEqualTo(0);
+            assertThat(responseImproves.get(1).getPercent()).isEqualTo(100);
 
+            assertThat(responseImproves.get(2).getStaticDataName()).isEqualTo("ImprovementReceived");
+            assertThat(responseImproves.get(2).getCurrentCount()).isEqualTo(0);
+            assertThat(responseImproves.get(2).getPastCount()).isEqualTo(0);
+            assertThat(responseImproves.get(2).getPercent()).isEqualTo(0);
+
+            assertThat(responseImproves.get(3).getStaticDataName()).isEqualTo("ImprovementComplete");
+            assertThat(responseImproves.get(3).getCurrentCount()).isEqualTo(5);
+            assertThat(responseImproves.get(3).getPastCount()).isEqualTo(0);
+            assertThat(responseImproves.get(3).getPercent()).isEqualTo(100);
         }
 
 
@@ -295,141 +277,106 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
     void testGetDataByDay() {
         LocalDateTime now = LocalDateTime.now();
 
-        RequestStatic requestStaticComment = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.ReportedComment)
-                .dateType(DateType.Day)
-                .build();
-        RequestStatic requestStaticImprovement = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.ImprovementInquiry)
-                .dateType(DateType.Day)
-                .build();
 
-        RequestStatic requestStaticBoard = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.ReportedBoard)
-                .dateType(DateType.Day)
-                .build();
-        RequestStatic requestStaticSignIn = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.UserSignIn)
-                .dateType(DateType.Day)
-                .build();
-        RequestStatic requestStaticDelete = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.UserDeleted)
-                .dateType(DateType.Day)
-                .build();
-        RequestStatic requestStaticAccess = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.UserAccess)
-                .dateType(DateType.Day)
-                .build();
-
-        RequestStatic requestStaticWarned = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.UserWarned)
-                .dateType(DateType.Day)
-                .build();
-
-        RequestStatic requestStaticBanned = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.UserBanned)
-                .dateType(DateType.Day)
-                .build();
-
-        RequestStatic requestStaticHiddenComment = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.HideComment)
-                .dateType(DateType.Day)
-                .build();
-
-        RequestStatic requestStaticHiddenBoard = RequestStatic
-                .builder()
-                .staticDataType(StaticDataType.HideBoard)
-                .dateType(DateType.Day)
-                .build();
+        List<ResponseStatic> responseStaticsDashBoard=adminDashBoardService.getStaticData(StaticDataType.DashBoard,DateType.Day);
+        List<ResponseStatic> responseStaticsMemberBoard=adminDashBoardService.getStaticData(StaticDataType.MemberBoard,DateType.Day);
+        List<ResponseStatic> responseStaticsContentBoard=adminDashBoardService.getStaticData(StaticDataType.ContentBoard,DateType.Day);
 
 
-        ResponseStatic responseStaticBoard = adminDashBoardService.getStaticData(requestStaticBoard);
-        ResponseStatic responseStaticComment = adminDashBoardService.getStaticData(requestStaticComment);
-        ResponseStatic responseStaticDelete = adminDashBoardService.getStaticData(requestStaticDelete);
-        ResponseStatic responseStaticSignIn = adminDashBoardService.getStaticData(requestStaticSignIn);
-        ResponseStatic responseStaticImprovement = adminDashBoardService.getStaticData(requestStaticImprovement);
-        ResponseStatic responseStaticUserAccess = adminDashBoardService.getStaticData(requestStaticAccess);
-        ResponseStatic responseStaticWarned = adminDashBoardService.getStaticData(requestStaticWarned);
-        ResponseStatic responseStaticBanned = adminDashBoardService.getStaticData(requestStaticBanned);
-        ResponseStatic responseStaticHiddenComment = adminDashBoardService.getStaticData(requestStaticHiddenComment);
-        ResponseStatic responseStaticHiddenBoard = adminDashBoardService.getStaticData(requestStaticHiddenBoard);
+        assertThat(responseStaticsDashBoard.size()).isEqualTo(8);
+
+        assertThat(responseStaticsDashBoard.get(0).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(0).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(0).getCurrentCount()).isEqualTo(10);
+        assertThat(responseStaticsDashBoard.get(0).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsDashBoard.get(0).getTotCount()).isEqualTo(10);
+        assertThat(responseStaticsDashBoard.get(0).getPercent()).isEqualTo(100);
+
+        assertThat(responseStaticsDashBoard.get(1).getStaticDataName()).isEqualTo("Comment");
+        assertThat(responseStaticsDashBoard.get(1).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(1).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(1).getCurrentCount()).isEqualTo(10);
+        assertThat(responseStaticsDashBoard.get(1).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsDashBoard.get(1).getTotCount()).isEqualTo(10);
+        assertThat(responseStaticsDashBoard.get(1).getPercent()).isEqualTo(100);
+
+        assertThat(responseStaticsDashBoard.get(2).getStaticDataName()).isEqualTo("ReportedBoard");
+        assertThat(responseStaticsDashBoard.get(2).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(2).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(2).getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticsDashBoard.get(2).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsDashBoard.get(2).getTotCount()).isEqualTo(5);
+        assertThat(responseStaticsDashBoard.get(2).getPercent()).isEqualTo(100);
+
+        assertThat(responseStaticsDashBoard.get(3).getStaticDataName()).isEqualTo("ReportedComment");
+        assertThat(responseStaticsDashBoard.get(3).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(3).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(3).getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticsDashBoard.get(3).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsDashBoard.get(3).getTotCount()).isEqualTo(5);
+        assertThat(responseStaticsDashBoard.get(3).getPercent()).isEqualTo(100);
+
+        assertThat(responseStaticsDashBoard.get(4).getStaticDataName()).isEqualTo("InquiryImprovement");
+        assertThat(responseStaticsDashBoard.get(4).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(4).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(4).getCurrentCount()).isEqualTo(20);
+        assertThat(responseStaticsDashBoard.get(4).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsDashBoard.get(4).getTotCount()).isEqualTo(20);
+        assertThat(responseStaticsDashBoard.get(4).getPercent()).isEqualTo(100);
+
+        assertThat(responseStaticsDashBoard.get(5).getStaticDataName()).isEqualTo("MemberAccess");
+        assertThat(responseStaticsDashBoard.get(5).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(5).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(5).getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticsDashBoard.get(5).getPastCount()).isEqualTo(5);
+        assertThat(responseStaticsDashBoard.get(5).getTotCount()).isEqualTo(10);
+        assertThat(responseStaticsDashBoard.get(5).getPercent()).isEqualTo(0);
+
+        assertThat(responseStaticsDashBoard.get(6).getStaticDataName()).isEqualTo("UserDeleted");
+        assertThat(responseStaticsDashBoard.get(6).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(6).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(6).getCurrentCount()).isEqualTo(0);
+        assertThat(responseStaticsDashBoard.get(6).getPastCount()).isEqualTo(5);
+        assertThat(responseStaticsDashBoard.get(6).getTotCount()).isEqualTo(10);
+        assertThat(responseStaticsDashBoard.get(6).getPercent()).isEqualTo(-100);
+
+        assertThat(responseStaticsDashBoard.get(7).getStaticDataName()).isEqualTo("UserSignIn");
+        assertThat(responseStaticsDashBoard.get(7).getCurrentStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(7).getPastStaticData().keySet().size()).isEqualTo(1);
+        assertThat(responseStaticsDashBoard.get(7).getCurrentCount()).isEqualTo(11);
+        assertThat(responseStaticsDashBoard.get(7).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsDashBoard.get(7).getTotCount()).isEqualTo(11);
+        assertThat(responseStaticsDashBoard.get(7).getPercent()).isEqualTo(100);
 
 
-        assertThat(responseStaticBoard.getCurrentStaticData().keySet().size()).isEqualTo(1);
-        assertThat(responseStaticBoard.getCurrentCount()).isEqualTo(5);
-        assertThat(responseStaticBoard.getPastCount()).isEqualTo(0);
-        assertThat(responseStaticBoard.getTotCount()).isEqualTo(5);
-        assertThat(responseStaticBoard.getPercent()).isEqualTo(100);
 
-        assertThat(responseStaticComment.getCurrentStaticData().keySet().size()).isEqualTo(1);
-        assertThat(responseStaticComment.getCurrentCount()).isEqualTo(5);
-        assertThat(responseStaticComment.getPastCount()).isEqualTo(0);
-        assertThat(responseStaticComment.getTotCount()).isEqualTo(5);
-        assertThat(responseStaticComment.getPercent()).isEqualTo(100);
+        assertThat(responseStaticsMemberBoard.size()).isEqualTo(5);
 
-        assertThat(responseStaticImprovement.getCurrentStaticData().keySet().size()).isEqualTo(1);
-        assertThat(responseStaticImprovement.getCurrentCount()).isEqualTo(20);
-        assertThat(responseStaticImprovement.getPastCount()).isEqualTo(0);
-        assertThat(responseStaticImprovement.getTotCount()).isEqualTo(20);
-        assertThat(responseStaticImprovement.getPercent()).isEqualTo(100);
+        assertThat(responseStaticsMemberBoard.get(3).getStaticDataName()).isEqualTo("UserWarned");
+        assertThat(responseStaticsMemberBoard.get(3).getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticsMemberBoard.get(3).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsMemberBoard.get(3).getTotCount()).isEqualTo(5);
+        assertThat(responseStaticsMemberBoard.get(3).getPercent()).isEqualTo(100);
 
-        assertThat(responseStaticSignIn.getCurrentStaticData().keySet().size()).isEqualTo(1);
-        assertThat(responseStaticSignIn.getCurrentCount()).isEqualTo(11);
-        assertThat(responseStaticSignIn.getPastCount()).isEqualTo(0);
-        assertThat(responseStaticSignIn.getTotCount()).isEqualTo(11);
-        assertThat(responseStaticSignIn.getPercent()).isEqualTo(100);
+        assertThat(responseStaticsMemberBoard.get(4).getStaticDataName()).isEqualTo("UserBanned");
+        assertThat(responseStaticsMemberBoard.get(4).getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticsMemberBoard.get(4).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsMemberBoard.get(4).getTotCount()).isEqualTo(5);
+        assertThat(responseStaticsMemberBoard.get(4).getPercent()).isEqualTo(100);
 
-        assertThat(responseStaticDelete.getCurrentStaticData().keySet().size()).isEqualTo(0);
-        assertThat(responseStaticDelete.getCurrentCount()).isEqualTo(0);
-        assertThat(responseStaticDelete.getPastCount()).isEqualTo(5);
-        assertThat(responseStaticDelete.getTotCount()).isEqualTo(10);
-        assertThat(responseStaticDelete.getPercent()).isEqualTo(-100);
+        assertThat(responseStaticsContentBoard.size()).isEqualTo(6);
 
-        assertThat(responseStaticUserAccess.getCurrentStaticData().keySet().size()).isEqualTo(1);
-        assertThat(responseStaticUserAccess.getCurrentCount()).isEqualTo(5);
-        assertThat(responseStaticUserAccess.getPastCount()).isEqualTo(5);
-        assertThat(responseStaticUserAccess.getTotCount()).isEqualTo(10);
-        assertThat(responseStaticUserAccess.getPercent()).isEqualTo(0);
+        assertThat(responseStaticsContentBoard.get(4).getStaticDataName()).isEqualTo("HideBoard");
+        assertThat(responseStaticsContentBoard.get(4).getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticsContentBoard.get(4).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsContentBoard.get(4).getTotCount()).isEqualTo(5);
+        assertThat(responseStaticsContentBoard.get(4).getPercent()).isEqualTo(100);
 
-        assertThat(responseStaticWarned.getCurrentCount()).isEqualTo(5);
-        assertThat(responseStaticWarned.getPercent()).isEqualTo(100);
-        assertThat(responseStaticWarned.getPastCount()).isEqualTo(0);
-
-        assertThat(responseStaticBanned.getCurrentCount()).isEqualTo(5);
-        assertThat(responseStaticBanned.getPercent()).isEqualTo(100);
-        assertThat(responseStaticBanned.getPastCount()).isEqualTo(0);
-
-        assertThat(responseStaticHiddenBoard.getCurrentCount()).isEqualTo(5);
-        assertThat(responseStaticHiddenBoard.getPercent()).isEqualTo(100);
-        assertThat(responseStaticHiddenBoard.getPastCount()).isEqualTo(0);
-
-        assertThat(responseStaticHiddenComment.getCurrentCount()).isEqualTo(5);
-        assertThat(responseStaticHiddenComment.getPercent()).isEqualTo(100);
-        assertThat(responseStaticHiddenComment.getPastCount()).isEqualTo(0);
-
-        Map<String, Long> hashmap = responseStaticImprovement.getCurrentStaticData();
-
-        hashmap.keySet().stream()
-                .forEach(x -> {
-                    assertThat(hashmap.get(x)).isEqualTo(20);
-                });
-
-
-        Map<String, Long> hashmap2 = responseStaticUserAccess.getCurrentStaticData();
-
-        hashmap2.keySet().stream()
-                .forEach(x -> {
-                    assertThat(hashmap2.get(x)).isEqualTo(5);
-                });
+        assertThat(responseStaticsContentBoard.get(5).getStaticDataName()).isEqualTo("HideComment");
+        assertThat(responseStaticsContentBoard.get(5).getTotCount()).isEqualTo(5);
+        assertThat(responseStaticsContentBoard.get(5).getCurrentCount()).isEqualTo(5);
+        assertThat(responseStaticsContentBoard.get(5).getPastCount()).isEqualTo(0);
+        assertThat(responseStaticsContentBoard.get(5).getPercent()).isEqualTo(100);
 
     }
 
@@ -438,30 +385,16 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
     void testGetLatestDate() {
 
 
-        RequestLatestData requestLatestDataInquiry = RequestLatestData.
-                builder()
-                .staticDataType(StaticDataType.Inquiry)
-                .build();
+        Map<String,List<ResponseLatestData>> responseMap = adminDashBoardService.getLatestData();
+        assertThat(responseMap.keySet().size()).isEqualTo(3);
+        List<ResponseLatestData> reports=responseMap.get("Report");
+        List<ResponseLatestData> inquiry=responseMap.get("Inquiry");
+        List<ResponseLatestData> improve=responseMap.get("Improvement");
 
-        RequestLatestData requestLatestDataImproveMent = RequestLatestData.
-                builder()
-                .staticDataType(StaticDataType.Improvement)
-                .build();
+        assertThat(reports.size()).isEqualTo(10);
+        assertThat(inquiry.size()).isEqualTo(10);
+        assertThat(improve.size()).isEqualTo(10);
 
-
-        RequestLatestData requestLatestDataReport = RequestLatestData.
-                builder()
-                .staticDataType(StaticDataType.Report)
-                .build();
-
-
-        List<ResponseLatestData> responseLatestDataInquiry = adminDashBoardService.getLatestData(requestLatestDataInquiry);
-        List<ResponseLatestData> responseLatestDataImprovement = adminDashBoardService.getLatestData(requestLatestDataImproveMent);
-        List<ResponseLatestData> responseLatestDataReport = adminDashBoardService.getLatestData(requestLatestDataReport);
-
-        assertThat(responseLatestDataInquiry.size()).isEqualTo(10);
-        assertThat(responseLatestDataImprovement.size()).isEqualTo(10);
-        assertThat(responseLatestDataReport.size()).isEqualTo(10);
 
     }
 
@@ -469,76 +402,34 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
     @DisplayName("요구되는 변수가 빠졋을떄 및 범위 밖의 다른값을 입력시 일어나는 에러체크")
     void testValueNullError() throws Exception {
 
-        String requestBodyWithAbsent = """
-                    {
-                        "dateType": "Day"
-                    }
-                """;
 
-        String requestBodyWithWrongValue = """
-                    {
-                    
-                        "staticDataType":"Inqy"
-                        "dateType": "Day"
-                    }
-                """;
-
-        String requestBodyWithAbsent2 = """
-                    {
-                    
-                    }
-                """;
-
-        String requestBodyWithWrongValue2 = """
-                    {       
-                        "staticDataType":"Inqy"
-                    }
-                """;
-        String requestBodyWithWrongDate = """
-                    {       
-                        "staticDataType":"Inquiry"
-                        "dateType":"zzzz"
-                    }
-                """;
-
-        mockMvc.perform(post("/api/admin/data/static")
+        mockMvc.perform(get("/api/admin/data/static")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBodyWithAbsent)
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
 
-        mockMvc.perform(post("/api/admin/data/static")
+        mockMvc.perform(get("/api/admin/data/static?dateType=Day")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBodyWithWrongValue)
+
+                        .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/admin/data/static?staticType=Dash&dateType=Day")
+                        .contentType(MediaType.APPLICATION_JSON)
+
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
-
-        mockMvc.perform(post("/api/admin/data/latest")
+        mockMvc.perform(get("/api/admin/data/static?staticType=DashBoard&dateType=Day")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBodyWithWrongValue2)
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
 
 
-        mockMvc.perform(post("/api/admin/data/latest")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBodyWithAbsent2)
-                        .header("Authorization", "Bearer " + accessToken))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-
-
-        mockMvc.perform(post("/api/admin/data/static")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBodyWithWrongDate)
-                        .header("Authorization", "Bearer " + accessToken))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
     }
 
 }

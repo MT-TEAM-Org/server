@@ -9,9 +9,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.myteam.server.auth.dto.AuthResponse;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-
-
+@RestController
 @Tag(name = "관리자 인증 api", description = "관리자 로그인 관련 api")
 public class AdminLoginController {
     @Operation(summary = "관리자 로그인", description = "관리자가 로그인을 하여 토큰을 받습니다." +
