@@ -54,7 +54,7 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
     RedisCountService redisCountService;
 
     private List<Member> members=new ArrayList<>();
-    private List<Board> boardList;
+    private List<Board> boardList=new ArrayList<>();
 
 
     @BeforeEach
