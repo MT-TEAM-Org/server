@@ -148,7 +148,8 @@ public class AdminMemberRepository {
                                         .otherwise("일반"),
                                 member.email,
                                 member.tel,
-                                member.createDate.stringValue()
+                                member.createDate.stringValue(),
+                                member.publicId
                         )
                 )
                 .from(member)

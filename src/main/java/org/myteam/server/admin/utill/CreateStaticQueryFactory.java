@@ -6,14 +6,16 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.hibernate.type.descriptor.DateTimeUtils;
 import org.myteam.server.admin.entity.AdminInquiryChangeLog;
+import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.report.domain.ReportType;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.YearMonth;
+import java.util.*;
+
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
 import static org.myteam.server.admin.entity.QAdminContentChangeLog.adminContentChangeLog;
 import static org.myteam.server.admin.entity.QAdminImproveChangeLog.adminImproveChangeLog;
@@ -42,11 +44,12 @@ public class CreateStaticQueryFactory {
                 .groupBy(groupByDate)
                 .orderBy(groupByDate.desc())
                 .fetch();
-        Long pastCount = queryFactory.select(((EntityPathBase<?>) target).count())
+        List<Tuple> pastCount = queryFactory.select(groupByDate, ((EntityPathBase<?>) target).count())
                 .from(target)
                 .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast, target))
-                .fetch()
-                .get(0);
+                .groupBy(groupByDate)
+                .orderBy(groupByDate.desc())
+                .fetch();
 
         Long totCount = queryFactory.select(((EntityPathBase<?>) target).count())
                 .from(target)
@@ -54,25 +57,83 @@ public class CreateStaticQueryFactory {
                 .get(0);
 
         Map<String, Long> currentCountByDate = new HashMap<>();
-
+        Map<String,Long> pastCountByDate=new HashMap<>();
         currentCount.stream()
                 .forEach(x -> {
                     currentCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
                 });
-        Long sums = currentCount.stream()
+        pastCount.stream()
+                .forEach(x -> {
+                    pastCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
+                });
+
+        Map<String, Long> currentCountByDateFinal;
+        Map<String,Long> pastCountByDateFinal;
+
+        currentCountByDateFinal=fillEmptyDate(staticEndTime,staticStartTime,currentCountByDate,dateType);
+        pastCountByDateFinal=fillEmptyDate(staticEndTimePast,staticStartTimePast,pastCountByDate,dateType);
+
+        Long currentSums = currentCount.stream()
                 .mapToLong(x -> x.get(1, Long.class))
                 .sum();
-        int percent = StaticUtil.makeStaticPercent(sums, pastCount);
+
+        Long pastSums = pastCount.stream()
+                .mapToLong(x -> x.get(1, Long.class))
+                .sum();
+
+        int percent = StaticUtil.makeStaticPercent(currentSums,pastSums);
+
+
+        Class<?> entityClass = ((EntityPath<?>) target).getType();
+        String name = entityClass.getSimpleName();
 
         return ResponseStatic.builder()
-                .currentStaticData(currentCountByDate)
-                .currentCount(sums)
+                .currentStaticData(currentCountByDateFinal)
+                .pastStaticData(pastCountByDateFinal)
+                .currentCount(currentSums)
+                .pastCount(pastSums)
+                .totCount(totCount)
+                .percent(percent)
+                .staticDataName(name.equals("Member") ? StaticDataType.UserSignIn.name() :name)
+                .build();
+    }
+
+    public static ResponseStatic createSimpleStaticQuery(EntityPath<?> target,
+                                                   DateType dateType, List<LocalDateTime> dateList
+            , JPAQueryFactory queryFactory) {
+
+        LocalDateTime staticStartTime = dateList.get(0);
+        LocalDateTime staticEndTime = dateList.get(1);
+        LocalDateTime staticStartTimePast = dateList.get(2);
+        LocalDateTime staticEndTimePast = dateList.get(3);
+
+        Long currentCount = Optional.ofNullable(queryFactory.select(((EntityPathBase<?>) target).count())
+                .from(target)
+                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime, target))
+                .fetchOne()).orElse(0L);
+        Long pastCount = Optional.ofNullable(queryFactory.select(((EntityPathBase<?>) target).count())
+                .from(target)
+                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast, target))
+                .fetchOne()).orElse(0L);
+
+        Long totCount =Optional.ofNullable( queryFactory.select(((EntityPathBase<?>) target).count())
+                .from(target)
+                .fetchOne()).orElse(0L);
+
+        int percent = StaticUtil.makeStaticPercent(currentCount,pastCount);
+        Class<?> entityClass = ((EntityPath<?>) target).getType();
+        String name = entityClass.getSimpleName();
+        return ResponseStatic.builder()
+                .currentCount(currentCount)
                 .pastCount(pastCount)
                 .totCount(totCount)
                 .percent(percent)
+                .staticDataName(name.equals("member") ? StaticDataType.UserSignIn.name() :name)
                 .build();
-
     }
+
+
+
 
     public static ResponseStatic createImprovementStaticQuery(List<LocalDateTime> dateList
             ,StaticDataType staticDataType, JPAQueryFactory queryFactory){
@@ -106,6 +167,7 @@ public class CreateStaticQueryFactory {
                 .pastCount(pastCount)
                 .totCount(totCount)
                 .percent(percent)
+                .staticDataName(staticDataType.name())
                 .build();
     }
 
@@ -141,6 +203,8 @@ public class CreateStaticQueryFactory {
                 .pastCount(pastCount)
                 .totCount(totCount)
                 .percent(percent)
+                .staticDataName( isAnswered ? StaticDataType.InquiryComplete.name()
+                        : StaticDataType.InquiryPending.name())
                 .build();
     }
 
@@ -181,6 +245,8 @@ public class CreateStaticQueryFactory {
                 .pastCount(pastCount)
                 .totCount(totCount)
                 .percent(percent)
+                .staticDataName(isMember ? StaticDataType.InquiryMember.name()
+                        : StaticDataType.InquiryNoMember.name())
                 .build();
     }
 
@@ -223,6 +289,7 @@ public class CreateStaticQueryFactory {
                 .pastCount(past_count)
                 .totCount(tot_count)
                 .percent(percent)
+                .staticDataName(staticDataType.name().equals("BOARD")?"HideBoard":"HideComment")
                 .build();
     }
 
@@ -260,10 +327,12 @@ public class CreateStaticQueryFactory {
                 .pastCount(past_count)
                 .totCount(tot_count)
                 .percent(percent)
+                .staticDataName(memberStatus.equals(MemberStatus.WARNED) ?StaticDataType.UserWarned.name()
+                        :StaticDataType.UserBanned.name())
                 .build();
     }
 
-    public static ResponseStatic createStaticQuery(DateType dateType, List<LocalDateTime> dateList
+    public static ResponseStatic createReportStaticQuery(DateType dateType, List<LocalDateTime> dateList
             , JPAQueryFactory queryFactory, ReportType reportType) {
 
         LocalDateTime staticStartTime = dateList.get(0);
@@ -279,12 +348,13 @@ public class CreateStaticQueryFactory {
                 .groupBy(groupByDate)
                 .orderBy(groupByDate.desc())
                 .fetch();
-        Long pastCount = queryFactory.select(report.count())
+        List<Tuple> pastCount = queryFactory.select(groupByDate, report.count())
                 .from(report)
                 .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast, report),
                         report.reportType.eq(reportType))
-                .fetch()
-                .get(0);
+                .groupBy(groupByDate)
+                .orderBy(groupByDate.desc())
+                .fetch();
 
         Long totCount = queryFactory.select(report.count())
                 .from(report)
@@ -293,24 +363,182 @@ public class CreateStaticQueryFactory {
                 .get(0);
 
         Map<String, Long> currentCountByDate = new HashMap<>();
-
+        Map<String,Long> pastCountByDate=new HashMap<>();
         currentCount.stream()
                 .forEach(x -> {
                     currentCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
                 });
-        Long sums = currentCount.stream()
+        pastCount.stream()
+                .forEach(x -> {
+                    pastCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
+                });
+
+        Map<String, Long> currentCountByDateFinal;
+        Map<String,Long> pastCountByDateFinal;
+
+        currentCountByDateFinal=fillEmptyDate(staticEndTime,staticStartTime,currentCountByDate,dateType);
+        pastCountByDateFinal=fillEmptyDate(staticEndTimePast,staticStartTimePast,pastCountByDate,dateType);
+
+        Long currentSums = currentCount.stream()
                 .mapToLong(x -> x.get(1, Long.class))
                 .sum();
-        int percent = StaticUtil.makeStaticPercent(sums, pastCount);
+
+        Long pastSums = pastCount.stream()
+                .mapToLong(x -> x.get(1, Long.class))
+                .sum();
+
+        int percent = StaticUtil.makeStaticPercent(currentSums,pastSums);
 
         return ResponseStatic.builder()
-                .currentStaticData(currentCountByDate)
-                .currentCount(sums)
+                .currentStaticData(currentCountByDateFinal)
+                .pastStaticData(pastCountByDateFinal)
+                .currentCount(currentSums)
+                .pastCount(pastSums)
+                .totCount(totCount)
+                .percent(percent)
+                .staticDataName(reportType.equals(ReportType.BOARD) ? "ReportedBoard":"ReportedComment")
+                .build();
+    }
+
+    public static ResponseStatic createSimpleReportStaticQuery(DateType dateType, List<LocalDateTime> dateList
+            , JPAQueryFactory queryFactory, ReportType reportType) {
+
+        LocalDateTime staticStartTime = dateList.get(0);
+        LocalDateTime staticEndTime = dateList.get(1);
+        LocalDateTime staticStartTimePast = dateList.get(2);
+        LocalDateTime staticEndTimePast = dateList.get(3);
+
+        Long currentCount = Optional.ofNullable(
+                queryFactory.select(report.count())
+                .from(report)
+                .where(StaticUtil.betweenStaticTime(staticEndTime, staticStartTime, report),
+                        report.reportType.eq(reportType))
+                .fetchOne())
+                .orElse(0L);
+        Long pastCount = Optional.ofNullable(queryFactory.select(report.count())
+                .from(report)
+                .where(StaticUtil.betweenStaticTime(staticEndTimePast, staticStartTimePast, report),
+                        report.reportType.eq(reportType))
+                .fetchOne())
+                .orElse(0L);
+
+        Long totCount = queryFactory.select(report.count())
+                .from(report)
+                .where(report.reportType.eq(reportType))
+                .fetch()
+                .get(0);
+
+
+        int percent = StaticUtil.makeStaticPercent(currentCount,pastCount);
+
+        return ResponseStatic.builder()
+                .currentCount(currentCount)
                 .pastCount(pastCount)
                 .totCount(totCount)
                 .percent(percent)
+                .staticDataName(reportType.equals(ReportType.BOARD) ? "ReportedBoard":"ReportedComment")
                 .build();
     }
+
+
+    public static ResponseStatic createSimpleUserDelStatic(DateType dateType,List<LocalDateTime> dateList,JPAQueryFactory queryFactory){
+        LocalDateTime staticStartTime = dateList.get(0);
+        LocalDateTime staticEndTime = dateList.get(1);
+        LocalDateTime staticStartTimePast = dateList.get(2);
+        LocalDateTime staticEndTimePast = dateList.get(3);
+        Long currentCount =Optional.ofNullable(queryFactory.select(member.count()).
+                from(member)
+                .where(StaticUtil.betweenStaticTimeDel(staticEndTime,staticStartTime))
+                .fetchOne()).orElse(0L);
+        Long pastCount =Optional.ofNullable( queryFactory.select( member.count()).
+                from(member)
+                .where(StaticUtil.betweenStaticTimeDel(staticEndTimePast,staticStartTimePast))
+                .fetchOne()).orElse(0L);
+        Long totCount = Optional.ofNullable(queryFactory.select(member.count())
+                .from(member)
+                .where(member.deleteAt.isNotNull())
+                .fetchOne())
+                .orElse(0L);
+        int percent = StaticUtil.makeStaticPercent(currentCount,pastCount);
+        return ResponseStatic
+                .builder()
+                .currentCount(currentCount)
+                .pastCount(pastCount)
+                .totCount(totCount)
+                .percent(percent)
+                .staticDataName(StaticDataType.UserDeleted.name())
+                .build();
+    }
+
+    public static ResponseStatic createUserDelStatic(DateType dateType,List<LocalDateTime> dateList,JPAQueryFactory queryFactory){
+        StringTemplate groupByDate = StaticUtil.delTemplate(dateType);
+        LocalDateTime staticStartTime = dateList.get(0);
+        LocalDateTime staticEndTime = dateList.get(1);
+        LocalDateTime staticStartTimePast = dateList.get(2);
+        LocalDateTime staticEndTimePast = dateList.get(3);
+
+        List<Tuple> currentCount = queryFactory.select(groupByDate, member.count()).
+                from(member)
+                .where(StaticUtil.betweenStaticTimeDel(staticEndTime,staticStartTime))
+                .groupBy(groupByDate)
+                .orderBy(groupByDate.desc())
+                .fetch();
+        List<Tuple> pastCount = queryFactory.select(groupByDate, member.count()).
+                from(member)
+                .where(StaticUtil.betweenStaticTimeDel(staticEndTimePast,staticStartTimePast))
+                .groupBy(groupByDate)
+                .orderBy(groupByDate.desc())
+                .fetch();
+        Long totCount = queryFactory.select(member.count())
+                .from(member)
+                .where(member.deleteAt.isNotNull())
+                .fetch().get(0);
+
+        Map<String, Long> currentCountByDate = new HashMap<>();
+        Map<String,Long> pastCountByDate=new HashMap<>();
+        currentCount.stream()
+                .forEach(x -> {
+                    currentCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
+                });
+        pastCount.stream()
+                .forEach(x -> {
+                    pastCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
+                });
+
+        Map<String, Long> currentCountByDateFinal;
+        Map<String,Long> pastCountByDateFinal;
+
+        currentCountByDateFinal=fillEmptyDate(staticEndTime,staticStartTime,currentCountByDate,dateType);
+        pastCountByDateFinal=fillEmptyDate(staticEndTimePast,staticStartTimePast,pastCountByDate,dateType);
+
+        Long currentSum = currentCount
+                .stream()
+                .mapToLong(x -> {
+                    return x.get(1, Long.class);
+                })
+                .sum();
+        Long pastSum = pastCount
+                .stream()
+                .mapToLong(x -> {
+                    return x.get(1, Long.class);
+                })
+                .sum();
+
+        int percent = StaticUtil.makeStaticPercent(currentSum,pastSum);
+
+        return ResponseStatic
+                .builder()
+                .currentStaticData(currentCountByDateFinal)
+                .pastStaticData(pastCountByDateFinal)
+                .currentCount(currentSum)
+                .pastCount(pastSum)
+                .totCount(totCount)
+                .percent(percent)
+                .staticDataName(StaticDataType.UserDeleted.name())
+                .build();
+    }
+
+
 
     private static Predicate inquiryIsMember(boolean isMember){
        if(isMember){
@@ -329,5 +557,29 @@ public class CreateStaticQueryFactory {
         return adminImproveChangeLog.improvementStatus.eq(ImprovementStatus.COMPLETED);
     }
 
-
+    public static Map<String,Long> fillEmptyDate(LocalDateTime startTime,
+                                      LocalDateTime endTime,Map<String,Long> maps,DateType dateType){
+        Map<String, Long> filledResult = new TreeMap<>();
+        if(dateType.equals(DateType.OneMonth)||dateType.equals(DateType.SixMonth)||
+        dateType.equals(DateType.ThreeMonth)||dateType.equals(DateType.Year))
+        {
+            YearMonth startMonth = YearMonth.from(startTime);
+            YearMonth endMonth = YearMonth.from(endTime);
+            YearMonth current = startMonth;
+            while (current.isBefore(endMonth)) {
+                String monthKey = DateFormatUtil.formatByDotMonth.format(current);
+                filledResult.put(monthKey, maps.getOrDefault(monthKey, 0L));
+                current = current.plusMonths(1);
+            }
+        }
+        else{
+            LocalDateTime current=startTime;
+            while (current.isBefore(endTime)) {
+                String dayKey =DateFormatUtil.formatByDot.format(current);
+                filledResult.put(dayKey,maps.getOrDefault(dayKey, 0L));
+                current = current.plusDays(1L);
+            }
+        }
+        return filledResult;
+    }
 }
