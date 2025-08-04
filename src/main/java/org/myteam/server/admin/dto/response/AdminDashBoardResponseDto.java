@@ -38,11 +38,13 @@ public record AdminDashBoardResponseDto() {
         @Schema(example = "2025.06.06")
         private String createAt;
         @Schema(description = "이값이 true이면 이미 읽은것,아니면은 읽지않은것입니다.")
-        private boolean checkRead;
+        private Boolean checkRead;
+        @Schema(description = "신고 관련 최신 리스트라면은 들어있는값입니다.")
+        private Long reportId;
 
         public ResponseLatestData(String reportType, StaticDataType staticDataType,
                                   String mainStatus, String subStatus, Long contentId,
-                                  String name, String content, String createAt) {
+                                  String name, String content, String createAt,Long reportId) {
             this.reportType = reportType;
             this.staticDataType = staticDataType;
             this.mainStatus = mainStatus;
@@ -51,6 +53,7 @@ public record AdminDashBoardResponseDto() {
             this.name = name;
             this.content = content;
             this.createAt = createAt;
+            this.reportId=reportId;
         }
 
         public void updateCreateAt(String createAt) {

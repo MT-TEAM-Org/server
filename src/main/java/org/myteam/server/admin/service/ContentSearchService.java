@@ -3,6 +3,7 @@ package org.myteam.server.admin.service;
 
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.repository.ContentSearchRepository;
+import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -36,7 +37,7 @@ public class ContentSearchService {
         if(requestDetail.getAlarmCheck()!=null&&requestDetail.getReportId()!=null) {
             Member admin = securityReadService.getMember();
             redisService.adminReadCheckUpdate(admin.getPublicId().toString()
-                    , requestDetail.getStaticDataType(), requestDetail.getContentId());
+                    , StaticDataType.Report, requestDetail.getReportId());
         }
         return responseDetail;
     }

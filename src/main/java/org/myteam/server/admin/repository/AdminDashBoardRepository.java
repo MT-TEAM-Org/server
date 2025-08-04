@@ -278,7 +278,7 @@ public class AdminDashBoardRepository {
             responseLatestDataList.stream()
                     .forEach(x -> {
                         boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
-                                , x.getStaticDataType(), x.getContentId());
+                                ,StaticDataType.Report, x.getContentId());
                         x.mappingCheckRead(readCheck);
                         x.updateCreateAt(
                                 DateFormatUtil.formatByDot.format(
