@@ -89,7 +89,8 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
         int threadCount = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-
+        assertThat(members.size()).isEqualTo(10);
+        assertThat(boardList.size()).isEqualTo(10);
 
         for (Member m: members) {
             executorService.execute(() -> {
@@ -104,7 +105,6 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
                     boardList.stream().forEach(x->{
 
                         if(x.getId()%2==0) {
-
                             redisCountService.getCommonCount(ServiceType.RECOMMEND,
                                     DomainType.BOARD, x.getId(), null);
                         }
