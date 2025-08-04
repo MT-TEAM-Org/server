@@ -264,7 +264,7 @@ public class AdminDashBoardRepository {
                     x.updateCreateAt(
                             DateFormatUtil.formatByDot.format(
                                     LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-                    boolean readCheck = redisService.AdminReadCheck("ADMIN_ALARM", admin.getPublicId().toString()
+                    boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                             , StaticDataType.Improvement, x.getContentId());
                     x.mappingCheckRead(readCheck);
                 });
