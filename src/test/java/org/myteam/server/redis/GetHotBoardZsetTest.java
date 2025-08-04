@@ -51,6 +51,9 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
     private RedisService redisService;
 
     @Autowired
+    private RecommendService recommendService;
+
+    @Autowired
     private RedisCountService redisCountService;
 
     private List<Member> members=new ArrayList<>();
