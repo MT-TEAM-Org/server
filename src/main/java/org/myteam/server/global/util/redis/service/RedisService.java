@@ -103,7 +103,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 	public void boardRecommendRankPerDay(Long contentId,Long delta){
 		LocalDateTime now = LocalDateTime.now().with(LocalTime.MIDNIGHT);
-		String key = now.toLocalDate().toString() +BOARD_RANK_KEY;
+		String key = now+BOARD_RANK_KEY;
 		LocalDateTime nextMidnight = now.plusDays(1).with(LocalTime.MIDNIGHT);
 		redisTemplate.opsForZSet().incrementScore(key,contentId.toString(),delta);
 		redisTemplate.expireAt(key,Date.valueOf(nextMidnight.toLocalDate()));
