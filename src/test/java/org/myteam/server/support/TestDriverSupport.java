@@ -161,9 +161,6 @@ public abstract class TestDriverSupport {
     @Autowired
     protected CommonCountAspect commonCountAspect;
 
-    @MockBean
-    protected  SecurityReadService securityReadService;
-
     @AfterEach
     void tearDown() {
         commentRecommendRepository.deleteAllInBatch();
