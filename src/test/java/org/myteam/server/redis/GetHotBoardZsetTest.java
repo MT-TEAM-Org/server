@@ -53,7 +53,7 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
     @Autowired
     RedisCountService redisCountService;
 
-    private List<Member> members;
+    private List<Member> members=new ArrayList<>();
     private List<Board> boardList;
 
 
