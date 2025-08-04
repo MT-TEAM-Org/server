@@ -214,6 +214,7 @@ public class AdminDashBoardRepository {
                                             .otherwise(member.nickname),
                                     inquiry.content.substring(0, 20),
                                     inquiry.createdAt.stringValue(),
+                                    Expressions.constant(0L),
                                     Expressions.constant(StaticDataType.Inquiry)
                             ))
                     .from(inquiry)
@@ -249,6 +250,7 @@ public class AdminDashBoardRepository {
                                     member.nickname,
                                     improvement.content,
                                     improvement.createDate.stringValue(),
+                                    Expressions.constant(0L),
                                     Expressions.constant(StaticDataType.Improvement)
 
                             ))
