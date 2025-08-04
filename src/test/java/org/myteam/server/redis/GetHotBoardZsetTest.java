@@ -48,10 +48,10 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
 
 
     @Autowired
-    RedisService redisService;
+    private RedisService redisService;
 
     @Autowired
-    RedisCountService redisCountService;
+    private RedisCountService redisCountService;
 
     private List<Member> members=new ArrayList<>();
     private List<Board> boardList=new ArrayList<>();
@@ -79,6 +79,7 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
         for(int i=0;10>i;i++){
             Board board=createBoard(members.get(i), Category.BASEBALL, CategoryType.FREE,"제목",
                     "내용");
+            boardList.add(board);
             System.out.printf("boardid:%d",board.getId());
         }
     }
