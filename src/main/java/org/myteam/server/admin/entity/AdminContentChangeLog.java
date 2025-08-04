@@ -18,6 +18,7 @@ public class AdminContentChangeLog extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "public_id")
     private Member admin;
     private Long contentId;
     @Enumerated(EnumType.STRING)

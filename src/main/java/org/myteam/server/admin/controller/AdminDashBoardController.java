@@ -1,28 +1,23 @@
 package org.myteam.server.admin.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.service.AdminDashBoardService;
+import org.myteam.server.admin.utill.DateType;
+import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.global.web.response.ResponseStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestLatestData;
-import static org.myteam.server.admin.dto.request.AdminDashBoardRequestDto.RequestStatic;
+import java.util.Map;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseLatestData;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.ResponseStatic;
 
@@ -41,12 +36,14 @@ public class AdminDashBoardController {
             @ApiResponse(responseCode = "200", description = "조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/static")
-    public ResponseEntity<ResponseDto<ResponseStatic>>
-    getStaticData(@RequestBody @Valid RequestStatic requestStatic, BindingResult bindingResult) {
+    @GetMapping("/static")
+    public ResponseEntity<ResponseDto<List<ResponseStatic>>>
+    getStaticData(@Parameter(description = "통계를 불러올 탭과 일치해서 사용하는 쿼리 스트링입니다.",example = "DashBoard,MemberBoard,ContentBoard,Inquiry,Improvement 중택1")
+                  @RequestParam(name ="staticType",required = true) StaticDataType staticDataType,
+                  @Parameter(description = "쿼리 스트링값입니다.",example ="Day,WeekEnd,OneMonth,ThreeMonth,SixMonth,Year 중택1" )@RequestParam(name="dateType",required = true) DateType dateType) {
         return ResponseEntity.ok(
                 new ResponseDto<>(ResponseStatus.SUCCESS.name(), "조회 성공",
-                        adminDashBoardService.getStaticData(requestStatic))
+                        adminDashBoardService.getStaticData(staticDataType,dateType))
         );
     }
 
@@ -58,13 +55,13 @@ public class AdminDashBoardController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
 
-    @PostMapping("/latest")
-    public ResponseEntity<ResponseDto<List<ResponseLatestData>>>
-    getLatestData(@RequestBody @Valid RequestLatestData requestLatestData, BindingResult bindingResult) {
+    @GetMapping("/latest")
+    public ResponseEntity<ResponseDto<Map<String,List<ResponseLatestData>>>>
+    getLatestData() {
 
         return ResponseEntity.ok(
                 new ResponseDto<>(ResponseStatus.SUCCESS.name(), "조회 성공",
-                        adminDashBoardService.getLatestData(requestLatestData)));
+                        adminDashBoardService.getLatestData()));
 
     }
 }

@@ -25,6 +25,7 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 
 	private final RedisTemplate<String, String> redisTemplate;
 	private static final String BOARD_RANK_KEY=":BoardRank";
+	private static final String ADMIN_ALARM_KEY="ADMIN_ALARM";
 	private static final int ADMIN_LOGIN_MAX_REQUESTS=10;
 	private static final int MAX_REQUESTS = 3; // 제한 횟수 (기본값: 5분 동안 3회)
 	private static final long EXPIRED_TIME = 5L; // 만료 시간 (5분)
@@ -71,22 +72,18 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		String redisKey = getRateLimitKey(category, identifier);
 		String requestCountStr = redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
-
-		if (requestCount >= ADMIN_LOGIN_MAX_REQUESTS) {
+		long newCount = redisTemplate.opsForValue().increment(redisKey);
+		requestCount+=1;
+		if (0>=(ADMIN_LOGIN_MAX_REQUESTS-requestCount)) {
 			log.warn("🚫 [RateLimit] 관리자 요청 차단 - Key: {}, 요청 횟수: {}", redisKey, requestCount);
 			return false;
 		}
-
-		long newCount = redisTemplate.opsForValue().increment(redisKey);
-
 		log.info("✅ [RateLimit] 관리자 요청 허용 - Key: {}, 요청 횟수: {}", redisKey, newCount);
 		return true;
 
 	}
-
-	public boolean AdminReadCheck(String category, String adminIdentifier, StaticDataType staticDataType, Long contentId){
-
-		String redisKey=getRateLimitKey(category,adminIdentifier+staticDataType.name()+String.valueOf(contentId));
+	public boolean AdminReadCheck(String adminIdentifier, StaticDataType staticDataType, Long contentId){
+		String redisKey=ADMIN_ALARM_KEY+adminIdentifier+staticDataType.name()+contentId;
 		String requestCountStr=redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
 		if(requestCount==0){
@@ -94,16 +91,16 @@ public class RedisService { // TODO: RedisReportService 로 변경.
 		}
 		return true;
 	}
-
-	public void adminReadCheckUpdate(String category, String adminIdentifier, StaticDataType staticDataType, Long contentId){
-		String redisKey=getRateLimitKey(category,adminIdentifier+staticDataType.name()+String.valueOf(contentId));
+	public void adminReadCheckUpdate(String adminIdentifier, StaticDataType staticDataType, Long contentId){
+		String redisKey=ADMIN_ALARM_KEY+adminIdentifier+staticDataType.name()+contentId;
 		String requestCountStr=redisTemplate.opsForValue().get(redisKey);
 		int requestCount = requestCountStr == null ? 0 : Integer.parseInt(requestCountStr);
 		if(requestCount==0) {
 			redisTemplate.opsForValue().increment(redisKey);
-			redisTemplate.expire(redisKey, Duration.ofMinutes(ADMIN_ALARM_READ_EXPIRE_TIME));
+			redisTemplate.expire(redisKey, Duration.ofDays(30L));
 		}
 	}
+
 	public void boardRecommendRankPerDay(Long contentId,Long delta){
 		LocalDateTime now = LocalDateTime.now().with(LocalTime.MIDNIGHT);
 		String key = now.toLocalDate().toString() +BOARD_RANK_KEY;

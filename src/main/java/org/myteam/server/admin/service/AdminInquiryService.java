@@ -3,8 +3,12 @@ package org.myteam.server.admin.service;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.repository.InquirySearchRepo;
+import org.myteam.server.admin.utill.StaticDataType;
 import org.myteam.server.common.certification.service.InquiryAnsSendService;
+import org.myteam.server.global.util.redis.service.RedisService;
+import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
@@ -21,6 +25,8 @@ public class AdminInquiryService {
     private final InquirySearchRepo inquirySearchRepo;
     private final InquiryAnsSendService inquiryAnsSendStrategy;
     private final MemberReadService memberReadService;
+    private final SecurityReadService securityReadService;
+    private final RedisService redisService;
 
     public Page<ResponseInquiryListCond> getInquiryListCond(RequestInquiryListCond requestInquiryListCond) {
 
@@ -28,8 +34,14 @@ public class AdminInquiryService {
     }
 
     public ResponseInquiryDetail getInquiryDetail(RequestInquiryDetail requestInquiryDetail) {
-
-        return inquirySearchRepo.getInquiryDetail(requestInquiryDetail);
+        ResponseInquiryDetail responseInquiryDetail=
+                inquirySearchRepo.getInquiryDetail(requestInquiryDetail);
+        if(requestInquiryDetail.getAlarmCheck()!=null) {
+            Member admin = securityReadService.getMember();
+            redisService.adminReadCheckUpdate(admin.getPublicId().toString()
+                    , StaticDataType.Inquiry, requestInquiryDetail.getContentId());
+        }
+        return responseInquiryDetail;
     }
 
     public Page<ResponseInquiryList> getInquiryListMember(RequestInquiryList requestInquiryDetail) {

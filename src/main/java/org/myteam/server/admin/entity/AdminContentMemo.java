@@ -17,6 +17,7 @@ public class AdminContentMemo extends BaseTime {
     private Long id;
     private String content;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "public_id")
     private Member writer;
     @Enumerated(EnumType.STRING)
     private StaticDataType staticDataType;

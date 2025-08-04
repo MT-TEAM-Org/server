@@ -127,9 +127,9 @@ public class StaticUtil {
     public static StringTemplate delTemplate(DateType dateType) {
         if (dateType.name().equals(DateType.Day.name()) || dateType.name().equals(DateType.WeekEnd.name())) {
             return stringTemplate(
-                    "DATE_FORMAT({0}, '%Y-%m-%d')", member.deleteAt);
+                    "DATE_FORMAT({0}, '%Y.%m.%d')", member.deleteAt);
         }
-        return stringTemplate("DATE_FORMAT({0}, '%Y-%m')", member.deleteAt);
+        return stringTemplate("DATE_FORMAT({0}, '%Y.%m')", member.deleteAt);
     }
 
     public static Predicate betweenStaticTimeDel(LocalDateTime static_end_time, LocalDateTime static_start_time) {
@@ -137,6 +137,9 @@ public class StaticUtil {
     }
 
     public static int makeStaticPercent(Long val1, Long val2) {
+        if(val1-val2==0L){
+            return 0;
+        }
         if (val2 == 0) {
             return 100;
         }

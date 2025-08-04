@@ -35,10 +35,11 @@ public record InquiryResponseDto() {
         private String isAnswered;
         @Schema(example = "회원,비회원")
         private String isMember;
-        @Schema(example = "닉네임 혹은 이메일 값")
+        @Schema(description ="문의 작성자의 닉네임입니다. 닉네임이없다면 메일로 들어갑니다.")
         private String nicknameEmail;
         private String content;
-        private String publicId;
+        @Schema(description = "문의 작성자의 메일입니다.")
+        private String userMail;
         private String createDate;
 
         public void updateCreateDate(String date) {

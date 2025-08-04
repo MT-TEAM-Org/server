@@ -78,10 +78,16 @@ public record ContentRequestDto() {
         @NotNull(message ="contentid는 비면안됩니다.")
         @Schema(description = "필수값입니다.")
         private Long contentId;
+        @Schema(description = "관리자단 대시보드의 최신데이터 알람에서 신고목록을 클릭해서 넘어올떄만 넣어주세요")
+        private Long reportId;
+        @Schema(description = "관리자단 대시보드의 최신데이터 알람에서 넘어올경우에만 넣어주세요")
+        private String alarmCheck;
         @Builder
-        public RequestDetail(StaticDataType staticDataType, Long contentId) {
+        public RequestDetail(StaticDataType staticDataType, Long contentId,Long reportId,String alarmCheck) {
             this.staticDataType = staticDataType;
             this.contentId = contentId;
+            this.reportId=reportId;
+            this.alarmCheck=alarmCheck;
         }
     }
 
