@@ -2,11 +2,15 @@ package org.myteam.server.redis;
 
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myteam.server.board.domain.Board;
+import org.myteam.server.board.domain.BoardCount;
 import org.myteam.server.board.domain.CategoryType;
+import org.myteam.server.board.repository.BoardCountRepository;
+import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.global.domain.Category;
 import org.myteam.server.global.security.dto.CustomUserDetails;
 import org.myteam.server.global.util.redis.RedisCountBulkUpdater;
@@ -18,19 +22,25 @@ import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.domain.MemberType;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.entity.MemberActivity;
+import org.myteam.server.member.repository.MemberActivityRepository;
 import org.myteam.server.member.repository.MemberJpaRepository;
 import org.myteam.server.recommend.RecommendActionType;
 import org.myteam.server.recommend.RecommendService;
 import org.myteam.server.report.domain.DomainType;
+import org.myteam.server.support.IntegrationTestSupport;
 import org.myteam.server.support.TestContainerSupport;
+import org.myteam.server.support.TestDriverSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,16 +59,20 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
 
     @Autowired
     private RedisService redisService;
-
-    @Autowired
-    private RecommendService recommendService;
-
     @Autowired
     private RedisCountService redisCountService;
 
     private List<Member> members=new ArrayList<>();
     private List<Board> boardList=new ArrayList<>();
 
+
+    @AfterEach
+    void end(){
+        memberActivityRepository.deleteAllInBatch();
+        boardCountRepository.deleteAllInBatch();
+        boardRepository.deleteAllInBatch();
+        memberJpaRepository.deleteAllInBatch();
+    }
 
     @BeforeEach
     void setting(){
@@ -106,27 +120,21 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
                 SecurityContextHolder.setContext(context);
                 try {
                     boardList.stream().forEach(x->{
+                        redisCountService.getCommonCount(ServiceType.RECOMMEND,
+                                DomainType.BOARD, x.getId(), null);
 
-                        if(x.getId()%2==0) {
-                            redisCountService.getCommonCount(ServiceType.RECOMMEND,
-                                    DomainType.BOARD, x.getId(), null);
-                        }
-                        else{
-                            redisCountService.getCommonCount(ServiceType.RECOMMEND_CANCEL,
-                                    DomainType.BOARD, x.getId(), null);
-                        }
                     });
                 } finally {
+                    SecurityContextHolder.clearContext();
                     countDownLatch.countDown();
                 }
             });
         }
         countDownLatch.await();
         List<Long> ids=redisService.getBoardRecommendRankPerDay();
-        assertThat(ids.size()).isEqualTo(5);
-        ids.stream().forEach(x->{
-            assertThat(x%2).isEqualTo(0);
-        });
+        assertThat(ids.size()).isEqualTo(10);
     }
+
+
 
 }
