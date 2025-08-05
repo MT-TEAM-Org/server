@@ -9,6 +9,7 @@ import static org.myteam.server.comment.domain.QImprovementComment.improvementCo
 import static org.myteam.server.comment.domain.QInquiryComment.inquiryComment;
 import static org.myteam.server.comment.domain.QNewsComment.newsComment;
 import static org.myteam.server.comment.domain.QNoticeComment.noticeComment;
+import static org.myteam.server.comment.dto.response.CommentResponse.*;
 import static org.myteam.server.improvement.domain.QImprovement.improvement;
 import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;
@@ -45,6 +46,7 @@ import org.myteam.server.comment.domain.QInquiryComment;
 import org.myteam.server.comment.domain.QMatchComment;
 import org.myteam.server.comment.domain.QNewsComment;
 import org.myteam.server.comment.domain.QNoticeComment;
+import org.myteam.server.comment.dto.response.CommentResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.BestCommentResponse;
 import org.myteam.server.comment.dto.response.CommentResponse.CommentSaveResponse;
 import org.myteam.server.comment.service.CommentRecommendReadService;
@@ -68,6 +70,20 @@ public class CommentQueryRepository {
     private final JPAQueryFactory queryFactory;
     private final CommentRepository commentRepository;
     private final CommentRecommendReadService commentRecommendReadService;
+
+    public List<LatestCommentListResponse> getNewestComment(){
+        List<LatestCommentListResponse> comments=queryFactory
+                .select(Projections.constructor(LatestCommentListResponse.class,
+                        comment1.id,
+                        comment1.commentType,
+                        comment1.comment.substring(0,20)))
+                .from(comment1)
+                .orderBy(comment1.createDate.desc())
+                .limit(10)
+                .fetch();
+
+        return comments;
+    }
 
     /**
      * 대댓글 목록 조회

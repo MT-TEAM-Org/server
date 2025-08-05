@@ -9,6 +9,7 @@ import org.myteam.server.board.repository.BoardRepository;
 import org.myteam.server.board.service.BoardRecommendReadService;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
+import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.report.domain.DomainType;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ public class BoardRecommendHandler implements RecommendHandler {
     private final BoardRecommendReadService boardRecommendReadService;
     private final BoardRecommendRepository boardRecommendRepository;
     private final BoardRepository boardRepository;
+    private final RedisService redisService;
 
     @Override
     public boolean supports(DomainType type) {
@@ -39,10 +41,12 @@ public class BoardRecommendHandler implements RecommendHandler {
                 .orElseThrow(() -> new PlayHiveException(ErrorCode.BOARD_NOT_FOUND));
         BoardRecommend recommend = BoardRecommend.builder().board(board).member(member).build();
         boardRecommendRepository.save(recommend);
+        redisService.boardRecommendRankPerDay(contentId,1L);
     }
 
     @Override
     public void deleteRecommendation(Long contentId, UUID userId) {
         boardRecommendRepository.deleteByBoardIdAndMemberPublicId(contentId, userId);
+        redisService.boardRecommendRankPerDay(contentId,-1L);
     }
 }

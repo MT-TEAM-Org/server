@@ -40,6 +40,7 @@ import org.myteam.server.global.util.domain.TimePeriod;
 import org.myteam.server.global.util.redis.CommonCountDto;
 import org.myteam.server.global.util.redis.ServiceType;
 import org.myteam.server.global.util.redis.service.RedisCountService;
+import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.home.dto.HotBoardDto;
 import org.myteam.server.home.dto.NewBoardDto;
 import org.myteam.server.report.domain.DomainType;
@@ -57,6 +58,7 @@ public class BoardQueryRepository {
     private final JPAQueryFactory queryFactory;
     private final RedisBoardRankingReader rankingReader;
     private final RedisCountService redisCountService;
+    private final RedisService redisService;
 
     /**
      * 게시글 목록 조회
@@ -486,6 +488,33 @@ public class BoardQueryRepository {
         AtomicInteger rankCounter = new AtomicInteger(1);
         hotBoardList.forEach(dto -> dto.setRank(rankCounter.getAndIncrement()));
 
+        return hotBoardList;
+    }
+    public List<HotBoardDto> zSetGetHotBoardList(){
+        List<Long> boardId=redisService.getBoardRecommendRankPerDay();
+        List<HotBoardDto> hotBoardList = queryFactory
+                .select(Projections.fields(HotBoardDto.class,
+                        board.boardType,
+                        board.categoryType,
+                        board.id,
+                        board.title,
+                        board.id.in(boardId).as("isHot"),
+                        board.id.in(getNewBoardIdList()).as("isNew"),
+                        new CaseBuilder()
+                                .when(board.thumbnail.isNotEmpty()).then(true)
+                                .otherwise(false)
+                                .as("isImage")
+                ))
+                .from(board)
+                .where(board.id.in(boardId))
+                .fetch();
+        Map<Long, Integer> orderMap = IntStream.range(0, boardId.size())
+                .boxed()
+                .collect(Collectors.toMap(boardId::get, i -> i));
+        hotBoardList.sort(Comparator.comparingInt(dto -> orderMap.getOrDefault(dto.getId(), Integer.MAX_VALUE)));
+        // 순위 부여
+        AtomicInteger rankCounter = new AtomicInteger(1);
+        hotBoardList.forEach(dto -> dto.setRank(rankCounter.getAndIncrement()));
         return hotBoardList;
     }
 
