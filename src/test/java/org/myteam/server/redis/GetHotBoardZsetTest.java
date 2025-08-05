@@ -66,14 +66,6 @@ public class GetHotBoardZsetTest extends TestContainerSupport {
     private List<Board> boardList=new ArrayList<>();
 
 
-    @AfterEach
-    void end(){
-        memberActivityRepository.deleteAllInBatch();
-        boardCountRepository.deleteAllInBatch();
-        boardRepository.deleteAllInBatch();
-        memberJpaRepository.deleteAllInBatch();
-    }
-
     @BeforeEach
     void setting(){
 
