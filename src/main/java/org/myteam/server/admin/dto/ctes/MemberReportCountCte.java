@@ -12,7 +12,7 @@ import org.myteam.server.report.domain.ReportType;
 @Entity
 @Getter
 @CTE
-public class MemberReportCte {
+public class MemberReportCountCte {
 
     @Id
     private Long reportedId;

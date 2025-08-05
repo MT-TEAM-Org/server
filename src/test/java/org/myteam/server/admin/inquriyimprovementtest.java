@@ -5,11 +5,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.entity.AdminImproveChangeLog;
 import org.myteam.server.admin.entity.AdminInquiryChangeLog;
-import org.myteam.server.admin.entity.AdminMemberMemo;
 import org.myteam.server.admin.repository.AdminImprovementSearchRepo;
 import org.myteam.server.admin.repository.InquirySearchRepo;
 import org.myteam.server.admin.service.AdminInquiryService;
@@ -25,7 +23,6 @@ import org.myteam.server.support.IntegrationTestSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,18 +110,10 @@ public class inquriyimprovementtest extends IntegrationTestSupport {
 
     @Test
     void getdetailandmemo() {
-        RequestImprovementDetail requestImprovementDetail = RequestImprovementDetail
-                .builder()
-                .contentId(improvement1.getId())
-                .build();
-        RequestInquiryDetail requestInquiryDetail = RequestInquiryDetail
-                .builder()
-                .id(inquiry1.getId())
-                .build();
         ResponseImprovementDetail responseImprovementDetail =
-                adminImprovementSearchRepo.getImprovementDetail(requestImprovementDetail);
+                adminImprovementSearchRepo.getImprovementDetail(improvement1.getId());
         ResponseInquiryDetail responseInquiryDetail =
-                inquirySearchRepo.getInquiryDetail(requestInquiryDetail);
+                inquirySearchRepo.getInquiryDetail(inquiry1.getId());
         assertThat(responseImprovementDetail.getAdminMemoResponseList().size()).isEqualTo(0);
         assertThat(responseInquiryDetail.getAdminMemoResponseList().size()).isEqualTo(0);
         assertThat(responseImprovementDetail.getImprovementStatus()).isEqualTo("대기");
@@ -149,9 +138,9 @@ public class inquriyimprovementtest extends IntegrationTestSupport {
                 .build();
         inquirySearchRepo.createAdminMemo(adminMemoInquiryRequest);
         responseImprovementDetail =
-                adminImprovementSearchRepo.getImprovementDetail(requestImprovementDetail);
+                adminImprovementSearchRepo.getImprovementDetail(improvement1.getId());
         responseInquiryDetail =
-                inquirySearchRepo.getInquiryDetail(requestInquiryDetail);
+                inquirySearchRepo.getInquiryDetail(inquiry1.getId());
         assertThat(responseImprovementDetail.getAdminMemoResponseList().size()).isEqualTo(0);
         assertThat(responseInquiryDetail.getAdminMemoResponseList().size()).isEqualTo(1);
         assertThat(responseImprovementDetail.getImprovementStatus()).isEqualTo("완료");

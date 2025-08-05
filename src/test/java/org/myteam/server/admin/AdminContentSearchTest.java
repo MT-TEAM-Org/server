@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.myteam.server.admin.entity.AdminContentChangeLog;
 import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.repository.ContentSearchRepository;
-import org.myteam.server.admin.utill.AdminControlType;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.chat.block.domain.BanReason;
@@ -22,7 +22,6 @@ import org.myteam.server.support.IntegrationTestSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
@@ -34,6 +33,7 @@ import static org.myteam.server.admin.dto.response.ResponseContentDto.*;
 import static org.myteam.server.admin.entity.QAdminContentChangeLog.adminContentChangeLog;
 import static org.myteam.server.admin.entity.QAdminContentMemo.adminContentMemo;
 import static org.myteam.server.global.security.jwt.JwtProvider.TOKEN_CATEGORY_ACCESS;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -190,29 +190,15 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
 
     @Test
     void getDetail() {
-        RequestDetail requestDetail = RequestDetail
-                .builder()
-                .staticDataType(StaticDataType.BOARD)
-                .contentId(b.getId())
-                .build();
 
-
-        ResponseDetail responseDetail = contentSearchRepository.getDetail(requestDetail);
+        ResponseDetail responseDetail = contentSearchRepository.getDetail(b.getId(),StaticDataType.BOARD);
 
         assertThat(responseDetail.getReportCount()).isEqualTo(1);
         assertThat(responseDetail.getRecommendCount()).isEqualTo(0);
         assertThat(responseDetail.getReported()).isEqualTo("신고");
         assertThat(responseDetail.getNickname()).isEqualTo("test1");
 
-
-        RequestDetail requestDetail2 = RequestDetail
-                .builder()
-                .staticDataType(StaticDataType.COMMENT)
-                .contentId(c.getId())
-                .build();
-
-
-        ResponseDetail responseDetail2 = contentSearchRepository.getDetail(requestDetail2);
+        ResponseDetail responseDetail2 = contentSearchRepository.getDetail(c.getId(),StaticDataType.COMMENT);
 
         assertThat(responseDetail2.getReportCount()).isEqualTo(1);
         assertThat(responseDetail2.getRecommendCount()).isEqualTo(0);
@@ -280,24 +266,14 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
     @Test
     void getReportList() {
 
-        RequestReportList requestReportList = RequestReportList
-                .builder()
-                .staticDataType(StaticDataType.COMMENT)
-                .contentId(c.getId())
-                .offset(1)
-                .build();
-        List<ResponseReportList> responseReportLists = contentSearchRepository.getReportList(requestReportList).getContent();
+        List<ResponseReportList> responseReportLists = contentSearchRepository
+                .getReportList(c.getId(),StaticDataType.COMMENT,1).getContent();
 
         assertThat(responseReportLists.get(0).getReportType()).isEqualTo("정치");
         assertThat(responseReportLists.get(0).getNickName()).isEqualTo("test1");
 
-        RequestReportList requestReportList2 = RequestReportList
-                .builder()
-                .staticDataType(StaticDataType.BOARD)
-                .contentId(b.getId())
-                .offset(1)
-                .build();
-        List<ResponseReportList> responseReportLists2 = contentSearchRepository.getReportList(requestReportList2).getContent();
+        List<ResponseReportList> responseReportLists2 = contentSearchRepository
+                .getReportList(b.getId(),StaticDataType.BOARD,1).getContent();
 
         assertThat(responseReportLists2.get(0).getReportType()).isEqualTo("풍기위반");
         assertThat(responseReportLists2.get(0).getNickName()).isEqualTo("test1");
@@ -306,47 +282,25 @@ public class AdminContentSearchTest extends IntegrationTestSupport {
 
     @Test
     void missingArgsTest() throws Exception {
-        String staticError = """
-                    {
-                        "contentId":"1"
-                    }
-                """;
 
-        String offSet = """
-                    {
-                      
-                    }
-                """;
-        String reportList = """
-                    {
-                              
-                      
-                    }
-                """;
         accessToken = jwtProvider.generateToken(TOKEN_CATEGORY_ACCESS, Duration.ofDays(1),
                 admin.getPublicId(), admin.getRole().name(),
                 admin.getStatus().name());
 
 
-        mockMvc.perform(post("/api/admin/content/detail")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(staticError)
+        mockMvc.perform(get("/api/admin/content/detail?contentId=1")
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
 
-        mockMvc.perform(post("/api/admin/content/detail")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(offSet)
+        mockMvc.perform(get("/api/admin/content/detail")
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
 
-        mockMvc.perform(post("/api/admin/content/reportList")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(reportList)
+        mockMvc.perform(get("/api/admin/content/reportList?contentId=1&staticDateType=COMMENT")
                         .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isBadRequest());

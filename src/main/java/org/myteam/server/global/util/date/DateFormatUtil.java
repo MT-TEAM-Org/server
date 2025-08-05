@@ -1,12 +1,17 @@
 package org.myteam.server.global.util.date;
 
+import org.myteam.server.admin.utill.enums.DateFormatEnum;
+import org.myteam.server.admin.utill.NeedDateTimeFix;
+
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
+import java.util.List;
 
 public class DateFormatUtil {
 
@@ -27,4 +32,18 @@ public class DateFormatUtil {
     public static LocalTime convertToLocalTimeToTime(LocalTime localDate) {
         return Time.valueOf(localDate).toLocalTime();
     }
+    public static <T extends NeedDateTimeFix> void makeTimeByFormatter(List<T> data, DateFormatEnum dateFormatEnum){
+        data.stream()
+                .forEach(x -> {
+                    x.updateCreateDate(
+                            dateFormatEnum.equals(DateFormatEnum.formatByDotReq) ?
+                                    DateFormatUtil.formatByDot
+                                            .format(LocalDateTime.parse(x.getCreateDate()
+                                                    , DateFormatUtil.FLEXIBLE_NANO_FORMATTER))
+                                    : DateFormatUtil.formatByDotAndSlash
+                                    .format(LocalDateTime.parse(x.getCreateDate()
+                                            , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
+                });
+    }
+
 }

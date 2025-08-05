@@ -6,8 +6,10 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.hibernate.type.descriptor.DateTimeUtils;
-import org.myteam.server.admin.entity.AdminInquiryChangeLog;
+import org.apache.naming.TransactionRef;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.DateType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.improvement.domain.ImprovementStatus;
 import org.myteam.server.member.domain.MemberStatus;
@@ -21,7 +23,6 @@ import static org.myteam.server.admin.entity.QAdminContentChangeLog.adminContent
 import static org.myteam.server.admin.entity.QAdminImproveChangeLog.adminImproveChangeLog;
 import static org.myteam.server.admin.entity.QAdminInquiryChangeLog.adminInquiryChangeLog;
 import static org.myteam.server.admin.entity.QAdminMemberChangeLog.*;
-import static org.myteam.server.inquiry.domain.QInquiry.inquiry;
 import static org.myteam.server.member.entity.QMember.member;
 import static org.myteam.server.report.domain.QReport.report;
 
@@ -56,31 +57,15 @@ public class CreateStaticQueryFactory {
                 .fetch()
                 .get(0);
 
-        Map<String, Long> currentCountByDate = new HashMap<>();
-        Map<String,Long> pastCountByDate=new HashMap<>();
-        currentCount.stream()
-                .forEach(x -> {
-                    currentCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
-                });
-        pastCount.stream()
-                .forEach(x -> {
-                    pastCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
-                });
+        Map<String, Long> currentCountByDateFinal=new TreeMap<>();
+        Map<String,Long> pastCountByDateFinal=new TreeMap<>();
 
-        Map<String, Long> currentCountByDateFinal;
-        Map<String,Long> pastCountByDateFinal;
 
-        currentCountByDateFinal=fillEmptyDate(staticEndTime,staticStartTime,currentCountByDate,dateType);
-        pastCountByDateFinal=fillEmptyDate(staticEndTimePast,staticStartTimePast,pastCountByDate,dateType);
+        List<Long> values=makeFinalDateAndCountMap(currentCountByDateFinal,pastCountByDateFinal,currentCount
+                ,pastCount,staticEndTime,staticStartTime,staticEndTimePast,staticStartTimePast, dateType);
 
-        Long currentSums = currentCount.stream()
-                .mapToLong(x -> x.get(1, Long.class))
-                .sum();
-
-        Long pastSums = pastCount.stream()
-                .mapToLong(x -> x.get(1, Long.class))
-                .sum();
-
+        Long currentSums=values.get(0);
+        Long pastSums=values.get(1);
         int percent = StaticUtil.makeStaticPercent(currentSums,pastSums);
 
 
@@ -98,8 +83,7 @@ public class CreateStaticQueryFactory {
                 .build();
     }
 
-    public static ResponseStatic createSimpleStaticQuery(EntityPath<?> target,
-                                                   DateType dateType, List<LocalDateTime> dateList
+    public static ResponseStatic createSimpleStaticQuery(EntityPath<?> target,List<LocalDateTime> dateList
             , JPAQueryFactory queryFactory) {
 
         LocalDateTime staticStartTime = dateList.get(0);
@@ -251,7 +235,7 @@ public class CreateStaticQueryFactory {
     }
 
     public static ResponseStatic createStaticContentQuery(StaticDataType staticDataType,
-                                                          AdminControlType adminControlType,List<LocalDateTime> dateList,JPAQueryFactory queryFactory)
+                                                          AdminControlType adminControlType, List<LocalDateTime> dateList, JPAQueryFactory queryFactory)
     {
         LocalDateTime staticStartTime = dateList.get(0);
         LocalDateTime staticEndTime = dateList.get(1);
@@ -362,30 +346,16 @@ public class CreateStaticQueryFactory {
                 .fetch()
                 .get(0);
 
-        Map<String, Long> currentCountByDate = new HashMap<>();
-        Map<String,Long> pastCountByDate=new HashMap<>();
-        currentCount.stream()
-                .forEach(x -> {
-                    currentCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
-                });
-        pastCount.stream()
-                .forEach(x -> {
-                    pastCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
-                });
 
-        Map<String, Long> currentCountByDateFinal;
-        Map<String,Long> pastCountByDateFinal;
+        Map<String, Long> currentCountByDateFinal=new TreeMap<>();
+        Map<String,Long> pastCountByDateFinal=new TreeMap<>();
 
-        currentCountByDateFinal=fillEmptyDate(staticEndTime,staticStartTime,currentCountByDate,dateType);
-        pastCountByDateFinal=fillEmptyDate(staticEndTimePast,staticStartTimePast,pastCountByDate,dateType);
 
-        Long currentSums = currentCount.stream()
-                .mapToLong(x -> x.get(1, Long.class))
-                .sum();
+        List<Long> values=makeFinalDateAndCountMap(currentCountByDateFinal,pastCountByDateFinal,currentCount
+                ,pastCount,staticEndTime,staticStartTime,staticEndTimePast,staticStartTimePast, dateType);
 
-        Long pastSums = pastCount.stream()
-                .mapToLong(x -> x.get(1, Long.class))
-                .sum();
+        Long currentSums=values.get(0);
+        Long pastSums=values.get(1);
 
         int percent = StaticUtil.makeStaticPercent(currentSums,pastSums);
 
@@ -400,7 +370,7 @@ public class CreateStaticQueryFactory {
                 .build();
     }
 
-    public static ResponseStatic createSimpleReportStaticQuery(DateType dateType, List<LocalDateTime> dateList
+    public static ResponseStatic createSimpleReportStaticQuery( List<LocalDateTime> dateList
             , JPAQueryFactory queryFactory, ReportType reportType) {
 
         LocalDateTime staticStartTime = dateList.get(0);
@@ -441,7 +411,7 @@ public class CreateStaticQueryFactory {
     }
 
 
-    public static ResponseStatic createSimpleUserDelStatic(DateType dateType,List<LocalDateTime> dateList,JPAQueryFactory queryFactory){
+    public static ResponseStatic createSimpleUserDelStatic(List<LocalDateTime> dateList,JPAQueryFactory queryFactory){
         LocalDateTime staticStartTime = dateList.get(0);
         LocalDateTime staticEndTime = dateList.get(1);
         LocalDateTime staticStartTimePast = dateList.get(2);
@@ -494,44 +464,24 @@ public class CreateStaticQueryFactory {
                 .where(member.deleteAt.isNotNull())
                 .fetch().get(0);
 
-        Map<String, Long> currentCountByDate = new HashMap<>();
-        Map<String,Long> pastCountByDate=new HashMap<>();
-        currentCount.stream()
-                .forEach(x -> {
-                    currentCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
-                });
-        pastCount.stream()
-                .forEach(x -> {
-                    pastCountByDate.put(x.get(0, String.class), x.get(1, Long.class));
-                });
+        Map<String, Long> currentCountByDateFinal=new TreeMap<>();
+        Map<String,Long> pastCountByDateFinal=new TreeMap<>();
 
-        Map<String, Long> currentCountByDateFinal;
-        Map<String,Long> pastCountByDateFinal;
 
-        currentCountByDateFinal=fillEmptyDate(staticEndTime,staticStartTime,currentCountByDate,dateType);
-        pastCountByDateFinal=fillEmptyDate(staticEndTimePast,staticStartTimePast,pastCountByDate,dateType);
+        List<Long> values=makeFinalDateAndCountMap(currentCountByDateFinal,pastCountByDateFinal,currentCount
+                ,pastCount,staticEndTime,staticStartTime,staticEndTimePast,staticStartTimePast, dateType);
 
-        Long currentSum = currentCount
-                .stream()
-                .mapToLong(x -> {
-                    return x.get(1, Long.class);
-                })
-                .sum();
-        Long pastSum = pastCount
-                .stream()
-                .mapToLong(x -> {
-                    return x.get(1, Long.class);
-                })
-                .sum();
+        Long currentSums=values.get(0);
+        Long pastSums=values.get(1);
 
-        int percent = StaticUtil.makeStaticPercent(currentSum,pastSum);
+        int percent = StaticUtil.makeStaticPercent(currentSums,pastSums);
 
         return ResponseStatic
                 .builder()
                 .currentStaticData(currentCountByDateFinal)
                 .pastStaticData(pastCountByDateFinal)
-                .currentCount(currentSum)
-                .pastCount(pastSum)
+                .currentCount(currentSums)
+                .pastCount(pastSums)
                 .totCount(totCount)
                 .percent(percent)
                 .staticDataName(StaticDataType.UserDeleted.name())
@@ -557,9 +507,8 @@ public class CreateStaticQueryFactory {
         return adminImproveChangeLog.improvementStatus.eq(ImprovementStatus.COMPLETED);
     }
 
-    public static Map<String,Long> fillEmptyDate(LocalDateTime startTime,
-                                      LocalDateTime endTime,Map<String,Long> maps,DateType dateType){
-        Map<String, Long> filledResult = new TreeMap<>();
+    private static void fillEmptyDate(LocalDateTime startTime,LocalDateTime endTime,Map<String,Long> maps
+            ,DateType dateType,Map<String,Long> finalMap){
         if(dateType.equals(DateType.OneMonth)||dateType.equals(DateType.SixMonth)||
         dateType.equals(DateType.ThreeMonth)||dateType.equals(DateType.Year))
         {
@@ -568,7 +517,7 @@ public class CreateStaticQueryFactory {
             YearMonth current = startMonth;
             while (current.isBefore(endMonth)) {
                 String monthKey = DateFormatUtil.formatByDotMonth.format(current);
-                filledResult.put(monthKey, maps.getOrDefault(monthKey, 0L));
+                finalMap.put(monthKey, maps.getOrDefault(monthKey, 0L));
                 current = current.plusMonths(1);
             }
         }
@@ -576,10 +525,43 @@ public class CreateStaticQueryFactory {
             LocalDateTime current=startTime;
             while (current.isBefore(endTime)) {
                 String dayKey =DateFormatUtil.formatByDot.format(current);
-                filledResult.put(dayKey,maps.getOrDefault(dayKey, 0L));
+                finalMap.put(dayKey,maps.getOrDefault(dayKey, 0L));
                 current = current.plusDays(1L);
             }
         }
-        return filledResult;
     }
+
+    private static void fillDateAndCountToMap(Map<String,Long> map,List<Tuple> data){
+        data.stream()
+                .forEach(x->{
+                    map.put(x.get(0,String.class),x.get(1,Long.class));
+                });
+    }
+    private static Long makeTotalSumOfCount(List<Tuple> data){
+        return data.stream()
+                .mapToLong(
+                        x->{
+                            return x.get(1,Long.class);
+                        }
+                )
+                .sum();
+    }
+    private static List<Long> makeFinalDateAndCountMap
+            (Map<String, Long> currentCountByDateFinal,Map<String, Long> pastCountByDateFinal
+                    ,List<Tuple> currentCount,List<Tuple> pastCount,
+             LocalDateTime staticEndTime,LocalDateTime staticStartTime,LocalDateTime staticEndTimePast
+                    ,LocalDateTime staticStartTimePast,DateType dateType){
+        Map<String, Long> currentCountByDate = new HashMap<>();
+        Map<String,Long> pastCountByDate=new HashMap<>();
+        fillDateAndCountToMap(currentCountByDate,currentCount);
+        fillDateAndCountToMap(pastCountByDate,pastCount);
+        fillEmptyDate(staticEndTime,staticStartTime,currentCountByDate,dateType,currentCountByDateFinal);
+        fillEmptyDate(staticEndTimePast,staticStartTimePast,pastCountByDate,dateType,pastCountByDateFinal);
+        List<Long> values=new ArrayList<>();
+        values.add(makeTotalSumOfCount(currentCount));
+        values.add(makeTotalSumOfCount(pastCount));
+
+        return values;
+    }
+
 }

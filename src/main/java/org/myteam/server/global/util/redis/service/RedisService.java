@@ -3,7 +3,7 @@ package org.myteam.server.global.util.redis.service;
 import java.time.Duration;
 import java.util.UUID;
 
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

@@ -9,14 +9,14 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.dto.ctes.QContentCountCte;
-import org.myteam.server.admin.dto.ctes.QContentCte;
-import org.myteam.server.admin.dto.ctes.QMemberReportCte;
+import org.myteam.server.admin.dto.ctes.QContentIdCte;
+import org.myteam.server.admin.dto.ctes.QContentTotInfoCte;
 import org.myteam.server.admin.dto.ctes.QSimpleReportCte;
 import org.myteam.server.admin.dto.response.CommonResponseDto;
-import org.myteam.server.admin.utill.AdminControlType;
+import org.myteam.server.admin.utill.enums.AdminControlType;
 import org.myteam.server.admin.utill.CreateAdminMemo;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.DateFormatEnum;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.util.date.DateFormatUtil;
@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.*;
 import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
 import static org.myteam.server.admin.dto.response.ResponseContentDto.*;
-import static org.myteam.server.admin.utill.AdminControlType.*;
+import static org.myteam.server.admin.utill.enums.AdminControlType.*;
 import static org.myteam.server.board.domain.QBoard.board;
 import static org.myteam.server.board.domain.QBoardCount.boardCount;
 import static org.myteam.server.comment.domain.QComment.comment1;
@@ -59,10 +59,10 @@ public class ContentSearchRepository {
         createAdminMemo.createContentAdminMemo(adminMemoContentRequest,queryFactory);
     }
 
-    public Page<ResponseReportList> getReportList(RequestReportList requestReportList) {
+    public Page<ResponseReportList> getReportList(Long contentId,StaticDataType staticDataType,Integer page) {
 
-        Pageable pageable = PageRequest.of(requestReportList.getOffset(), 10);
-        if (requestReportList.getStaticDataType().name().equals(StaticDataType.COMMENT.name())) {
+        Pageable pageable = PageRequest.of(page-1, 10);
+        if (staticDataType.name().equals(StaticDataType.COMMENT.name())) {
             List<ResponseReportList> responseReportLists = queryFactory
                     .select(
                             Projections.constructor(ResponseReportList.class,
@@ -83,16 +83,16 @@ public class ContentSearchRepository {
                     .from(report)
                     .join(comment1)
                     .on(comment1.id.eq(report.reportedContentId).and(report.reportType.eq(ReportType.COMMENT)))
-                    .where(report.reportedContentId.eq(requestReportList.getContentId()))
+                    .where(report.reportedContentId.eq(contentId))
                     .orderBy(report.createDate.desc())
                     .limit(10)
-                    .offset(requestReportList.getOffset())
+                    .offset(pageable.getOffset())
                     .fetch();
 
             Long totNum = Optional.ofNullable(queryFactory
                             .select(report.count())
                             .from(report)
-                            .where(report.reportedContentId.eq(requestReportList.getContentId())
+                            .where(report.reportedContentId.eq(contentId)
                                     , report.reportType.eq(ReportType.COMMENT))
                             .fetchOne())
                     .orElse(0L);
@@ -127,15 +127,15 @@ public class ContentSearchRepository {
                 .from(report)
                 .join(board)
                 .on(board.id.eq(report.reportedContentId).and(report.reportType.eq(ReportType.BOARD)))
-                .where(report.reportedContentId.eq(requestReportList.getContentId()))
+                .where(report.reportedContentId.eq(contentId))
                 .orderBy(report.createDate.desc())
                 .limit(10)
-                .offset(requestReportList.getOffset())
+                .offset(pageable.getOffset())
                 .fetch();
         Long totNum = Optional.ofNullable(queryFactory
                 .select(report.count())
                 .from(report)
-                .where(report.reportedContentId.eq(requestReportList.getContentId())
+                .where(report.reportedContentId.eq(contentId)
                         , report.reportType.eq(ReportType.BOARD))
                 .fetchOne()
         ).orElse(0L);
@@ -151,8 +151,8 @@ public class ContentSearchRepository {
         return new PageImpl<>(responseReportLists, pageable, totNum);
     }
 
-    public ResponseDetail getDetail(RequestDetail requestDetail) {
-        if (requestDetail.getStaticDataType().name().equals(StaticDataType.COMMENT.name())) {
+    public ResponseDetail getDetail(Long contentId,StaticDataType staticDataType) {
+        if (staticDataType.name().equals(StaticDataType.COMMENT.name())) {
             ResponseDetail responseDetail = queryFactory.select(Projections.constructor(ResponseDetail.class,
                             new CaseBuilder()
                                     .when(comment1.adminControlType.eq(SHOW))
@@ -180,10 +180,10 @@ public class ContentSearchRepository {
                     .from(comment1)
                     .join(member)
                     .on(member.eq(comment1.member))
-                    .where(comment1.id.eq(requestDetail.getContentId()))
+                    .where(comment1.id.eq(contentId))
                     .fetch()
                     .get(0);
-            return editDataTime(StaticDataType.COMMENT, responseDetail, requestDetail);
+            return editDataTimeAndAdminMemo(StaticDataType.COMMENT, responseDetail,contentId);
         }
 
         ResponseDetail responseDetail = queryFactory.select(Projections.constructor(ResponseDetail.class,
@@ -215,11 +215,11 @@ public class ContentSearchRepository {
                 .from(board)
                 .join(member)
                 .on(member.eq(board.member))
-                .where(board.id.eq(requestDetail.getContentId()))
+                .where(board.id.eq(contentId))
                 .fetch()
                 .get(0);
 
-        return editDataTime(StaticDataType.BOARD, responseDetail, requestDetail);
+        return editDataTimeAndAdminMemo(StaticDataType.BOARD, responseDetail, contentId);
     }
 
     public Page<ResponseContentSearch> getDataList(RequestContentData adminContentResearch) {
@@ -241,7 +241,7 @@ public class ContentSearchRepository {
 
         Pageable pageable = PageRequest.of(adminContentResearch.getOffset(), 10);
         QSimpleReportCte reportCte = new QSimpleReportCte("reportCte");
-        QContentCte cte = new QContentCte("cte");
+        QContentTotInfoCte cte = new QContentTotInfoCte("cte");
 
 
         //group by문에는 seelct 혹은 bind시 통계데이터만 들어가야되고 상수값이 들ㅇ거ㅏ면안된다. expression.const같은거
@@ -351,7 +351,7 @@ public class ContentSearchRepository {
         String searchKeyWord = adminContentResearch.getSearchKeyWord();
         LocalDateTime startTime = adminContentResearch.provideStartTime();
         LocalDateTime endTime = adminContentResearch.provideEndTime();
-        QContentCountCte cte = new QContentCountCte("cte");
+        QContentIdCte cte = new QContentIdCte("cte");
 
         BlazeJPAQuery countCteQuery = blazeJPAQueryFactory
                 .from(report)
@@ -422,7 +422,7 @@ public class ContentSearchRepository {
         LocalDateTime startTime = adminContentResearch.provideStartTime();
         LocalDateTime endTime = adminContentResearch.provideEndTime();
 
-        QContentCountCte cte = new QContentCountCte("cte");
+        QContentIdCte cte = new QContentIdCte("cte");
 
         BlazeJPAQuery countCteQuery = blazeJPAQueryFactory
                 .from(report)
@@ -612,7 +612,7 @@ public class ContentSearchRepository {
         return cte.isNull();
     }
 
-    private Predicate totReportCond(Boolean reported, QContentCountCte cte) {
+    private Predicate totReportCond(Boolean reported, QContentIdCte cte) {
         if (reported == null) {
             return null;
         }
@@ -637,16 +637,13 @@ public class ContentSearchRepository {
 
             IntStream.range(0, responseContents.size())
                     .forEach(i -> {
-                        String dateTime = DateFormatUtil.formatByDot.format(LocalDateTime.parse(
-                                responseContents.get(i).getCreateDate(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER
-                        ));
-                        responseContents.get(i).updateCreateDate(dateTime);
                         if (countSearches.get(i) == 0) {
                             responseContents.get(i).updateCountReported(0L, "미신고");
                         } else {
                             responseContents.get(i).updateCountReported(countSearches.get(i), "신고");
                         }
                     });
+            DateFormatUtil.makeTimeByFormatter(responseContents,DateFormatEnum.formatByDotReq);
             return;
         }
         if (isReported && !responseContents.isEmpty()) {
@@ -664,32 +661,22 @@ public class ContentSearchRepository {
                     .fetch();
             IntStream.range(0, responseContents.size())
                     .forEach(i -> {
-                        String dateTime = DateFormatUtil.formatByDot.format(LocalDateTime.parse(
-                                responseContents.get(i).getCreateDate(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER
-                        ));
-                        responseContents.get(i).updateCreateDate(dateTime);
                         responseContents.get(i).updateCountReported(countSearches.get(i).getReportCount(), "신고");
                     });
+            DateFormatUtil.makeTimeByFormatter(responseContents,DateFormatEnum.formatByDotReq);
             return;
         }
     }
 
     private void updateDetailReportInfo(Boolean isReported, List<ResponseContentSearch> responseContents) {
         if (isReported == null || !isReported) {
-            responseContents.stream().forEach(x -> {
-
-                String dateTime = DateFormatUtil.formatByDot.format(LocalDateTime.parse(
-                        x.getCreateDate(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER
-                ));
-                x.updateCreateDate(dateTime);
-            });
+            DateFormatUtil.makeTimeByFormatter(responseContents,DateFormatEnum.formatByDotReq);
             return;
         }
         if (isReported && responseContents.size() > 0) {
             List<CountSearch> contentId = responseContents.stream().map(x -> {
                 return new CountSearch(x.getContentId(), x.getAdminControlType(), 0L);
             }).collect(Collectors.toList());
-
             List<Long> countSearches = contentId.stream().map(x -> {
                 if (x.getContentType().equals("게시판")) {
                     return Optional.ofNullable(queryFactory.select(report.count())
@@ -706,41 +693,31 @@ public class ContentSearchRepository {
                                 .fetchOne())
                         .orElse(0L);
             }).collect(Collectors.toList());
-
             IntStream.range(0, responseContents.size())
                     .forEach(i -> {
-
-                        String dateTime = DateFormatUtil
-                                .formatByDotAndSlash.format(LocalDateTime.parse(responseContents.get(i)
-                                                .getCreateDate()
-                                        , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
-                        responseContents.get(i).updateCreateDate(dateTime);
-
                         if (countSearches.get(i) == 0) {
                             responseContents.get(i).updateCountReported(0L, "미신고");
                         } else {
                             responseContents.get(i).updateCountReported(countSearches.get(i), "신고");
                         }
                     });
+            DateFormatUtil.makeTimeByFormatter(responseContents,DateFormatEnum.formatByDotAndSlashReq);
         }
     }
 
-    private ResponseDetail editDataTime(StaticDataType staticDataType, ResponseDetail responseDetail
-            , RequestDetail requestDetail) {
+    private ResponseDetail editDataTimeAndAdminMemo(StaticDataType staticDataType, ResponseDetail responseDetail
+            , Long contentId) {
         if (responseDetail.getReportCount() > 0) {
             responseDetail.updateReported("신고");
         }
         List<CommonResponseDto.AdminMemoResponse> adminMemoResponses =
                 createAdminMemo.getAdminContentMemo(staticDataType,
-                        requestDetail.getContentId(),queryFactory);
-
+                        contentId,queryFactory);
         responseDetail.updateAdminMemoResponses(adminMemoResponses);
-
         String dateTime = DateFormatUtil
                 .formatByDotAndSlash.format(LocalDateTime.parse(responseDetail.getCreateDate()
                         , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
         responseDetail.updateCreateDate(dateTime);
-
         return responseDetail;
     }
 

@@ -2,6 +2,7 @@ package org.myteam.server.admin.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,10 +17,8 @@ import org.myteam.server.global.web.response.ResponseStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
 import static org.myteam.server.admin.dto.response.InquiryResponseDto.*;
 import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryList;
@@ -70,12 +69,13 @@ public class AdminInquiryController {
             @ApiResponse(responseCode = "200", description = "정보 조회 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @PostMapping("/detail")
+    @GetMapping("/detail")
     public ResponseEntity<ResponseDto<ResponseInquiryDetail>> getInquiryDetail(
-            @RequestBody @Valid RequestInquiryDetail requestInquiryDetail, BindingResult bindingResult) {
+            @Parameter(description = "inquiryId입니다 필수입니다.") @RequestParam(name = "inquiryId",required = true)Long inquiryId,
+            @Parameter(description = "관리자단 대시보드에서 알람 혹은 최신데이터에서 넘어올떄 넣어주세요.") @RequestParam(name = "readCheck",required = false)String readCheck) {
 
         return ResponseEntity.ok(new ResponseDto<>(ResponseStatus.SUCCESS.name(), "ok",
-                adminInquiryService.getInquiryDetail(requestInquiryDetail)
+                adminInquiryService.getInquiryDetail(inquiryId,readCheck)
         ));
     }
 

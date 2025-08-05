@@ -3,7 +3,8 @@ package org.myteam.server.admin.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.NeedDateTimeFix;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public record AdminDashBoardResponseDto() {
     }
 
     @Getter
-    public static class ResponseLatestData {
+    public static class ResponseLatestData extends NeedDateTimeFix {
 
         @Schema(description = "불러온 최신 데이터 타입이 신고일때 어떤 콘텐츠에대한 신고인지를 나타냅니다.")
         private String reportType;
@@ -38,8 +39,6 @@ public record AdminDashBoardResponseDto() {
         private Long contentId;
         private String name;
         private String content;
-        @Schema(example = "2025.06.06")
-        private String createAt;
         @Schema(description = "어떤 종류의 최신데이터인지 보여줍니다")
         private StaticDataType staticDataType;
         @Schema(description = "이값이 true이면 이미 읽은것,아니면은 읽지않은것입니다.")
@@ -49,21 +48,17 @@ public record AdminDashBoardResponseDto() {
 
         public ResponseLatestData(String reportType,
                                   String mainStatus, String subStatus, Long contentId,
-                                  String name, String content, String createAt,Long reportId
+                                  String name, String content, String createDate,Long reportId
         ,StaticDataType staticDataType) {
+            super(createDate);
             this.reportType = reportType;
             this.mainStatus = mainStatus;
             this.subStatus = subStatus;
             this.contentId = contentId;
             this.name = name;
             this.content = content;
-            this.createAt = createAt;
             this.reportId=reportId;
             this.staticDataType=staticDataType;
-        }
-
-        public void updateCreateAt(String createAt) {
-            this.createAt = createAt;
         }
 
         public void mappingCheckRead(boolean check) {

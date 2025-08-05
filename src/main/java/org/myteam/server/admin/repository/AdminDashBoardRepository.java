@@ -1,14 +1,13 @@
 package org.myteam.server.admin.repository;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.utill.*;
+import org.myteam.server.admin.utill.enums.*;
 import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.exception.ErrorCode;
 import org.myteam.server.global.exception.PlayHiveException;
@@ -45,17 +44,17 @@ public class AdminDashBoardRepository {
     private final SecurityReadService securityReadService;
 
 
-    public List<ResponseStatic> getStaticData(StaticDataType staticDataType, DateType dateType) {
+    public List<ResponseStatic> getStaticData(AdminDashBoardType adminDashBoardType, DateType dateType) {
 
-        return getStaticDataByRequest(dateType, staticDataType);
+        return getStaticDataByRequest(dateType, adminDashBoardType);
     }
 
-    private List<ResponseStatic> getStaticDataByRequest(DateType dateType, StaticDataType staticDataType) {
+    private List<ResponseStatic> getStaticDataByRequest(DateType dateType,AdminDashBoardType adminDashBoardType) {
         LocalDateTime now = LocalDateTime.now();
 
         List<LocalDateTime> dateList = DateTypeFactory.SupplyDateTime(dateType, now);
 
-        if(staticDataType.name().equals(StaticDataType.DashBoard.name())){
+        if(adminDashBoardType.name().equals(AdminDashBoardType.DashBoard.name())){
             List<ResponseStatic> responseStatics=new ArrayList<>();
             responseStatics.add(CreateStaticQueryFactory.createStaticQuery(board, dateType, dateList, queryFactory));
             responseStatics.add(CreateStaticQueryFactory.createStaticQuery(comment1, dateType, dateList, queryFactory));
@@ -67,33 +66,33 @@ public class AdminDashBoardRepository {
             responseStatics.add(CreateStaticQueryFactory.createStaticQuery(member, dateType, dateList, queryFactory));
             return responseStatics;
         }
-        if(staticDataType.name().equals(StaticDataType.MemberBoard.name())){
+        if(adminDashBoardType.name().equals(AdminDashBoardType.MemberBoard.name())){
             List<ResponseStatic> responseStatics=new ArrayList<>();
-            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(member, dateType, dateList, queryFactory));
-            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(memberAccess, dateType, dateList, queryFactory));
-            responseStatics.add(CreateStaticQueryFactory.createSimpleUserDelStatic(dateType,dateList,queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(member, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(memberAccess,  dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleUserDelStatic(dateList,queryFactory));
             responseStatics.add(CreateStaticQueryFactory.createStaticMemberStatusQuery(
                     MemberStatus.WARNED,dateList,queryFactory));
             responseStatics.add(CreateStaticQueryFactory.createStaticMemberStatusQuery(
                     MemberStatus.INACTIVE,dateList,queryFactory));
             return responseStatics;
         }
-        if(staticDataType.name().equals(StaticDataType.ContentBoard.name())){
+        if(adminDashBoardType.name().equals(AdminDashBoardType.ContentBoard.name())){
             List<ResponseStatic> responseStatics=new ArrayList<>();
-            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(board, dateType, dateList, queryFactory));
-            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(comment1, dateType, dateList, queryFactory));
-            responseStatics.add(CreateStaticQueryFactory.createSimpleReportStaticQuery(dateType, dateList, queryFactory,ReportType.BOARD));
-            responseStatics.add(CreateStaticQueryFactory.createSimpleReportStaticQuery(dateType, dateList, queryFactory, ReportType.COMMENT));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(board, dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(comment1,  dateList, queryFactory));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleReportStaticQuery(dateList, queryFactory,ReportType.BOARD));
+            responseStatics.add(CreateStaticQueryFactory.createSimpleReportStaticQuery( dateList, queryFactory, ReportType.COMMENT));
             responseStatics.add(CreateStaticQueryFactory.createStaticContentQuery(StaticDataType.BOARD,AdminControlType.HIDDEN
                     ,dateList,queryFactory));
-            responseStatics.add(CreateStaticQueryFactory.createStaticContentQuery(StaticDataType.COMMENT,AdminControlType.HIDDEN
+            responseStatics.add(CreateStaticQueryFactory.createStaticContentQuery(StaticDataType.COMMENT, AdminControlType.HIDDEN
                     ,dateList,queryFactory));
             return responseStatics;
         }
-        if(staticDataType.name().equals(StaticDataType.Inquiry.name())){
+        if(adminDashBoardType.name().equals(AdminDashBoardType.InquiryBoard.name())){
             List<ResponseStatic> responseStatics=new ArrayList<>();
             responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(
-                    inquiry, dateType, dateList, queryFactory));
+                    inquiry, dateList, queryFactory));
             responseStatics.add(CreateStaticQueryFactory
                     .createInquiryStaticQuery(dateList,false,queryFactory));
             responseStatics.add(CreateStaticQueryFactory
@@ -104,10 +103,10 @@ public class AdminDashBoardRepository {
                 .createMemberInquiryStaticQuery(dateList,false,queryFactory));
             return responseStatics;
         }
-        if(staticDataType.name().equals(StaticDataType.Improvement.name())){
+        if(adminDashBoardType.name().equals(AdminDashBoardType.ImprovementBoard.name())){
             List<ResponseStatic> responseStatics=new ArrayList<>();
             responseStatics.add(CreateStaticQueryFactory.createSimpleStaticQuery(
-                    improvement, dateType, dateList, queryFactory));
+                    improvement, dateList, queryFactory));
             responseStatics.add(CreateStaticQueryFactory
                     .createImprovementStaticQuery(dateList,StaticDataType.ImprovementPending,queryFactory));
             responseStatics.add(CreateStaticQueryFactory
@@ -176,15 +175,12 @@ public class AdminDashBoardRepository {
                     .limit(10)
                     .offset(0)
                     .fetch();
+            DateFormatUtil.makeTimeByFormatter(reportLatest, DateFormatEnum.formatByDotReq);
             reportLatest.stream()
                     .forEach(x -> {
                         boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                                 ,StaticDataType.Report, x.getContentId());
                         x.mappingCheckRead(readCheck);
-                        x.updateCreateAt(
-                                DateFormatUtil.formatByDot.format(
-                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-
                         if (x.getMainStatus().equals("SHOW")) {
                             x.updateMainStatus("노출");
                         }
@@ -224,13 +220,9 @@ public class AdminDashBoardRepository {
                     .limit(10)
                     .offset(0)
                     .fetch();
+            DateFormatUtil.makeTimeByFormatter(inquiryLatest,DateFormatEnum.formatByDotReq);
             inquiryLatest.stream()
                     .forEach(x -> {
-
-                        x.updateCreateAt(
-                                DateFormatUtil.formatByDot.format(
-                                        LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-
                         boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                                 , x.getStaticDataType(), x.getContentId());
                         x.mappingCheckRead(readCheck);
@@ -261,11 +253,9 @@ public class AdminDashBoardRepository {
                     .limit(10)
                     .offset(0)
                     .fetch();
+        DateFormatUtil.makeTimeByFormatter(improveLatest,DateFormatEnum.formatByDotReq);
         improveLatest.stream()
                 .forEach(x -> {
-                    x.updateCreateAt(
-                            DateFormatUtil.formatByDot.format(
-                                    LocalDateTime.parse(x.getCreateAt(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
                     boolean readCheck = redisService.AdminReadCheck(admin.getPublicId().toString()
                             , StaticDataType.Improvement, x.getContentId());
                     x.mappingCheckRead(readCheck);

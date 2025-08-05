@@ -11,9 +11,10 @@ import org.myteam.server.admin.entity.AdminImproveChangeLog;
 import org.myteam.server.admin.entity.AdminInquiryChangeLog;
 import org.myteam.server.admin.entity.AdminMemberChangeLog;
 import org.myteam.server.admin.service.AdminDashBoardService;
-import org.myteam.server.admin.utill.AdminControlType;
-import org.myteam.server.admin.utill.DateType;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.AdminDashBoardType;
+import org.myteam.server.admin.utill.enums.DateType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.chat.block.domain.BanReason;
@@ -214,7 +215,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         @DisplayName("문의 개선 건의사항 세부 통계테스트")
         void testGetInquiryImprovementTest(){
 
-            List<ResponseStatic> responseStatics=adminDashBoardService.getStaticData(StaticDataType.Inquiry,DateType.Day);
+            List<ResponseStatic> responseStatics=adminDashBoardService.getStaticData(AdminDashBoardType.InquiryBoard,DateType.Day);
 
 
             assertThat(responseStatics.size()).isEqualTo(5);
@@ -245,7 +246,7 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
             assertThat(responseStatics.get(4).getPercent()).isEqualTo(100);
 
 
-            List<ResponseStatic> responseImproves=adminDashBoardService.getStaticData(StaticDataType.Improvement,DateType.Day);
+            List<ResponseStatic> responseImproves=adminDashBoardService.getStaticData(AdminDashBoardType.ImprovementBoard,DateType.Day);
 
             assertThat(responseImproves.size()).isEqualTo(4);
 
@@ -278,9 +279,9 @@ public class DashBoardRepoTest extends IntegrationTestSupport {
         LocalDateTime now = LocalDateTime.now();
 
 
-        List<ResponseStatic> responseStaticsDashBoard=adminDashBoardService.getStaticData(StaticDataType.DashBoard,DateType.Day);
-        List<ResponseStatic> responseStaticsMemberBoard=adminDashBoardService.getStaticData(StaticDataType.MemberBoard,DateType.Day);
-        List<ResponseStatic> responseStaticsContentBoard=adminDashBoardService.getStaticData(StaticDataType.ContentBoard,DateType.Day);
+        List<ResponseStatic> responseStaticsDashBoard=adminDashBoardService.getStaticData(AdminDashBoardType.DashBoard,DateType.Day);
+        List<ResponseStatic> responseStaticsMemberBoard=adminDashBoardService.getStaticData(AdminDashBoardType.MemberBoard,DateType.Day);
+        List<ResponseStatic> responseStaticsContentBoard=adminDashBoardService.getStaticData(AdminDashBoardType.ContentBoard,DateType.Day);
 
 
         assertThat(responseStaticsDashBoard.size()).isEqualTo(8);

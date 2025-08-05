@@ -7,7 +7,8 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.utill.CreateAdminMemo;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.DateFormatEnum;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.ImprovementStatus;
@@ -85,12 +86,7 @@ public class AdminImprovementSearchRepo {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        responseImprovementList.stream()
-                .forEach(x -> {
-                    x.updateCreateDate(DateFormatUtil.formatByDot
-                            .format(LocalDateTime.parse(x.getCreateDate(), DateFormatUtil
-                                    .FLEXIBLE_NANO_FORMATTER)));
-                });
+        DateFormatUtil.makeTimeByFormatter(responseImprovementList,DateFormatEnum.formatByDotReq);
 
         Long count = Optional.ofNullable(queryFactory.select(improvement.count())
                 .from(improvement)
@@ -107,7 +103,7 @@ public class AdminImprovementSearchRepo {
         return new PageImpl<>(responseImprovementList, pageable, count);
     }
 
-    public ResponseImprovementDetail getImprovementDetail(RequestImprovementDetail requestImprovementDetail) {
+    public ResponseImprovementDetail getImprovementDetail(Long contentId) {
         ResponseImprovementDetail responseImprovementDetail = queryFactory
                 .select(
                         Projections.constructor(
@@ -133,15 +129,14 @@ public class AdminImprovementSearchRepo {
                 .from(improvement)
                 .join(member)
                 .on(member.eq(improvement.member))
-                .where(improvement.id.eq(requestImprovementDetail.getContentId()))
+                .where(improvement.id.eq(contentId))
                 .fetchOne();
         responseImprovementDetail.updateCreateDate(DateFormatUtil.formatByDotAndSlash.format(
                 LocalDateTime.parse(responseImprovementDetail.getCreateDate()
                         , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-
         responseImprovementDetail.updateAdminMemoList(
                 createAdminMemo.getAdminContentMemo(StaticDataType.Improvement,
-                        requestImprovementDetail.getContentId(), queryFactory));
+                        contentId, queryFactory));
 
         return responseImprovementDetail;
     }
@@ -181,12 +176,7 @@ public class AdminImprovementSearchRepo {
                 .offset(pageable.getOffset())
                 .fetch();
 
-        responseMemberImproveLists.stream()
-                .forEach(x -> {
-                    x.updateCreateDate(DateFormatUtil.formatByDot
-                            .format(LocalDateTime.parse(x.getCreateDate()
-                                    , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-                });
+        DateFormatUtil.makeTimeByFormatter(responseMemberImproveLists,DateFormatEnum.formatByDotReq);
 
         Long totCount = Optional.ofNullable(queryFactory
                 .select(improvement.count())

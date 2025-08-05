@@ -3,9 +3,13 @@ package org.myteam.server.admin.utill;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.StringTemplate;
+import javassist.Loader;
+import org.myteam.server.admin.utill.enums.DateType;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+
 import static com.querydsl.core.types.dsl.Expressions.stringTemplate;
 import static org.myteam.server.admin.entity.QAdminContentChangeLog.adminContentChangeLog;
 import static org.myteam.server.admin.entity.QAdminImproveChangeLog.adminImproveChangeLog;
@@ -146,7 +150,7 @@ public class StaticUtil {
         return Math.round(((float) (val1 - val2) / val2) * 100f);
     }
 
-    public static String dateFormat(Date date, String mysqlFormatPattern) {
+   public static String dateFormat(Date date, String mysqlFormatPattern) {
         if (date == null) {
             return null;
         }
@@ -158,7 +162,6 @@ public class StaticUtil {
                 .replace("%H", "HH") // 시 (00-23)
                 .replace("%i", "mm") // 분 (00-59)
                 .replace("%s", "ss"); // 초 (00-59)
-        // 필요한 다른 MySQL 패턴도 여기에 추가 변환 로직을 넣을 수 있습니다.
 
         SimpleDateFormat sdf = new SimpleDateFormat(javaFormatPattern);
         return sdf.format(date);
