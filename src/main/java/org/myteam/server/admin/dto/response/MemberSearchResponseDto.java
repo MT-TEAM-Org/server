@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.myteam.server.admin.utill.NeedDateTimeFix;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,9 +13,7 @@ import static org.myteam.server.admin.dto.response.CommonResponseDto.*;
 
 public record MemberSearchResponseDto() {
     @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ResponseMemberSearch {
+    public static class ResponseMemberSearch extends NeedDateTimeFix{
         private String status;
         private String nickName;
         private Long boardCount;
@@ -25,34 +24,39 @@ public record MemberSearchResponseDto() {
         private String memberType;
         private String email;
         private String tel;
-        private String createDate;
         @Schema(description = "회원 식별값입니다. 상세검색시에 이용해주세요")
         private UUID memberId;
-
-        public void updateCreateDate(String date) {
-            this.createDate = date;
+        public ResponseMemberSearch(String status, String nickName, Long boardCount, Long commentCount, Long reportCount, Integer recommendCount, String genderType,
+                                    String memberType, String email, String tel, String createDate, UUID memberId) {
+            super(createDate);
+            this.status = status;
+            this.nickName = nickName;
+            this.boardCount = boardCount;
+            this.commentCount = commentCount;
+            this.reportCount = reportCount;
+            this.recommendCount = recommendCount;
+            this.genderType = genderType;
+            this.memberType = memberType;
+            this.email = email;
+            this.tel = tel;
+            this.memberId = memberId;
         }
     }
 
     @Getter
-    public static class ResponseReportList {
+    public static class ResponseReportList  extends NeedDateTimeFix{
         private Long contentId;
-        private String reportedDate;
         private Long reportedCount;
         private String reportType;
         private String content;
 
         public ResponseReportList(Long contentId, String reportedDate, Long reportedCount,
                                   String reportType, String content) {
+            super(reportedDate);
             this.contentId = contentId;
-            this.reportedDate = reportedDate;
             this.reportedCount = reportedCount;
             this.reportType = reportType;
             this.content = content;
-        }
-
-        public void updateReportDate(String date) {
-            this.reportedDate = date;
         }
     }
 

@@ -2,6 +2,7 @@ package org.myteam.server.admin.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.myteam.server.admin.utill.NeedDateTimeFix;
 
 import java.util.List;
 
@@ -9,15 +10,12 @@ import static org.myteam.server.admin.dto.response.CommonResponseDto.*;
 
 public record ResponseContentDto() {
     @Getter
-    @AllArgsConstructor
-    public static class ResponseContentSearch {
+    public static class ResponseContentSearch extends NeedDateTimeFix {
         private Long contentId;
         private String nickName;
         @Schema(example = "게시판,댓글,채팅")
         private String staticDataType;
         private String content;
-        @Schema(example = "2025.06.06")
-        private String createDate;
         @Schema(example = "정지,정상,경고")
         private String memberStatus;
         @Schema(example = "노출,보류,숨김")
@@ -26,13 +24,23 @@ public record ResponseContentDto() {
         @Schema(description = "신고 됐다면 신고 신고가 없다면 미신고로 표시")
         private String reported;
 
+        public ResponseContentSearch(Long contentId, String nickName, String staticDataType,
+                                     String content, String createDate,
+                                     String memberStatus, String adminControlType, Long reportCount, String reported) {
+            super(createDate);
+            this.contentId = contentId;
+            this.nickName = nickName;
+            this.staticDataType = staticDataType;
+            this.content = content;
+            this.memberStatus = memberStatus;
+            this.adminControlType = adminControlType;
+            this.reportCount = reportCount;
+            this.reported = reported;
+        }
+
         public void updateCountReported(Long count, String reported) {
             this.reported = reported;
             this.reportCount = count;
-        }
-
-        public void updateCreateDate(String date) {
-            this.createDate = date;
         }
     }
 

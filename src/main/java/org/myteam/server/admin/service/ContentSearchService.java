@@ -3,7 +3,7 @@ package org.myteam.server.admin.service;
 
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.repository.ContentSearchRepository;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -24,20 +24,20 @@ public class ContentSearchService {
     private final SecurityReadService securityReadService;
     private final RedisService redisService;
 
-    public Page<ResponseReportList> getReportList(RequestReportList requestReportList){
+    public Page<ResponseReportList> getReportList(Long contentId,StaticDataType staticDataType,Integer page){
 
-        return contentSearchRepository.getReportList(requestReportList);
+        return contentSearchRepository.getReportList(contentId,staticDataType,page);
     }
     public Page<ResponseContentSearch> getContentList(RequestContentData requestReportList){
 
         return contentSearchRepository.getDataList(requestReportList);
     }
-    public ResponseDetail getContentDetail(RequestDetail requestDetail){
-        ResponseDetail responseDetail=contentSearchRepository.getDetail(requestDetail);
-        if(requestDetail.getAlarmCheck()!=null&&requestDetail.getReportId()!=null) {
+    public ResponseDetail getContentDetail(Long contentId,StaticDataType staticDataType,Long reportId,String readCheck){
+        ResponseDetail responseDetail=contentSearchRepository.getDetail(contentId,staticDataType);
+        if(readCheck!=null&&reportId!=null) {
             Member admin = securityReadService.getMember();
             redisService.adminReadCheckUpdate(admin.getPublicId().toString()
-                    , StaticDataType.Report, requestDetail.getReportId());
+                    , StaticDataType.Report,reportId);
         }
         return responseDetail;
     }

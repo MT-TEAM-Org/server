@@ -84,7 +84,6 @@ public record MemberSearchRequestDto() {
         @NotNull(message = "유저 식별값은 비면 안됩니다")
         @Schema(description = "필수값입니다.")
         private UUID publicId;
-
         @Schema(description = "이 객체는 회원 한명에 대한 데이터와 회원에 대해 발생한 신고에대해서" +
                 "쓰이기에 offset을 넣주었고 회원 한명에대한 데이터를 볼때에는 offset에 아무값이나 넣어줘도" +
                 "알아서 걸러줍니다.")
@@ -97,7 +96,6 @@ public record MemberSearchRequestDto() {
             this.offset = offset;
 
         }
-
         public int getOffset() {
             return this.offset - 1;
         }

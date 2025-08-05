@@ -8,7 +8,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.utill.CreateAdminMemo;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.DateFormatEnum;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,7 +41,7 @@ public class InquirySearchRepo {
         return createAdminMemo.createInquiryAdminMemo(adminMemoRequest, queryFactory);
     }
 
-    public ResponseInquiryDetail getInquiryDetail(RequestInquiryDetail requestInquiryDetail) {
+    public ResponseInquiryDetail getInquiryDetail(Long inquiryId) {
         ResponseInquiryDetail responseInquiryDetail = queryFactory
                 .select(
                         Projections.constructor(ResponseInquiryDetail.class,
@@ -65,7 +66,7 @@ public class InquirySearchRepo {
                 .from(inquiry)
                 .leftJoin(member)
                 .on(member.eq(inquiry.member))
-                .where(inquiry.id.eq(requestInquiryDetail.getContentId()))
+                .where(inquiry.id.eq(inquiryId))
                 .fetchOne();
 
         responseInquiryDetail.updateCreateDate(DateFormatUtil.formatByDot
@@ -73,7 +74,7 @@ public class InquirySearchRepo {
                         , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
         responseInquiryDetail.updateAdminMemoList(
                 createAdminMemo.getAdminContentMemo(StaticDataType.Inquiry,
-                        requestInquiryDetail.getContentId(), queryFactory));
+                        inquiryId, queryFactory));
 
         return responseInquiryDetail;
     }
@@ -110,13 +111,7 @@ public class InquirySearchRepo {
                 .offset(pageable.getOffset())
                 .fetch();
 
-        inquiryList.stream()
-                .forEach(x -> {
-                    x.updateCreateDate(DateFormatUtil.formatByDot
-                            .format(LocalDateTime.parse(x.getCreateDate()
-                                    , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-                });
-
+        DateFormatUtil.makeTimeByFormatter(inquiryList, DateFormatEnum.formatByDotReq);
         Long totCount = Optional.ofNullable(queryFactory
                 .select(inquiry.count())
                 .from(inquiry)
@@ -167,13 +162,7 @@ public class InquirySearchRepo {
                 .offset(pageable.getOffset())
                 .fetch();
 
-        responseInquiryListConds.stream()
-                .forEach(x -> {
-                    x.updateCreateDate(DateFormatUtil.formatByDot
-                            .format(LocalDateTime.parse(x.getCreateDate(), DateFormatUtil
-                                    .FLEXIBLE_NANO_FORMATTER)));
-                });
-
+        DateFormatUtil.makeTimeByFormatter(responseInquiryListConds,DateFormatEnum.formatByDotReq);
         Long count = Optional.ofNullable(queryFactory.select(inquiry.count())
                 .from(inquiry)
                 .leftJoin(member)

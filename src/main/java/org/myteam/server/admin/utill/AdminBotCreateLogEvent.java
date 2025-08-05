@@ -4,7 +4,7 @@ package org.myteam.server.admin.utill;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.report.domain.ReportType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 
 @NoArgsConstructor
 @Getter
@@ -15,7 +15,7 @@ public class AdminBotCreateLogEvent {
     private Boolean isMember;
 
     @Builder
-    public AdminBotCreateLogEvent(Long contentId,StaticDataType staticDataType,Boolean isMember){
+    public AdminBotCreateLogEvent(Long contentId, StaticDataType staticDataType, Boolean isMember){
         this.contentId=contentId;
         this.staticDataType=staticDataType;
         this.isMember=isMember;

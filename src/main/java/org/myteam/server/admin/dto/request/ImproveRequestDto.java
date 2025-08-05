@@ -73,24 +73,6 @@ public record ImproveRequestDto() {
         }
     }
 
-
-    @Getter
-    @NoArgsConstructor
-    public final static class RequestImprovementDetail {
-        @NotNull(message = "contentid는 비면안됩니다.")
-        @Schema(description = "필수값 입니다.")
-        private Long contentId;
-        @Schema(description = "관리자단 대시보드의 최신데이터 알림에서 넘어올경우에만 넘겨주시면됩니다." +
-                "그외엔 null로 주시면됩니다.")
-        private String alarmCheck;
-        @Builder
-        public RequestImprovementDetail(Long contentId,String alarmCheck) {
-            this.contentId = contentId;
-            this.alarmCheck=alarmCheck;
-        }
-    }
-
-
     @Getter
     @NoArgsConstructor
     public final static class RequestMemberImproveList {

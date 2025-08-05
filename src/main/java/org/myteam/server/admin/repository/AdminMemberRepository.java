@@ -9,11 +9,9 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.dto.ctes.QBoardCountCte;
-import org.myteam.server.admin.dto.ctes.QCommentCountCte;
-import org.myteam.server.admin.dto.ctes.QMemberReportCte;
-import org.myteam.server.admin.dto.ctes.QReportCountCte;
+import org.myteam.server.admin.dto.ctes.*;
 import org.myteam.server.admin.utill.CreateAdminMemo;
+import org.myteam.server.admin.utill.enums.DateFormatEnum;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.member.domain.GenderType;
 import org.myteam.server.member.domain.MemberRole;
@@ -29,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,9 +53,9 @@ public class AdminMemberRepository {
 
     public Page<ResponseMemberSearch> getMemberDataList(RequestMemberSearch requestMemberSearch) {
         Pageable pageable = PageRequest.of(requestMemberSearch.getOffset(), 10);
-        QBoardCountCte boardCounting = new QBoardCountCte("boardCounting");
-        QCommentCountCte commentCount = new QCommentCountCte("commentCount");
-        QReportCountCte reportCount = new QReportCountCte("reportCount");
+        QBoardRecommendCountCte boardCounting=new QBoardRecommendCountCte("boardCounting");
+        QCommentRecommendCountCte commentCount=new QCommentRecommendCountCte("commentCounting");
+        QMemberReportedCountCte reportCount = new QMemberReportedCountCte("reportCount");
 
         BlazeJPAQuery blazeJPAQuery = blazeJPAQueryFactory
                 .from(board)
@@ -76,7 +73,7 @@ public class AdminMemberRepository {
                 .join(member)
                 .on(member.eq(comment1.member))
                 .groupBy(member.publicId)
-                .bind(commentCount.publicID, member.publicId)
+                .bind(commentCount.publicId, member.publicId)
                 .bind(commentCount.count, comment1.id.count().coalesce(0L))
                 .bind(commentCount.recommendCount, comment1.recommendCount.sum().coalesce(0));
 
@@ -156,7 +153,7 @@ public class AdminMemberRepository {
                 .leftJoin(boardCounting)
                 .on(boardCounting.publicId.eq(member.publicId))
                 .leftJoin(commentCount)
-                .on(commentCount.publicID.eq(member.publicId))
+                .on(commentCount.publicId.eq(member.publicId))
                 .leftJoin(reportCount)
                 .on(reportCount.publicId.eq(member.publicId))
                 .where(userListSearchCond(requestMemberSearch), member.role.notIn(MemberRole.ADMIN))
@@ -165,32 +162,22 @@ public class AdminMemberRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        responseSearchUserLists.stream().forEach(
-                x -> {
-                    x.updateCreateDate(
-                            DateFormatUtil.formatByDot
-                                    .format(LocalDateTime.parse(x.getCreateDate(), DateFormatUtil
-                                            .FLEXIBLE_NANO_FORMATTER)));
-                }
-        );
-
+        DateFormatUtil.makeTimeByFormatter(responseSearchUserLists,DateFormatEnum.formatByDotReq);
         Long userTot = Optional.ofNullable(queryFactory.select(member.count())
                         .from(member)
                         .where(userListSearchCond(requestMemberSearch))
                         .fetchOne())
                 .orElse(0L);
         return new PageImpl<>(responseSearchUserLists, pageable, userTot);
-
     }
 
     public ResponseMemberDetail getMemberDetail(UUID publicId) {
 
-        QBoardCountCte boardCounting = new QBoardCountCte("boardCounting");
-        QCommentCountCte commentCount = new QCommentCountCte("commentCount");
+        QBoardRecommendCountCte boardCounting=new QBoardRecommendCountCte("boardCounting");
+        QCommentRecommendCountCte commentCount=new QCommentRecommendCountCte("commentCounting");
         QMember subQueryImprovementMember = new QMember("subQueryImprovementMember");
         QMember subQueryReportedMember = new QMember("subQueryReportedMember");
         QMember subQueryReporterMember = new QMember("subQueryReporterMember");
-
 
         BlazeJPAQuery blazeJPAQuery = blazeJPAQueryFactory
                 .from(board)
@@ -210,7 +197,7 @@ public class AdminMemberRepository {
                 .on(member.eq(comment1.member))
                 .where(member.publicId.eq(publicId))
                 .groupBy(member.publicId)
-                .bind(commentCount.publicID, member.publicId)
+                .bind(commentCount.publicId, member.publicId)
                 .bind(commentCount.count, comment1.id.count().coalesce(0L))
                 .bind(commentCount.recommendCount, comment1.recommendCount.sum().coalesce(0));
 
@@ -288,15 +275,14 @@ public class AdminMemberRepository {
                 .join(boardCounting)
                 .on(boardCounting.publicId.eq(member.publicId))
                 .join(commentCount)
-                .on(commentCount.publicID.eq(member.publicId))
+                .on(commentCount.publicId.eq(member.publicId))
                 .join(memberActivity)
                 .on(memberActivity.member.eq(member))
                 .where(member.publicId.eq(publicId))
                 .fetch()
                 .get(0);
 
-        editTime(publicId, responseMemberDetail);
-
+        editAdminMemo(publicId, responseMemberDetail);
         return responseMemberDetail;
 
     }
@@ -312,7 +298,7 @@ public class AdminMemberRepository {
 
         UUID publicId = requestMemberDetail.getPublicId();
         Pageable pageable = PageRequest.of(requestMemberDetail.getOffset(), 10);
-        QMemberReportCte cte = new QMemberReportCte("cte");
+        QMemberReportCountCte cte = new QMemberReportCountCte("cte");
         List<ResponseReportList> responseReportLists = blazeJPAQueryFactory
                 .with(cte, blazeJPAQueryFactory
                         .from(report)
@@ -359,8 +345,6 @@ public class AdminMemberRepository {
                 .limit(10)
                 .offset(pageable.getOffset())
                 .fetch();
-
-
         Long totCount = Optional.ofNullable(queryFactory
                         .select(report.count())
                         .from(report)
@@ -368,14 +352,7 @@ public class AdminMemberRepository {
                         .on(report.reported.publicId.eq(publicId))
                         .fetchOne())
                 .orElse(0L);
-
-
-        responseReportLists.stream().forEach(x -> {
-            x.updateReportDate(DateFormatUtil.formatByDot.
-                    format(LocalDateTime.
-                            parse(x.getReportedDate(), DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-        });
-
+        DateFormatUtil.makeTimeByFormatter(responseReportLists, DateFormatEnum.formatByDotReq);
         return new PageImpl<>(responseReportLists, pageable, totCount);
 
     }
@@ -428,8 +405,7 @@ public class AdminMemberRepository {
         return booleanBuilder;
     }
 
-    private void editTime(UUID publicId
-            , ResponseMemberDetail responseMemberDetail) {
+    private void editAdminMemo(UUID publicId,ResponseMemberDetail responseMemberDetail) {
         List<AdminMemoResponse> adminMemoResponses=
                 createAdminMemo.getAdminMemberMemo(publicId,queryFactory);
         responseMemberDetail.updateAdminMemoResponse(adminMemoResponses);

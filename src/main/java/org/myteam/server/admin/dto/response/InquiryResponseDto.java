@@ -3,14 +3,14 @@ package org.myteam.server.admin.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.myteam.server.admin.utill.NeedDateTimeFix;
 
 import java.util.List;
 
 public record InquiryResponseDto() {
 
     @Getter
-    @AllArgsConstructor
-    public final static class ResponseInquiryList {
+    public final static class ResponseInquiryList extends NeedDateTimeFix {
         private Long id;
         @Schema(example ="답변대기,답변완료")
         private String processStatus;
@@ -19,17 +19,22 @@ public record InquiryResponseDto() {
         private String nickName;
         private String email;
         private String content;
-        private String createDate;
-
-        public void updateCreateDate(String date) {
-            this.createDate = date;
+        public ResponseInquiryList(Long id, String processStatus,
+                                   String isMember, String nickName, String email,
+                                   String content, String createDate) {
+            super(createDate);
+            this.id = id;
+            this.processStatus = processStatus;
+            this.isMember = isMember;
+            this.nickName = nickName;
+            this.email = email;
+            this.content = content;
         }
 
     }
 
     @Getter
-    @AllArgsConstructor
-    public final static class ResponseInquiryListCond {
+    public final static class ResponseInquiryListCond extends NeedDateTimeFix{
         private Long id;
         @Schema(example ="답변대기,답변완료")
         private String isAnswered;
@@ -40,10 +45,16 @@ public record InquiryResponseDto() {
         private String content;
         @Schema(description = "문의 작성자의 메일입니다.")
         private String userMail;
-        private String createDate;
 
-        public void updateCreateDate(String date) {
-            this.createDate = date;
+        public ResponseInquiryListCond(Long id, String isAnswered, String isMember, String nicknameEmail,
+                                       String content, String userMail,String createDate) {
+            super(createDate);
+            this.id = id;
+            this.isAnswered = isAnswered;
+            this.isMember = isMember;
+            this.nicknameEmail = nicknameEmail;
+            this.content = content;
+            this.userMail = userMail;
         }
     }
     @Getter

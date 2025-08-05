@@ -1,8 +1,6 @@
-package org.myteam.server.admin.utill;
+package org.myteam.server.admin.utill.enums;
 
 public enum StaticDataType {
-
-    DashBoard,MemberBoard,ContentBoard,
 
     Report, ReportedChat, ReportedComment, ReportedBoard,
     //BOARD,COMMENT의 경우 ReportType이라는 enum과 값을 맞춰야 하는 로직이 다른 기능에서 존재해서 대문자로 했습니다.

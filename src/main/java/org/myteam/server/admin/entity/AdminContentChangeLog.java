@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.admin.utill.AdminControlType;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.domain.BaseTime;
 import org.myteam.server.member.entity.Member;
 

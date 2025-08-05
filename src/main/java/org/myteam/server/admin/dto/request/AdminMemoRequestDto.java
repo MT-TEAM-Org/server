@@ -6,36 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.admin.utill.AdminControlType;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.ImprovementStatus;
-import org.myteam.server.member.domain.MemberStatus;
-
-import java.util.UUID;
 
 public record AdminMemoRequestDto() {
-
-    @Getter
-    @NoArgsConstructor
-    @Schema(description = "회원에 대한 메모 작성을 요청시에 쓰이는 값입니다")
-    public static class AdminMemoMemberRequest{
-        @NotNull(message = "memberId는 비어있으면 안됩니다")
-        private UUID memberId;
-        @NotNull(message = "회원 상태값이 비어있습니다.")
-        @Schema(description = "수정이 없다면 기존값을 수정했다면 수정값을 주세요", example = "INACTIVE, ACTIVE, PENDING,WARNED")
-        private MemberStatus memberStatus;
-        @Schema(description = "내용이 없다면 null로 주세요")
-        private String content;
-        @Builder
-        public AdminMemoMemberRequest(UUID memberId,MemberStatus memberStatus, String content){
-            this.memberId=memberId;
-            this.memberStatus=memberStatus;
-            this.content = content;
-        }
-
-    }
-
     @Getter
     @NoArgsConstructor
     @Schema(description = "개선 요청 메모 작성 요청시 쓰이는 값입니다.")

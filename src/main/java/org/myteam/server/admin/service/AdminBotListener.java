@@ -3,8 +3,9 @@ package org.myteam.server.admin.service;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.myteam.server.admin.entity.AdminInquiryChangeLog;
 import org.myteam.server.admin.utill.*;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.ImprovementStatus;

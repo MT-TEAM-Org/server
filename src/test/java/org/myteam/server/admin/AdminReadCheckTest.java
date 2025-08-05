@@ -3,12 +3,11 @@ package org.myteam.server.admin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.myteam.server.admin.dto.request.ImproveRequestDto.RequestImprovementDetail;
 import org.myteam.server.admin.repository.AdminDashBoardRepository;
 import org.myteam.server.admin.service.AdminImprovementService;
 import org.myteam.server.admin.service.AdminInquiryService;
 import org.myteam.server.admin.service.ContentSearchService;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.board.domain.CategoryType;
 import org.myteam.server.chat.block.domain.BanReason;
@@ -25,8 +24,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
-import static org.myteam.server.admin.dto.request.InquiryRequestDto.*;
 import static org.myteam.server.admin.dto.response.AdminDashBoardResponseDto.*;
 
 public class AdminReadCheckTest extends IntegrationTestSupport {
@@ -110,14 +107,7 @@ public class AdminReadCheckTest extends IntegrationTestSupport {
     @Test
     void testContentReadDetail(){
 
-        RequestDetail requestDetail=RequestDetail
-                .builder()
-                .alarmCheck("zczx")
-                .contentId(board.getId())
-                .staticDataType(StaticDataType.BOARD)
-                .reportId(report.getId())
-                .build();
-        contentSearchService.getContentDetail(requestDetail);
+        contentSearchService.getContentDetail(board.getId(),StaticDataType.BOARD,report.getId(),"zz");
         verify(redisService).adminReadCheckUpdate(any(String.class),any(StaticDataType.class),
                 any(Long.class));
     }
@@ -127,28 +117,9 @@ public class AdminReadCheckTest extends IntegrationTestSupport {
     @Test
     void testContentReadDetail2(){
 
-        RequestDetail requestDetail=RequestDetail
-                .builder()
-                .alarmCheck("zczx")
-                .contentId(board.getId())
-                .staticDataType(StaticDataType.BOARD)
-                .build();
-        contentSearchService.getContentDetail(requestDetail);
-        RequestDetail requestDetail2=RequestDetail
-                .builder()
-                .contentId(board.getId())
-                .reportId(report.getId())
-                .staticDataType(StaticDataType.BOARD)
-                .build();
-        contentSearchService.getContentDetail(requestDetail2);
-        RequestDetail requestDetail3=RequestDetail
-                .builder()
-                .contentId(board.getId())
-                .staticDataType(StaticDataType.BOARD)
-                .build();
-        contentSearchService.getContentDetail(requestDetail3);
-
-
+        contentSearchService.getContentDetail(board.getId(),StaticDataType.BOARD,null,"zcxzc");
+        contentSearchService.getContentDetail(board.getId(),StaticDataType.BOARD, report.getId(),null);
+        contentSearchService.getContentDetail(board.getId(),StaticDataType.BOARD,null,null);
         verify(redisService,never()).adminReadCheckUpdate(any(String.class),any(StaticDataType.class),
                 any(Long.class));
     }
@@ -156,12 +127,7 @@ public class AdminReadCheckTest extends IntegrationTestSupport {
     @DisplayName("detail 서비스로 접근시에 adminreadcheckupdate가 호출이되는가")
     @Test
     void testInquiryReadDetail(){
-        RequestInquiryDetail requestInquiryDetail=RequestInquiryDetail
-                .builder()
-                .alarmCheck("dsfdsf")
-                .id(inquiry.getId())
-                .build();
-        adminInquiryService.getInquiryDetail(requestInquiryDetail);
+        adminInquiryService.getInquiryDetail(inquiry.getId(),"Dfdsf");
         verify(redisService).adminReadCheckUpdate(any(String.class),any(StaticDataType.class),
                 any(Long.class));
 
@@ -169,13 +135,7 @@ public class AdminReadCheckTest extends IntegrationTestSupport {
     @DisplayName("detail 서비스로 접근시에 adminreadcheckupdate가 호출이되는가")
     @Test
     void testImprovementReadDetail(){
-        RequestImprovementDetail requestImprovementDetail=
-                RequestImprovementDetail
-                        .builder()
-                        .alarmCheck("check")
-                        .contentId(improvement.getId())
-                        .build();
-        adminImprovementService.getImproveDetail(requestImprovementDetail);
+        adminImprovementService.getImproveDetail(improvement.getId(),"check");
         verify(redisService).adminReadCheckUpdate(any(String.class),any(StaticDataType.class),
                 any(Long.class));
 
@@ -183,16 +143,8 @@ public class AdminReadCheckTest extends IntegrationTestSupport {
     @DisplayName("detail 서비스로 접근시에 adminreadcheckupdate가 호출이 안되는가")
     @Test
     void testNotReadDetail(){
-        RequestImprovementDetail requestImprovementDetail= RequestImprovementDetail
-                .builder()
-                .contentId(improvement.getId())
-                .build();
-        adminImprovementService.getImproveDetail(requestImprovementDetail);
-        RequestInquiryDetail requestInquiryDetail=RequestInquiryDetail
-                .builder()
-                .id(inquiry.getId())
-                .build();
-        adminInquiryService.getInquiryDetail(requestInquiryDetail);
+        adminImprovementService.getImproveDetail(improvement.getId(),null);
+        adminInquiryService.getInquiryDetail(inquiry.getId(),null);
         verify(redisService,never()).adminReadCheckUpdate(any(String.class),any(StaticDataType.class),
                 any(Long.class));
     }

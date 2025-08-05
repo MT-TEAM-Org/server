@@ -3,7 +3,7 @@ package org.myteam.server.admin.service;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.repository.InquirySearchRepo;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.common.certification.service.InquiryAnsSendService;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.entity.Member;
@@ -33,13 +33,13 @@ public class AdminInquiryService {
         return inquirySearchRepo.getInquiryListByCond(requestInquiryListCond);
     }
 
-    public ResponseInquiryDetail getInquiryDetail(RequestInquiryDetail requestInquiryDetail) {
+    public ResponseInquiryDetail getInquiryDetail(Long inquiryId,String readCheck) {
         ResponseInquiryDetail responseInquiryDetail=
-                inquirySearchRepo.getInquiryDetail(requestInquiryDetail);
-        if(requestInquiryDetail.getAlarmCheck()!=null) {
+                inquirySearchRepo.getInquiryDetail(inquiryId);
+        if(readCheck!=null) {
             Member admin = securityReadService.getMember();
             redisService.adminReadCheckUpdate(admin.getPublicId().toString()
-                    , StaticDataType.Inquiry, requestInquiryDetail.getContentId());
+                    , StaticDataType.Inquiry, inquiryId);
         }
         return responseInquiryDetail;
     }

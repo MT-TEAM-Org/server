@@ -3,17 +3,17 @@ package org.myteam.server.admin.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.myteam.server.admin.utill.NeedDateTimeFix;
 
 public record CommonResponseDto() {
     @Getter
-    @AllArgsConstructor
-    public static class AdminMemoResponse{
+    public static class AdminMemoResponse extends NeedDateTimeFix {
         private String writerName;
-        @Schema(example = "2025.06.06")
-        private String createDate;
         private String content;
-        public void updateCreateDate(String date) {
-            this.createDate = date;
+        public AdminMemoResponse(String writerName, String createDate, String content) {
+            super(createDate);
+            this.writerName = writerName;
+            this.content = content;
         }
     }
 }

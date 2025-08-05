@@ -6,6 +6,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.entity.*;
 import org.myteam.server.admin.repository.simpleRepo.*;
+import org.myteam.server.admin.utill.enums.DateFormatEnum;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.board.domain.Board;
 import org.myteam.server.comment.domain.Comment;
 import org.myteam.server.global.util.date.DateFormatUtil;
@@ -16,7 +18,7 @@ import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.member.service.SecurityReadService;
 import org.springframework.stereotype.Component;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -220,11 +222,8 @@ public class CreateAdminMemo {
                         .and(adminContentMemo.contentId.eq(contentId)))
                 .orderBy(adminContentMemo.createDate.desc())
                 .fetch();
-        adminMemoList.stream().forEach(x->{
-            x.updateCreateDate(DateFormatUtil.formatByDot
-                    .format(LocalDateTime.parse(x.getCreateDate(),
-                            DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-        });
+
+        DateFormatUtil.makeTimeByFormatter(adminMemoList, DateFormatEnum.formatByDotReq);
         return adminMemoList;
     }
 
@@ -242,11 +241,7 @@ public class CreateAdminMemo {
                 .where(adminMemberMemo.memberId.eq(memberId))
                 .orderBy(adminMemberMemo.createDate.desc())
                 .fetch();
-        adminMemoList.stream().forEach(x->{
-            x.updateCreateDate(DateFormatUtil.formatByDot
-                    .format(LocalDateTime.parse(x.getCreateDate(),
-                            DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
-        });
+        DateFormatUtil.makeTimeByFormatter(adminMemoList,DateFormatEnum.formatByDotReq);
         return adminMemoList;
     }
 

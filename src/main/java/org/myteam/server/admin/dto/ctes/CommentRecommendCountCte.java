@@ -7,11 +7,10 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-
-@Entity
 @Getter
 @CTE
-public class BoardCountCte {
+@Entity
+public class CommentRecommendCountCte {
     @Id
     private UUID publicId;
     private Long count;

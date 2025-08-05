@@ -3,7 +3,7 @@ package org.myteam.server.admin.service;
 
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.repository.AdminImprovementSearchRepo;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.util.redis.service.RedisService;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.SecurityReadService;
@@ -24,22 +24,20 @@ public class AdminImprovementService {
 
 
     public Page<ResponseImprovement> getImproveListCond(RequestImprovementList requestImprovementList) {
-
         return adminImprovementSearchRepo.getImprovementList(requestImprovementList);
     }
 
     public Page<ResponseMemberImproveList> getImproveListMember(RequestMemberImproveList requestImprovementList) {
-
         return adminImprovementSearchRepo.getMemberImprovementList(requestImprovementList);
     }
 
-    public ResponseImprovementDetail getImproveDetail(RequestImprovementDetail requestImprovementList) {
+    public ResponseImprovementDetail getImproveDetail(Long contentId,String readCheck) {
         ResponseImprovementDetail responseImprovementDetail
-                =adminImprovementSearchRepo.getImprovementDetail(requestImprovementList);;
-        if(requestImprovementList.getAlarmCheck()!=null) {
+                =adminImprovementSearchRepo.getImprovementDetail(contentId);;
+        if(readCheck!=null) {
             Member admin = securityReadService.getMember();
             redisService.adminReadCheckUpdate(admin.getPublicId().toString()
-                    , StaticDataType.Improvement, requestImprovementList.getContentId());
+                    , StaticDataType.Improvement, contentId);
         }
         return responseImprovementDetail;
     }

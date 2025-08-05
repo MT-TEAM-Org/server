@@ -7,8 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.Getter;
-import org.myteam.server.admin.utill.AdminControlType;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.member.domain.MemberStatus;
 
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @CTE
 @Getter
 @Entity
-public class ContentCte {
+public class ContentTotInfoCte {
 
     @Id
     private Long contentId;

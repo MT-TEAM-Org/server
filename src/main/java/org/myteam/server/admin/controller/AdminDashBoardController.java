@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.admin.service.AdminDashBoardService;
-import org.myteam.server.admin.utill.DateType;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.AdminDashBoardType;
+import org.myteam.server.admin.utill.enums.DateType;
 import org.myteam.server.global.exception.ErrorResponse;
 import org.myteam.server.global.web.response.ResponseDto;
 import org.myteam.server.global.web.response.ResponseStatus;
@@ -38,12 +38,13 @@ public class AdminDashBoardController {
     })
     @GetMapping("/static")
     public ResponseEntity<ResponseDto<List<ResponseStatic>>>
-    getStaticData(@Parameter(description = "통계를 불러올 탭과 일치해서 사용하는 쿼리 스트링입니다.",example = "DashBoard,MemberBoard,ContentBoard,Inquiry,Improvement 중택1")
-                  @RequestParam(name ="staticType",required = true) StaticDataType staticDataType,
-                  @Parameter(description = "쿼리 스트링값입니다.",example ="Day,WeekEnd,OneMonth,ThreeMonth,SixMonth,Year 중택1" )@RequestParam(name="dateType",required = true) DateType dateType) {
+    getStaticData(@Parameter(description = "통계를 불러올 탭과 일치해서 사용하는 쿼리 스트링입니다.")
+                  @RequestParam(name ="staticType",required = true)AdminDashBoardType
+            adminDashBoardType,
+                  @Parameter(description = "쿼리 스트링값입니다." )@RequestParam(name="dateType",required = true) DateType dateType) {
         return ResponseEntity.ok(
                 new ResponseDto<>(ResponseStatus.SUCCESS.name(), "조회 성공",
-                        adminDashBoardService.getStaticData(staticDataType,dateType))
+                        adminDashBoardService.getStaticData(adminDashBoardType,dateType))
         );
     }
 
@@ -58,7 +59,6 @@ public class AdminDashBoardController {
     @GetMapping("/latest")
     public ResponseEntity<ResponseDto<Map<String,List<ResponseLatestData>>>>
     getLatestData() {
-
         return ResponseEntity.ok(
                 new ResponseDto<>(ResponseStatus.SUCCESS.name(), "조회 성공",
                         adminDashBoardService.getLatestData()));

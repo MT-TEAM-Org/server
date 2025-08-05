@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.myteam.server.admin.utill.AdminControlType;
-import org.myteam.server.admin.utill.StaticDataType;
+import org.myteam.server.admin.utill.enums.AdminControlType;
+import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.util.date.DateFormatUtil;
 
@@ -68,54 +68,5 @@ public record ContentRequestDto() {
             return localDate.atStartOfDay();
         }
     }
-
-    @Getter
-    @NoArgsConstructor
-    public static class RequestDetail {
-        @NotNull
-        @Schema(description = "게시물이면 BOARD 댓글이면 COMMENT 입니다 필수값입니다.")
-        private StaticDataType staticDataType;
-        @NotNull(message ="contentid는 비면안됩니다.")
-        @Schema(description = "필수값입니다.")
-        private Long contentId;
-        @Schema(description = "관리자단 대시보드의 최신데이터 알람에서 신고목록을 클릭해서 넘어올떄만 넣어주세요")
-        private Long reportId;
-        @Schema(description = "관리자단 대시보드의 최신데이터 알람에서 넘어올경우에만 넣어주세요")
-        private String alarmCheck;
-        @Builder
-        public RequestDetail(StaticDataType staticDataType, Long contentId,Long reportId,String alarmCheck) {
-            this.staticDataType = staticDataType;
-            this.contentId = contentId;
-            this.reportId=reportId;
-            this.alarmCheck=alarmCheck;
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor
-    public static class RequestReportList {
-        @NotNull(message ="데이터 타입은 비면 안됩니다.")
-        @Schema(description = "필수값입니다.")
-        private StaticDataType staticDataType;
-        @NotNull(message = "contentid는 비면안됩니다.")
-        @Schema(description = "필수값입니다.")
-        private Long contentId;
-        @NotNull(message = "offset은 비면안됩니다.")
-        @Schema(description = "필수값입니다.")
-        private int offset;
-
-        @Builder
-        public RequestReportList(StaticDataType staticDataType, Long contentId, int offset) {
-            this.staticDataType = staticDataType;
-            this.contentId = contentId;
-            this.offset = offset;
-        }
-
-        public int getOffset() {
-            return this.offset - 1;
-        }
-
-    }
-
 
 }
