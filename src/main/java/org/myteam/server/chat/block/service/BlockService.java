@@ -29,17 +29,18 @@ public class BlockService {
     /**
      * 유저 밴 적용
      */
-    public SuccessBlockResponse banUser(BlockUserRequest request) {
+    public SuccessBlockResponse banUser(UUID blockedId) {
         Member blocker = securityReadService.getMember();
-        log.info("This user: {} has received a blocking request.", request.getBlockedId());
+        Member blocked=memberReadService.findById(blockedId);
+        log.info("This user: {} has received a blocking request.", blockedId);
 
         // 이미 밴된 유저인지 확인
-        if (memberBlockRepository.existsByBlockerAndBlocked(blocker.getPublicId(), request.getBlockedId())) {
-            log.error("This user: {} is already ban this user: {}", blocker.getPublicId(), request.getBlockedId());
+        if (memberBlockRepository.existsByBlockerAndBlocked(blocker.getPublicId(), blockedId)) {
+            log.error("This user: {} is already ban this user: {}", blocker.getPublicId(), blocked);
             throw new PlayHiveException(ErrorCode.BAN_ALREADY_EXISTS);
         }
 
-        MemberBlock block = MemberBlock.createMemberBlock(blocker.getPublicId(),request.getBlockedId());
+        MemberBlock block = MemberBlock.createMemberBlock(blocker.getPublicId(),blockedId);
         memberBlockRepository.save(block);
 
         return SuccessBlockResponse.createBlockResponse(block);

@@ -42,9 +42,7 @@ public class chatblocktest extends IntegrationTestSupport {
 
        blockedList.stream()
                .forEach(x->{
-                   BlockUserRequest blockUserRequest=
-                           new BlockUserRequest(x.getPublicId());
-                   blockService.banUser(blockUserRequest);
+                   blockService.banUser(x.getPublicId());
                });
         List<MemberBlock> memberBlocks=memberBlockRepository.findAll();
         Assertions.assertThat(memberBlocks.size()).isEqualTo(10);
@@ -55,7 +53,7 @@ public class chatblocktest extends IntegrationTestSupport {
                 .forEach(x->{
                     BlockUserRequest blockUserRequest=
                             new BlockUserRequest(x.getPublicId());
-                    blockService.banUser(blockUserRequest);
+                    blockService.banUser(x.getPublicId());
                 });
         blockService.unblockUser(blockedList.get(0).getPublicId());
         List<MemberBlock> memberBlocks=memberBlockRepository.findAll();
