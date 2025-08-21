@@ -31,16 +31,15 @@ public class BlockService {
      */
     public SuccessBlockResponse banUser(BlockUserRequest request) {
         Member blocker = securityReadService.getMember();
-        Member blocked = memberReadService.findById(request.getBlockedId());
-        log.info("This user: {} has received a blocking request.", blocker.getPublicId());
+        log.info("This user: {} has received a blocking request.", request.getBlockedId());
 
         // 이미 밴된 유저인지 확인
-        if (memberBlockRepository.existsByBlockerPublicIdAndBlockedPublicId(blocker.getPublicId(), request.getBlockedId())) {
-            log.error("This user: {} is already ban this user: {}", blocker.getPublicId(), blocked.getPublicId());
+        if (memberBlockRepository.existsByBlockerAndBlocked(blocker.getPublicId(), request.getBlockedId())) {
+            log.error("This user: {} is already ban this user: {}", blocker.getPublicId(), request.getBlockedId());
             throw new PlayHiveException(ErrorCode.BAN_ALREADY_EXISTS);
         }
 
-        MemberBlock block = MemberBlock.createMemberBlock(blocker, blocked, request.getReasons(), request.getMessage());
+        MemberBlock block = MemberBlock.createMemberBlock(blocker.getPublicId(),request.getBlockedId());
         memberBlockRepository.save(block);
 
         return SuccessBlockResponse.createBlockResponse(block);
@@ -51,13 +50,12 @@ public class BlockService {
      */
     public void unblockUser(UUID blockedId) {
         Member blocker = securityReadService.getMember();
-        Member blocked = memberReadService.findById(blockedId);
-        log.info("This user: {} has received a unblocking request.", blocker.getPublicId());
+        log.info("This user: {} has received a unblocking request.",blockedId);
 
-        MemberBlock block = memberBlockRepository.findByBlockerPublicIdAndBlockedPublicId(
-                        blocker.getPublicId(), blocked.getPublicId())
+        MemberBlock block = memberBlockRepository.findByBlockerAndBlocked(
+                        blocker.getPublicId(), blockedId)
                 .orElseThrow(() -> {
-                    log.error("This user: {} is not banned this user: {}", blocker.getPublicId(), blocked.getPublicId());
+                    log.error("This user: {} is not banned this user: {}", blocker.getPublicId(),blockedId);
                     throw new PlayHiveException(ErrorCode.BAN_NOT_FOUND);
                 });
 

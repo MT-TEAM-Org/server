@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface MemberBlockRepository extends JpaRepository<MemberBlock, Long>, MemberBlockQueryRepository {
-    boolean existsByBlockerPublicIdAndBlockedPublicId(UUID blocker, UUID blocked);
-    Optional<MemberBlock> findByBlockerPublicIdAndBlockedPublicId(UUID blocker, UUID blocked);
+    boolean existsByBlockerAndBlocked(UUID blocker, UUID blocked);
+    Optional<MemberBlock> findByBlockerAndBlocked(UUID blocker, UUID blocked);
 }

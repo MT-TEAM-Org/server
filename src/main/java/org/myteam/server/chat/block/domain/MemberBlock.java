@@ -11,6 +11,7 @@ import org.myteam.server.member.entity.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -23,40 +24,27 @@ public class MemberBlock extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blocker_id", nullable = false)
-    private Member blocker;
+    @Column(name = "blocker_id", nullable = false)
+    private UUID blocker;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blocked_id", nullable = false)
-    private Member blocked;
+    @Column(name = "blocked_id", nullable = false)
+    private UUID blocked;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @Enumerated(EnumType.STRING)
-    private List<BanReason> reasons = new ArrayList<>(); // 밴 사유
-
-    private String message;
 
     @Builder
-    private MemberBlock(Member blocker, Member blocked, List<BanReason> reasons, LocalDateTime bannedAt, String message) {
+    private MemberBlock(UUID blocker, UUID blocked, LocalDateTime bannedAt) {
         this.blocker = blocker;
         this.blocked = blocked;
-        if (reasons != null) {
-            this.reasons.addAll(reasons);
-        }
-        this.message = message;
     }
 
     /**
      * 차단 엔티티 생성
      */
-    public static MemberBlock createMemberBlock(Member blocker, Member blocked, List<BanReason> reasons, String message) {
+    public static MemberBlock createMemberBlock(UUID blocker,UUID blocked) {
         return MemberBlock.builder()
                 .blocker(blocker)
                 .blocked(blocked)
-                .reasons(reasons)
                 .bannedAt(LocalDateTime.now())
-                .message(message)
                 .build();
     }
 

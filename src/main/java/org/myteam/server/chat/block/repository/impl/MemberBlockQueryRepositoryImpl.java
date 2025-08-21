@@ -4,7 +4,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.myteam.server.chat.block.domain.QMemberBlock;
 import org.myteam.server.chat.block.repository.MemberBlockQueryRepository;
-import org.myteam.server.member.entity.QMember;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,14 +14,13 @@ public class MemberBlockQueryRepositoryImpl implements MemberBlockQueryRepositor
     private final JPAQueryFactory queryFactory;
 
     QMemberBlock memberBlock = QMemberBlock.memberBlock;
-    QMember member = QMember.member;
 
     @Override
     public List<UUID> existsByBlockerPublicId(UUID blockerPublicId) {
         return queryFactory
-                .select(memberBlock.blocked.publicId)
+                .select(memberBlock.blocked)
                 .from(memberBlock)
-                .where(memberBlock.blocker.publicId.eq(blockerPublicId))
+                .where(memberBlock.blocker.eq(blockerPublicId))
                 .fetch();
     }
 }

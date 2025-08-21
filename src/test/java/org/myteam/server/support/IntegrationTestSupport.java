@@ -16,6 +16,7 @@ import org.myteam.server.board.service.BoardCountService;
 import org.myteam.server.board.service.BoardReadService;
 import org.myteam.server.board.util.RedisBoardRankingReader;
 import org.myteam.server.chat.block.domain.BanReason;
+import org.myteam.server.chat.block.repository.MemberBlockRepository;
 import org.myteam.server.comment.service.CommentReadService;
 import org.myteam.server.common.certification.mail.core.MailStrategy;
 import org.myteam.server.common.certification.mail.domain.EmailType;
@@ -108,6 +109,9 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected AdminInquiryChangeLogRepo adminInquiryChangeLogRepo;
     @Autowired
     protected AdminMemberMemoRepo adminMemberMemoRepo;
+
+    @Autowired
+    protected MemberBlockRepository memberBlockRepository;
     @AfterEach
     void tearDown() {
         adminMemberMemoRepo.deleteAllInBatch();;
@@ -139,6 +143,7 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         memberActivityRepository.deleteAllInBatch();
         memberAccessRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
+        memberBlockRepository.deleteAllInBatch();
     }
 
     @Transactional

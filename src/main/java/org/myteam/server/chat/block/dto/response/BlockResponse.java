@@ -20,8 +20,8 @@ public record BlockResponse() {
 
         public static SuccessBlockResponse createBlockResponse(MemberBlock block) {
             return SuccessBlockResponse.builder()
-                    .blocker(block.getBlocker().getPublicId())
-                    .blocked(block.getBlocked().getPublicId())
+                    .blocker(block.getBlocker())
+                    .blocked(block.getBlocked())
                     .build();
         }
     }

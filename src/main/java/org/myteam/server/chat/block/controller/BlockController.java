@@ -19,7 +19,7 @@ import static org.myteam.server.global.web.response.ResponseStatus.SUCCESS;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/bans")
+@RequestMapping("/api/block")
 public class BlockController {
 
     private final BlockService blockService;
@@ -28,7 +28,7 @@ public class BlockController {
     /**
      * 유저 밴하기
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<ResponseDto<SuccessBlockResponse>> banUser(@RequestBody BlockUserRequest request) {
         SuccessBlockResponse response = blockService.banUser(request);
         return ResponseEntity.ok(new ResponseDto(
@@ -41,7 +41,7 @@ public class BlockController {
     /**
      * 유저 밴 해제
      */
-    @DeleteMapping("/{blockedId}")
+    @DeleteMapping("/del/{blockedId}")
     public ResponseEntity<ResponseDto<String>> unbanUser(@PathVariable UUID blockedId) {
         blockService.unblockUser(blockedId);
         return ResponseEntity.ok(new ResponseDto(
