@@ -6,7 +6,7 @@ spring:
     url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_NAME}?useSSL=false&serverTimezone=Asia/Seoul
     username: playhive
     password: ${DB_PASSWORD}
-    #elastic 삭제
+
   jpa:
     show-sql: false
     properties:
@@ -30,9 +30,6 @@ spring:
       host: ${REDIS_HOST}
       password: ${REDIS_PASSWORD}
       port: ${REDIS_PORT}
-    elasticsearch:
-      repositories:
-        enabled: true
 
 logging:
   level:
