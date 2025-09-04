@@ -6,7 +6,7 @@ spring:
     url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_NAME}?useSSL=false&serverTimezone=Asia/Seoul
     username: playhive
     password: ${DB_PASSWORD}
-
+    #elastic 삭제
   jpa:
     show-sql: false
     properties:
