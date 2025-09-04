@@ -37,7 +37,6 @@ public record ResponseContentDto() {
             this.reportCount = reportCount;
             this.reported = reported;
         }
-
         public void updateCountReported(Long count, String reported) {
             this.reported = reported;
             this.reportCount = count;

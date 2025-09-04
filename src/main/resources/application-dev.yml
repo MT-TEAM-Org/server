@@ -1,7 +1,6 @@
 spring:
   jackson:
     time-zone: Asia/Seoul
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_ENDPOINT}:3306/${DB_NAME}?useSSL=false&serverTimezone=Asia/Seoul
@@ -31,6 +30,9 @@ spring:
       host: ${REDIS_HOST}
       password: ${REDIS_PASSWORD}
       port: ${REDIS_PORT}
+    elasticsearch:
+      repositories:
+        enabled: true
 
 logging:
   level:

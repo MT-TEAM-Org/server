@@ -1,5 +1,8 @@
 package org.myteam.server.admin.repository;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.blazebit.persistence.querydsl.BlazeJPAQuery;
 import com.blazebit.persistence.querydsl.BlazeJPAQueryFactory;
 import com.querydsl.core.types.Predicate;
@@ -9,10 +12,15 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.type.descriptor.DateTimeUtils;
+import org.myteam.server.admin.document.ContentDocument;
 import org.myteam.server.admin.dto.ctes.QContentIdCte;
 import org.myteam.server.admin.dto.ctes.QContentTotInfoCte;
 import org.myteam.server.admin.dto.ctes.QSimpleReportCte;
 import org.myteam.server.admin.dto.response.CommonResponseDto;
+import org.myteam.server.admin.dto.response.ResponseContentDto;
+import org.myteam.server.admin.service.ContentSearchService;
 import org.myteam.server.admin.utill.enums.AdminControlType;
 import org.myteam.server.admin.utill.CreateAdminMemo;
 import org.myteam.server.admin.utill.enums.DateFormatEnum;
@@ -21,15 +29,23 @@ import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
 import org.myteam.server.report.domain.ReportType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,11 +64,14 @@ import static org.myteam.server.report.domain.QReport.report;
 @Transactional
 @RequiredArgsConstructor
 @Repository
+@Slf4j
 public class ContentSearchRepository {
 
     private final JPAQueryFactory queryFactory;
     private final BlazeJPAQueryFactory blazeJPAQueryFactory;
     private final CreateAdminMemo createAdminMemo;
+    private final ElasticsearchOperations elasticsearchOperations;
+    private final MemberReadService memberReadService;
 
 
     public void addAdminMemo(AdminMemoContentRequest adminMemoContentRequest) {
@@ -230,6 +249,30 @@ public class ContentSearchRepository {
             return getAdminCommentList(adminContentResearch);
         }
         return getAdminBoardList(adminContentResearch);
+    }
+
+    public List<ResponseContentSearch> useElasticSearchForUnionQuery(RequestContentData requestContentData){
+        List<Query> mustQuery=makeMustQuery(requestContentData);
+        List<Query> filterQuery=makeFilterQuery(requestContentData);
+        PageRequest pageRequest=PageRequest.of(requestContentData.getOffset(),10);
+        Query query=new BoolQuery.Builder()
+                .filter(filterQuery)
+                .must(mustQuery)
+                .build()
+                ._toQuery();
+        NativeQuery nativeQuery=NativeQuery.builder()
+                .withQuery(query)
+                .withSort(List.of(SortOptions.of(s->s.field(f->f.field("createDate")
+                        .order(SortOrder.Desc)))))
+                .withPageable(pageRequest)
+                .build();
+        SearchHits<ContentDocument> datas= elasticsearchOperations.search(nativeQuery, ContentDocument.class);
+        List<ResponseContentSearch> responseContentSearches=datas.stream().map(x->{
+          return mappingDocToDto(x.getContent());
+        }).collect(Collectors.toList());
+
+        DateFormatUtil.makeElasticTimeByFormatter(responseContentSearches,DateFormatEnum.formatByDotReq);
+        return responseContentSearches;
     }
 
     public Page<ResponseContentSearch> getWhenDataTypeIsNullWithUnion(RequestContentData adminContentResearch) {
@@ -573,30 +616,30 @@ public class ContentSearchRepository {
             }
             if (startTime != null & endTime == null) {
 
-                return board.createDate.after(startTime);
+                return board.createDate.goe(startTime);
             }
             if (startTime == null) {
 
-                return board.createDate.before(endTime);
+                return board.createDate.lt(endTime);
             }
 
-            return board.createDate.between(startTime, endTime);
+            return board.createDate.goe(startTime).and(board.createDate.lt(endTime));
         }
 
         if (startTime != null & endTime == null) {
 
-            return comment1.createDate.after(startTime);
+            return comment1.createDate.goe(startTime);
         }
         if (endTime != null & startTime == null) {
 
-            return comment1.createDate.before(endTime);
+            return comment1.createDate.lt(endTime);
         }
 
         if (startTime == null & endTime == null) {
 
             return null;
         }
-        return comment1.createDate.between(startTime, endTime);
+        return comment1.createDate.goe(startTime).and(comment1.createDate.lt(endTime));
 
 
     }
@@ -719,6 +762,97 @@ public class ContentSearchRepository {
                         , DateFormatUtil.FLEXIBLE_NANO_FORMATTER));
         responseDetail.updateCreateDate(dateTime);
         return responseDetail;
+    }
+
+    public List<Query> makeFilterQuery(RequestContentData requestContentData){
+        List<Query> filterQuery=new ArrayList<>();
+        if(requestContentData.getAdminControlType()!=null){
+            TermQuery termQuery=TermQuery.of(t->t.field("adminControlType")
+                    .value(requestContentData.getAdminControlType().name()));
+            filterQuery.add(termQuery._toQuery());
+        }
+        if(requestContentData.provideEndTime()!=null && requestContentData.provideEndTime()!=null){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            RangeQuery rangeQuery=new RangeQuery.Builder()
+                    .date(v->v.field("createDate")
+                            .gte(requestContentData.provideStartTime().format(formatter))
+                            .lte(requestContentData.provideEndTime().format(formatter)))
+                    .build();
+            filterQuery.add(rangeQuery._toQuery());
+        }
+        if(requestContentData.getIsReported()!=null){
+            if(requestContentData.getIsReported()) {
+                RangeQuery rangeQuery = new RangeQuery.Builder()
+                        .number(v -> v.field("reportCount")
+                                .gt(Double.valueOf("0")))
+                        .build();
+                filterQuery.add(rangeQuery._toQuery());
+            }
+            else{
+                RangeQuery rangeQuery = new RangeQuery.Builder()
+                        .number(v -> v.field("reportCount")
+                                .lte(Double.valueOf("0")))
+                        .build();
+                filterQuery.add(rangeQuery._toQuery());
+            }
+        }
+        if(requestContentData.getStaticDataType()!=null){
+            TermQuery termQuery=TermQuery.of(t->t.field("staticDataType")
+                    .value(requestContentData.getStaticDataType().name()));
+            filterQuery.add(termQuery._toQuery());
+        }
+
+        return filterQuery;
+    }
+    public List<Query> makeMustQuery(RequestContentData requestContentData){
+        List<Query> mustQuery=new ArrayList<>();
+        BoardSearchType boardSearchType=requestContentData.getBoardSearchType();
+        String searchKeyWord=requestContentData.getSearchKeyWord();
+        if(boardSearchType!=null){
+            if(boardSearchType==BoardSearchType.CONTENT||boardSearchType==BoardSearchType.COMMENT){
+                MatchQuery matchQuery=MatchQuery.of(m->
+                        m.field("content")
+                                .query(searchKeyWord));
+                mustQuery.add(matchQuery._toQuery());
+            }
+            if(boardSearchType==BoardSearchType.TITLE_CONTENT){
+                MultiMatchQuery multiMatchQuery=MultiMatchQuery.of(
+                        m->m.fields(List.of("content","title"))
+                                .query(searchKeyWord)
+                );
+                mustQuery.add(multiMatchQuery._toQuery());
+            }
+            if(boardSearchType==BoardSearchType.TITLE){
+                MatchQuery matchQuery=MatchQuery.of(m->
+                        m.field("title")
+                                .query(searchKeyWord));
+                mustQuery.add(matchQuery._toQuery());
+            }
+            if(requestContentData.getBoardSearchType().equals(BoardSearchType.NICKNAME)){
+                MatchQuery matchQuery=MatchQuery.of(m->m.field("nickName")
+                        .query(requestContentData.getSearchKeyWord())
+                        .fuzziness("AUTO"));
+                mustQuery.add(matchQuery._toQuery());
+            }
+        }
+        return mustQuery;
+    }
+
+    public ResponseContentSearch mappingDocToDto(ContentDocument contentDocument){
+        Member member1=memberReadService.findByEmail(contentDocument.getEmail());
+        String status=member1.getStatus().equals(MemberStatus.ACTIVE) ? "정상" :
+                member1.getStatus().equals(MemberStatus.WARNED) ? "경고" :
+                        member1.getStatus().equals(MemberStatus.PENDING) ? "대기중":"정지";
+        String reported=contentDocument.getReportCount()>0 ? "신고" :"미신고";
+        String staticDataType=contentDocument.getStaticDataType().equals(StaticDataType.BOARD) ? "게시글":
+                contentDocument.getStaticDataType().equals(StaticDataType.COMMENT) ? "댓글"
+                        : "채팅";
+        ResponseContentSearch responseContentSearch=new ResponseContentSearch(
+                contentDocument.getContentId(),member1.getNickname(),staticDataType,
+                contentDocument.getContent(),contentDocument.getCreateDate().toString(),status,
+                contentDocument.getAdminControlType().name(),contentDocument.getReportCount(),reported
+        );
+        return responseContentSearch;
     }
 
 }
