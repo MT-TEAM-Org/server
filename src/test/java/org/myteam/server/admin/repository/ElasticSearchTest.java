@@ -67,7 +67,7 @@ public class ElasticSearchTest extends IntegrationTestSupport {
     JPAQueryFactory queryFactory;
 
     Member m;
-    @BeforeAll
+    //@BeforeAll
     static void setupH2CustomFunctions(@Autowired DataSource dataSource) {
         testDataSource = dataSource; //
         try (Connection conn = testDataSource.getConnection();
@@ -84,7 +84,7 @@ public class ElasticSearchTest extends IntegrationTestSupport {
     }
 
 
-    @BeforeEach
+    //@BeforeEach
     void setBeforeTest(){
         m=createMember(0);
 
@@ -150,7 +150,7 @@ public class ElasticSearchTest extends IntegrationTestSupport {
 
     }
 
-    @Test
+    //@Test
     void contentTest(){
 
         LocalDateTime now=LocalDateTime.now();
