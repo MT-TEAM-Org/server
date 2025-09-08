@@ -49,10 +49,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.myteam.server.admin.dto.request.ContentRequestDto.*;
+import static org.myteam.server.admin.dto.response.ImprovementResponseDto.*;
+import static org.myteam.server.admin.dto.response.InquiryResponseDto.*;
 import static org.myteam.server.admin.dto.response.ResponseContentDto.*;
 import static org.myteam.server.board.domain.QBoard.board;
 
-@SpringBootTest
+//@SpringBootTest
 public class ElasticSearchTest extends IntegrationTestSupport {
     static private DataSource testDataSource;
 
@@ -64,7 +66,13 @@ public class ElasticSearchTest extends IntegrationTestSupport {
     AdminImprovementSearchRepo adminImprovementSearchRepo;
 
     @Autowired
-    JPAQueryFactory queryFactory;
+    InquiryElasticRepository inquiryElasticRepository;
+
+    @Autowired
+    ImproveElasticRepository improveElasticRepository;
+
+    @Autowired
+    ContentElasticRepository contentElasticRepository;
 
     Member m;
     //@BeforeAll
@@ -103,7 +111,7 @@ public class ElasticSearchTest extends IntegrationTestSupport {
                         .contentId(b.getId())
                         .content(b.getContent())
                         .createDate(b.getCreateDate())
-                        .reportCount(0L)
+                        .isReported(false)
                         .email(m.getEmail())
                         .build();
                 InquiryDocument inquiryDoc=InquiryDocument.builder()
@@ -141,7 +149,7 @@ public class ElasticSearchTest extends IntegrationTestSupport {
                         .contentId(b.getId())
                         .content(b.getContent())
                         .createDate(b.getCreateDate())
-                        .reportCount(0L)
+                        .isReported(false)
                         .email(m.getEmail())
                         .build();
                 elasticContentRepository.save(c);
@@ -169,9 +177,9 @@ public class ElasticSearchTest extends IntegrationTestSupport {
                         .reported(false)
                         .offset(1)
                         .build();
-        List<ResponseContentSearch> responseContentSearches
-        =contentSearchRepository.useElasticSearchForUnionQuery(requestContentData);
-        Assertions.assertThat(responseContentSearches.size()).isEqualTo(5);
+        Page<ResponseContentSearch> responseContentSearches
+        =contentElasticRepository.useElasticSearchForUnionQuery(requestContentData);
+        Assertions.assertThat(responseContentSearches.getSize()).isEqualTo(5);
 
 
 
@@ -185,10 +193,10 @@ public class ElasticSearchTest extends IntegrationTestSupport {
                 .offset(1)
                 .build();
 
-        List<ImprovementResponseDto.ResponseImprovement> responseImprovements
-                =adminImprovementSearchRepo.getImprovementByElasticSearch(requestImprovementList);
+        Page<ResponseImprovement> responseImprovements
+                =improveElasticRepository.getImprovementByElasticSearch(requestImprovementList);
 
-        Assertions.assertThat(responseImprovements.size()).isEqualTo(5);
+        Assertions.assertThat(responseImprovements.getSize()).isEqualTo(5);
 
         InquiryRequestDto.RequestInquiryListCond requestInquiryListCond=
                 InquiryRequestDto.RequestInquiryListCond.builder()
@@ -199,9 +207,9 @@ public class ElasticSearchTest extends IntegrationTestSupport {
                         .email(m.getEmail())
                         .build();
 
-        List<InquiryResponseDto.ResponseInquiryListCond> responseInquiryLists
-                =inquirySearchRepo.getInquiryListByContElasticSearch(requestInquiryListCond);
-        Assertions.assertThat(responseInquiryLists.size()).isEqualTo(5);
+        Page<ResponseInquiryListCond> responseInquiryLists
+                =inquiryElasticRepository.getInquiryListByContElasticSearch(requestInquiryListCond);
+        Assertions.assertThat(responseInquiryLists.getSize()).isEqualTo(5);
 
 
     }

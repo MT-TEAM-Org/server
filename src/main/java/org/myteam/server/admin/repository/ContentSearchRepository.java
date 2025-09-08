@@ -31,6 +31,7 @@ import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.member.domain.MemberStatus;
 import org.myteam.server.member.entity.Member;
 import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.report.domain.Report;
 import org.myteam.server.report.domain.ReportType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -70,9 +71,6 @@ public class ContentSearchRepository {
     private final JPAQueryFactory queryFactory;
     private final BlazeJPAQueryFactory blazeJPAQueryFactory;
     private final CreateAdminMemo createAdminMemo;
-    private final ElasticsearchOperations elasticsearchOperations;
-    private final MemberReadService memberReadService;
-
 
     public void addAdminMemo(AdminMemoContentRequest adminMemoContentRequest) {
         createAdminMemo.createContentAdminMemo(adminMemoContentRequest,queryFactory);
@@ -249,30 +247,6 @@ public class ContentSearchRepository {
             return getAdminCommentList(adminContentResearch);
         }
         return getAdminBoardList(adminContentResearch);
-    }
-
-    public List<ResponseContentSearch> useElasticSearchForUnionQuery(RequestContentData requestContentData){
-        List<Query> mustQuery=makeMustQuery(requestContentData);
-        List<Query> filterQuery=makeFilterQuery(requestContentData);
-        PageRequest pageRequest=PageRequest.of(requestContentData.getOffset(),10);
-        Query query=new BoolQuery.Builder()
-                .filter(filterQuery)
-                .must(mustQuery)
-                .build()
-                ._toQuery();
-        NativeQuery nativeQuery=NativeQuery.builder()
-                .withQuery(query)
-                .withSort(List.of(SortOptions.of(s->s.field(f->f.field("createDate")
-                        .order(SortOrder.Desc)))))
-                .withPageable(pageRequest)
-                .build();
-        SearchHits<ContentDocument> datas= elasticsearchOperations.search(nativeQuery, ContentDocument.class);
-        List<ResponseContentSearch> responseContentSearches=datas.stream().map(x->{
-          return mappingDocToDto(x.getContent());
-        }).collect(Collectors.toList());
-
-        DateFormatUtil.makeElasticTimeByFormatter(responseContentSearches,DateFormatEnum.formatByDotReq);
-        return responseContentSearches;
     }
 
     public Page<ResponseContentSearch> getWhenDataTypeIsNullWithUnion(RequestContentData adminContentResearch) {
@@ -764,95 +738,5 @@ public class ContentSearchRepository {
         return responseDetail;
     }
 
-    public List<Query> makeFilterQuery(RequestContentData requestContentData){
-        List<Query> filterQuery=new ArrayList<>();
-        if(requestContentData.getAdminControlType()!=null){
-            TermQuery termQuery=TermQuery.of(t->t.field("adminControlType")
-                    .value(requestContentData.getAdminControlType().name()));
-            filterQuery.add(termQuery._toQuery());
-        }
-        if(requestContentData.provideEndTime()!=null && requestContentData.provideEndTime()!=null){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            RangeQuery rangeQuery=new RangeQuery.Builder()
-                    .date(v->v.field("createDate")
-                            .gte(requestContentData.provideStartTime().format(formatter))
-                            .lte(requestContentData.provideEndTime().format(formatter)))
-                    .build();
-            filterQuery.add(rangeQuery._toQuery());
-        }
-        if(requestContentData.getIsReported()!=null){
-            if(requestContentData.getIsReported()) {
-                RangeQuery rangeQuery = new RangeQuery.Builder()
-                        .number(v -> v.field("reportCount")
-                                .gt(Double.valueOf("0")))
-                        .build();
-                filterQuery.add(rangeQuery._toQuery());
-            }
-            else{
-                RangeQuery rangeQuery = new RangeQuery.Builder()
-                        .number(v -> v.field("reportCount")
-                                .lte(Double.valueOf("0")))
-                        .build();
-                filterQuery.add(rangeQuery._toQuery());
-            }
-        }
-        if(requestContentData.getStaticDataType()!=null){
-            TermQuery termQuery=TermQuery.of(t->t.field("staticDataType")
-                    .value(requestContentData.getStaticDataType().name()));
-            filterQuery.add(termQuery._toQuery());
-        }
-
-        return filterQuery;
-    }
-    public List<Query> makeMustQuery(RequestContentData requestContentData){
-        List<Query> mustQuery=new ArrayList<>();
-        BoardSearchType boardSearchType=requestContentData.getBoardSearchType();
-        String searchKeyWord=requestContentData.getSearchKeyWord();
-        if(boardSearchType!=null){
-            if(boardSearchType==BoardSearchType.CONTENT||boardSearchType==BoardSearchType.COMMENT){
-                MatchQuery matchQuery=MatchQuery.of(m->
-                        m.field("content")
-                                .query(searchKeyWord));
-                mustQuery.add(matchQuery._toQuery());
-            }
-            if(boardSearchType==BoardSearchType.TITLE_CONTENT){
-                MultiMatchQuery multiMatchQuery=MultiMatchQuery.of(
-                        m->m.fields(List.of("content","title"))
-                                .query(searchKeyWord)
-                );
-                mustQuery.add(multiMatchQuery._toQuery());
-            }
-            if(boardSearchType==BoardSearchType.TITLE){
-                MatchQuery matchQuery=MatchQuery.of(m->
-                        m.field("title")
-                                .query(searchKeyWord));
-                mustQuery.add(matchQuery._toQuery());
-            }
-            if(requestContentData.getBoardSearchType().equals(BoardSearchType.NICKNAME)){
-                MatchQuery matchQuery=MatchQuery.of(m->m.field("nickName")
-                        .query(requestContentData.getSearchKeyWord())
-                        .fuzziness("AUTO"));
-                mustQuery.add(matchQuery._toQuery());
-            }
-        }
-        return mustQuery;
-    }
-
-    public ResponseContentSearch mappingDocToDto(ContentDocument contentDocument){
-        Member member1=memberReadService.findByEmail(contentDocument.getEmail());
-        String status=member1.getStatus().equals(MemberStatus.ACTIVE) ? "정상" :
-                member1.getStatus().equals(MemberStatus.WARNED) ? "경고" :
-                        member1.getStatus().equals(MemberStatus.PENDING) ? "대기중":"정지";
-        String reported=contentDocument.getReportCount()>0 ? "신고" :"미신고";
-        String staticDataType=contentDocument.getStaticDataType().equals(StaticDataType.BOARD) ? "게시글":
-                contentDocument.getStaticDataType().equals(StaticDataType.COMMENT) ? "댓글"
-                        : "채팅";
-        ResponseContentSearch responseContentSearch=new ResponseContentSearch(
-                contentDocument.getContentId(),member1.getNickname(),staticDataType,
-                contentDocument.getContent(),contentDocument.getCreateDate().toString(),status,
-                contentDocument.getAdminControlType().name(),contentDocument.getReportCount(),reported
-        );
-        return responseContentSearch;
-    }
 
 }

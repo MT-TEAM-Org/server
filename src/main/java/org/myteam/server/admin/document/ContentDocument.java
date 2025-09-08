@@ -34,8 +34,8 @@ public class ContentDocument {
     @Field(type=FieldType.Keyword)
     private AdminControlType adminControlType;
 
-    @Field(type=FieldType.Long,index = false)
-    private Long reportCount;
+    @Field(type=FieldType.Boolean)
+    private Boolean isReported;
 
     @Field(type=FieldType.Long,index = false)
     private Long contentId;
@@ -51,18 +51,19 @@ public class ContentDocument {
 
 
     @Builder
-
-    public ContentDocument(String email, String nickName, StaticDataType staticDataType, AdminControlType adminControlType,
-                           Long reportCount, Long contentId, String title, String content, LocalDateTime createDate) {
-
+    public ContentDocument(String id,String email, String nickName, StaticDataType staticDataType, AdminControlType adminControlType,
+                           Boolean isReported, Long contentId, String title, String content, LocalDateTime createDate) {
+        this.id=id;
         this.email = email;
         this.nickName = nickName;
         this.staticDataType = staticDataType;
         this.adminControlType = adminControlType;
-        this.reportCount = reportCount;
+        this.isReported=isReported;
         this.contentId = contentId;
         this.title = title;
         this.content = content;
         this.createDate = createDate;
     }
+
+
 }
