@@ -108,6 +108,15 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
     protected AdminInquiryChangeLogRepo adminInquiryChangeLogRepo;
     @Autowired
     protected AdminMemberMemoRepo adminMemberMemoRepo;
+
+    @Autowired
+    protected ElasticInquiryRepository elasticInquiryRepository;
+    @Autowired
+    protected ElasticImproverRepository elasticImproverRepository;
+
+    @Autowired
+    protected ElasticContentRepository elasticContentRepository;
+
     @AfterEach
     void tearDown() {
         adminMemberMemoRepo.deleteAllInBatch();;
@@ -139,6 +148,9 @@ public abstract class IntegrationTestSupport extends TestDriverSupport {
         memberActivityRepository.deleteAllInBatch();
         memberAccessRepository.deleteAllInBatch();
         memberJpaRepository.deleteAllInBatch();
+        elasticImproverRepository.deleteAll();
+        elasticInquiryRepository.deleteAll();
+        elasticContentRepository.deleteAll();
     }
 
     @Transactional

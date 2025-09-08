@@ -5,13 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.descriptor.DateTimeUtils;
 import org.myteam.server.admin.utill.enums.AdminControlType;
 import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.global.util.date.DateFormatUtil;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public record ContentRequestDto() {
     @Getter
@@ -56,6 +59,7 @@ public record ContentRequestDto() {
             if (this.startTime == null) {
                 return null;
             }
+
             LocalDate localDate = LocalDate.parse(startTime, DateFormatUtil.formatByDot);
             return localDate.atStartOfDay();
         }
@@ -64,6 +68,7 @@ public record ContentRequestDto() {
             if (this.endTime == null) {
                 return null;
             }
+
             LocalDate localDate = LocalDate.parse(endTime, DateFormatUtil.formatByDot);
             return localDate.atStartOfDay();
         }

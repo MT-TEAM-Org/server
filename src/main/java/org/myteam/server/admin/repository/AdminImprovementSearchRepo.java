@@ -1,27 +1,42 @@
 package org.myteam.server.admin.repository;
 
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.admin.document.ImprovementDocument;
+import org.myteam.server.admin.document.InquiryDocument;
+import org.myteam.server.admin.dto.request.InquiryRequestDto;
+import org.myteam.server.admin.dto.response.InquiryResponseDto;
 import org.myteam.server.admin.utill.CreateAdminMemo;
 import org.myteam.server.admin.utill.enums.DateFormatEnum;
 import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.improvement.domain.ImportantStatus;
 import org.myteam.server.improvement.domain.ImprovementStatus;
+import org.myteam.server.improvement.dto.response.ImprovementResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoImprovementRequest;
 import static org.myteam.server.admin.dto.response.ImprovementResponseDto.*;
@@ -79,7 +94,6 @@ public class AdminImprovementSearchRepo {
                         , contentSearchCond(requestImprovementList.getContent()),
                         titleSearchCond(requestImprovementList.getTitle()),
                         processStatusCond(requestImprovementList.getImprovementStatus()),
-                        searchByEmail(requestImprovementList.getEmail()),
                         searchByImportantStatus(requestImprovementList.getImportantStatus()))
                 .orderBy(improvement.createDate.desc())
                 .offset(pageable.getOffset())
@@ -97,11 +111,13 @@ public class AdminImprovementSearchRepo {
                         , contentSearchCond(requestImprovementList.getContent()),
                         titleSearchCond(requestImprovementList.getTitle()),
                         processStatusCond(requestImprovementList.getImprovementStatus()),
-                        searchByEmail(requestImprovementList.getEmail()),
                         searchByImportantStatus(requestImprovementList.getImportantStatus()))
                 .fetchOne()).orElse(0L);
         return new PageImpl<>(responseImprovementList, pageable, count);
     }
+
+
+
 
     public ResponseImprovementDetail getImprovementDetail(Long contentId) {
         ResponseImprovementDetail responseImprovementDetail = queryFactory
@@ -269,6 +285,8 @@ public class AdminImprovementSearchRepo {
             return null;
         }
         return improvement.createDate.between(startTime, endTime);
-
     }
+
+
+
 }

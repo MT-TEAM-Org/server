@@ -1,4 +1,9 @@
 spring:
+  elasticsearch:
+    username: elastic
+    password: NH9OIw*T7rCotS8vrpsj #로컬환경실행시에 랜덤으로 배정되는 비밀번혼대 사용자마다 다르니까 알아서 바꿔야될거같습니다.
+    uris:
+      localhost:9200
   datasource:
     url: jdbc:h2:mem:~/playhive;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -136,3 +141,7 @@ google:
     name: googleApi
     url: https://www.googleapis.com
     apiKey: test
+logging:
+  level.org:
+    springframework.data.elasticsearch: DEBUG
+    #elasticsearch.client: DEBUG

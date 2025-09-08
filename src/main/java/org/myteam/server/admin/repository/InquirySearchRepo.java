@@ -1,25 +1,38 @@
 package org.myteam.server.admin.repository;
 
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.myteam.server.admin.document.ContentDocument;
+import org.myteam.server.admin.document.InquiryDocument;
 import org.myteam.server.admin.entity.AdminContentMemo;
 import org.myteam.server.admin.utill.CreateAdminMemo;
 import org.myteam.server.admin.utill.enums.DateFormatEnum;
 import org.myteam.server.admin.utill.enums.StaticDataType;
 import org.myteam.server.global.util.date.DateFormatUtil;
+import org.myteam.server.match.match.domain.Match;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import static org.myteam.server.admin.dto.request.AdminMemoRequestDto.AdminMemoInquiryRequest;
 import static org.myteam.server.admin.dto.response.InquiryResponseDto.*;
 import static org.myteam.server.admin.dto.response.InquiryResponseDto.ResponseInquiryList;
@@ -35,7 +48,6 @@ public class InquirySearchRepo {
 
     private final JPAQueryFactory queryFactory;
     private final CreateAdminMemo createAdminMemo;
-
     public AdminContentMemo createAdminMemo(AdminMemoInquiryRequest adminMemoRequest) {
 
         return createAdminMemo.createInquiryAdminMemo(adminMemoRequest, queryFactory);
@@ -179,6 +191,8 @@ public class InquirySearchRepo {
     }
 
 
+
+
     private Predicate memberOrNot(Boolean isMember) {
         if (isMember == null) {
             return null;
@@ -238,6 +252,8 @@ public class InquirySearchRepo {
         return inquiry.createdAt.between(startTime, endTime);
 
     }
+
+
 
 
 }

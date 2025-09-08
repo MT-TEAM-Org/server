@@ -1,5 +1,8 @@
 package org.myteam.server.admin.repository;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import com.blazebit.persistence.querydsl.BlazeJPAQuery;
 import com.blazebit.persistence.querydsl.BlazeJPAQueryFactory;
 import com.querydsl.core.types.Predicate;
@@ -9,10 +12,15 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.type.descriptor.DateTimeUtils;
+import org.myteam.server.admin.document.ContentDocument;
 import org.myteam.server.admin.dto.ctes.QContentIdCte;
 import org.myteam.server.admin.dto.ctes.QContentTotInfoCte;
 import org.myteam.server.admin.dto.ctes.QSimpleReportCte;
 import org.myteam.server.admin.dto.response.CommonResponseDto;
+import org.myteam.server.admin.dto.response.ResponseContentDto;
+import org.myteam.server.admin.service.ContentSearchService;
 import org.myteam.server.admin.utill.enums.AdminControlType;
 import org.myteam.server.admin.utill.CreateAdminMemo;
 import org.myteam.server.admin.utill.enums.DateFormatEnum;
@@ -21,15 +29,24 @@ import org.myteam.server.board.domain.BoardSearchType;
 import org.myteam.server.chat.block.domain.BanReason;
 import org.myteam.server.global.util.date.DateFormatUtil;
 import org.myteam.server.member.domain.MemberStatus;
+import org.myteam.server.member.entity.Member;
+import org.myteam.server.member.service.MemberReadService;
+import org.myteam.server.report.domain.Report;
 import org.myteam.server.report.domain.ReportType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,12 +65,12 @@ import static org.myteam.server.report.domain.QReport.report;
 @Transactional
 @RequiredArgsConstructor
 @Repository
+@Slf4j
 public class ContentSearchRepository {
 
     private final JPAQueryFactory queryFactory;
     private final BlazeJPAQueryFactory blazeJPAQueryFactory;
     private final CreateAdminMemo createAdminMemo;
-
 
     public void addAdminMemo(AdminMemoContentRequest adminMemoContentRequest) {
         createAdminMemo.createContentAdminMemo(adminMemoContentRequest,queryFactory);
@@ -573,30 +590,30 @@ public class ContentSearchRepository {
             }
             if (startTime != null & endTime == null) {
 
-                return board.createDate.after(startTime);
+                return board.createDate.goe(startTime);
             }
             if (startTime == null) {
 
-                return board.createDate.before(endTime);
+                return board.createDate.lt(endTime);
             }
 
-            return board.createDate.between(startTime, endTime);
+            return board.createDate.goe(startTime).and(board.createDate.lt(endTime));
         }
 
         if (startTime != null & endTime == null) {
 
-            return comment1.createDate.after(startTime);
+            return comment1.createDate.goe(startTime);
         }
         if (endTime != null & startTime == null) {
 
-            return comment1.createDate.before(endTime);
+            return comment1.createDate.lt(endTime);
         }
 
         if (startTime == null & endTime == null) {
 
             return null;
         }
-        return comment1.createDate.between(startTime, endTime);
+        return comment1.createDate.goe(startTime).and(comment1.createDate.lt(endTime));
 
 
     }
@@ -720,5 +737,6 @@ public class ContentSearchRepository {
         responseDetail.updateCreateDate(dateTime);
         return responseDetail;
     }
+
 
 }

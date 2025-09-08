@@ -26,7 +26,6 @@ public record ImproveRequestDto() {
         private String title;
         private String content;
         private String nickName;
-        private String email;
         @Schema(example = "2025.06.06")
         private String startTime;
         @Schema(example = "2025.06.06")
@@ -39,7 +38,7 @@ public record ImproveRequestDto() {
         @Builder
         public RequestImprovementList(ImprovementStatus improvementStatus,
                                       String title, String content, String nickName,
-                                      String startTime, String endTime, String email, int offset
+                                      String startTime, String endTime,int offset
                 , ImportantStatus importantStatus) {
             this.improvementStatus = improvementStatus;
             this.title = title;
@@ -47,7 +46,6 @@ public record ImproveRequestDto() {
             this.nickName = nickName;
             this.startTime = startTime;
             this.endTime = endTime;
-            this.email = email;
             this.offset = offset;
             this.importantStatus = importantStatus;
         }

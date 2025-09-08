@@ -45,5 +45,16 @@ public class DateFormatUtil {
                                             , DateFormatUtil.FLEXIBLE_NANO_FORMATTER)));
                 });
     }
+    public static <T extends NeedDateTimeFix> void makeElasticTimeByFormatter(List<T> data, DateFormatEnum dateFormatEnum){
+        data.stream()
+                .forEach(x -> {
+                    x.updateCreateDate(
+                            dateFormatEnum.equals(DateFormatEnum.formatByDotReq) ?
+                                    DateFormatUtil.formatByDot
+                                            .format(LocalDateTime.parse(x.getCreateDate()))
+                                    : DateFormatUtil.formatByDotAndSlash
+                                    .format(LocalDateTime.parse(x.getCreateDate())));
+                });
+    }
 
 }
